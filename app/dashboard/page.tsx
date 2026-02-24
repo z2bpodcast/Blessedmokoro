@@ -14,11 +14,21 @@ export default function DashboardPage() {
     conversions: 0,
   })
   const [copied, setCopied] = useState(false)
+  const [isFirstVisit, setIsFirstVisit] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     checkAuth()
+    checkFirstVisit()
   }, [])
+
+  const checkFirstVisit = () => {
+    const hasVisited = localStorage.getItem('hasVisitedDashboard')
+    if (!hasVisited) {
+      setIsFirstVisit(true)
+      localStorage.setItem('hasVisitedDashboard', 'true')
+    }
+  }
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -63,8 +73,7 @@ export default function DashboardPage() {
 
   const getReferralUrl = () => {
     if (!profile) return ''
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    return `${baseUrl}/signup?ref=${profile.referral_code}`
+    return `https://app.z2blegacybuilders.co.za/signup?ref=${profile.referral_code}`
   }
 
   const copyReferralLink = () => {
@@ -76,6 +85,11 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const getFirstName = () => {
+    if (!profile?.full_name) return 'Member'
+    return profile.full_name.split(' ')[0]
   }
 
   if (!user || !profile) {
@@ -93,7 +107,7 @@ export default function DashboardPage() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center gap-4 hover:opacity-90 transition-opacity">
-              <img src="/logo.jpg" alt="Z2B Logo" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
+              <img src="/logo.jpg" alt="Z2B Table Banquet Logo" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Z2B TABLE BANQUET</h1>
                 <p className="text-sm text-gold-300">Premium Learning Experience</p>
@@ -121,10 +135,15 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8 text-center">
           <h2 className="text-4xl font-bold text-primary-800 mb-2">
-            Welcome back, {profile.full_name || 'Member'}!
+            {isFirstVisit ? `Welcome, ${getFirstName()}!` : `Welcome back, ${getFirstName()}!`}
           </h2>
           <div className="w-32 h-1 bg-gold-gradient mx-auto rounded-full mb-2"></div>
-          <p className="text-primary-600 font-medium">Manage your content and track your referrals</p>
+          <p className="text-primary-600 font-medium">
+            {isFirstVisit 
+              ? '🎉 Welcome to your royal dashboard! Start by sharing your referral link below.'
+              : 'Manage your content and track your referrals'
+            }
+          </p>
         </div>
 
         {/* Referral Stats */}
