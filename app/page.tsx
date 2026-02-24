@@ -102,61 +102,31 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* TEEE Hero Section with Banquet Background */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden border-b-8 border-gold-400">
-        {/* Background Image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary-900/40 to-black/60 z-10"></div>
+      {/* Hero Section with Banquet Image - ORIGINAL BEAUTIFUL DESIGN */}
+      <section className="relative overflow-hidden border-b-8 border-primary-600">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-900/20 to-transparent z-10"></div>
         <img 
           src="/hero-banquet.png" 
           alt="Z2B Table Banquet" 
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-[500px] object-cover"
         />
-
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-10 z-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)`,
-            backgroundSize: '30px 30px'
-          }}></div>
-        </div>
-
-        {/* Content */}
-        <div className="relative z-30 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto py-20">
-          {/* TEEE Box - contains TEEE and acronym explanation */}
-          <div className="bg-black/50 backdrop-blur-md py-12 px-8 rounded-3xl border-4 border-gold-400 shadow-2xl mb-12 max-w-5xl mx-auto">
-            {/* Main TEEE heading */}
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold uppercase tracking-tight mb-4 bg-gradient-to-r from-gold-300 via-gold-400 to-gold-500 bg-clip-text text-transparent drop-shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="text-center px-4 bg-black/40 backdrop-blur-sm py-12 rounded-2xl border-4 border-gold-400 max-w-4xl mx-4">
+            <h2 className="text-7xl md:text-8xl font-bold text-white mb-3 drop-shadow-2xl uppercase">
               TEEE
-            </h1>
-
-            {/* Acronym explanation - directly under TEEE, inside the box */}
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-gold-200 tracking-widest px-4">
+            </h2>
+            <p className="text-sm md:text-base text-gold-200 mb-8 tracking-widest drop-shadow-lg">
               Transformation · Education · Empowerment · Enrichment
             </p>
+            <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
+              Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
+            </p>
+            {!user && (
+              <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
+                Start Building
+              </Link>
+            )}
           </div>
-
-          {/* Subtitle - OUTSIDE the box */}
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white font-normal max-w-4xl mx-auto mb-12 leading-relaxed px-4 drop-shadow-lg">
-            Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
-          </p>
-
-          {/* CTA Button */}
-          {!user && (
-            <Link 
-              href="/signup" 
-              className="inline-block bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold text-lg px-12 py-5 rounded-xl hover:from-gold-500 hover:to-gold-700 transition-all transform hover:scale-105 shadow-2xl border-2 border-gold-300"
-            >
-              Start Building
-            </Link>
-          )}
-          {user && (
-            <Link 
-              href="/dashboard" 
-              className="inline-block bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold text-lg px-12 py-5 rounded-xl hover:from-gold-500 hover:to-gold-700 transition-all transform hover:scale-105 shadow-2xl border-2 border-gold-300"
-            >
-              Go to Dashboard
-            </Link>
-          )}
         </div>
       </section>
 
