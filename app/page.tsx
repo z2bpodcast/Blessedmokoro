@@ -74,7 +74,7 @@ export default function Home() {
               <img src="/logo.jpg" alt="Z2B Logo" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Z2B TABLE BANQUET</h1>
-                <p className="text-sm text-gold-300">Premium Learning Experience</p>
+                <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -102,29 +102,56 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* Hero Section with Banquet Image */}
-      <section className="relative overflow-hidden border-b-8 border-primary-600">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary-900/20 to-transparent z-10"></div>
-        <img 
-          src="/hero-banquet.png" 
-          alt="Z2B Table Banquet" 
-          className="w-full h-[500px] object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="text-center px-4 bg-black/40 backdrop-blur-sm py-12 rounded-2xl border-4 border-gold-400 max-w-4xl mx-4">
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
-              Transform Your Knowledge
-            </h2>
-            <p className="text-xl md:text-2xl text-gold-200 mb-8 max-w-2xl mx-auto drop-shadow-lg">
-              Join the royal table of wisdom. Access premium video lessons, audio insights, 
-              and exclusive resources designed to elevate your journey.
-            </p>
-            {!user && (
-              <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
-                Join the Banquet
-              </Link>
-            )}
-          </div>
+      {/* TEEE Hero Section */}
+      <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 border-b-8 border-gold-400">
+        {/* Background glow effects */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-400 rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl"></div>
+        </div>
+
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)`,
+            backgroundSize: '30px 30px'
+          }}></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto py-20">
+          {/* Main TEEE heading */}
+          <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] xl:text-[12rem] font-bold uppercase tracking-tight mb-3 bg-gradient-to-r from-gold-300 via-gold-400 to-gold-500 bg-clip-text text-transparent drop-shadow-2xl">
+            TEEE
+          </h1>
+
+          {/* Acronym explanation - directly under TEEE */}
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-gold-200 tracking-widest mb-16 px-4">
+            Transformation · Education · Empowerment · Enrichment
+          </p>
+
+          {/* Subtitle - the main message */}
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 max-w-4xl mx-auto mb-12 leading-relaxed px-4 font-normal">
+            Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
+          </p>
+
+          {/* CTA Button */}
+          {!user && (
+            <Link 
+              href="/signup" 
+              className="inline-block bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold text-lg px-12 py-5 rounded-xl hover:from-gold-500 hover:to-gold-700 transition-all transform hover:scale-105 shadow-2xl border-2 border-gold-300"
+            >
+              Start Building
+            </Link>
+          )}
+          {user && (
+            <Link 
+              href="/dashboard" 
+              className="inline-block bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold text-lg px-12 py-5 rounded-xl hover:from-gold-500 hover:to-gold-700 transition-all transform hover:scale-105 shadow-2xl border-2 border-gold-300"
+            >
+              Go to Dashboard
+            </Link>
+          )}
         </div>
       </section>
 
