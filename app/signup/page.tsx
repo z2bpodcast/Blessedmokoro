@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function SignupPage() {
- const [email, setEmail] = useState('')
-const [password, setPassword] = useState('')
-const [fullName, setFullName] = useState('')
-const [whatsappNumber, setWhatsappNumber] = useState('')
+function SignupForm() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -67,15 +67,15 @@ const [whatsappNumber, setWhatsappNumber] = useState('')
         const newReferralCode = generateReferralCode()
         
         const { error: profileError } = await supabase
-  .from('profiles')
-  .insert({
-    id: authData.user.id,
-    email,
-    full_name: fullName,
-    whatsapp_number: whatsappNumber,
-    referral_code: newReferralCode,
-    referred_by: referralCode || null,
-  })
+          .from('profiles')
+          .insert({
+            id: authData.user.id,
+            email,
+            full_name: fullName,
+            whatsapp_number: whatsappNumber,
+            referral_code: newReferralCode,
+            referred_by: referralCode || null,
+          })
 
         if (profileError) throw profileError
 
@@ -154,20 +154,20 @@ const [whatsappNumber, setWhatsappNumber] = useState('')
               />
             </div>
             <div>
-  <label htmlFor="whatsappNumber" className="block text-sm font-bold text-primary-800 mb-1">
-    WhatsApp Number
-  </label>
-  <input
-    id="whatsappNumber"
-    type="tel"
-    required
-    value={whatsappNumber}
-    onChange={(e) => setWhatsappNumber(e.target.value)}
-    className="input-field"
-    placeholder="+27 123 456 7890"
-  />
-  <p className="text-xs text-gray-500 mt-1">Include country code (e.g., +27 for South Africa)</p>
-</div>
+              <label htmlFor="whatsappNumber" className="block text-sm font-bold text-primary-800 mb-1">
+                WhatsApp Number
+              </label>
+              <input
+                id="whatsappNumber"
+                type="tel"
+                required
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                className="input-field"
+                placeholder="+27 123 456 7890"
+              />
+              <p className="text-xs text-gray-500 mt-1">Include country code (e.g., +27 for South Africa)</p>
+            </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-bold text-primary-800 mb-1">
@@ -219,5 +219,20 @@ const [whatsappNumber, setWhatsappNumber] = useState('')
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-primary-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   )
 }
