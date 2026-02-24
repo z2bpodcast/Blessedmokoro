@@ -110,7 +110,7 @@ export default function DashboardPage() {
               <img src="/logo.jpg" alt="Z2B Table Banquet Logo" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Z2B TABLE BANQUET</h1>
-                <p className="text-sm text-gold-300">Premium Learning Experience</p>
+                <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </Link>
             <div className="flex gap-3 items-center">
