@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import {Plus, GraduationCap, TrendingUp, Users, Sparkles, Target, Lightbulb, Crown, Award} from 'lucide-react'
+import {GraduationCap, TrendingUp, Users, Sparkles, Target, Lightbulb, Crown, Award} from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -338,10 +338,3 @@ export default function AboutPage() {
     </div>
   )
 }
-<Link 
-  href="/admin/create-workshop" 
-  className="btn-primary flex items-center gap-2"
->
-  <Plus className="w-5 h-5" />
-  Create New Workshop
-</Link>
