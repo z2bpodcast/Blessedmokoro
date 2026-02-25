@@ -1,3 +1,5 @@
+import { Plus } from 'lucide-react'
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -394,3 +396,10 @@ export default function AdminPage() {
     </div>
   )
 }
+<Link 
+  href="/admin/create-workshop" 
+  className="btn-primary flex items-center gap-2"
+>
+  <Plus className="w-5 h-5" />
+  Create New Workshop
+</Link>
