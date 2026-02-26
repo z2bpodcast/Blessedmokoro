@@ -114,6 +114,9 @@ export default function DashboardPage() {
               </div>
             </Link>
             <div className="flex gap-3 items-center">
+              <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                About
+              </Link>
               <Link href="/library" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                 Library
               </Link>

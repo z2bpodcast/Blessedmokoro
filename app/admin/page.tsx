@@ -1,5 +1,3 @@
-import { Plus } from 'lucide-react'
-
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -185,6 +183,10 @@ export default function AdminPage() {
               </Link>
               <Link href="/library" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                 Library
+              </Link>
+              <Link href="/admin/create-workshop" className="btn-primary flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Create Workshop
               </Link>
             </div>
           </div>
@@ -396,10 +398,3 @@ export default function AdminPage() {
     </div>
   )
 }
-<Link 
-  href="/admin/create-workshop" 
-  className="btn-primary flex items-center gap-2"
->
-  <Plus className="w-5 h-5" />
-  Create New Workshop
-</Link>

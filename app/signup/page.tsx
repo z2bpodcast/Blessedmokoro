@@ -124,6 +124,15 @@ function SignupForm() {
             <h1 className="text-3xl font-bold text-primary-800 mb-2">Z2B TABLE BANQUET</h1>
           </Link>
           <p className="text-primary-600 font-medium">Join the royal table of wisdom</p>
+          
+          {/* About Button */}
+          <Link 
+            href="/about" 
+            className="inline-block mt-3 bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400"
+          >
+            Learn More About Z2B
+          </Link>
+
           {referralCode && (
             <p className="text-sm text-white bg-royal-gradient mt-3 px-4 py-2 rounded-full font-semibold border-2 border-gold-400 inline-block">
               🎉 You've been invited! Welcome to the banquet.
