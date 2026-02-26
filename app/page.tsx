@@ -80,6 +80,9 @@ export default function Home() {
             <div className="flex gap-3">
               {user ? (
                 <>
+                  <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    About
+                  </Link>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
                   </Link>
@@ -89,6 +92,9 @@ export default function Home() {
                 </>
               ) : (
                 <>
+                  <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    About
+                  </Link>
                   <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Sign In
                   </Link>
@@ -102,7 +108,7 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* Hero Section with Banquet Image - ORIGINAL BEAUTIFUL DESIGN */}
+      {/* TEEE Hero Section with Banquet Background */}
       <section className="relative overflow-hidden border-b-8 border-primary-600">
         <div className="absolute inset-0 bg-gradient-to-b from-primary-900/20 to-transparent z-10"></div>
         <img 
