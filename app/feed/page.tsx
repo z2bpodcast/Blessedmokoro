@@ -441,8 +441,8 @@ export default function FeedPage() {
         </div>
 
         {/* Category Filter */}
-        <div className="mb-6 overflow-x-auto pb-2">
-          <div className="flex gap-2 min-w-max">
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 justify-center">
             {categories.map((cat) => (
               <button
                 key={cat.value}
