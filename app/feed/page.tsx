@@ -31,10 +31,17 @@ type Post = {
   thumbnail_url: string | null
   is_public: boolean
   is_workshop: boolean
+  category: string
+  category_display: string
   created_at: string
   profiles?: {
     full_name: string
+    user_role: string
+    referral_code: string
   }
+  full_name?: string
+  user_role?: string
+  member_id?: string
 }
 
 type Question = {
@@ -72,9 +79,17 @@ type Comment = {
   }
 }
 
+type Profile = {
+  user_role: string
+  full_name: string
+  referral_code: string
+  is_paid_member: boolean
+}
+
 export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedPost, setExpandedPost] = useState<string | null>(null)
   const [questions, setQuestions] = useState<Record<string, Question[]>>({})
@@ -82,28 +97,79 @@ export default function FeedPage() {
   const [reactions, setReactions] = useState<Record<string, Reaction[]>>({})
   const [comments, setComments] = useState<Record<string, Comment[]>>({})
   const [commentText, setCommentText] = useState<Record<string, string>>({})
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const router = useRouter()
+
+  const categories = [
+    { value: 'all', label: '📋 All Posts' },
+    { value: 'lessons', label: '📚 Lessons' },
+    { value: 'financial_literacy', label: '💰 Financial Literacy' },
+    { value: 'business_development', label: '🏢 Business Development' },
+    { value: 'personal_development', label: '🧠 Personal Development' },
+    { value: 'leadership', label: '👥 Leadership' },
+    { value: 'career_transition', label: '💼 Career Transition' },
+    { value: 'guest_speakers', label: '🎤 Guest Speakers' },
+    { value: 'announcements', label: '📢 Announcements' },
+    { value: 'milestones', label: '🏆 Milestones' },
+    { value: 'qa_sessions', label: '❓ Q&A Sessions' },
+    { value: 'tools_resources', label: '🛠️ Tools & Resources' },
+    { value: 'case_studies', label: '📖 Case Studies' },
+    { value: 'health_fitness', label: '💪 Health & Fitness' },
+    { value: 'relationships', label: '❤️ Relationships' },
+    { value: 'faith_spirituality', label: '🙏 Faith & Spirituality' },
+  ]
 
   useEffect(() => {
     checkUser()
     fetchPosts()
-  }, [])
+  }, [selectedCategory])
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setUser(user)
+    
+    if (user) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('user_role, full_name, referral_code, is_paid_member')
+        .eq('id', user.id)
+        .single()
+      
+      setProfile(profileData)
+    }
   }
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles (full_name)
-        `)
+      // Try fetching from posts_full_details view first (has category info)
+      let query = supabase
+        .from('posts_full_details')
+        .select('*')
         .eq('is_public', true)
         .order('created_at', { ascending: false })
+
+      if (selectedCategory !== 'all') {
+        query = query.eq('category', selectedCategory)
+      }
+
+      let { data, error } = await query
+
+      // Fallback to regular posts table if view doesn't exist yet
+      if (error) {
+        console.log('Trying fallback query...')
+        query = supabase
+          .from('posts')
+          .select(`
+            *,
+            profiles (full_name, user_role, referral_code)
+          `)
+          .eq('is_public', true)
+          .order('created_at', { ascending: false })
+
+        const fallbackResult = await query
+        data = fallbackResult.data
+        error = fallbackResult.error
+      }
 
       if (error) throw error
       setPosts(data || [])
@@ -273,7 +339,8 @@ export default function FeedPage() {
   }
 
   const shareToSocial = (platform: string, post: Post) => {
-    const url = encodeURIComponent(window.location.origin + '/feed')
+    const refCode = profile?.referral_code || ''
+    const url = encodeURIComponent(`${window.location.origin}/feed?post=${post.id}&ref=${refCode}`)
     const text = encodeURIComponent(`Check out this workshop: ${post.title}`)
 
     const urls: Record<string, string> = {
@@ -300,6 +367,17 @@ export default function FeedPage() {
 
   const getFirstName = (fullName: string) => {
     return fullName?.split(' ')[0] || 'Member'
+  }
+
+  const getRoleBadge = (role: string) => {
+    const badges: { [key: string]: string } = {
+      'ceo': '👑 CEO',
+      'staff': '⚙️ Staff',
+      'guest_speaker': '🎤 Guest',
+      'paid_member': '💎 Paid',
+      'free_member': '🆓 Free',
+    }
+    return badges[role] || role
   }
 
   if (loading) {
@@ -329,6 +407,10 @@ export default function FeedPage() {
             <div className="flex gap-3">
               {user ? (
                 <>
+                  <div className="text-right mr-2">
+                    <p className="text-sm text-white font-semibold">{profile?.full_name || 'Legacy Builder'}</p>
+                    <p className="text-xs text-gold-300">{getRoleBadge(profile?.user_role || '')} • {profile?.referral_code}</p>
+                  </div>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
                   </Link>
@@ -358,6 +440,25 @@ export default function FeedPage() {
           <p className="text-primary-600">Learn, engage, and grow with our community</p>
         </div>
 
+        {/* Category Filter */}
+        <div className="mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 min-w-max">
+            {categories.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(cat.value)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap ${
+                  selectedCategory === cat.value
+                    ? 'bg-gold-gradient text-white shadow-lg'
+                    : 'bg-white text-primary-700 hover:bg-primary-50 border-2 border-primary-200'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Posts */}
         <div className="space-y-6">
           {posts.length === 0 ? (
@@ -368,6 +469,9 @@ export default function FeedPage() {
             posts.map(post => {
               const reactionCounts = getReactionCounts(post.id)
               const postComments = comments[post.id] || []
+              const authorName = post.full_name || post.profiles?.full_name || 'Z2B Team'
+              const authorRole = post.user_role || post.profiles?.user_role || ''
+              const memberId = post.member_id || post.profiles?.referral_code || ''
               
               return (
                 <div key={post.id} className="card border-4 border-primary-200 hover:border-gold-400 transition-all">
@@ -375,11 +479,22 @@ export default function FeedPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-royal-gradient flex items-center justify-center text-white font-bold border-2 border-gold-400">
-                        {getFirstName(post.profiles?.full_name || 'Z2B')[0]}
+                        {getFirstName(authorName)[0]}
                       </div>
                       <div>
-                        <p className="font-bold text-primary-800">{post.profiles?.full_name || 'Z2B Team'}</p>
-                        <p className="text-sm text-gray-600">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-primary-800">{authorName}</p>
+                          {authorRole && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-gold-gradient text-white">
+                              {getRoleBadge(authorRole)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          {memberId && <span className="text-primary-600">#{memberId}</span>}
+                          {memberId && <span>•</span>}
+                          <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -392,6 +507,15 @@ export default function FeedPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Category Badge */}
+                  {post.category_display && (
+                    <div className="mb-3">
+                      <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
+                        {post.category_display}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Post Title */}
                   <h3 className="text-2xl font-bold text-primary-800 mb-3">{post.title}</h3>
