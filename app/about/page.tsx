@@ -1,9 +1,51 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {GraduationCap, TrendingUp, Users, Sparkles, Target, Lightbulb, Crown, Award} from 'lucide-react'
 
+type Profile = {
+  user_role: string
+  full_name: string
+  referral_code: string
+  is_paid_member: boolean
+}
+
 export default function AboutPage() {
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+    
+    if (user) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('user_role, full_name, referral_code, is_paid_member')
+        .eq('id', user.id)
+        .single()
+      
+      setProfile(profileData)
+    }
+  }
+
+  const getRoleBadge = (role: string) => {
+    const badges: { [key: string]: string } = {
+      'ceo': '👑 CEO',
+      'staff': '⚙️ Staff',
+      'guest_speaker': '🎤 Guest',
+      'paid_member': '💎 Paid',
+      'free_member': '🆓 Free',
+    }
+    return badges[role] || role
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -17,13 +59,32 @@ export default function AboutPage() {
                 <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </Link>
-            <div className="flex gap-3">
-              <Link href="/" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                Home
-              </Link>
-              <Link href="/signup" className="btn-primary">
-                Join Now
-              </Link>
+            <div className="flex items-center gap-3">
+              {user && profile && (
+                <div className="text-right mr-2">
+                  <p className="text-sm text-white font-semibold">{profile.full_name || 'Legacy Builder'}</p>
+                  <p className="text-xs text-gold-300">{getRoleBadge(profile.user_role || '')} • {profile.referral_code}</p>
+                </div>
+              )}
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    Dashboard
+                  </Link>
+                  <Link href="/feed" className="btn-primary">
+                    Feed
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    Home
+                  </Link>
+                  <Link href="/signup" className="btn-primary">
+                    Join Now
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </nav>
