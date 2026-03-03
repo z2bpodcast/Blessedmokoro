@@ -18,10 +18,18 @@ type Content = {
   duration: number | null
 }
 
+type Profile = {
+  user_role: string
+  full_name: string
+  referral_code: string
+  is_paid_member: boolean
+}
+
 export default function Home() {
   const [publicContent, setPublicContent] = useState<Content[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -31,6 +39,16 @@ export default function Home() {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setUser(user)
+    
+    if (user) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('user_role, full_name, referral_code, is_paid_member')
+        .eq('id', user.id)
+        .single()
+      
+      setProfile(profileData)
+    }
   }
 
   const fetchPublicContent = async () => {
@@ -48,6 +66,17 @@ export default function Home() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getRoleBadge = (role: string) => {
+    const badges: { [key: string]: string } = {
+      'ceo': '👑 CEO',
+      'staff': '⚙️ Staff',
+      'guest_speaker': '🎤 Guest',
+      'paid_member': '💎 Paid',
+      'free_member': '🆓 Free',
+    }
+    return badges[role] || role
   }
 
   const getIcon = (type: string) => {
@@ -77,7 +106,13 @@ export default function Home() {
                 <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
+              {user && profile && (
+                <div className="text-right mr-2">
+                  <p className="text-sm text-white font-semibold">{profile.full_name || 'Legacy Builder'}</p>
+                  <p className="text-xs text-gold-300">{getRoleBadge(profile.user_role || '')} • {profile.referral_code}</p>
+                </div>
+              )}
               {user ? (
                 <>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
