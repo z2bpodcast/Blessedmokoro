@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Crown, Sparkles, Zap } from 'lucide-react'
+import { Check, Crown, Sparkles, Zap, CreditCard, Building2, Copy, CheckCircle } from 'lucide-react'
 import { MEMBERSHIP_TIERS, YOCO_CONFIG, formatCurrency } from '@/lib/yoco'
 
 declare global {
@@ -18,7 +18,17 @@ export default function PricingPage() {
   const [currentTier, setCurrentTier] = useState<string>('fam')
   const [loading, setLoading] = useState(false)
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'yoco' | 'bank' | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const router = useRouter()
+
+  const BANK_DETAILS = {
+    accountName: 'Zero2billionaires Amavulandlela',
+    accountNumber: '1318257727',
+    bank: 'NEDBANK',
+    reference: user?.id?.slice(0, 8) || 'MEMBER'
+  }
 
   useEffect(() => {
     checkUser()
@@ -67,17 +77,23 @@ export default function PricingPage() {
     }
 
     setSelectedTier(tierKey)
+    setShowPaymentModal(true)
+  }
+
+  const handleYocoPayment = async () => {
+    if (!selectedTier) return
+    
+    const tier = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
     setLoading(true)
+    setPaymentMethod('yoco')
 
     try {
-      // Initialize Yoco SDK
       const yoco = new window.YocoSDK({
         publicKey: YOCO_CONFIG.publicKey
       })
 
-      // Open payment popup
       yoco.showPopup({
-        amountInCents: tier.price * 100, // Convert to cents
+        amountInCents: tier.price * 100,
         currency: 'ZAR',
         name: `${tier.name} Tier - Lifetime Membership`,
         description: `Z2B Table Banquet - ${tier.name} Tier`,
@@ -86,25 +102,60 @@ export default function PricingPage() {
             console.error('Payment error:', result.error)
             alert('Payment failed. Please try again.')
             setLoading(false)
+            setShowPaymentModal(false)
             setSelectedTier(null)
             return
           }
 
-          // Payment successful - upgrade user
-          await upgradeUserTier(tierKey, result.id)
+          await upgradeUserTier(selectedTier, result.id, 'yoco')
         }
       })
     } catch (error) {
       console.error('Yoco SDK error:', error)
-      alert('Payment system unavailable. Please try again later.')
+      alert('Payment system unavailable. Please try Bank Transfer instead.')
       setLoading(false)
-      setSelectedTier(null)
     }
   }
 
-  const upgradeUserTier = async (tierKey: string, paymentId: string) => {
+  const handleBankTransfer = async () => {
+    if (!selectedTier) return
+    
+    const tier = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
+    
     try {
-      // Update user tier in profiles
+      // Record pending payment in database
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .insert({
+          user_id: user.id,
+          tier: selectedTier,
+          amount: tier.price,
+          currency: 'ZAR',
+          payment_provider: 'bank_transfer',
+          payment_id: `BANK_${user.id.slice(0, 8)}_${Date.now()}`,
+          status: 'pending',
+          payment_type: 'tier_upgrade',
+          metadata: {
+            bank_details: BANK_DETAILS,
+            instructions: 'Awaiting manual verification'
+          }
+        })
+
+      if (paymentError) throw paymentError
+
+      alert(`✅ Bank transfer details saved!\n\nPlease make your payment and we'll activate your ${tier.name} tier within 24 hours after verification.`)
+      
+      setShowPaymentModal(false)
+      setSelectedTier(null)
+      setPaymentMethod(null)
+    } catch (error) {
+      console.error('Bank transfer record error:', error)
+      alert('Failed to record bank transfer. Please contact support.')
+    }
+  }
+
+  const upgradeUserTier = async (tierKey: string, paymentId: string, provider: string) => {
+    try {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -116,7 +167,6 @@ export default function PricingPage() {
 
       if (updateError) throw updateError
 
-      // Record payment in database
       const { error: paymentError } = await supabase
         .from('payments')
         .insert({
@@ -124,7 +174,7 @@ export default function PricingPage() {
           tier: tierKey,
           amount: MEMBERSHIP_TIERS[tierKey as keyof typeof MEMBERSHIP_TIERS].price,
           currency: 'ZAR',
-          payment_provider: 'yoco',
+          payment_provider: provider,
           payment_id: paymentId,
           status: 'completed',
           payment_type: 'tier_upgrade'
@@ -132,16 +182,23 @@ export default function PricingPage() {
 
       if (paymentError) console.error('Payment record error:', paymentError)
 
-      // Success!
       alert(`🎉 Welcome to ${MEMBERSHIP_TIERS[tierKey as keyof typeof MEMBERSHIP_TIERS].name} tier! Your lifetime membership is now active.`)
+      setShowPaymentModal(false)
+      setSelectedTier(null)
+      setPaymentMethod(null)
       router.push('/dashboard')
     } catch (error) {
       console.error('Tier upgrade error:', error)
       alert('Payment received but tier upgrade failed. Please contact support.')
     } finally {
       setLoading(false)
-      setSelectedTier(null)
     }
+  }
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(field)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   const getTierIcon = (tierKey: string) => {
@@ -194,7 +251,7 @@ export default function PricingPage() {
             One-time payment. Lifetime access. Build your empire forever.
           </p>
           <p className="text-lg text-purple-200">
-            No monthly fees. No hidden charges. Just pure value for life. 🚀
+            Pay via Card or Bank Transfer 🏦 No monthly fees ever! 🚀
           </p>
         </div>
       </section>
@@ -291,6 +348,138 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Payment Method Modal */}
+      {showPaymentModal && selectedTier && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 relative">
+            <button
+              onClick={() => {
+                setShowPaymentModal(false)
+                setSelectedTier(null)
+                setPaymentMethod(null)
+              }}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              ×
+            </button>
+
+            <h2 className="text-3xl font-bold text-primary-800 mb-6 text-center">
+              Choose Payment Method
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Card Payment */}
+              <button
+                onClick={handleYocoPayment}
+                disabled={loading}
+                className="p-6 border-4 border-primary-300 rounded-xl hover:border-gold-400 transition-all text-center group"
+              >
+                <CreditCard className="w-16 h-16 mx-auto mb-4 text-primary-600 group-hover:text-gold-600" />
+                <h3 className="text-xl font-bold text-primary-800 mb-2">Card Payment</h3>
+                <p className="text-gray-600 mb-4">Pay instantly with credit/debit card via Yoco</p>
+                <div className="bg-green-50 border-2 border-green-400 rounded-lg p-3">
+                  <p className="text-green-800 font-semibold">✅ Instant Activation</p>
+                </div>
+              </button>
+
+              {/* Bank Transfer */}
+              <button
+                onClick={() => setPaymentMethod('bank')}
+                className="p-6 border-4 border-primary-300 rounded-xl hover:border-gold-400 transition-all text-center group"
+              >
+                <Building2 className="w-16 h-16 mx-auto mb-4 text-primary-600 group-hover:text-gold-600" />
+                <h3 className="text-xl font-bold text-primary-800 mb-2">Bank Transfer</h3>
+                <p className="text-gray-600 mb-4">EFT/Direct Deposit to our bank account</p>
+                <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-3">
+                  <p className="text-blue-800 font-semibold">⏳ 24hr Activation</p>
+                </div>
+              </button>
+            </div>
+
+            {/* Bank Transfer Details */}
+            {paymentMethod === 'bank' && (
+              <div className="bg-primary-50 border-4 border-primary-400 rounded-xl p-6 mb-6">
+                <h3 className="text-2xl font-bold text-primary-800 mb-4 flex items-center gap-2">
+                  <Building2 className="w-6 h-6" />
+                  Bank Transfer Details
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Account Name */}
+                  <div className="bg-white rounded-lg p-4 border-2 border-primary-200">
+                    <p className="text-sm text-gray-600 mb-1">Account Name</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-primary-900">{BANK_DETAILS.accountName}</p>
+                      <button
+                        onClick={() => copyToClipboard(BANK_DETAILS.accountName, 'name')}
+                        className="text-primary-600 hover:text-gold-600"
+                      >
+                        {copied === 'name' ? <CheckCircle className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Account Number */}
+                  <div className="bg-white rounded-lg p-4 border-2 border-primary-200">
+                    <p className="text-sm text-gray-600 mb-1">Account Number</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-primary-900 text-xl">{BANK_DETAILS.accountNumber}</p>
+                      <button
+                        onClick={() => copyToClipboard(BANK_DETAILS.accountNumber, 'number')}
+                        className="text-primary-600 hover:text-gold-600"
+                      >
+                        {copied === 'number' ? <CheckCircle className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bank */}
+                  <div className="bg-white rounded-lg p-4 border-2 border-primary-200">
+                    <p className="text-sm text-gray-600 mb-1">Bank</p>
+                    <p className="font-bold text-primary-900">{BANK_DETAILS.bank}</p>
+                  </div>
+
+                  {/* Reference */}
+                  <div className="bg-white rounded-lg p-4 border-2 border-gold-400">
+                    <p className="text-sm text-gray-600 mb-1">Payment Reference (IMPORTANT!)</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-gold-600 text-xl">{BANK_DETAILS.reference}</p>
+                      <button
+                        onClick={() => copyToClipboard(BANK_DETAILS.reference, 'reference')}
+                        className="text-primary-600 hover:text-gold-600"
+                      >
+                        {copied === 'reference' ? <CheckCircle className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="bg-gold-50 rounded-lg p-4 border-2 border-gold-400">
+                    <p className="text-sm text-gray-600 mb-1">Amount to Pay</p>
+                    <p className="font-bold text-gold-700 text-3xl">
+                      {formatCurrency(MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS].price)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800">
+                    <strong>⚠️ Important:</strong> Use the reference code above when making your payment. Your account will be activated within 24 hours after we verify your payment.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleBankTransfer}
+                  className="w-full btn-primary mt-6 text-lg py-4"
+                >
+                  I've Made the Payment
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* FAQ Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
@@ -305,18 +494,18 @@ export default function PricingPage() {
           </div>
 
           <div className="card border-4 border-primary-200">
-            <h4 className="text-xl font-bold text-primary-800 mb-2">Can I upgrade later?</h4>
-            <p className="text-gray-700">Absolutely! Upgrade anytime and only pay the difference.</p>
+            <h4 className="text-xl font-bold text-primary-800 mb-2">Can I pay via bank transfer?</h4>
+            <p className="text-gray-700">Yes! We accept both card payments (instant) and bank transfers (activated within 24 hours). Choose your preferred method during checkout.</p>
           </div>
 
           <div className="card border-4 border-primary-200">
             <h4 className="text-xl font-bold text-primary-800 mb-2">What payment methods do you accept?</h4>
-            <p className="text-gray-700">We accept all major credit/debit cards via Yoco (secure South African payment gateway).</p>
+            <p className="text-gray-700">We accept credit/debit cards via Yoco (instant activation) and Direct Bank Transfers/EFT to our NEDBANK account (24-hour activation).</p>
           </div>
 
           <div className="card border-4 border-primary-200">
             <h4 className="text-xl font-bold text-primary-800 mb-2">Is my payment secure?</h4>
-            <p className="text-gray-700">100%. We use Yoco, a PCI-DSS compliant payment provider trusted by 400,000+ South African businesses.</p>
+            <p className="text-gray-700">100%. Card payments use Yoco, a PCI-DSS compliant payment provider trusted by 400,000+ South African businesses. Bank transfers go directly to our verified business account.</p>
           </div>
         </div>
       </section>
