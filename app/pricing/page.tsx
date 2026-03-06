@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Crown, Sparkles, Zap, CreditCard, Building2, Copy, CheckCircle } from 'lucide-react'
+import { Check, Crown, Sparkles, Zap, CreditCard, Building2, Copy, CheckCircle, GraduationCap, TrendingUp, DollarSign, FileText } from 'lucide-react'
 import { MEMBERSHIP_TIERS, YOCO_CONFIG, formatCurrency } from '@/lib/yoco'
 
 declare global {
@@ -123,7 +123,6 @@ export default function PricingPage() {
     const tier = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
     
     try {
-      // Record pending payment in database
       const { error: paymentError } = await supabase
         .from('payments')
         .insert({
@@ -312,15 +311,51 @@ export default function PricingPage() {
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-8">
-                  {tier.benefits.map((benefit, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
+                {/* Training & Access Benefits */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-primary-700 mb-3 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4" />
+                    TRAINING & ACCESS
+                  </h4>
+                  <ul className="space-y-2">
+                    {tier.trainingBenefits.map((benefit, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
+                {/* Sales & Marketing Benefits */}
+                <div className="mb-6 bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
+                  <h4 className="text-sm font-bold text-purple-700 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    SALES & MARKETING
+                  </h4>
+                  <ul className="space-y-2">
+                    {tier.salesBenefits.map((benefit, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <DollarSign className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Terms & Builder Rules Link */}
+                <div className="mb-6 text-center border-t-2 border-gray-200 pt-4">
+                  <p className="text-xs text-gray-600 mb-2">Terms & Conditions Apply</p>
+                  <Link 
+                    href="/builder-rules" 
+                    className="text-sm text-primary-700 font-semibold hover:text-gold-600 hover:underline flex items-center justify-center gap-1"
+                  >
+                    <FileText className="w-4 h-4" />
+                    View Builder Rules
+                  </Link>
+                </div>
+
+                {/* Upgrade Button */}
                 <button
                   onClick={() => handleUpgrade(key)}
                   disabled={loading && selectedTier === key}
@@ -499,8 +534,8 @@ export default function PricingPage() {
           </div>
 
           <div className="card border-4 border-primary-200">
-            <h4 className="text-xl font-bold text-primary-800 mb-2">What payment methods do you accept?</h4>
-            <p className="text-gray-700">We accept credit/debit cards via Yoco (instant activation) and Direct Bank Transfers/EFT to our NEDBANK account (24-hour activation).</p>
+            <h4 className="text-xl font-bold text-primary-800 mb-2">What are the Builder Rules?</h4>
+            <p className="text-gray-700">Our Builder Rules outline the commission structure, activity requirements, and operational policies. <Link href="/builder-rules" className="text-primary-700 font-bold hover:underline">View full details here</Link>.</p>
           </div>
 
           <div className="card border-4 border-primary-200">
