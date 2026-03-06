@@ -93,6 +93,19 @@ function SignUpForm() {
 
   return (
     <div className="max-w-md w-full">
+      {/* Navigation */}
+      <div className="flex justify-center gap-3 mb-6">
+        <Link href="/" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">
+          Home
+        </Link>
+        <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">
+          About Us
+        </Link>
+        <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">
+          Pricing
+        </Link>
+      </div>
+
       {/* Logo */}
       <div className="text-center mb-8">
         <Link href="/" className="inline-block">
