@@ -53,6 +53,7 @@ export const MEMBERSHIP_TIERS = {
       'All Copper benefits',
       'Weekly mastermind access',
       'AI business tools',
+      'App brainstorming & building (x1)',
       'Silver badge'
     ],
     color: 'slate'
@@ -65,6 +66,7 @@ export const MEMBERSHIP_TIERS = {
       'All Silver benefits',
       'Marketplace seller access',
       '1-on-1 coaching sessions',
+      'App brainstorming & building (x2)',
       'Gold badge'
     ],
     color: 'yellow'
@@ -77,6 +79,7 @@ export const MEMBERSHIP_TIERS = {
       'All Gold benefits',
       'White-label opportunities',
       'VIP event access',
+      'App brainstorming & building (x4)',
       'Platinum badge',
       'Exclusive CEO mastermind'
     ],
