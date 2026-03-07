@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -20,6 +20,32 @@ function SignUpForm() {
   
   // Get referral code from URL (if exists)
   const referralCode = searchParams.get('ref')
+
+  // Fetch sponsor info when referral code is present
+  useEffect(() => {
+    if (referralCode) {
+      fetchSponsorInfo(referralCode)
+    }
+  }, [referralCode])
+
+  const fetchSponsorInfo = async (code: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, referral_code')
+        .eq('referral_code', code)
+        .single()
+      
+      if (error) throw error
+      
+      if (data) {
+        setSponsorName(data.full_name)
+        setSponsorId(data.referral_code)
+      }
+    } catch (err) {
+      console.error('Error fetching sponsor:', err)
+    }
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -116,10 +142,16 @@ function SignUpForm() {
       </div>
 
       {/* Referral Notice */}
-      {referralCode && (
+      {referralCode && sponsorName && (
         <div className="mb-6 p-4 bg-green-50 border-2 border-green-400 rounded-lg">
-          <p className="text-green-800 font-semibold text-center">
-            ✅ You're joining via referral code: <span className="text-green-600">{referralCode}</span>
+          <p className="text-green-800 font-semibold text-center mb-1">
+            ✅ You're joining via referral from:
+          </p>
+          <p className="text-green-900 font-bold text-center text-lg">
+            {sponsorName}
+          </p>
+          <p className="text-green-700 text-center text-sm">
+            Referral Code: {referralCode}
           </p>
         </div>
       )}
