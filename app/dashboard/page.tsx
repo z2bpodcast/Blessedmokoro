@@ -44,14 +44,23 @@ export default function DashboardPage() {
   }
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+  try {
+    const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, email, full_name, user_role, referral_code, is_paid_member, sponsor_name, sponsor_id, referred_by')
       .eq('id', userId)
       .single()
     
+    if (error) {
+      console.error('Profile fetch error:', error)
+      return
+    }
+    
     setProfile(data)
+  } catch (err) {
+    console.error('Unexpected error:', err)
   }
+}
 
   const fetchStats = async (userId: string) => {
     const { data: clicks } = await supabase
