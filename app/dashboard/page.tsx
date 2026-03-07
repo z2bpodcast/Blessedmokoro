@@ -99,15 +99,36 @@ export default function DashboardPage() {
   const getFirstName = () => {
     if (!profile?.full_name) return 'Member'
     return profile.full_name.split(' ')[0]
-  }
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    </div>
+  )
+}
 
-  if (!user || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+if (!user) {
+  router.push('/login')
+  return null
+}
+
+if (!profile) {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="card border-4 border-red-400 max-w-md">
+        <h2 className="text-2xl font-bold text-red-800 mb-4">Profile Not Found</h2>
+        <p className="text-red-700 mb-4">Your profile could not be loaded.</p>
+        <p className="text-sm text-gray-600 mb-4">Email: {user.email}</p>
+        <button onClick={() => window.location.reload()} className="btn-primary">
+          Retry
+        </button>
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+console.log('Profile loaded:', profile)
+console.log('User role:', profile.user_role)
 
   return (
     <div className="min-h-screen bg-white">
