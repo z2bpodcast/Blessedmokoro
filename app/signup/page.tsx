@@ -4,15 +4,36 @@ import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { UserPlus, Mail, Lock, User, Users } from 'lucide-react'
+import { UserPlus, Mail, Lock, User, Users, Phone, MapPin, Building2, CreditCard, Hash } from 'lucide-react'
 
 // Separate component for the form that uses useSearchParams
 function SignUpForm() {
+  // Personal Info
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [idNumber, setIdNumber] = useState('')
+  
+  // Address Info
+  const [streetAddress, setStreetAddress] = useState('')
+  const [city, setCity] = useState('')
+  const [province, setProvince] = useState('')
+  const [postalCode, setPostalCode] = useState('')
+  
+  // Banking Info
+  const [bankName, setBankName] = useState('')
+  const [accountType, setAccountType] = useState('cheque')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [accountHolder, setAccountHolder] = useState('')
+  
+  // Sponsor Info
+  const [hasSponsor, setHasSponsor] = useState(true)
   const [sponsorName, setSponsorName] = useState('')
   const [sponsorId, setSponsorId] = useState('')
+  
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -24,6 +45,7 @@ function SignUpForm() {
   // Fetch sponsor info when referral code is present
   useEffect(() => {
     if (referralCode) {
+      setHasSponsor(true)
       fetchSponsorInfo(referralCode)
     }
   }, [referralCode])
@@ -59,52 +81,73 @@ function SignUpForm() {
       return
     }
 
-    if (!sponsorName.trim() && !referralCode) {
-      setError('Please enter your sponsor\'s name (or use a referral link)')
+    if (!phoneNumber.trim()) {
+      setError('Please enter your phone number')
+      setLoading(false)
+      return
+    }
+
+    if (hasSponsor && !sponsorName.trim() && !referralCode) {
+      setError('Please enter your sponsor\'s name or select "No Sponsor"')
       setLoading(false)
       return
     }
 
     try {
+      // Prepare metadata
+      const metadata = {
+        full_name: fullName.trim(),
+        phone_number: phoneNumber.trim(),
+        whatsapp_number: whatsappNumber.trim() || phoneNumber.trim(), // Default to phone if not provided
+        birth_date: birthDate || null,
+        id_number: idNumber.trim() || null,
+        street_address: streetAddress.trim() || null,
+        city: city.trim() || null,
+        province: province.trim() || null,
+        postal_code: postalCode.trim() || null,
+        bank_name: bankName.trim() || null,
+        account_type: accountType,
+        account_number: accountNumber.trim() || null,
+        account_holder: accountHolder.trim() || null,
+        sponsor_name: hasSponsor ? (sponsorName.trim() || 'Direct Registration') : 'No Sponsor',
+        sponsor_id: hasSponsor ? (sponsorId.trim() || null) : null,
+        referred_by: referralCode || null
+      }
+
       // Sign up the user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            full_name: fullName,
-            sponsor_name: sponsorName.trim() || 'Direct Registration',
-            sponsor_id: sponsorId.trim() || null,
-            referred_by: referralCode || null
-          }
+          data: metadata
         }
       })
 
       if (signUpError) throw signUpError
 
       if (authData.user) {
-        // Update profile with sponsor info
+        // Update profile with all details
         await supabase
           .from('profiles')
           .update({
-            full_name: fullName,
-            sponsor_name: sponsorName.trim() || 'Direct Registration',
-            sponsor_id: sponsorId.trim() || null,
+            full_name: fullName.trim(),
+            phone_number: phoneNumber.trim(),
+            whatsapp_number: whatsappNumber.trim() || phoneNumber.trim(),
+            birth_date: birthDate || null,
+            id_number: idNumber.trim() || null,
+            street_address: streetAddress.trim() || null,
+            city: city.trim() || null,
+            province: province.trim() || null,
+            postal_code: postalCode.trim() || null,
+            bank_name: bankName.trim() || null,
+            account_type: accountType,
+            account_number: accountNumber.trim() || null,
+            account_holder: accountHolder.trim() || null,
+            sponsor_name: hasSponsor ? (sponsorName.trim() || 'Direct Registration') : 'No Sponsor',
+            sponsor_id: hasSponsor ? (sponsorId.trim() || null) : null,
             referred_by: referralCode || null
           })
           .eq('id', authData.user.id)
-
-        // If there's a referral code, track the referral
-        if (referralCode) {
-          await supabase
-            .from('referrals')
-            .insert({
-              referrer_code: referralCode,
-              referred_user_id: authData.user.id,
-              status: 'pending'
-            })
-            .single()
-        }
 
         alert('🎉 Registration successful! Please check your email to verify your account.')
         router.push('/login')
@@ -117,8 +160,32 @@ function SignUpForm() {
     }
   }
 
+  const provinces = [
+    'Gauteng',
+    'Western Cape',
+    'Eastern Cape',
+    'KwaZulu-Natal',
+    'Limpopo',
+    'Mpumalanga',
+    'North West',
+    'Northern Cape',
+    'Free State'
+  ]
+
+  const banks = [
+    'ABSA',
+    'Capitec',
+    'FNB',
+    'Nedbank',
+    'Standard Bank',
+    'African Bank',
+    'Discovery Bank',
+    'TymeBank',
+    'Other'
+  ]
+
   return (
-    <div className="max-w-md w-full">
+    <div className="max-w-4xl w-full">
       {/* Navigation */}
       <div className="flex justify-center gap-3 mb-6">
         <Link href="/" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">
@@ -137,8 +204,8 @@ function SignUpForm() {
         <Link href="/" className="inline-block">
           <img src="/logo.jpg" alt="Z2B Logo" className="h-20 w-20 rounded-xl border-4 border-gold-400 shadow-lg mx-auto mb-4" />
         </Link>
-        <h1 className="text-4xl font-bold text-primary-800 mb-2">Join the Banquet</h1>
-        <p className="text-primary-600">Start your journey to entrepreneurship</p>
+        <h1 className="text-4xl font-bold text-primary-800 mb-2">Complete Registration</h1>
+        <p className="text-primary-600">Join the Z2B Table Banquet Family</p>
       </div>
 
       {/* Referral Notice */}
@@ -158,116 +225,350 @@ function SignUpForm() {
 
       {/* Signup Form */}
       <div className="card border-4 border-primary-300 shadow-2xl">
-        <form onSubmit={handleSignUp} className="space-y-6">
+        <form onSubmit={handleSignUp} className="space-y-8">
           {error && (
             <div className="bg-red-50 border-2 border-red-400 text-red-800 p-4 rounded-lg">
               {error}
             </div>
           )}
 
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-bold text-primary-800 mb-2">
-              Full Name *
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-600 w-5 h-5" />
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="input-field pl-11"
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-bold text-primary-800 mb-2">
-              Email Address *
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-600 w-5 h-5" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field pl-11"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-bold text-primary-800 mb-2">
-              Password *
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-600 w-5 h-5" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field pl-11"
-                placeholder="Min. 6 characters"
-                required
-                minLength={6}
-              />
-            </div>
-          </div>
-
-          {/* Sponsor Information */}
-          {!referralCode && (
-            <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-purple-700" />
-                <h3 className="font-bold text-purple-900">Sponsor Information</h3>
-              </div>
-              <p className="text-sm text-purple-700 mb-3">
-                Who invited you to join? (If you have a referral link, use that instead)
-              </p>
-
-              {/* Sponsor Name */}
-              <div>
+          {/* SECTION 1: Personal Information */}
+          <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Personal Information
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Full Name */}
+              <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-primary-800 mb-2">
-                  Sponsor Name *
+                  Full Name *
                 </label>
                 <input
                   type="text"
-                  value={sponsorName}
-                  onChange={(e) => setSponsorName(e.target.value)}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="input-field"
-                  placeholder="Enter your sponsor's name"
-                  required={!referralCode}
+                  placeholder="First and Last Name"
+                  required
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="input-field"
+                  placeholder="0XX XXX XXXX"
+                  required
+                />
+              </div>
+
+              {/* WhatsApp */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  WhatsApp Number
+                </label>
+                <input
+                  type="tel"
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  className="input-field"
+                  placeholder="0XX XXX XXXX (if different)"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  Required - Enter the name of the person who invited you
+                  Leave blank if same as phone number
                 </p>
               </div>
 
-              {/* Sponsor ID */}
+              {/* Birth Date */}
               <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2 flex items-center gap-2">
+                  🎂 Date of Birth (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className="input-field"
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  We'll celebrate your special day! 🎉
+                </p>
+              </div>
+
+              {/* ID Number */}
+              <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-primary-800 mb-2">
-                  Sponsor ID (Optional)
+                  SA ID Number (Optional)
                 </label>
                 <input
                   type="text"
-                  value={sponsorId}
-                  onChange={(e) => setSponsorId(e.target.value.toUpperCase())}
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
                   className="input-field"
-                  placeholder="e.g., 2C5B61A2"
-                  maxLength={8}
+                  placeholder="XXXXXXXXXXXXXX"
+                  maxLength={13}
                 />
-                <p className="text-xs text-gray-600 mt-1">
-                  Optional - If you know their Member ID
-                </p>
+              </div>
+
+              {/* Password */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-field"
+                  placeholder="Min. 6 characters"
+                  required
+                  minLength={6}
+                />
               </div>
             </div>
-          )}
+          </div>
+
+          {/* SECTION 2: Address Information */}
+          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Physical Address (Optional)
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Street Address */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Street Address
+                </label>
+                <input
+                  type="text"
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddress(e.target.value)}
+                  className="input-field"
+                  placeholder="Street, House/Flat Number"
+                />
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  City/Town
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="input-field"
+                  placeholder="e.g., Johannesburg"
+                />
+              </div>
+
+              {/* Province */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Province
+                </label>
+                <select
+                  value={province}
+                  onChange={(e) => setProvince(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">Select Province</option>
+                  {provinces.map(prov => (
+                    <option key={prov} value={prov}>{prov}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Postal Code */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Postal Code
+                </label>
+                <input
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  className="input-field"
+                  placeholder="XXXX"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 3: Banking Information */}
+          <div className="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-green-900 mb-2 flex items-center gap-2">
+              <Building2 className="w-5 h-5" />
+              Banking Information (For Payouts)
+            </h3>
+            <p className="text-sm text-green-700 mb-4">
+              Where should we send your commission earnings?
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Bank Name */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Bank Name
+                </label>
+                <select
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">Select Bank</option>
+                  {banks.map(bank => (
+                    <option key={bank} value={bank}>{bank}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Account Type */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Account Type
+                </label>
+                <select
+                  value={accountType}
+                  onChange={(e) => setAccountType(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="cheque">Cheque/Current</option>
+                  <option value="savings">Savings</option>
+                </select>
+              </div>
+
+              {/* Account Number */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Account Number
+                </label>
+                <input
+                  type="text"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  className="input-field"
+                  placeholder="XXXXXXXXXX"
+                />
+              </div>
+
+              {/* Account Holder */}
+              <div>
+                <label className="block text-sm font-bold text-primary-800 mb-2">
+                  Account Holder Name
+                </label>
+                <input
+                  type="text"
+                  value={accountHolder}
+                  onChange={(e) => setAccountHolder(e.target.value)}
+                  className="input-field"
+                  placeholder="Name on account"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 4: Sponsor Information */}
+          <div className="bg-gold-50 border-2 border-gold-400 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-gold-900 mb-2 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Sponsor Information
+            </h3>
+            <p className="text-sm text-gold-700 mb-4">
+              Who invited you to join Z2B Table Banquet?
+            </p>
+
+            {/* Has Sponsor Toggle */}
+            <div className="mb-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!hasSponsor}
+                  onChange={(e) => {
+                    setHasSponsor(!e.target.checked)
+                    if (e.target.checked) {
+                      setSponsorName('')
+                      setSponsorId('')
+                    }
+                  }}
+                  disabled={!!referralCode}
+                  className="w-5 h-5"
+                />
+                <span className="font-semibold text-primary-800">
+                  I joined directly (No Sponsor)
+                </span>
+              </label>
+            </div>
+
+            {hasSponsor && !referralCode && (
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Sponsor Name */}
+                <div>
+                  <label className="block text-sm font-bold text-primary-800 mb-2">
+                    Sponsor Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={sponsorName}
+                    onChange={(e) => setSponsorName(e.target.value)}
+                    className="input-field"
+                    placeholder="Enter sponsor's full name"
+                    required={hasSponsor && !referralCode}
+                  />
+                </div>
+
+                {/* Sponsor ID */}
+                <div>
+                  <label className="block text-sm font-bold text-primary-800 mb-2">
+                    Sponsor ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={sponsorId}
+                    onChange={(e) => setSponsorId(e.target.value.toUpperCase())}
+                    className="input-field"
+                    placeholder="e.g., 2C5B61A2"
+                    maxLength={8}
+                  />
+                </div>
+              </div>
+            )}
+
+            {hasSponsor && referralCode && (
+              <div className="bg-green-100 border-2 border-green-400 rounded-lg p-4">
+                <p className="text-green-800 font-semibold">
+                  ✅ Sponsor: {sponsorName || 'Loading...'}
+                </p>
+                <p className="text-green-700 text-sm">
+                  ID: {sponsorId || referralCode}
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Submit Button */}
           <button
@@ -283,7 +584,7 @@ function SignUpForm() {
             ) : (
               <span className="flex items-center justify-center gap-2">
                 <UserPlus className="w-5 h-5" />
-                Create My Account
+                Complete Registration
               </span>
             )}
           </button>
