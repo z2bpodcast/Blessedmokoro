@@ -106,7 +106,7 @@ export default function Home() {
                 <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {user && profile && (
                 <div className="text-right mr-2">
                   <p className="text-sm text-white font-semibold">{profile.full_name || 'Legacy Builder'}</p>
@@ -115,6 +115,22 @@ export default function Home() {
               )}
               {user ? (
                 <>
+                  {/* Z2B BLUEPRINT — logged in */}
+                  <Link
+                    href="/blueprint"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:opacity-90"
+                    style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
+                  >
+                    📐 Z2B Blueprint
+                  </Link>
+                  {/* WORKSHOP — logged in */}
+                  <Link
+                    href="/workshop"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
+                    style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+                  >
+                    🎓 Workshop
+                  </Link>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -130,6 +146,22 @@ export default function Home() {
                 </>
               ) : (
                 <>
+                  {/* Z2B BLUEPRINT — logged out */}
+                  <Link
+                    href="/blueprint"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:opacity-90"
+                    style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
+                  >
+                    📐 Z2B Blueprint
+                  </Link>
+                  {/* WORKSHOP — logged out */}
+                  <Link
+                    href="/workshop"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
+                    style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+                  >
+                    🎁 Free Workshop
+                  </Link>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -169,9 +201,18 @@ export default function Home() {
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
             {!user && (
-              <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
-                Start Building
-              </Link>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
+                  Start Building
+                </Link>
+                <Link
+                  href="/blueprint"
+                  className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
+                  style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.7)' }}
+                >
+                  📐 See The Blueprint
+                </Link>
+              </div>
             )}
           </div>
         </div>
