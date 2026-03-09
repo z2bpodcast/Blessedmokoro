@@ -23,10 +23,20 @@ export default function RoyalHeader({ user, profile, showAdmin = false, onLogout
             </div>
           </Link>
 
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-3 items-center flex-wrap">
+
+            {/* Z2B TABLE BLUEPRINT — visible to all */}
+            <Link
+              href="/blueprint"
+              className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
+              style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
+            >
+              📐 Z2B Blueprint
+            </Link>
+
             {user ? (
               <>
-                {/* FREE WORKSHOP button — members */}
+                {/* WORKSHOP button — members */}
                 <Link
                   href="/workshop"
                   className="font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-yellow-400 text-yellow-900"
