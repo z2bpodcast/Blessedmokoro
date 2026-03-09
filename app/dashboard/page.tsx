@@ -14,8 +14,12 @@ import {
   Settings,
   Crown,
   Copy,
-  CheckCircle
+  CheckCircle,
+  Bell,
+  X,
+  Phone
 } from 'lucide-react'
+
 
 type ProspectNotification = {
   id: string
