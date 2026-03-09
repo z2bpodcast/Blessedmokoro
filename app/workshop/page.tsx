@@ -766,10 +766,11 @@ interface ShareCardProps {
   sectionId: number;
   sectionTitle: string;
   score: number;
+  builderRef: string | null;
   onClose: () => void;
 }
 
-function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) {
+function ShareCard({ sectionId, sectionTitle, score, builderRef, onClose }: ShareCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [captionIdx, setCaptionIdx] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -858,12 +859,19 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
 
     ctx.fillStyle = "#A78BFA";
     ctx.font      = "24px Arial";
-    ctx.fillText("app.z2blegacybuilders.co.za/workshop", 540, 1000);
+    ctx.fillText(
+      builderRef
+        ? `app.z2blegacybuilders.co.za/workshop?ref=${builderRef}`
+        : "app.z2blegacybuilders.co.za/workshop",
+      540, 1000
+    );
 
     setImgUrl(canvas.toDataURL("image/png"));
   }, [sectionId, sectionTitle, score]);
 
-  const shareUrl  = "https://app.z2blegacybuilders.co.za/workshop";
+  const shareUrl  = builderRef
+    ? `https://app.z2blegacybuilders.co.za/workshop?ref=${builderRef}`
+    : `https://app.z2blegacybuilders.co.za/workshop`;
   const caption   = captions[captionIdx];
   const encoded   = encodeURIComponent(caption + "\n\n" + shareUrl);
 
@@ -1043,8 +1051,9 @@ export default function WorkshopPage() {
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [showShareCard, setShowShareCard]   = useState(false);
   const [showAudio, setShowAudio]           = useState(false);
-  // ── ADDITION 2a: userId state ──
+  // ── ADDITION 2a: userId + referralCode state ──
   const [userId, setUserId]                 = useState<string | null>(null);
+  const [builderRef, setBuilderRef]         = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
@@ -1058,6 +1067,14 @@ export default function WorkshopPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return; // guest — use in-memory progress only
         setUserId(user.id);
+
+        // Fetch builder's referral code for share links
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("referral_code")
+          .eq("id", user.id)
+          .single();
+        if (profileData?.referral_code) setBuilderRef(profileData.referral_code);
         const { data, error } = await supabase
           .from("workshop_progress")
           .select("*")
@@ -1182,6 +1199,7 @@ export default function WorkshopPage() {
           sectionId={currentSection!}
           sectionTitle={section.title}
           score={score ?? 0}
+          builderRef={builderRef}
           onClose={() => setShowShareCard(false)}
         />
       )}
@@ -1320,7 +1338,7 @@ export default function WorkshopPage() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActivityTicked(e.target.checked)}
                 style={S.checkbox}
               />
-             <span>
+              <span>
                 <strong>I am true to myself — I have completed this activity.</strong> I understand that this workshop transforms those who do the work, not those who skip it. My results will reflect my honesty here.
               </span>
             </label>
