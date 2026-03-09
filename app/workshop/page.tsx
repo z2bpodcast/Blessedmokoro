@@ -1210,7 +1210,10 @@ function PaywallView({ setView }: PaywallViewProps) {
   return (
     <div style={S.paywallPage}>
       <div style={S.paywallInner}>
-        <button style={S.backBtn} onClick={() => setView("workshop")}>← Back</button>
+        <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+          <button style={S.backBtn} onClick={() => setView("home")}>🏠 Home</button>
+          <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
+        </div>
         <h1 style={S.paywallTitle}>🔒 Members-Only Content</h1>
         <p style={S.paywallSub}>Sections 10–90 require a paid membership. You&apos;ve completed the free preview — now pull up your chair and own your table.</p>
         <div style={S.tierGrid}>
@@ -1229,6 +1232,14 @@ function PaywallView({ setView }: PaywallViewProps) {
               </a>
             </div>
           ))}
+        </div>
+        <div style={{ textAlign: "center", marginBottom: "16px" }}>
+          <a
+            href="https://app.z2blegacybuilders.co.za/pricing"
+            style={{ display: "inline-block", background: "linear-gradient(135deg, #6B21A8, #9333EA)", color: "#fff", padding: "14px 36px", borderRadius: "14px", fontWeight: "bold", fontSize: "16px", textDecoration: "none", fontFamily: "Georgia, serif", boxShadow: "0 6px 20px rgba(107,33,168,0.35)" }}
+          >
+            ⬆️ View All Pricing Plans →
+          </a>
         </div>
         <p style={S.paywallNote}>
           Already a member?{" "}
@@ -1485,6 +1496,17 @@ export default function WorkshopPage() {
           <button style={S.btnOutline} onClick={() => setView("workshop")}>
             Back to Workshop
           </button>
+          <button style={S.backBtn} onClick={() => setView("home")}>
+            🏠 Home
+          </button>
+        </div>
+        <div style={{ textAlign: "center", marginTop: "16px" }}>
+          <a
+            href="https://app.z2blegacybuilders.co.za/pricing"
+            style={{ fontSize: "13px", color: "#6B21A8", fontWeight: "bold", textDecoration: "none", borderBottom: "2px solid #C4B5FD", paddingBottom: "2px" }}
+          >
+            ⬆️ Ready to unlock all 90 sections? View Pricing →
+          </a>
         </div>
       </div>
     </div>
@@ -1538,7 +1560,10 @@ export default function WorkshopPage() {
   if (view === "section" && section) return (
     <div style={S.page}>
       <div style={S.sectionTopBar}>
-        <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button style={S.backBtn} onClick={() => setView("home")}>🏠 Home</button>
+          <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
+        </div>
         <span style={S.sectionBadge}>Day {section.id} of 90</span>
         {section.free && <span style={S.freeBadge}>FREE</span>}
       </div>
