@@ -22,9 +22,18 @@ export default function RoyalHeader({ user, profile, showAdmin = false, onLogout
               <p className="text-sm text-gold-300">Premium Learning Experience</p>
             </div>
           </Link>
+
           <div className="flex gap-3 items-center">
             {user ? (
               <>
+                {/* FREE WORKSHOP button — members */}
+                <Link
+                  href="/workshop"
+                  className="font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-yellow-400 text-yellow-900"
+                  style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+                >
+                  🎓 Workshop
+                </Link>
                 <Link href="/library" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                   Library
                 </Link>
@@ -37,7 +46,10 @@ export default function RoyalHeader({ user, profile, showAdmin = false, onLogout
                   </Link>
                 )}
                 {onLogout && (
-                  <button onClick={onLogout} className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 flex items-center gap-2">
+                  <button
+                    onClick={onLogout}
+                    className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 flex items-center gap-2"
+                  >
                     <LogOut className="w-4 h-4" />
                     Logout
                   </button>
@@ -45,6 +57,14 @@ export default function RoyalHeader({ user, profile, showAdmin = false, onLogout
               </>
             ) : (
               <>
+                {/* FREE WORKSHOP button — public visitors */}
+                <Link
+                  href="/workshop"
+                  className="font-semibold py-2 px-6 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
+                  style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+                >
+                  🎁 Free Workshop
+                </Link>
                 <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                   Sign In
                 </Link>

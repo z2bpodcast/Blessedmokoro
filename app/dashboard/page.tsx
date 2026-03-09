@@ -171,6 +171,14 @@ export default function DashboardPage() {
               </div>
             </Link>
             <div className="flex items-center gap-3">
+              {/* WORKSHOP BUTTON — added */}
+              <Link
+                href="/workshop"
+                className="font-semibold py-2 px-6 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
+                style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+              >
+                🎓 Workshop
+              </Link>
               <Link href="/feed" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                 Feed
               </Link>
@@ -333,7 +341,15 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <div className="card border-4 border-primary-300">
           <h3 className="text-2xl font-bold text-primary-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* WORKSHOP QUICK ACTION — added */}
+            <Link
+              href="/workshop"
+              className="font-bold text-center py-4 px-4 rounded-lg transition-all border-4 border-yellow-400 text-yellow-900 hover:scale-105"
+              style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
+            >
+              🎓 Free Workshop
+            </Link>
             <Link href="/library" className="btn-primary text-center py-4">
               📚 Browse Library
             </Link>
