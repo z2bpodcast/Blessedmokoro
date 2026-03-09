@@ -1320,8 +1320,13 @@ export default function WorkshopPage() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActivityTicked(e.target.checked)}
                 style={S.checkbox}
               />
-              <span>I have completed this activity</span>
+             <span>
+                <strong>I am true to myself — I have completed this activity.</strong> I understand that this workshop transforms those who do the work, not those who skip it. My results will reflect my honesty here.
+              </span>
             </label>
+            <p style={{ fontSize: "12px", color: "#92400E", fontStyle: "italic", marginTop: "12px", borderTop: "1px solid #FCD34D", paddingTop: "10px" }}>
+              "The seeds you plant in private determine the harvest you reap in public." — Rev Mokoro Manana
+            </p>
           </div>
 
           <div style={S.quizCard}>
