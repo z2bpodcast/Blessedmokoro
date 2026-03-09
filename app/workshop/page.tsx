@@ -1,5 +1,8 @@
 "use client";
 
+// ── ADDITION 1: Supabase import ──
+import { supabase } from "@/lib/supabase";
+
 import React, { useState, useRef, useEffect, useCallback, CSSProperties } from "react";
 
 // ============================================================
@@ -437,7 +440,6 @@ const createInitialProgress = (): ProgressMap => {
 // ============================================================
 // COLOUR TOKENS
 // ============================================================
-// Inject keyframe animations globally once
 if (typeof window !== "undefined") {
   const styleId = "z2b-workshop-animations";
   if (!document.getElementById(styleId)) {
@@ -480,7 +482,6 @@ const blue         = "#2563EB";
 // STYLES
 // ============================================================
 const S: Record<string, CSSProperties> = {
-  // HOME
   homePage:      { minHeight: "100vh", background: `linear-gradient(135deg, ${purplePale} 0%, #ffffff 50%, ${purpleMid} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "Georgia, serif", position: "relative", overflow: "hidden" },
   homeGlow:      { position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: "700px", height: "500px", borderRadius: "50%", background: `radial-gradient(ellipse, rgba(147,51,234,0.1) 0%, transparent 65%)`, pointerEvents: "none" },
   homeContent:   { maxWidth: "640px", width: "100%", textAlign: "center", position: "relative", zIndex: 1 },
@@ -499,11 +500,7 @@ const S: Record<string, CSSProperties> = {
   homeTeee:      { display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap", marginBottom: "24px" },
   teeePill:      { background: white, color: purple, border: `1.5px solid ${purpleBorder}`, padding: "7px 16px", borderRadius: "20px", fontSize: "12px", letterSpacing: "1px", fontWeight: "bold" },
   homeFooter:    { fontSize: "11px", color: textLight, marginTop: "8px" },
-
-  // PAGE
   page: { minHeight: "100vh", background: bg, color: text, fontFamily: "Georgia, serif", paddingBottom: "80px" },
-
-  // WORKSHOP LIST
   workshopHeader: { background: white, borderBottom: `2px solid ${purpleBorder}`, padding: "20px 20px 16px", position: "sticky", top: 0, zIndex: 10, boxShadow: "0 2px 12px rgba(107,33,168,0.07)" },
   workshopTitle:  { fontSize: "20px", color: purple, margin: "8px 0 4px", textAlign: "center", fontWeight: "bold" },
   workshopSub:    { fontSize: "12px", color: textMuted, textAlign: "center", margin: "0 0 12px" },
@@ -521,8 +518,6 @@ const S: Record<string, CSSProperties> = {
   cardSub:        { fontSize: "11px", color: textMuted },
   freeBadge:      { display: "inline-block", background: greenPale, color: green, border: `1px solid ${green}88`, borderRadius: "4px", padding: "2px 8px", fontSize: "10px", marginTop: "4px", marginRight: "6px", fontWeight: "bold" },
   doneBadge:      { display: "inline-block", background: greenPale, color: green, borderRadius: "4px", padding: "2px 8px", fontSize: "10px", marginTop: "4px", fontWeight: "bold" },
-
-  // SECTION VIEW
   sectionTopBar:  { display: "flex", alignItems: "center", gap: "12px", padding: "14px 20px", background: white, borderBottom: `2px solid ${purpleBorder}`, position: "sticky", top: 0, zIndex: 10 },
   sectionBadge:   { fontSize: "12px", color: purpleLight, marginLeft: "auto", fontWeight: "bold", background: purplePale, padding: "4px 10px", borderRadius: "20px", border: `1px solid ${purpleBorder}` },
   sectionHero:    { padding: "32px 20px 20px", textAlign: "center", maxWidth: "800px", margin: "0 auto", background: `linear-gradient(180deg, ${purplePale} 0%, ${bg} 100%)` },
@@ -533,15 +528,11 @@ const S: Record<string, CSSProperties> = {
   para:           { color: text, lineHeight: 1.95, marginBottom: "16px", fontSize: "15px" },
   sectionH3:      { color: purple, fontSize: "16px", margin: "22px 0 8px", fontWeight: "bold" },
   scrollHint:     { textAlign: "center", color: purpleLight, fontSize: "12px", padding: "14px 0 0", fontStyle: "italic", fontWeight: "bold" },
-
-  // ACTIVITY
   activityCard:   { background: goldLight, border: "1.5px solid #FCD34D", borderRadius: "14px", margin: "0 20px 16px", maxWidth: "760px", marginLeft: "auto", marginRight: "auto", padding: "24px" },
   activityHeader: { fontSize: "14px", color: gold, fontWeight: "bold", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" },
   activityText:   { color: "#78350F", lineHeight: 1.8, fontSize: "14px", marginBottom: "16px", fontStyle: "italic" },
   checkLabel:     { display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", color: text, fontSize: "14px", fontWeight: "bold" },
   checkbox:       { width: "18px", height: "18px", accentColor: green, cursor: "pointer" },
-
-  // QUIZ
   quizCard:       { background: white, border: `1.5px solid ${purpleBorder}`, borderRadius: "14px", margin: "0 20px 16px", maxWidth: "760px", marginLeft: "auto", marginRight: "auto", padding: "28px" },
   quizHeader:     { fontSize: "14px", color: purple, fontWeight: "bold", marginBottom: "8px", letterSpacing: "1px", textTransform: "uppercase" },
   quizSub:        { fontSize: "12px", color: textMuted, marginBottom: "20px" },
@@ -555,8 +546,6 @@ const S: Record<string, CSSProperties> = {
   scoreBox:       { marginTop: "20px", textAlign: "center" },
   scoreResult:    { color: text, fontSize: "16px", marginBottom: "16px", fontWeight: "bold" },
   hint:           { color: gold, fontSize: "12px", marginTop: "8px", fontWeight: "bold" },
-
-  // RESULTS
   resultCard:     { maxWidth: "480px", margin: "60px auto", background: white, border: `2px solid ${purpleBorder}`, borderRadius: "20px", padding: "40px", textAlign: "center", boxShadow: "0 8px 40px rgba(107,33,168,0.12)" },
   goldStar:       { fontSize: "52px", marginBottom: "16px" },
   resultTitle:    { color: purple, fontSize: "24px", margin: "0 0 8px", fontWeight: "bold" },
@@ -564,8 +553,6 @@ const S: Record<string, CSSProperties> = {
   scoreCircle:    { width: "84px", height: "84px", borderRadius: "50%", border: `4px solid ${purple}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", fontWeight: "bold", color: purple, margin: "0 auto 12px", background: purplePale },
   scoreLabel:     { color: text, fontSize: "14px", margin: "0 0 24px" },
   resultBtnRow:   { display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" },
-
-  // PAYWALL
   paywallPage:    { minHeight: "100vh", background: `linear-gradient(135deg, ${purplePale} 0%, ${white} 60%, ${purpleMid} 100%)`, padding: "20px", fontFamily: "Georgia, serif", color: text },
   paywallInner:   { maxWidth: "820px", margin: "0 auto", paddingTop: "20px" },
   paywallTitle:   { fontSize: "26px", color: purple, textAlign: "center", margin: "20px 0 12px", fontWeight: "bold" },
@@ -578,8 +565,6 @@ const S: Record<string, CSSProperties> = {
   tierBtn:        { display: "block", padding: "11px", borderRadius: "8px", color: white, fontWeight: "bold", fontSize: "12px", textDecoration: "none", cursor: "pointer" },
   paywallNote:    { textAlign: "center", color: textMuted, fontSize: "13px" },
   goldLink:       { color: purple, fontWeight: "bold", textDecoration: "none" },
-
-  // SHARED BUTTONS
   btnGold:    { background: `linear-gradient(135deg, ${purple}, ${purpleLight})`, color: white, border: "none", padding: "14px 28px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", fontFamily: "Georgia, serif" },
   btnOutline: { background: white, color: purple, border: `2px solid ${purple}`, padding: "12px 24px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", fontFamily: "Georgia, serif" },
   backBtn:    { background: white, border: `1.5px solid ${purpleBorder}`, color: purple, padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontFamily: "Georgia, serif", fontWeight: "bold" },
@@ -590,15 +575,12 @@ const S: Record<string, CSSProperties> = {
 // ============================================================
 const CAPTIONS = (sectionId: number, sectionTitle: string, score: number) => [
   `🏆 DAY ${sectionId} DONE! I just completed Section ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\nz2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
-
   `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 9 FREE sections this week? 🙌\n👉 z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
-
   `🎓 Section ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sections. I dare you to start today.\n\n🔗 z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
 ];
 
 // ============================================================
 // AUDIO PLAYER COMPONENT
-// Uses Web Speech API with a deep South African male voice
 // ============================================================
 interface AudioPlayerProps {
   text: string;
@@ -615,7 +597,6 @@ function AudioPlayer({ text, sectionTitle }: AudioPlayerProps) {
   const chunkIdxRef  = useRef(0);
   const totalChunks  = useRef(0);
 
-  // Strip markdown bold markers and clean text for speech
   const cleanText = useCallback((raw: string) => {
     return raw
       .replace(/\*\*(.*?)\*\*/g, "$1")
@@ -624,7 +605,6 @@ function AudioPlayer({ text, sectionTitle }: AudioPlayerProps) {
       .trim();
   }, []);
 
-  // Split into ~200 char chunks so progress tracking works
   const splitChunks = useCallback((str: string): string[] => {
     const sentences = str.match(/[^.!?]+[.!?]+/g) ?? [str];
     const chunks: string[] = [];
@@ -651,14 +631,13 @@ function AudioPlayer({ text, sectionTitle }: AudioPlayerProps) {
     return () => { stopSpeech(); };
   }, []);
 
-  // Pick best available deep male voice — prefer South African / English male
   const pickVoice = (): SpeechSynthesisVoice | null => {
     if (typeof window === "undefined") return null;
     const voices = window.speechSynthesis.getVoices();
     const priority = [
       (v: SpeechSynthesisVoice) => v.lang === "en-ZA" && v.name.toLowerCase().includes("male"),
       (v: SpeechSynthesisVoice) => v.lang === "en-ZA",
-      (v: SpeechSynthesisVoice) => v.lang.startsWith("en") && v.name.toLowerCase().match(/david|james|daniel|george|mark|john|guy|oliver/),
+      (v: SpeechSynthesisVoice) => v.lang.startsWith("en") && v.name.toLowerCase().match(/david|james|daniel|george|mark|john|guy|oliver/) !== null,
       (v: SpeechSynthesisVoice) => v.lang.startsWith("en-GB"),
       (v: SpeechSynthesisVoice) => v.lang.startsWith("en"),
     ];
@@ -731,38 +710,25 @@ function AudioPlayer({ text, sectionTitle }: AudioPlayerProps) {
         </div>
         {!voiceReady && <span style={AS.warn}>⚠️ Loading voices…</span>}
       </div>
-
-      {/* Progress bar */}
       <div style={AS.progressWrap}>
         <div style={{ ...AS.progressFill, width: `${progress}%` }} />
       </div>
       <div style={AS.progressLabel}>{progress}% read</div>
-
-      {/* Controls */}
       <div style={AS.controls}>
         {!isPlaying && !isPaused && (
-          <button style={AS.btnPlay} onClick={handlePlay} disabled={!voiceReady} title="Play">
-            ▶ Play
-          </button>
+          <button style={AS.btnPlay} onClick={handlePlay} disabled={!voiceReady} title="Play">▶ Play</button>
         )}
         {isPlaying && (
-          <button style={AS.btnPause} onClick={handlePause} title="Pause">
-            ⏸ Pause
-          </button>
+          <button style={AS.btnPause} onClick={handlePause} title="Pause">⏸ Pause</button>
         )}
         {isPaused && (
-          <button style={AS.btnPlay} onClick={handlePlay} title="Resume">
-            ▶ Resume
-          </button>
+          <button style={AS.btnPlay} onClick={handlePlay} title="Resume">▶ Resume</button>
         )}
         {(isPlaying || isPaused || progress > 0) && (
-          <button style={AS.btnStop} onClick={handleStop} title="Stop">
-            ⏹ Stop
-          </button>
+          <button style={AS.btnStop} onClick={handleStop} title="Stop">⏹ Stop</button>
         )}
         <span style={AS.voiceTag}>🇿🇦 SA Male Voice</span>
       </div>
-
       {isPlaying && (
         <div style={AS.waveWrap}>
           {[1,2,3,4,5,6,7,8].map((n) => (
@@ -774,7 +740,6 @@ function AudioPlayer({ text, sectionTitle }: AudioPlayerProps) {
   );
 }
 
-// Audio Player Styles
 const AS: Record<string, CSSProperties> = {
   wrap:         { background: "#1E1B2E", border: "1.5px solid #6B21A8", borderRadius: "14px", padding: "20px 24px", margin: "0 20px 16px", maxWidth: "760px", marginLeft: "auto", marginRight: "auto" },
   header:       { display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" },
@@ -812,7 +777,6 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
 
   const captions = CAPTIONS(sectionId, sectionTitle, score);
 
-  // Draw the celebration card on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -822,7 +786,6 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
     canvas.width  = 1080;
     canvas.height = 1080;
 
-    // Background gradient — purple
     const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
     grad.addColorStop(0,   "#3b0764");
     grad.addColorStop(0.5, "#6B21A8");
@@ -830,14 +793,12 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 1080, 1080);
 
-    // Decorative circles
     ctx.globalAlpha = 0.12;
     ctx.fillStyle = "#C4B5FD";
     ctx.beginPath(); ctx.arc(900, 150, 280, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(100, 950, 220, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
 
-    // White card in centre
     ctx.fillStyle = "rgba(255,255,255,0.06)";
     ctx.beginPath();
     const r = 40, x = 140, y = 140, w = 800, h = 800;
@@ -852,23 +813,19 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
     ctx.closePath();
     ctx.fill();
 
-    // Z2B Logo text
     ctx.fillStyle = "#E9D5FF";
     ctx.font      = "bold 52px Arial";
     ctx.textAlign = "center";
     ctx.fillText("Z2B TABLE BANQUET", 540, 230);
 
-    // Trophy emoji via text
     ctx.font      = "120px Arial";
     ctx.textAlign = "center";
     ctx.fillText("🏆", 540, 400);
 
-    // Section complete text
     ctx.fillStyle = "#F5F3FF";
     ctx.font      = "bold 56px Arial";
     ctx.fillText(`SECTION ${sectionId} COMPLETE!`, 540, 490);
 
-    // Title — wrap long titles
     ctx.fillStyle = "#C4B5FD";
     ctx.font      = "36px Arial";
     const maxW = 700;
@@ -884,25 +841,21 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
     }
     ctx.fillText(line, 540, lineY);
 
-    // Score stars
     const starY = lineY + 80;
     ctx.font = "64px Arial";
     const stars = score === 5 ? "⭐⭐⭐⭐⭐" : score >= 3 ? "⭐⭐⭐" : "⭐⭐";
     ctx.fillText(stars, 540, starY);
 
-    // Score text
     ctx.fillStyle = "#FDE68A";
     ctx.font      = "bold 48px Arial";
     ctx.fillText(`${score}/5 SCORE`, 540, starY + 70);
 
-    // Day badge
     ctx.fillStyle = "#D97706";
     ctx.beginPath(); ctx.roundRect(390, starY + 100, 300, 60, 30); ctx.fill();
     ctx.fillStyle = "#fff";
     ctx.font      = "bold 28px Arial";
     ctx.fillText(`Day ${sectionId} of 90 Completed`, 540, starY + 138);
 
-    // Website
     ctx.fillStyle = "#A78BFA";
     ctx.font      = "24px Arial";
     ctx.fillText("z2blegacybuilders.co.za/workshop", 540, 1000);
@@ -931,8 +884,6 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
         <button style={SC.closeBtn} onClick={onClose}>✕</button>
         <h2 style={SC.heading}>🎉 Share Your Win!</h2>
         <p style={SC.subheading}>Challenge your friends to start their FREE workshop journey</p>
-
-        {/* Canvas card preview */}
         <canvas ref={canvasRef} style={{ display: "none" }} />
         {imgUrl && (
           <div style={SC.cardPreviewWrap}>
@@ -940,64 +891,31 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
             <img src={imgUrl} alt="Share card" style={SC.cardPreview} />
           </div>
         )}
-
-        {/* Download card button */}
-        <button style={SC.downloadBtn} onClick={downloadCard}>
-          ⬇️ Download Card (PNG)
-        </button>
+        <button style={SC.downloadBtn} onClick={downloadCard}>⬇️ Download Card (PNG)</button>
         <p style={SC.downloadNote}>Save the card, then post it with the caption below</p>
-
-        {/* Caption selector */}
         <div style={SC.captionTabs}>
           {captions.map((_, i) => (
-            <button
-              key={i}
-              style={{ ...SC.captionTab, ...(captionIdx === i ? SC.captionTabActive : {}) }}
-              onClick={() => setCaptionIdx(i)}
-            >
+            <button key={i} style={{ ...SC.captionTab, ...(captionIdx === i ? SC.captionTabActive : {}) }} onClick={() => setCaptionIdx(i)}>
               Caption {i + 1}
             </button>
           ))}
         </div>
-
-        {/* Caption text */}
         <div style={SC.captionBox}>
           <p style={SC.captionText}>{caption}</p>
-          <button style={SC.copyBtn} onClick={copyCaption}>
-            {copied ? "✅ Copied!" : "📋 Copy Caption"}
-          </button>
+          <button style={SC.copyBtn} onClick={copyCaption}>{copied ? "✅ Copied!" : "📋 Copy Caption"}</button>
         </div>
-
-        {/* Share buttons */}
         <p style={SC.shareLabel}>Quick Share (opens app with caption):</p>
         <div style={SC.shareBtns}>
-          <a
-            href={`https://wa.me/?text=${encoded}`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ ...SC.shareBtn, background: "#25D366" }}
-          >
+          <a href={`https://wa.me/?text=${encoded}`} target="_blank" rel="noopener noreferrer" style={{ ...SC.shareBtn, background: "#25D366" }}>
             <span style={SC.shareIcon}>💬</span> WhatsApp
           </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(caption)}`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ ...SC.shareBtn, background: "#1877F2" }}
-          >
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(caption)}`} target="_blank" rel="noopener noreferrer" style={{ ...SC.shareBtn, background: "#1877F2" }}>
             <span style={SC.shareIcon}>📘</span> Facebook
           </a>
-          <a
-            href={`https://www.tiktok.com/`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ ...SC.shareBtn, background: "#010101", border: "1px solid #69C9D0" }}
-            title="Download card & caption, then post on TikTok"
-          >
+          <a href={`https://www.tiktok.com/`} target="_blank" rel="noopener noreferrer" style={{ ...SC.shareBtn, background: "#010101", border: "1px solid #69C9D0" }} title="Download card & caption, then post on TikTok">
             <span style={SC.shareIcon}>🎵</span> TikTok
           </a>
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encoded}`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ ...SC.shareBtn, background: "#000" }}
-          >
+          <a href={`https://twitter.com/intent/tweet?text=${encoded}`} target="_blank" rel="noopener noreferrer" style={{ ...SC.shareBtn, background: "#000" }}>
             <span style={SC.shareIcon}>𝕏</span> X / Twitter
           </a>
         </div>
@@ -1007,7 +925,6 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
   );
 }
 
-// Share Card Styles
 const SC: Record<string, CSSProperties> = {
   overlay:        { position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto" },
   modal:          { background: "#fff", borderRadius: "20px", padding: "28px 24px", maxWidth: "560px", width: "100%", position: "relative", maxHeight: "95vh", overflowY: "auto" },
@@ -1035,7 +952,7 @@ const SC: Record<string, CSSProperties> = {
 // HOME VIEW
 // ============================================================
 function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
-  void freeCompleted; // used for display extension later
+  void freeCompleted;
   return (
     <div style={S.homePage}>
       <div style={S.homeGlow} />
@@ -1126,11 +1043,45 @@ export default function WorkshopPage() {
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [showShareCard, setShowShareCard]   = useState(false);
   const [showAudio, setShowAudio]           = useState(false);
+  // ── ADDITION 2a: userId state ──
+  const [userId, setUserId]                 = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const section       = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
-  const completedCount = ( Object.values(progress) as SectionProgress[]).filter((p) => p.completed).length;
+  const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
+  const completedCount = (Object.values(progress) as SectionProgress[]).filter((p) => p.completed).length;
   const freeCompleted  = SECTIONS.filter((s) => s.free && progress[s.id]?.completed).length;
+
+  // ── ADDITION 2b: Load saved progress from Supabase on mount ──
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return; // guest — use in-memory progress only
+        setUserId(user.id);
+        const { data, error } = await supabase
+          .from("workshop_progress")
+          .select("*")
+          .eq("user_id", user.id);
+        if (error || !data) return;
+        setProgress((prev) => {
+          const updated = { ...prev };
+          data.forEach((row: any) => {
+            updated[row.section_id] = {
+              read:         row.read,
+              answers:      {},
+              activityDone: row.activity_done,
+              completed:    row.completed,
+              score:        row.score,
+            };
+          });
+          return updated;
+        });
+      } catch (err) {
+        console.error("Workshop progress load error:", err);
+      }
+    };
+    loadProgress();
+  }, []);
 
   // ---- scroll detection ----
   const handleScroll = () => {
@@ -1144,7 +1095,7 @@ export default function WorkshopPage() {
     const sec = SECTIONS.find((s) => s.id === id);
     if (!sec) return;
     if (!sec.free) { setView("paywall"); return; }
-    if (id > 1 && !progress[id - 1]?.completed) return; // locked
+    if (id > 1 && !progress[id - 1]?.completed) return;
     setCurrentSection(id);
     setAnswers({});
     setSubmitted(false);
@@ -1176,12 +1127,35 @@ export default function WorkshopPage() {
     setSubmitted(true);
   };
 
-  const handleComplete = () => {
+  // ── ADDITION 3: handleComplete saves to Supabase ──
+  const handleComplete = async () => {
     if (!scrolledToBottom || score == null || !activityTicked || currentSection == null) return;
     setProgress((prev: ProgressMap) => ({
       ...prev,
       [currentSection]: { read: true, answers, activityDone: true, completed: true, score },
     }));
+    // Save to Supabase if logged in
+    if (userId) {
+      try {
+        await supabase
+          .from("workshop_progress")
+          .upsert(
+            {
+              user_id:       userId,
+              section_id:    currentSection,
+              read:          true,
+              activity_done: true,
+              completed:     true,
+              score:         score,
+              completed_at:  new Date().toISOString(),
+              updated_at:    new Date().toISOString(),
+            },
+            { onConflict: "user_id,section_id" }
+          );
+      } catch (err) {
+        console.error("Workshop progress save error:", err);
+      }
+    }
     setView("results");
   };
 
@@ -1203,7 +1177,6 @@ export default function WorkshopPage() {
 
   if (view === "results" && section) return (
     <div style={S.page}>
-      {/* Share card modal */}
       {showShareCard && (
         <ShareCard
           sectionId={currentSection!}
@@ -1212,29 +1185,17 @@ export default function WorkshopPage() {
           onClose={() => setShowShareCard(false)}
         />
       )}
-
       <div style={S.resultCard}>
-        {/* Animated trophy */}
         <div style={{ fontSize: "64px", marginBottom: "8px", animation: "bounce 0.6s" }}>🏆</div>
-
-        {/* Confetti row */}
-        <div style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "6px" }}>
-          🎊 🎉 🎊
-        </div>
-
+        <div style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "6px" }}>🎊 🎉 🎊</div>
         <h2 style={S.resultTitle}>Section {currentSection} Complete!</h2>
         <p style={S.resultSub}>{section.title}</p>
-
-        {/* Score ring */}
         <div style={S.scoreCircle}>
           <span style={{ fontSize: "28px", fontWeight: "bold" }}>{score}/5</span>
         </div>
-
-        {/* Star rating */}
         <div style={{ fontSize: "28px", margin: "8px 0 4px" }}>
           {score === 5 ? "⭐⭐⭐⭐⭐" : score != null && score >= 3 ? "⭐⭐⭐" : "⭐⭐"}
         </div>
-
         <p style={S.scoreLabel}>
           {score === 5
             ? "🔥 Perfect Score! Outstanding Builder!"
@@ -1242,13 +1203,9 @@ export default function WorkshopPage() {
             ? "✅ Well Done, Builder! Keep going!"
             : "📚 Good effort — review the section again for deeper understanding."}
         </p>
-
-        {/* Day badge */}
         <div style={{ background: "#D97706", color: "#fff", borderRadius: "20px", padding: "6px 20px", fontSize: "12px", fontWeight: "bold", display: "inline-block", marginBottom: "20px" }}>
           Day {currentSection} of 90 · {Math.round(((currentSection ?? 0) / 90) * 100)}% Complete
         </div>
-
-        {/* Share Card CTA */}
         <div style={{ background: "#F3E8FF", border: "2px solid #C4B5FD", borderRadius: "14px", padding: "16px", marginBottom: "20px" }}>
           <p style={{ fontSize: "14px", fontWeight: "bold", color: "#6B21A8", margin: "0 0 6px" }}>
             🚀 Challenge Your Friends!
@@ -1256,15 +1213,10 @@ export default function WorkshopPage() {
           <p style={{ fontSize: "12px", color: "#6B7280", margin: "0 0 12px" }}>
             Share your win on WhatsApp, Facebook & TikTok — and dare them to start their free workshop
           </p>
-          <button
-            style={{ ...S.btnGold, width: "100%", padding: "12px" }}
-            onClick={() => setShowShareCard(true)}
-          >
+          <button style={{ ...S.btnGold, width: "100%", padding: "12px" }} onClick={() => setShowShareCard(true)}>
             🎉 Share My Achievement Card
           </button>
         </div>
-
-        {/* Navigation buttons */}
         <div style={S.resultBtnRow}>
           {currentSection != null && currentSection < 9 && (
             <button style={S.btnGold} onClick={() => { setShowShareCard(false); openSection(currentSection + 1); }}>
@@ -1338,7 +1290,6 @@ export default function WorkshopPage() {
         <p style={S.sectionSubtitle}>{section.subtitle}</p>
       </div>
 
-      {/* READING CONTENT */}
       <div style={{ maxWidth: "760px", margin: "0 auto 8px", padding: "0 20px", display: "flex", justifyContent: "flex-end" }}>
         <button
           style={{ ...S.backBtn, background: showAudio ? "#1E1B2E" : "#F3E8FF", color: showAudio ? "#C4B5FD" : "#6B21A8", border: showAudio ? "1.5px solid #6B21A8" : "1.5px solid #C4B5FD" }}
@@ -1348,9 +1299,7 @@ export default function WorkshopPage() {
         </button>
       </div>
 
-      {showAudio && (
-        <AudioPlayer text={section.content} sectionTitle={section.title} />
-      )}
+      {showAudio && <AudioPlayer text={section.content} sectionTitle={section.title} />}
 
       <div style={S.contentCard} ref={contentRef} onScroll={handleScroll}>
         <div>{renderContent(section.content)}</div>
@@ -1361,7 +1310,6 @@ export default function WorkshopPage() {
 
       {scrolledToBottom && (
         <>
-          {/* ACTIVITY */}
           <div style={S.activityCard}>
             <div style={S.activityHeader}>📋 Your Transformation Activity</div>
             <p style={S.activityText}>{section.activity}</p>
@@ -1376,7 +1324,6 @@ export default function WorkshopPage() {
             </label>
           </div>
 
-          {/* COMPREHENSION */}
           <div style={S.quizCard}>
             <div style={S.quizHeader}>📝 Comprehension Check — 5 Questions</div>
             <p style={S.quizSub}>Answer all 5 questions to proceed to the next section.</p>
