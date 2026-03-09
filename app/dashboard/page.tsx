@@ -17,6 +17,17 @@ import {
   CheckCircle
 } from 'lucide-react'
 
+type ProspectNotification = {
+  id: string
+  prospect_name: string
+  prospect_whatsapp: string
+  section_id: number
+  section_title: string
+  status: string
+  read: boolean
+  created_at: string
+}
+
 type Profile = {
   id: string
   email: string
@@ -35,6 +46,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [notifications, setNotifications]         = useState<ProspectNotification[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [unreadCount, setUnreadCount]             = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -73,6 +87,27 @@ export default function DashboardPage() {
       console.log('Profile loaded:', profileData)
       console.log('User role:', profileData?.user_role)
 
+      // Load prospect notifications for this builder
+      await loadNotifications(user.id)
+
+      // ── REALTIME: push new notifications instantly ──
+      supabase
+        .channel('prospect-notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'prospect_notifications',
+            filter: `builder_id=eq.${user.id}`,
+          },
+          (payload: any) => {
+            setNotifications((prev) => [payload.new as ProspectNotification, ...prev])
+            setUnreadCount((prev) => prev + 1)
+          }
+        )
+        .subscribe()
+
     } catch (err: any) {
       console.error('Load error:', err)
       setError(err.message)
@@ -84,6 +119,45 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const loadNotifications = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('prospect_notifications')
+      .select('*')
+      .eq('builder_id', userId)
+      .order('created_at', { ascending: false })
+    if (data) {
+      setNotifications(data)
+      setUnreadCount(data.filter((n: ProspectNotification) => !n.read).length)
+    }
+  }
+
+  const markAllRead = async () => {
+    if (!user) return
+    await supabase
+      .from('prospect_notifications')
+      .update({ read: true })
+      .eq('builder_id', user.id)
+      .eq('read', false)
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    setUnreadCount(0)
+  }
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase
+      .from('prospect_notifications')
+      .update({ status, read: true })
+      .eq('id', id)
+    setNotifications((prev) =>
+      prev.map((n) => n.id === id ? { ...n, status, read: true } : n)
+    )
+    setUnreadCount((prev) => Math.max(0, prev - 1))
+  }
+
+  const deleteNotification = async (id: string) => {
+    await supabase.from('prospect_notifications').delete().eq('id', id)
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
   const copyReferralLink = () => {
@@ -185,6 +259,18 @@ export default function DashboardPage() {
               <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                 Pricing
               </Link>
+              {/* 🔔 Notification Bell */}
+              <button
+                onClick={() => { setShowNotifications(true); markAllRead(); }}
+                className="relative flex items-center gap-2 bg-white border-2 border-purple-400 text-purple-700 hover:bg-purple-50 font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 font-semibold py-2 px-6 rounded-lg transition-colors"
@@ -362,6 +448,163 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── NOTIFICATION PANEL ── */}
+      {showNotifications && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 3000,
+            background: 'rgba(0,0,0,0.55)',
+            display: 'flex', justifyContent: 'flex-end',
+          }}
+          onClick={() => setShowNotifications(false)}
+        >
+          <div
+            style={{
+              width: '100%', maxWidth: '440px', height: '100vh',
+              background: '#fff', boxShadow: '-8px 0 40px rgba(107,33,168,0.2)',
+              display: 'flex', flexDirection: 'column',
+              animation: 'slideInRight 0.3s ease-out',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Panel Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #6B21A8, #9333EA)',
+              padding: '20px 24px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div>
+                <h2 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+                  🔔 Prospect Notifications
+                </h2>
+                <p style={{ color: '#E9D5FF', fontSize: '12px', margin: '4px 0 0' }}>
+                  People who want you to contact them
+                </p>
+              </div>
+              <button
+                onClick={() => setShowNotifications(false)}
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '8px', cursor: 'pointer', color: '#fff' }}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Notification List */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+              {notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔕</div>
+                  <p style={{ color: '#6B7280', fontSize: '14px', lineHeight: 1.7 }}>
+                    No prospect notifications yet.<br />
+                    Share your workshop link and watch them appear here in real time!
+                  </p>
+                </div>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      background: n.read ? '#F9FAFB' : 'linear-gradient(135deg, #F3E8FF, #EDE9FE)',
+                      border: `2px solid ${n.read ? '#E5E7EB' : '#C4B5FD'}`,
+                      borderRadius: '16px',
+                      padding: '16px',
+                      marginBottom: '12px',
+                      position: 'relative',
+                    }}
+                  >
+                    {/* Unread dot */}
+                    {!n.read && (
+                      <div style={{
+                        position: 'absolute', top: '14px', right: '14px',
+                        width: '10px', height: '10px',
+                        background: '#9333EA', borderRadius: '50%',
+                      }} />
+                    )}
+
+                    <p style={{ fontSize: '15px', fontWeight: 'bold', color: '#3B0764', margin: '0 0 4px' }}>
+                      👤 {n.prospect_name}
+                    </p>
+                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 8px' }}>
+                      Completed Section {n.section_id} · {n.section_title}
+                    </p>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      background: '#fff', border: '1px solid #C4B5FD',
+                      borderRadius: '8px', padding: '8px 12px', marginBottom: '12px',
+                    }}>
+                      <Phone className="w-4 h-4" style={{ color: '#25D366', flexShrink: 0 }} />
+                      <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>
+                        {n.prospect_whatsapp}
+                      </span>
+                      <a
+                        href={`https://wa.me/${n.prospect_whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${n.prospect_name}! I'm your Z2B Builder. I saw you completed Section ${n.section_id} of the Workshop 🎉 Let's talk about your next steps!`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          marginLeft: 'auto', background: '#25D366', color: '#fff',
+                          border: 'none', borderRadius: '6px', padding: '4px 10px',
+                          fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        WhatsApp
+                      </a>
+                    </div>
+
+                    {/* Status & timestamp */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          onClick={() => updateStatus(n.id, 'contacted')}
+                          style={{
+                            fontSize: '11px', padding: '4px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                            background: n.status === 'contacted' ? '#D1FAE5' : '#E5E7EB',
+                            color: n.status === 'contacted' ? '#065F46' : '#374151',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          ✅ Contacted
+                        </button>
+                        <button
+                          onClick={() => updateStatus(n.id, 'dismissed')}
+                          style={{
+                            fontSize: '11px', padding: '4px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                            background: n.status === 'dismissed' ? '#FEE2E2' : '#E5E7EB',
+                            color: n.status === 'dismissed' ? '#991B1B' : '#374151',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          ❌ Dismiss
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                          {new Date(n.created_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <button
+                          onClick={() => deleteNotification(n.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: '2px' }}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to   { transform: translateX(0);    opacity: 1; }
+        }
+      `}</style>
+
     </div>
   )
 }

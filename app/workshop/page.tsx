@@ -4,6 +4,7 @@
 import { supabase } from "@/lib/supabase";
 
 import React, { useState, useRef, useEffect, useCallback, CSSProperties } from "react";
+import { useSearchParams } from "next/navigation";
 
 // ============================================================
 // TYPES
@@ -956,6 +957,207 @@ const SC: Record<string, CSSProperties> = {
   tiktokNote:     { fontSize: "11px", color: "#9CA3AF", textAlign: "center", lineHeight: 1.5 },
 };
 
+
+// ============================================================
+// WELCOME OVERLAY — shown to prospects arriving via referral link
+// ============================================================
+interface WelcomeOverlayProps {
+  builderName: string;
+  builderRef: string;
+  sectionId: number;
+  sectionTitle: string;
+  onClose: () => void;
+}
+
+function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onClose }: WelcomeOverlayProps) {
+  const [step, setStep]           = useState<"welcome" | "contact" | "thanks">("welcome");
+  const [name, setName]           = useState("");
+  const [whatsapp, setWhatsapp]   = useState("");
+  const [saving, setSaving]       = useState(false);
+  const [error, setError]         = useState("");
+
+  const handleContactNow = async () => {
+    if (!name.trim() || !whatsapp.trim()) { setError("Please enter your name and WhatsApp number."); return; }
+    setSaving(true); setError("");
+    try {
+      // Look up builder_id from referral code
+      const { data: builderData } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("referral_code", builderRef)
+        .single();
+
+      await supabase.from("prospect_notifications").insert({
+        builder_id:        builderData?.id ?? null,
+        builder_ref:       builderRef,
+        prospect_name:     name.trim(),
+        prospect_whatsapp: whatsapp.trim(),
+        section_id:        sectionId,
+        section_title:     sectionTitle,
+        status:            "new",
+        read:              false,
+      });
+      setStep("thanks");
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Inject 3D text animation
+  useEffect(() => {
+    const styleId = "z2b-welcome-3d";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        @keyframes float3d {
+          0%   { transform: perspective(600px) rotateX(0deg) translateY(0px); }
+          50%  { transform: perspective(600px) rotateX(6deg) translateY(-8px); }
+          100% { transform: perspective(600px) rotateX(0deg) translateY(0px); }
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0)     scale(1);    }
+        }
+        @keyframes pulse3d {
+          0%,100% { text-shadow: 0 4px 8px rgba(107,33,168,0.4), 0 0 20px rgba(147,51,234,0.3); }
+          50%     { text-shadow: 0 8px 20px rgba(107,33,168,0.7), 0 0 40px rgba(147,51,234,0.6); }
+        }
+        @keyframes heartbeat {
+          0%,100% { transform: scale(1);   }
+          25%     { transform: scale(1.3); }
+          50%     { transform: scale(1);   }
+          75%     { transform: scale(1.15);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  return (
+    <div style={WO.overlay}>
+      <div style={WO.modal}>
+
+        {step === "welcome" && (
+          <>
+            {/* 3D Floating Title */}
+            <div style={WO.titleWrap}>
+              <div style={WO.title3d}>Welcome to Abundance</div>
+              <div style={WO.heart}>❤️</div>
+            </div>
+
+            {/* Builder invite message */}
+            <div style={WO.inviteBox}>
+              <p style={WO.inviteLabel}>You have been personally invited by</p>
+              <p style={WO.builderName}>🏆 {builderName}</p>
+              <p style={WO.inviteSub}>to experience the Z2B Entrepreneurial Consumer Workshop — FREE for your first 9 sections.</p>
+            </div>
+
+            {/* Decorative divider */}
+            <div style={WO.divider} />
+
+            <p style={WO.question}>Would you like <strong>{builderName.split(" ")[0]}</strong> to contact you?</p>
+
+            <div style={WO.btnRow}>
+              <button style={WO.btnYes} onClick={() => setStep("contact")}>
+                ✋ Contact Me Now
+              </button>
+              <button style={WO.btnLater} onClick={onClose}>
+                🎓 Maybe Later — Start Workshop
+              </button>
+            </div>
+            <p style={WO.footNote}>Your referral link is saved. {builderName.split(" ")[0]} will still get credit if you join later.</p>
+          </>
+        )}
+
+        {step === "contact" && (
+          <>
+            <div style={WO.titleWrap}>
+              <div style={{ ...WO.title3d, fontSize: "22px" }}>Leave Your Details ✍️</div>
+            </div>
+            <p style={WO.inviteSub}><strong>{builderName.split(" ")[0]}</strong> will reach out to you on WhatsApp.</p>
+
+            {error && <p style={WO.error}>{error}</p>}
+
+            <div style={WO.formGroup}>
+              <label style={WO.label}>Your Full Name *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Thabo Nkosi"
+                style={WO.input}
+              />
+            </div>
+            <div style={WO.formGroup}>
+              <label style={WO.label}>Your WhatsApp Number *</label>
+              <input
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="e.g. 0821234567"
+                style={WO.input}
+              />
+            </div>
+
+            <div style={WO.btnRow}>
+              <button style={WO.btnYes} onClick={handleContactNow} disabled={saving}>
+                {saving ? "Sending..." : "✅ Send My Details"}
+              </button>
+              <button style={WO.btnLater} onClick={onClose}>
+                Cancel — Start Workshop
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === "thanks" && (
+          <>
+            <div style={WO.titleWrap}>
+              <div style={{ ...WO.title3d, fontSize: "24px" }}>You're All Set! 🎉</div>
+              <div style={WO.heart}>❤️</div>
+            </div>
+            <p style={{ textAlign: "center", color: "#374151", fontSize: "15px", lineHeight: 1.7, marginBottom: "24px" }}>
+              <strong>{builderName.split(" ")[0]}</strong> has been notified and will contact you soon on WhatsApp.<br /><br />
+              In the meantime, enjoy your <strong>FREE 9-section workshop</strong>!
+            </p>
+            <button style={{ ...WO.btnYes, width: "100%" }} onClick={onClose}>
+              🎓 Start My Workshop Now
+            </button>
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+// Welcome Overlay Styles
+const WO: Record<string, CSSProperties> = {
+  overlay:     { position: "fixed", inset: 0, background: "rgba(0,0,0,0.82)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" },
+  modal:       { background: "#fff", borderRadius: "24px", padding: "36px 28px", maxWidth: "480px", width: "100%", animation: "slideDown 0.5s ease-out", boxShadow: "0 24px 60px rgba(107,33,168,0.35)" },
+  titleWrap:   { textAlign: "center", marginBottom: "20px" },
+  title3d:     { fontSize: "30px", fontWeight: "bold", color: "#6B21A8", fontFamily: "Georgia, serif", animation: "float3d 3s ease-in-out infinite, pulse3d 3s ease-in-out infinite", display: "inline-block", letterSpacing: "1px", textShadow: "0 4px 8px rgba(107,33,168,0.4), 2px 2px 0px #C4B5FD, 4px 4px 0px rgba(107,33,168,0.2)" },
+  heart:       { fontSize: "36px", display: "block", animation: "heartbeat 1.5s ease-in-out infinite", marginTop: "8px" },
+  inviteBox:   { background: "linear-gradient(135deg, #F3E8FF, #EDE9FE)", border: "2px solid #C4B5FD", borderRadius: "16px", padding: "20px", textAlign: "center", marginBottom: "20px" },
+  inviteLabel: { fontSize: "12px", color: "#7C3AED", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", margin: "0 0 8px" },
+  builderName: { fontSize: "24px", fontWeight: "bold", color: "#3B0764", margin: "0 0 10px", fontFamily: "Georgia, serif" },
+  inviteSub:   { fontSize: "13px", color: "#6B7280", lineHeight: 1.7, margin: 0, textAlign: "center" },
+  divider:     { height: "1px", background: "linear-gradient(90deg, transparent, #C4B5FD, transparent)", margin: "20px 0" },
+  question:    { textAlign: "center", fontSize: "15px", color: "#374151", marginBottom: "20px", lineHeight: 1.6 },
+  btnRow:      { display: "flex", flexDirection: "column", gap: "10px", marginBottom: "14px" },
+  btnYes:      { background: "linear-gradient(135deg, #6B21A8, #9333EA)", color: "#fff", border: "none", padding: "14px 24px", borderRadius: "12px", fontWeight: "bold", fontSize: "15px", cursor: "pointer", fontFamily: "Georgia, serif" },
+  btnLater:    { background: "#F9FAFB", color: "#6B7280", border: "1.5px solid #E5E7EB", padding: "12px 24px", borderRadius: "12px", fontWeight: "bold", fontSize: "13px", cursor: "pointer", fontFamily: "Georgia, serif" },
+  footNote:    { textAlign: "center", fontSize: "11px", color: "#9CA3AF", lineHeight: 1.6 },
+  formGroup:   { marginBottom: "16px" },
+  label:       { display: "block", fontSize: "13px", fontWeight: "bold", color: "#374151", marginBottom: "6px" },
+  input:       { width: "100%", padding: "12px 14px", border: "1.5px solid #C4B5FD", borderRadius: "10px", fontSize: "14px", outline: "none", boxSizing: "border-box", fontFamily: "Georgia, serif" },
+  error:       { background: "#FEE2E2", color: "#DC2626", padding: "10px", borderRadius: "8px", fontSize: "13px", marginBottom: "14px", textAlign: "center" },
+};
+
+
 // ============================================================
 // HOME VIEW
 // ============================================================
@@ -1054,6 +1256,10 @@ export default function WorkshopPage() {
   // ── ADDITION 2a: userId + referralCode state ──
   const [userId, setUserId]                 = useState<string | null>(null);
   const [builderRef, setBuilderRef]         = useState<string | null>(null);
+  // ── Welcome overlay state ──
+  const [showWelcome, setShowWelcome]       = useState(false);
+  const [inviterName, setInviterName]       = useState("");
+  const [urlRef, setUrlRef]                 = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
@@ -1062,6 +1268,25 @@ export default function WorkshopPage() {
 
   // ── ADDITION 2b: Load saved progress from Supabase on mount ──
   useEffect(() => {
+    // Check URL for referral code and show welcome overlay
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+    if (refCode) {
+      setUrlRef(refCode);
+      // Fetch builder name
+      supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("referral_code", refCode)
+        .single()
+        .then(({ data }) => {
+          if (data?.full_name) {
+            setInviterName(data.full_name);
+            setShowWelcome(true);
+          }
+        });
+    }
+
     const loadProgress = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -1189,7 +1414,23 @@ export default function WorkshopPage() {
   // ============================================================
   // RENDER VIEWS
   // ============================================================
-  if (view === "home")    return <HomeView setView={setView} completedCount={completedCount} freeCompleted={freeCompleted} />;
+  // ── Welcome overlay rendered on top of any view ──
+  const welcomeOverlay = showWelcome && inviterName && urlRef ? (
+    <WelcomeOverlay
+      builderName={inviterName}
+      builderRef={urlRef}
+      sectionId={currentSection ?? 1}
+      sectionTitle={currentSection ? (SECTIONS.find(s => s.id === currentSection)?.title ?? "Workshop") : "Workshop"}
+      onClose={() => setShowWelcome(false)}
+    />
+  ) : null;
+
+  if (view === "home") return (
+    <>
+      {welcomeOverlay}
+      <HomeView setView={setView} completedCount={completedCount} freeCompleted={freeCompleted} />
+    </>
+  );
   if (view === "paywall") return <PaywallView setView={setView} />;
 
   if (view === "results" && section) return (
