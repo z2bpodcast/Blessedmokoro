@@ -574,9 +574,9 @@ const S: Record<string, CSSProperties> = {
 // CELEBRATION CAPTIONS
 // ============================================================
 const CAPTIONS = (sectionId: number, sectionTitle: string, score: number) => [
-  `🏆 DAY ${sectionId} DONE! I just completed Section ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\nz2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
-  `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 9 FREE sections this week? 🙌\n👉 z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
-  `🎓 Section ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sections. I dare you to start today.\n\n🔗 z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
+  `🏆 DAY ${sectionId} DONE! I just completed Section ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\napp.z2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
+  `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 9 FREE sections this week? 🙌\n👉 app.z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
+  `🎓 Section ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sections. I dare you to start today.\n\n🔗 app.z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
 ];
 
 // ============================================================
@@ -858,12 +858,12 @@ function ShareCard({ sectionId, sectionTitle, score, onClose }: ShareCardProps) 
 
     ctx.fillStyle = "#A78BFA";
     ctx.font      = "24px Arial";
-    ctx.fillText("z2blegacybuilders.co.za/workshop", 540, 1000);
+    ctx.fillText("app.z2blegacybuilders.co.za/workshop", 540, 1000);
 
     setImgUrl(canvas.toDataURL("image/png"));
   }, [sectionId, sectionTitle, score]);
 
-  const shareUrl  = "https://z2blegacybuilders.co.za/workshop";
+  const shareUrl  = "https://app.z2blegacybuilders.co.za/workshop";
   const caption   = captions[captionIdx];
   const encoded   = encodeURIComponent(caption + "\n\n" + shareUrl);
 
@@ -980,7 +980,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
             <span key={t} style={S.teeePill}>{t}</span>
           ))}
         </div>
-        <p style={S.homeFooter}>z2blegacybuilders.co.za · Zero2Billionaires Amavulandlela Pty Ltd</p>
+        <p style={S.homeFooter}>app.z2blegacybuilders.co.za · Zero2Billionaires Amavulandlela Pty Ltd</p>
       </div>
     </div>
   );
@@ -1010,7 +1010,7 @@ function PaywallView({ setView }: PaywallViewProps) {
               <div style={S.tierPrice}>{t.price}</div>
               <div style={S.tierDesc}>{t.desc}</div>
               <a
-                href={`https://z2blegacybuilders.co.za/register?tier=${t.name.toLowerCase()}`}
+                href={`https://app.z2blegacybuilders.co.za/register?tier=${t.name.toLowerCase()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ ...S.tierBtn, background: t.color }}
@@ -1022,7 +1022,7 @@ function PaywallView({ setView }: PaywallViewProps) {
         </div>
         <p style={S.paywallNote}>
           Already a member?{" "}
-          <a href="https://z2blegacybuilders.co.za/login" style={S.goldLink}>Login here →</a>
+          <a href="https://app.z2blegacybuilders.co.za/login" style={S.goldLink}>Login here →</a>
         </p>
       </div>
     </div>
