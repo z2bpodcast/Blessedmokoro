@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  },
   images: {
     domains: ['res.cloudinary.com'],
   },
-  // Ensure service worker and manifest are properly served
   async headers() {
     return [
       {
@@ -33,12 +35,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  env: {
-    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-  },
-  // ... rest of your existing config
-};
-
-module.exports = nextConfig;
