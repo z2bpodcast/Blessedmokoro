@@ -236,33 +236,33 @@ export default function BlueprintPage() {
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
         background: 'rgba(15,2,35,0.95)',
-        borderBottom: '1px solid rgba(212,175,55,0.3)',
+        borderBottom: '2px solid rgba(212,175,55,0.4)',
         backdropFilter: 'blur(20px)',
-        padding: '14px 32px',
+        padding: '28px 48px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <img src="/logo.jpg" alt="Z2B" style={{ width: '46px', height: '46px', borderRadius: '10px', border: '2px solid rgba(212,175,55,0.7)', boxShadow: '0 0 20px rgba(212,175,55,0.3)' }} />
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <img src="/logo.jpg" alt="Z2B" style={{ width: '90px', height: '90px', borderRadius: '16px', border: '3px solid rgba(212,175,55,0.8)', boxShadow: '0 0 30px rgba(212,175,55,0.5)' }} />
           <div>
-            <div className="orbitron" style={{ color: '#D4AF37', fontWeight: '900', fontSize: '13px', letterSpacing: '3px' }}>Z2B TABLE BANQUET</div>
-            <div style={{ color: 'rgba(196,181,253,0.6)', fontSize: '9px', letterSpacing: '4px' }}>ZERO2BILLIONAIRES · AI ERA</div>
+            <div className="orbitron" style={{ color: '#D4AF37', fontWeight: '900', fontSize: '26px', letterSpacing: '4px', lineHeight: 1.1 }}>Z2B TABLE BANQUET</div>
+            <div style={{ color: 'rgba(196,181,253,0.7)', fontSize: '14px', letterSpacing: '5px', marginTop: '4px' }}>ZERO2BILLIONAIRES · AI ERA</div>
           </div>
         </Link>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           {[['/', '⌂ HOME'], ['/pricing', '◈ PRICING'], ['/login', '→ SIGN IN']].map(([href, label]) => (
             <Link key={href} href={href} style={{
-              color: 'rgba(212,175,55,0.8)', textDecoration: 'none', fontSize: '11px',
-              letterSpacing: '2px', padding: '7px 14px',
-              border: '1px solid rgba(212,175,55,0.25)', borderRadius: '4px',
-              background: 'rgba(212,175,55,0.05)', fontWeight: 'bold',
+              color: 'rgba(212,175,55,0.9)', textDecoration: 'none', fontSize: '16px',
+              letterSpacing: '2px', padding: '12px 24px',
+              border: '1px solid rgba(212,175,55,0.35)', borderRadius: '6px',
+              background: 'rgba(212,175,55,0.07)', fontWeight: 'bold',
             }}>{label}</Link>
           ))}
           <Link href="/workshop" className="cta-btn" style={{
             background: 'linear-gradient(135deg, #9333EA, #7C3AED)',
-            color: '#fff', fontWeight: 'bold', fontSize: '11px',
-            padding: '9px 20px', borderRadius: '6px', textDecoration: 'none',
-            letterSpacing: '2px', border: '1px solid rgba(233,121,249,0.4)',
-            boxShadow: '0 0 20px rgba(147,51,234,0.4)',
+            color: '#fff', fontWeight: 'bold', fontSize: '16px',
+            padding: '14px 32px', borderRadius: '8px', textDecoration: 'none',
+            letterSpacing: '2px', border: '1px solid rgba(233,121,249,0.5)',
+            boxShadow: '0 0 30px rgba(147,51,234,0.5)',
           }}>▶ FREE WORKSHOP</Link>
         </div>
       </nav>
@@ -277,14 +277,15 @@ export default function BlueprintPage() {
         }} />
 
         <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '10px',
+          display: 'inline-flex', alignItems: 'center', gap: '16px',
           background: 'rgba(212,175,55,0.1)',
-          border: '1px solid rgba(212,175,55,0.4)',
-          borderRadius: '4px', padding: '6px 20px',
-          fontSize: '10px', letterSpacing: '4px', color: 'rgba(212,175,55,0.9)',
-          marginBottom: '32px',
+          border: '2px solid rgba(212,175,55,0.5)',
+          borderRadius: '8px', padding: '14px 40px',
+          fontSize: '18px', letterSpacing: '4px', color: 'rgba(212,175,55,1)',
+          marginBottom: '40px',
+          boxShadow: '0 0 30px rgba(212,175,55,0.2)',
         }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#D4AF37', boxShadow: '0 0 10px #D4AF37', animation: 'gold-text-pulse 1.8s infinite' }} />
+          <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#D4AF37', boxShadow: '0 0 16px #D4AF37', animation: 'gold-text-pulse 1.8s infinite' }} />
           Z2B INTELLIGENCE FRAMEWORK · AI ERA EDITION
         </div>
 
@@ -313,10 +314,12 @@ export default function BlueprintPage() {
           Four pillars. One unshakeable table. Zero excuses.
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: 'rgba(212,175,55,0.5)', fontSize: '11px', letterSpacing: '3px', marginBottom: '50px' }}>
-          <div style={{ height: '1px', width: '60px', background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5))' }} />
-          REV MOKORO MANANA · ZERO2BILLIONAIRES
-          <div style={{ height: '1px', width: '60px', background: 'linear-gradient(90deg, rgba(212,175,55,0.5), transparent)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '50px' }}>
+          <div style={{ height: '2px', width: '100px', background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.7))' }} />
+          <span className="orbitron" style={{ color: 'rgba(212,175,55,0.9)', fontSize: '20px', letterSpacing: '5px', fontWeight: '700', textShadow: '0 0 20px rgba(212,175,55,0.5)' }}>
+            REV MOKORO MANANA · ZERO2BILLIONAIRES
+          </span>
+          <div style={{ height: '2px', width: '100px', background: 'linear-gradient(90deg, rgba(212,175,55,0.7), transparent)' }} />
         </div>
 
         {/* Leg badges */}
@@ -389,61 +392,157 @@ export default function BlueprintPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
-            {legs.map((leg, i) => (
+            {[
+              { ...legs[0], metal: 'COPPER', metalColor: '#da8a50', border: 'rgba(184,115,51,0.7)' },
+              { ...legs[1], metal: 'SILVER', metalColor: '#e0e0e0', border: 'rgba(158,158,158,0.7)' },
+              { ...legs[2], metal: 'GOLD',   metalColor: '#F5D060', border: 'rgba(212,175,55,0.9)' },
+              { ...legs[3], metal: 'PLATINUM', metalColor: '#e8f4ff', border: 'rgba(176,196,222,0.9)' },
+            ].map((leg, i) => (
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(212,175,55,0.5)',
+                background: 'rgba(255,255,255,0.06)',
+                border: `1px solid ${leg.border}`,
                 borderRadius: '10px', padding: '18px 10px',
                 textAlign: 'center',
-                boxShadow: '0 0 20px rgba(212,175,55,0.15)',
+                boxShadow: `0 0 20px rgba(0,0,0,0.3)`,
               }}>
-                <div style={{ fontSize: '28px', marginBottom: '8px' }}>{leg.emoji}</div>
-                <div className="orbitron" style={{ fontSize: '9px', color: '#D4AF37', letterSpacing: '2px', lineHeight: 1.5 }}>{leg.title}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', letterSpacing: '1px' }}>LEG {leg.number}</div>
+                <div style={{ fontSize: '28px', marginBottom: '6px' }}>{leg.emoji}</div>
+                <div className="orbitron" style={{ fontSize: '8px', color: leg.metalColor, letterSpacing: '2px', lineHeight: 1.5, textShadow: `0 0 8px ${leg.metalColor}` }}>{leg.metal}</div>
+                <div className="orbitron" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', letterSpacing: '1px', marginTop: '3px' }}>{leg.title}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* TABLE LEGS — thick, ornate, golden */}
+        {/* TABLE LEGS — Copper, Silver, Gold, Platinum — Royal Ornate */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', padding: '0 30px' }}>
-          {legs.map((leg, i) => (
+          {[
+            {
+              label: 'COPPER', legNum: '01',
+              top: 'linear-gradient(180deg, #b87333 0%, #da8a50 20%, #b87333 40%, #8b5a2b 60%, #b87333 80%, #da8a50 100%)',
+              shine: 'rgba(218,138,80,0.6)',
+              glow: 'rgba(184,115,51,0.6)',
+              cap: 'linear-gradient(90deg, #8b5a2b, #da8a50, #f0a060, #da8a50, #8b5a2b)',
+              foot: 'linear-gradient(90deg, #8b5a2b, #b87333, #da8a50, #b87333, #8b5a2b)',
+              mid: '#b87333',
+            },
+            {
+              label: 'SILVER', legNum: '02',
+              top: 'linear-gradient(180deg, #9e9e9e 0%, #e0e0e0 20%, #9e9e9e 40%, #757575 60%, #9e9e9e 80%, #e0e0e0 100%)',
+              shine: 'rgba(224,224,224,0.7)',
+              glow: 'rgba(158,158,158,0.6)',
+              cap: 'linear-gradient(90deg, #757575, #e0e0e0, #fff, #e0e0e0, #757575)',
+              foot: 'linear-gradient(90deg, #757575, #bdbdbd, #e0e0e0, #bdbdbd, #757575)',
+              mid: '#bdbdbd',
+            },
+            {
+              label: 'GOLD', legNum: '03',
+              top: 'linear-gradient(180deg, #D4AF37 0%, #F5D060 20%, #D4AF37 40%, #a07c20 60%, #D4AF37 80%, #F5D060 100%)',
+              shine: 'rgba(245,208,96,0.7)',
+              glow: 'rgba(212,175,55,0.8)',
+              cap: 'linear-gradient(90deg, #a07c20, #F5D060, #fff, #F5D060, #a07c20)',
+              foot: 'linear-gradient(90deg, #a07c20, #D4AF37, #F5D060, #D4AF37, #a07c20)',
+              mid: '#D4AF37',
+            },
+            {
+              label: 'PLATINUM', legNum: '04',
+              top: 'linear-gradient(180deg, #b0c4de 0%, #e8f4ff 20%, #b0c4de 40%, #7a97b8 60%, #b0c4de 80%, #e8f4ff 100%)',
+              shine: 'rgba(232,244,255,0.8)',
+              glow: 'rgba(176,196,222,0.8)',
+              cap: 'linear-gradient(90deg, #7a97b8, #e8f4ff, #fff, #e8f4ff, #7a97b8)',
+              foot: 'linear-gradient(90deg, #7a97b8, #b0c4de, #e8f4ff, #b0c4de, #7a97b8)',
+              mid: '#b0c4de',
+            },
+          ].map((leg, i) => (
             <div key={i} style={{
               position: 'relative',
-              animation: `leg-descend 0.8s ease ${0.6 + i * 0.1}s both`,
+              animation: `leg-descend 0.8s ease ${0.6 + i * 0.12}s both`,
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
             }}>
-              {/* Main leg body */}
+              {/* Label above leg */}
+              <div className="orbitron" style={{
+                fontSize: '8px', letterSpacing: '2px',
+                color: leg.mid, textShadow: `0 0 8px ${leg.glow}`,
+                marginBottom: '4px', textAlign: 'center',
+              }}>{leg.label}</div>
+
+              {/* Top cap / apron moulding */}
               <div style={{
-                height: '90px',
-                background: 'linear-gradient(180deg, rgba(212,175,55,0.7) 0%, rgba(212,175,55,0.4) 40%, rgba(180,130,20,0.5) 70%, rgba(212,175,55,0.3) 100%)',
-                border: '1px solid rgba(212,175,55,0.6)',
-                borderTop: 'none',
-                borderRadius: '0 0 4px 4px',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(212,175,55,0.1)',
+                width: '100%', height: '12px',
+                background: leg.cap,
+                borderRadius: '3px 3px 0 0',
+                boxShadow: `0 -2px 10px ${leg.glow}, inset 0 1px 0 rgba(255,255,255,0.4)`,
+              }} />
+
+              {/* Upper ornamental band */}
+              <div style={{
+                width: '85%', height: '18px',
+                background: leg.top,
+                borderLeft: `2px solid ${leg.mid}`,
+                borderRight: `2px solid ${leg.mid}`,
+                position: 'relative', overflow: 'hidden',
+                boxShadow: `inset 0 0 10px rgba(0,0,0,0.4)`,
               }}>
-                {/* Vertical shine stripe */}
-                <div style={{
-                  position: 'absolute', top: 0, left: '30%',
-                  width: '15%', height: '100%',
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.25), transparent)',
-                }} />
-                {/* Energy pulse inside leg */}
-                <div style={{
-                  position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                  width: '2px', height: '100%',
-                  background: `linear-gradient(180deg, rgba(212,175,55,0.9), rgba(147,51,234,0.4), transparent)`,
-                }} />
+                <div style={{ position: 'absolute', top: 0, left: '25%', width: '20%', height: '100%', background: `linear-gradient(180deg, ${leg.shine}, transparent)` }} />
               </div>
-              {/* Foot base */}
+
+              {/* Knop / bulge ornament */}
               <div style={{
-                height: '10px',
-                background: 'linear-gradient(90deg, rgba(212,175,55,0.3), rgba(212,175,55,0.8), rgba(212,175,55,0.3))',
-                borderRadius: '0 0 8px 8px',
-                border: '1px solid rgba(212,175,55,0.5)',
-                borderTop: 'none',
-                boxShadow: '0 4px 15px rgba(212,175,55,0.3)',
+                width: '92%', height: '24px',
+                background: leg.top,
+                borderRadius: '6px',
+                border: `2px solid ${leg.mid}`,
+                position: 'relative', overflow: 'hidden',
+                boxShadow: `0 0 15px ${leg.glow}, inset 0 0 8px rgba(0,0,0,0.3)`,
+              }}>
+                <div style={{ position: 'absolute', top: '20%', left: '20%', width: '18%', height: '60%', background: `linear-gradient(180deg, ${leg.shine}, transparent)`, borderRadius: '50%' }} />
+              </div>
+
+              {/* Main shaft */}
+              <div style={{
+                width: '72%', height: '70px',
+                background: leg.top,
+                borderLeft: `2px solid ${leg.mid}`,
+                borderRight: `2px solid ${leg.mid}`,
+                position: 'relative', overflow: 'hidden',
+                boxShadow: `inset 0 0 12px rgba(0,0,0,0.4), inset 4px 0 8px rgba(255,255,255,0.1)`,
+              }}>
+                {/* Shine stripe */}
+                <div style={{ position: 'absolute', top: 0, left: '28%', width: '14%', height: '100%', background: `linear-gradient(180deg, ${leg.shine}, transparent 60%)` }} />
+                {/* Center energy line */}
+                <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '1px', height: '100%', background: `linear-gradient(180deg, ${leg.shine}, rgba(147,51,234,0.3), transparent)` }} />
+              </div>
+
+              {/* Lower knop ornament */}
+              <div style={{
+                width: '88%', height: '20px',
+                background: leg.top,
+                borderRadius: '5px',
+                border: `2px solid ${leg.mid}`,
+                position: 'relative', overflow: 'hidden',
+                boxShadow: `0 0 12px ${leg.glow}, inset 0 0 6px rgba(0,0,0,0.3)`,
+              }}>
+                <div style={{ position: 'absolute', top: '15%', left: '22%', width: '15%', height: '70%', background: `linear-gradient(180deg, ${leg.shine}, transparent)`, borderRadius: '50%' }} />
+              </div>
+
+              {/* Lower shaft taper */}
+              <div style={{
+                width: '60%', height: '30px',
+                background: leg.top,
+                borderLeft: `2px solid ${leg.mid}`,
+                borderRight: `2px solid ${leg.mid}`,
+                position: 'relative', overflow: 'hidden',
+                clipPath: 'polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%)',
+                boxShadow: `inset 0 0 10px rgba(0,0,0,0.3)`,
+              }}>
+                <div style={{ position: 'absolute', top: 0, left: '25%', width: '16%', height: '100%', background: `linear-gradient(180deg, ${leg.shine}, transparent)` }} />
+              </div>
+
+              {/* Foot base plinth */}
+              <div style={{
+                width: '100%', height: '14px',
+                background: leg.foot,
+                borderRadius: '0 0 6px 6px',
+                boxShadow: `0 6px 20px ${leg.glow}, 0 0 30px ${leg.glow}, inset 0 -1px 0 rgba(255,255,255,0.3)`,
               }} />
             </div>
           ))}
@@ -473,7 +572,7 @@ export default function BlueprintPage() {
           <h2 className="orbitron" style={{
             fontSize: 'clamp(22px, 3.5vw, 42px)', color: '#fff', letterSpacing: '4px',
             textShadow: '0 0 30px rgba(147,51,234,0.5)',
-          }}>THE FOUR POWER PILLARS</h2>
+          }}>THE FOUR POWER LEGS</h2>
         </div>
 
         {/* 2x2 GRID */}
