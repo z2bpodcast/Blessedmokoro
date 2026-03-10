@@ -1481,18 +1481,14 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
     ];
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      // ── Call via Next.js API route to avoid CORS ──
+      const response = await fetch("/api/coach-manlaw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages,
-        }),
+        body: JSON.stringify({ messages, systemPrompt }),
       });
       const data = await response.json();
-      const reply = data.content?.map((c: any) => c.text || "").join("") || "I am here with you. Take a breath and tell me what is on your mind.";
+      const reply = data.reply || "I am here with you. Take a breath and tell me what is on your mind.";
       setManlawMessages(prev => [...prev, { role: "manlaw", text: reply }]);
 
       // Save to Supabase if logged in
