@@ -1273,6 +1273,13 @@ export default function WorkshopPage() {
   const [urlRef, setUrlRef]                 = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // ── COACH MANLAW STATE ──
+  const [manlawOpen, setManlawOpen]           = useState(false);
+  const [manlawInput, setManlawInput]         = useState("");
+  const [manlawMessages, setManlawMessages]   = useState<{role:"user"|"manlaw", text:string}[]>([]);
+  const [manlawLoading, setManlawLoading]     = useState(false);
+  const manlawEndRef = useRef<HTMLDivElement>(null);
+
   const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
   const completedCount = (Object.values(progress) as SectionProgress[]).filter((p) => p.completed).length;
   const freeCompleted  = SECTIONS.filter((s) => s.free && progress[s.id]?.completed).length;
@@ -1410,6 +1417,111 @@ export default function WorkshopPage() {
       }
     }
     setView("results");
+    // Auto-open Coach Manlaw after section complete
+    if (section) {
+      setTimeout(() => openManlawAfterSection(section.title, currentSection), 800);
+    }
+  };
+
+  // ── COACH MANLAW: auto-open after section completion ──
+  const openManlawAfterSection = (sectionTitle: string, sectionId: number) => {
+    const openingPrompt = `You have just completed Section ${sectionId} — "${sectionTitle}". Coach Manlaw wants to check in with you.`;
+    setManlawMessages([{ role: "manlaw", text: openingPrompt }]);
+    setManlawOpen(true);
+    setTimeout(() => callManlaw(
+      `The member just completed Section ${sectionId} titled "${sectionTitle}". Ask them how this section landed for them. Use your full coaching voice — be specific to this section, not generic. Keep your opening response to 3-4 sentences maximum.`,
+      []
+    ), 400);
+  };
+
+  // ── COACH MANLAW: core API call ──
+  const callManlaw = async (userMessage: string, history: {role:"user"|"manlaw", text:string}[]) => {
+    setManlawLoading(true);
+    const sec = currentSection != null ? SECTIONS.find(s => s.id === currentSection) : null;
+
+    const systemPrompt = `You are Coach Manlaw — the personal AI business coach of Z2B Table Banquet, created by Rev Mokoro Manana, Founder of Zero2Billionaires.
+
+YOUR IDENTITY
+You are not a chatbot. You are not a customer service agent. You are a wise, direct, faith-aware business mentor who has sat at the table with people who started with nothing and built legacies. You coach with depth, precision, and genuine care for the person in front of you.
+
+YOUR MISSION
+To transform employees and consumers into Entrepreneurial Consumers — people who redirect their spending into systems, build networks with purpose, and create legacies that outlive them. You guide each member through the Z2B 4-Leg Blueprint: Mindset (Copper), Systems (Silver), Relationships (Gold), Legacy (Platinum).
+
+YOUR FIVE COACHING LAWS
+LAW 1 — VALUE AT SCALE: Wealth is a reward for solving problems at scale. Redirect members from "how do I earn more" to "what problem can I solve for more people."
+LAW 2 — REMARKABILITY: Being good is invisible. Being safe is fatal. Challenge members to ask what makes their presence, message, and invitation impossible to ignore. Average thinking is the one thing you will never tolerate.
+LAW 3 — STEWARDSHIP: Before more is given, faithfulness with what exists must be demonstrated. Connect every action back to faithful stewardship.
+LAW 4 — SYSTEMS OVER HUSTLE: If income stops when they stop working, they have a job not a business. Always move members toward building scalable systems.
+LAW 5 — TRIBE BEFORE MARKET: Help members find their specific tribe — the people already looking for them — and serve that tribe so deeply that revenue becomes inevitable.
+
+YOUR VOICE
+- Wise mentor, not a cheerleader. Affirm growth, not effort for its own sake.
+- Faith-aware, not preachy. Honour kingdom principles when relevant. Plant seeds, never sermons.
+- Direct, not harsh. Tell the whole truth with warmth and precision.
+- Hopeful, not fake. Ground hope in evidence and action — never empty positivity.
+- Globally minded. South Africa is the launchpad, not the limit.
+
+WHAT YOU NEVER DO
+- Never give generic advice that could apply to anyone. Every response must feel written for this specific person.
+- Never validate mediocrity. Always point toward where they could be.
+- Never end without a question or a challenge. Every conversation must move forward.
+- Never use filler phrases like "Great question!" or "Absolutely!"
+- Never mention names of external authors, speakers, or thought leaders.
+- Keep responses focused — 3 to 5 sentences for follow-ups, slightly longer for opening check-ins.
+
+CURRENT CONTEXT
+${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle}). Section theme: ${sec.content.substring(0, 200)}...` : "The member is engaging with the Z2B Workshop."}`;
+
+    const messages = [
+      ...history.map(m => ({
+        role: m.role === "user" ? "user" : "assistant" as "user"|"assistant",
+        content: m.text,
+      })),
+      { role: "user" as "user", content: userMessage },
+    ];
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages,
+        }),
+      });
+      const data = await response.json();
+      const reply = data.content?.map((c: any) => c.text || "").join("") || "I am here with you. Take a breath and tell me what is on your mind.";
+      setManlawMessages(prev => [...prev, { role: "manlaw", text: reply }]);
+
+      // Save to Supabase if logged in
+      if (userId && currentSection) {
+        try {
+          await supabase.from("coach_manlaw_sessions").insert({
+            user_id: userId,
+            section_id: currentSection,
+            member_message: userMessage,
+            manlaw_response: reply,
+            created_at: new Date().toISOString(),
+          });
+        } catch(e) { /* silent — table may not exist yet */ }
+      }
+    } catch (err) {
+      setManlawMessages(prev => [...prev, { role: "manlaw", text: "I am still here. Something interrupted our connection — try sending your message again." }]);
+    } finally {
+      setManlawLoading(false);
+      setTimeout(() => manlawEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  };
+
+  const sendManlawMessage = () => {
+    if (!manlawInput.trim() || manlawLoading) return;
+    const userMsg = manlawInput.trim();
+    const updated = [...manlawMessages, { role: "user" as "user"|"manlaw", text: userMsg }];
+    setManlawMessages(updated);
+    setManlawInput("");
+    callManlaw(userMsg, manlawMessages);
   };
 
   // ---- render content with **bold** support ----
@@ -1500,6 +1612,105 @@ export default function WorkshopPage() {
             🏠 Home
           </button>
         </div>
+        {/* ── COACH MANLAW PANEL ── */}
+        <div style={{
+          background: "#0D0020", border: "2px solid #9333EA",
+          borderRadius: "20px", padding: "0", marginBottom: "24px",
+          overflow: "hidden", boxShadow: "0 0 40px rgba(147,51,234,0.3)",
+        }}>
+          {/* Header */}
+          <div
+            style={{ background: "linear-gradient(135deg, #6B21A8, #9333EA)", padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            onClick={() => setManlawOpen(o => !o)}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(212,175,55,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>🧠</div>
+              <div>
+                <div style={{ color: "#D4AF37", fontWeight: "bold", fontSize: "15px", letterSpacing: "1px" }}>Coach Manlaw</div>
+                <div style={{ color: "rgba(196,181,253,0.8)", fontSize: "11px" }}>Your AI Business Coach · Z2B Intelligence</div>
+              </div>
+            </div>
+            <div style={{ color: "#D4AF37", fontSize: "20px" }}>{manlawOpen ? "▼" : "▲"}</div>
+          </div>
+
+          {manlawOpen && (
+            <div style={{ padding: "0" }}>
+              {/* Messages */}
+              <div style={{ maxHeight: "320px", overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                {manlawMessages.length === 0 && (
+                  <div style={{ textAlign: "center", color: "rgba(196,181,253,0.5)", fontSize: "13px", padding: "20px" }}>
+                    Coach Manlaw is preparing your coaching session...
+                  </div>
+                )}
+                {manlawMessages.map((msg, i) => (
+                  <div key={i} style={{
+                    display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row",
+                    gap: "10px", alignItems: "flex-start",
+                  }}>
+                    {msg.role === "manlaw" && (
+                      <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B21A8, #9333EA)", border: "1px solid #D4AF37", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>🧠</div>
+                    )}
+                    <div style={{
+                      maxWidth: "80%", padding: "12px 16px", borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                      background: msg.role === "user" ? "linear-gradient(135deg, #9333EA, #7C3AED)" : "rgba(255,255,255,0.07)",
+                      border: msg.role === "manlaw" ? "1px solid rgba(212,175,55,0.3)" : "none",
+                      color: "#fff", fontSize: "14px", lineHeight: 1.7,
+                    }}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {manlawLoading && (
+                  <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B21A8, #9333EA)", border: "1px solid #D4AF37", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>🧠</div>
+                    <div style={{ padding: "12px 16px", borderRadius: "18px 18px 18px 4px", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(212,175,55,0.3)", color: "rgba(196,181,253,0.7)", fontSize: "14px" }}>
+                      Coach Manlaw is thinking<span style={{ animation: "pulse 1s infinite" }}>...</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={manlawEndRef} />
+              </div>
+
+              {/* Suggested prompts */}
+              {manlawMessages.length <= 2 && !manlawLoading && (
+                <div style={{ padding: "0 16px 12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  {["How does this connect to my vision?", "I am struggling with this concept.", "What action should I take today?"].map((prompt, i) => (
+                    <button key={i} onClick={() => { setManlawInput(prompt); }}
+                      style={{ background: "rgba(147,51,234,0.2)", border: "1px solid rgba(147,51,234,0.5)", borderRadius: "20px", padding: "6px 14px", color: "rgba(196,181,253,0.9)", fontSize: "12px", cursor: "pointer" }}>
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input */}
+              <div style={{ padding: "12px 16px 16px", borderTop: "1px solid rgba(147,51,234,0.3)", display: "flex", gap: "10px" }}>
+                <input
+                  value={manlawInput}
+                  onChange={e => setManlawInput((e.target as HTMLInputElement).value)}
+                  onKeyDown={e => { if (e.key === "Enter") sendManlawMessage(); }}
+                  placeholder="Respond to Coach Manlaw..."
+                  style={{
+                    flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(147,51,234,0.5)",
+                    borderRadius: "12px", padding: "10px 16px", color: "#fff", fontSize: "14px", outline: "none",
+                  }}
+                />
+                <button
+                  onClick={sendManlawMessage}
+                  disabled={manlawLoading || !manlawInput.trim()}
+                  style={{
+                    background: "linear-gradient(135deg, #D4AF37, #B8860B)", border: "none",
+                    borderRadius: "12px", padding: "10px 18px", color: "#000", fontWeight: "bold",
+                    fontSize: "14px", cursor: manlawLoading ? "not-allowed" : "pointer", opacity: manlawLoading ? 0.5 : 1,
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div style={{ textAlign: "center", marginTop: "16px" }}>
           <a
             href="https://app.z2blegacybuilders.co.za/pricing"
