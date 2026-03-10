@@ -1472,13 +1472,21 @@ WHAT YOU NEVER DO
 CURRENT CONTEXT
 ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle}). Section theme: ${sec.content.substring(0, 200)}...` : "The member is engaging with the Z2B Workshop."}`;
 
-    const messages = [
-      ...history.map(m => ({
-        role: m.role === "user" ? "user" : "assistant" as "user"|"assistant",
-        content: m.text,
-      })),
-      { role: "user" as "user", content: userMessage },
-    ];
+    // Build clean alternating message history for Anthropic
+    const rawHistory = history.filter(m => m.text && m.text.trim().length > 0);
+    const messages: {role:"user"|"assistant", content:string}[] = [];
+    for (const m of rawHistory) {
+      const role = m.role === "user" ? "user" : "assistant";
+      // Anthropic requires alternating roles — skip consecutive same roles
+      if (messages.length > 0 && messages[messages.length - 1].role === role) continue;
+      messages.push({ role, content: m.text });
+    }
+    // Always end with the new user message
+    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
+      messages[messages.length - 1].content = userMessage;
+    } else {
+      messages.push({ role: "user", content: userMessage });
+    }
 
     try {
       // ── Call via Next.js API route to avoid CORS ──

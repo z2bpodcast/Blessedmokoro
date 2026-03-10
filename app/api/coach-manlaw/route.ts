@@ -22,16 +22,17 @@ export async function POST(req: NextRequest) {
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const error = await response.text();
-      console.error("Anthropic API error:", error);
+      console.error("Anthropic API error:", JSON.stringify(data));
       return NextResponse.json(
-        { error: "Coach Manlaw is temporarily unavailable." },
+        { error: "Coach Manlaw is temporarily unavailable.", detail: data },
         { status: response.status }
       );
     }
 
-    const data = await response.json();
+    console.log("Anthropic response type:", data.stop_reason, "content blocks:", data.content?.length);
     const reply =
       data.content?.map((c: any) => c.text || "").join("") ||
       "I am here with you. Take a breath and tell me what is on your mind.";
