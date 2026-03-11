@@ -197,8 +197,7 @@ export default function VisionBoardPage() {
       showToast("📸 Capturing your Vision Board...");
       try {
         const canvas = await html2canvas(boardRef.current, {
-          backgroundColor: "#0A0015",
-          scale: 2,
+          background: "#0A0015",
           useCORS: true,
           logging: false,
         });
