@@ -51,4 +51,4 @@ export async function POST(req: NextRequest) {
     console.error("Coach Manlaw route error:", err);
     return NextResponse.json({ error: "Something interrupted our connection." }, { status: 500 });
   }
-}
+}// Wed, Mar 11, 2026  6:36:00 AM
