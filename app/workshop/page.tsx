@@ -1175,7 +1175,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
         <p style={S.homeTagline}>How Employees Turn Monthly Expenses Into Income-Generating Assets</p>
         <p style={S.homeBy}>— Rev Mokoro Manana · Founder, Z2B Legacy Builders</p>
         <div style={S.homeStats}>
-          <div style={S.homeStat}><span style={S.homeStatNum}>90</span><span style={S.homeStatLabel}>Sections</span></div>
+          <div style={S.homeStat}><span style={S.homeStatNum}>90</span><span style={S.homeStatLabel}>Sessions</span></div>
           <div style={S.homeStatDiv} />
           <div style={S.homeStat}><span style={S.homeStatNum}>9</span><span style={S.homeStatLabel}>Free Days</span></div>
           <div style={S.homeStatDiv} />
@@ -1183,7 +1183,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
         </div>
         <div style={S.homeBtnRow}>
           <button style={S.btnGold} onClick={() => setView("workshop")}>🏛️ Enter Workshop</button>
-          <button style={S.btnOutline} onClick={() => setView("workshop")}>🎁 Start Free (9 Sections)</button>
+          <button style={S.btnOutline} onClick={() => setView("workshop")}>🎁 Start Free (9 Sessions)</button>
         </div>
         <div style={S.homeTeee}>
           {["Transform", "Educate", "Empower", "Enrich"].map((t) => (
@@ -1201,10 +1201,10 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
 // ============================================================
 function PaywallView({ setView }: PaywallViewProps) {
   const tiers: Tier[] = [
-    { name: "FAM",      price: "R0",         desc: "Free — 9 Sections only",         color: "#9CA3AF", bg: "#F9FAFB", cta: "Start Free"  },
+    { name: "FAM",      price: "R0",         desc: "Free — 9 Sessions only",         color: "#9CA3AF", bg: "#F9FAFB", cta: "Start Free"  },
     { name: "BUILDER",  price: "R297/mo",    desc: "Sessions 1–30 + Community",      color: "#7C3AED", bg: "#EDE9FE", cta: "Join Builder" },
     { name: "LEADER",   price: "R797/mo",    desc: "Sessions 1–60 + Coaching",       color: "#6B21A8", bg: "#F3E8FF", cta: "Join Leader"  },
-    { name: "LEGACY",   price: "R1,497/mo",  desc: "All 90 Sections + Mentorship",   color: "#D97706", bg: "#FEF3C7", cta: "Join Legacy"  },
+    { name: "LEGACY",   price: "R1,497/mo",  desc: "All 90 Sessions + Mentorship",   color: "#D97706", bg: "#FEF3C7", cta: "Join Legacy"  },
     { name: "PLATINUM", price: "R4,980/mo",  desc: "Full System + Diamond Path",     color: "#4F46E5", bg: "#EEF2FF", cta: "Go Platinum"  },
   ];
   return (
@@ -1215,7 +1215,7 @@ function PaywallView({ setView }: PaywallViewProps) {
           <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
         </div>
         <h1 style={S.paywallTitle}>🔒 Members-Only Content</h1>
-        <p style={S.paywallSub}>Sections 10–90 require a paid membership. You&apos;ve completed the free preview — now pull up your chair and own your table.</p>
+        <p style={S.paywallSub}>Sessions 10–90 require a paid membership. You&apos;ve completed the free preview — now pull up your chair and own your table.</p>
         <div style={S.tierGrid}>
           {tiers.map((t) => (
             <div key={t.name} style={{ ...S.tierCard, borderColor: t.color, background: t.bg }}>
@@ -1356,6 +1356,8 @@ export default function WorkshopPage() {
   const [manlawMessages, setManlawMessages]   = useState<{role:"user"|"manlaw", text:string}[]>([]);
   const [manlawLoading, setManlawLoading]     = useState(false);
   const manlawEndRef = useRef<HTMLDivElement>(null);
+  const [manlawMemberName, setManlawMemberName] = useState<string | null>(null);
+  const [manlawAskedName, setManlawAskedName]   = useState(false);
 
   const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
   const completedCount = (Object.values(progress) as SectionProgress[]).filter((p) => p.completed).length;
@@ -1391,10 +1393,15 @@ export default function WorkshopPage() {
         // Fetch builder's referral code for share links
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("referral_code")
+          .select("referral_code, full_name")
           .eq("id", user.id)
           .single();
         if (profileData?.referral_code) setBuilderRef(profileData.referral_code);
+        // Fetch member first name for Coach Manlaw personalisation
+        if (profileData?.full_name) {
+          const firstName = profileData.full_name.trim().split(" ")[0];
+          setManlawMemberName(firstName);
+        }
         const { data, error } = await supabase
           .from("workshop_progress")
           .select("*")
@@ -1516,6 +1523,7 @@ export default function WorkshopPage() {
     setManlawLoading(true);
     const sec = currentSection != null ? SECTIONS.find(s => s.id === currentSection) : null;
 
+    const memberName = manlawMemberName;
     const systemPrompt = `You are Coach Manlaw — the personal AI business coach of Z2B Table Banquet, created by Rev Mokoro Manana, Founder of Zero2Billionaires.
 
 YOUR IDENTITY
@@ -1537,6 +1545,7 @@ YOUR VOICE
 - Direct, not harsh. Tell the whole truth with warmth and precision.
 - Hopeful, not fake. Ground hope in evidence and action — never empty positivity.
 - Globally minded. South Africa is the launchpad, not the limit.
+${memberName ? `- The member's name is ${memberName}. Use their name naturally — not in every sentence, but enough that they feel seen and known. Greet them by name in your first response.` : "- You do not yet know this member's name. Focus on coaching first. After your opening response, warmly ask for their name so you can address them personally."}
 
 WHAT YOU NEVER DO
 - Never give generic advice that could apply to anyone. Every response must feel written for this specific person.
@@ -1545,6 +1554,7 @@ WHAT YOU NEVER DO
 - Never use filler phrases like "Great question!" or "Absolutely!"
 - Never mention names of external authors, speakers, or thought leaders.
 - Keep responses focused — 3 to 5 sentences for follow-ups, slightly longer for opening check-ins.
+- Never use roleplay action descriptions — no asterisk actions like "*nods*" or "*clears throat*". Speak directly. Your words carry the warmth — no stage directions needed.
 
 CURRENT CONTEXT
 ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle}). Section theme: ${sec.content.substring(0, 200)}...` : "The member is engaging with the Z2B Workshop."}`;
@@ -1599,6 +1609,13 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
   const sendManlawMessage = () => {
     if (!manlawInput.trim() || manlawLoading) return;
     const userMsg = manlawInput.trim();
+    // If member is a guest and Manlaw asked for their name, capture it
+    if (!manlawMemberName && manlawAskedName) {
+      const possibleName = userMsg.split(" ")[0];
+      if (possibleName.length > 1 && possibleName.length < 30) {
+        setManlawMemberName(possibleName);
+      }
+    }
     const updated = [...manlawMessages, { role: "user" as "user"|"manlaw", text: userMsg }];
     setManlawMessages(updated);
     setManlawInput("");
@@ -1683,7 +1700,7 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
         <div style={S.resultBtnRow}>
           {currentSection != null && currentSection < 9 && (
             <button style={S.btnGold} onClick={() => { setShowShareCard(false); openSection(currentSection + 1); }}>
-              Next Section →
+              Next Session →
             </button>
           )}
           <button style={S.btnOutline} onClick={() => setView("workshop")}>
@@ -1876,7 +1893,7 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
           style={{ ...S.backBtn, background: showAudio ? "#1E1B2E" : "#F3E8FF", color: showAudio ? "#C4B5FD" : "#6B21A8", border: showAudio ? "1.5px solid #6B21A8" : "1.5px solid #C4B5FD" }}
           onClick={() => setShowAudio(!showAudio)}
         >
-          🎙️ {showAudio ? "Hide Audio" : "Listen to Section"}
+          🎙️ {showAudio ? "Hide Audio" : "Listen to Session"}
         </button>
       </div>
 
@@ -1953,7 +1970,7 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
                 </p>
                 {score != null && score >= 3 && activityTicked && (
                   <button style={S.btnGold} onClick={handleComplete}>
-                    Mark Section Complete &amp; Continue →
+                    Mark Session Complete &amp; Continue →
                   </button>
                 )}
                 {score != null && score < 3 && (
