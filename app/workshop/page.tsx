@@ -1193,8 +1193,14 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
             🏆 My Vision Board
           </a>
           <a
-            href="/"
+            href="/pricing"
             style={{ display: "flex", alignItems: "center", gap: "8px", background: "transparent", color: "#6B21A8", border: "2px solid #6B21A8", padding: "12px 24px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", textDecoration: "none", fontFamily: "Georgia, serif" }}
+          >
+            ⬆️ Upgrade
+          </a>
+          <a
+            href="/"
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "transparent", color: "#9CA3AF", border: "2px solid #E5E7EB", padding: "12px 24px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", textDecoration: "none", fontFamily: "Georgia, serif" }}
           >
             🏠 Main Home
           </a>
@@ -1711,6 +1717,51 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
             🎉 Share My Achievement Card
           </button>
         </div>
+        {/* ── UPGRADE NUDGE after Sessions 3, 6 and 9 ── */}
+        {[3, 6, 9].includes(currentSection ?? 0) && (
+          <div style={{
+            background: "linear-gradient(135deg, #1A0035, #2D0060)",
+            border: "2px solid #D4AF37",
+            borderRadius: "16px",
+            padding: "20px",
+            marginBottom: "20px",
+            textAlign: "center",
+          }}>
+            <div style={{ fontSize: "28px", marginBottom: "8px" }}>
+              {currentSection === 3 ? "🔓" : currentSection === 6 ? "🏆" : "🚀"}
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: "bold", color: "#D4AF37", marginBottom: "8px" }}>
+              {currentSection === 3 && "You've completed your first milestone!"}
+              {currentSection === 6 && "Your Vision Board is unlocked — now unlock the full journey!"}
+              {currentSection === 9 && "You've finished the FREE preview — your transformation is just beginning!"}
+            </div>
+            <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.85)", marginBottom: "16px", lineHeight: 1.6 }}>
+              {currentSection === 3 && "Sessions 4–90 are waiting. Every session builds on the last. Upgrade now and keep the momentum going."}
+              {currentSection === 6 && "You've seen vision and strategy. Sessions 7–90 cover systems, income streams, and legacy building. Don't stop here."}
+              {currentSection === 9 && "90 sessions. One transformation. Builders who complete all 90 sessions earn lifetime commissions and community access. Pull up your chair."}
+            </div>
+            <a
+              href="/pricing"
+              style={{
+                display: "inline-block",
+                background: "linear-gradient(135deg, #B8860B, #D4AF37)",
+                color: "#000",
+                padding: "12px 32px",
+                borderRadius: "10px",
+                fontWeight: "bold",
+                fontSize: "14px",
+                textDecoration: "none",
+                letterSpacing: "0.5px",
+              }}
+            >
+              ⬆️ See Membership Plans
+            </a>
+            <div style={{ marginTop: "10px", fontSize: "11px", color: "rgba(196,181,253,0.5)" }}>
+              Builder · Leader · Legacy · Platinum — starting at R297/month
+            </div>
+          </div>
+        )}
+
         <div style={S.resultBtnRow}>
           {currentSection != null && currentSection < 9 && (
             <button style={S.btnGold} onClick={() => { setShowShareCard(false); openSection(currentSection + 1); }}>
@@ -1843,7 +1894,14 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
   if (view === "workshop") return (
     <div style={S.page}>
       <div style={S.workshopHeader}>
-        <button style={S.backBtn} onClick={() => setView("home")}>← Home</button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
+          <button style={S.backBtn} onClick={() => setView("home")}>← Home</button>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <a href="/vision-board" style={{ background: "linear-gradient(135deg, #B8860B, #D4AF37)", color: "#000", border: "none", padding: "7px 14px", borderRadius: "8px", fontWeight: "bold", fontSize: "12px", cursor: "pointer", textDecoration: "none" }}>🏆 Vision Board</a>
+            <a href="/pricing" style={{ background: "linear-gradient(135deg, #6B21A8, #9333EA)", color: "#fff", border: "none", padding: "7px 14px", borderRadius: "8px", fontWeight: "bold", fontSize: "12px", cursor: "pointer", textDecoration: "none" }}>⬆️ Upgrade</a>
+            <a href="/" style={{ background: "transparent", color: "#6B21A8", border: "1px solid #6B21A8", padding: "7px 14px", borderRadius: "8px", fontWeight: "bold", fontSize: "12px", cursor: "pointer", textDecoration: "none" }}>🏠 Home</a>
+          </div>
+        </div>
         <h1 style={S.workshopTitle}>The Entrepreneurial Consumer Workshop</h1>
         <p style={S.workshopSub}>90-Day Transformation Journey • 1 Session Per Day</p>
         <div style={S.progressBar}>
