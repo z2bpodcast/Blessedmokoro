@@ -575,9 +575,9 @@ const S: Record<string, CSSProperties> = {
 // CELEBRATION CAPTIONS
 // ============================================================
 const CAPTIONS = (sectionId: number, sectionTitle: string, score: number) => [
-  `🏆 DAY ${sectionId} DONE! I just completed Section ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\napp.z2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
+  `🏆 DAY ${sectionId} DONE! I just completed Session ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\napp.z2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
   `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 9 FREE sections this week? 🙌\n👉 app.z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
-  `🎓 Section ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sections. I dare you to start today.\n\n🔗 app.z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
+  `🎓 Session ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sessions. I dare you to start today.\n\n🔗 app.z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
 ];
 
 // ============================================================
@@ -1052,7 +1052,7 @@ function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onCl
             <div style={WO.inviteBox}>
               <p style={WO.inviteLabel}>You have been personally invited by</p>
               <p style={WO.builderName}>🏆 {builderName}</p>
-              <p style={WO.inviteSub}>to experience the Z2B Entrepreneurial Consumer Workshop — FREE for your first 9 sections.</p>
+              <p style={WO.inviteSub}>to experience the Z2B Entrepreneurial Consumer Workshop — FREE for your first 9 sessions.</p>
             </div>
 
             {/* Decorative divider */}
@@ -1202,8 +1202,8 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
 function PaywallView({ setView }: PaywallViewProps) {
   const tiers: Tier[] = [
     { name: "FAM",      price: "R0",         desc: "Free — 9 Sections only",         color: "#9CA3AF", bg: "#F9FAFB", cta: "Start Free"  },
-    { name: "BUILDER",  price: "R297/mo",    desc: "Sections 1–30 + Community",      color: "#7C3AED", bg: "#EDE9FE", cta: "Join Builder" },
-    { name: "LEADER",   price: "R797/mo",    desc: "Sections 1–60 + Coaching",       color: "#6B21A8", bg: "#F3E8FF", cta: "Join Leader"  },
+    { name: "BUILDER",  price: "R297/mo",    desc: "Sessions 1–30 + Community",      color: "#7C3AED", bg: "#EDE9FE", cta: "Join Builder" },
+    { name: "LEADER",   price: "R797/mo",    desc: "Sessions 1–60 + Coaching",       color: "#6B21A8", bg: "#F3E8FF", cta: "Join Leader"  },
     { name: "LEGACY",   price: "R1,497/mo",  desc: "All 90 Sections + Mentorship",   color: "#D97706", bg: "#FEF3C7", cta: "Join Legacy"  },
     { name: "PLATINUM", price: "R4,980/mo",  desc: "Full System + Diamond Path",     color: "#4F46E5", bg: "#EEF2FF", cta: "Go Platinum"  },
   ];
@@ -1253,6 +1253,83 @@ function PaywallView({ setView }: PaywallViewProps) {
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
+// ── COACH MANLAW VOICE COMPONENT ──
+function ManlawVoice({ text }: { text: string }) {
+  const [speaking, setSpeaking] = useState(false);
+  const [paused, setPaused]     = useState(false);
+
+  const speak = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate  = 0.92;
+    utterance.pitch = 1.0;
+    // Pick a deep male voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v =>
+      v.name.toLowerCase().includes("david") ||
+      v.name.toLowerCase().includes("james") ||
+      v.name.toLowerCase().includes("daniel") ||
+      v.name.toLowerCase().includes("male")
+    );
+    if (preferred) utterance.voice = preferred;
+    utterance.onstart = () => { setSpeaking(true); setPaused(false); };
+    utterance.onend   = () => { setSpeaking(false); setPaused(false); };
+    utterance.onerror = () => { setSpeaking(false); setPaused(false); };
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const pause = () => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      setPaused(true);
+    }
+  };
+
+  const resume = () => {
+    window.speechSynthesis.resume();
+    setPaused(false);
+  };
+
+  const stop = () => {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+    setPaused(false);
+  };
+
+  return (
+    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+      {!speaking ? (
+        <button
+          onClick={speak}
+          style={{
+            background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.4)",
+            borderRadius: "20px", padding: "4px 12px", color: "#D4AF37",
+            fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px",
+          }}
+        >
+          🔊 Listen
+        </button>
+      ) : (
+        <>
+          {paused ? (
+            <button onClick={resume} style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.4)", borderRadius: "20px", padding: "4px 12px", color: "#D4AF37", fontSize: "11px", cursor: "pointer" }}>
+              ▶ Resume
+            </button>
+          ) : (
+            <button onClick={pause} style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.4)", borderRadius: "20px", padding: "4px 12px", color: "#D4AF37", fontSize: "11px", cursor: "pointer" }}>
+              ⏸ Pause
+            </button>
+          )}
+          <button onClick={stop} style={{ background: "rgba(255,100,100,0.15)", border: "1px solid rgba(255,100,100,0.3)", borderRadius: "20px", padding: "4px 12px", color: "#FF6464", fontSize: "11px", cursor: "pointer" }}>
+            ⏹ Stop
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function WorkshopPage() {
   const [view, setView]                     = useState<ViewType>("home");
   const [progress, setProgress]             = useState<ProgressMap>(createInitialProgress);
@@ -1425,11 +1502,11 @@ export default function WorkshopPage() {
 
   // ── COACH MANLAW: auto-open after section completion ──
   const openManlawAfterSection = (sectionTitle: string, sectionId: number) => {
-    const openingPrompt = `You have just completed Section ${sectionId} — "${sectionTitle}". Coach Manlaw wants to check in with you.`;
+    const openingPrompt = `You have just completed Session ${sectionId} — "${sectionTitle}". Coach Manlaw wants to check in with you.`;
     setManlawMessages([{ role: "manlaw", text: openingPrompt }]);
     setManlawOpen(true);
     setTimeout(() => callManlaw(
-      `The member just completed Section ${sectionId} titled "${sectionTitle}". Ask them how this section landed for them. Use your full coaching voice — be specific to this section, not generic. Keep your opening response to 3-4 sentences maximum.`,
+      `The member just completed Session ${sectionId} titled "${sectionTitle}". Ask them how this session landed for them. Use your full coaching voice — be specific to this section, not generic. Keep your opening response to 3-4 sentences maximum.`,
       []
     ), 400);
   };
@@ -1470,7 +1547,7 @@ WHAT YOU NEVER DO
 - Keep responses focused — 3 to 5 sentences for follow-ups, slightly longer for opening check-ins.
 
 CURRENT CONTEXT
-${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle}). Section theme: ${sec.content.substring(0, 200)}...` : "The member is engaging with the Z2B Workshop."}`;
+${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle}). Section theme: ${sec.content.substring(0, 200)}...` : "The member is engaging with the Z2B Workshop."}`;
 
     // Build clean alternating message history for Anthropic
     const rawHistory = history.filter(m => m.text && m.text.trim().length > 0);
@@ -1574,7 +1651,7 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
       <div style={S.resultCard}>
         <div style={{ fontSize: "64px", marginBottom: "8px", animation: "bounce 0.6s" }}>🏆</div>
         <div style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "6px" }}>🎊 🎉 🎊</div>
-        <h2 style={S.resultTitle}>Section {currentSection} Complete!</h2>
+        <h2 style={S.resultTitle}>Session {currentSection} Complete!</h2>
         <p style={S.resultSub}>{section.title}</p>
         <div style={S.scoreCircle}>
           <span style={{ fontSize: "28px", fontWeight: "bold" }}>{score}/5</span>
@@ -1654,13 +1731,18 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
                     {msg.role === "manlaw" && (
                       <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B21A8, #9333EA)", border: "1px solid #D4AF37", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>🧠</div>
                     )}
-                    <div style={{
-                      maxWidth: "80%", padding: "12px 16px", borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                      background: msg.role === "user" ? "linear-gradient(135deg, #9333EA, #7C3AED)" : "rgba(255,255,255,0.07)",
-                      border: msg.role === "manlaw" ? "1px solid rgba(212,175,55,0.3)" : "none",
-                      color: "#fff", fontSize: "14px", lineHeight: 1.7,
-                    }}>
-                      {msg.text}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: "80%" }}>
+                      <div style={{
+                        padding: "12px 16px", borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                        background: msg.role === "user" ? "linear-gradient(135deg, #9333EA, #7C3AED)" : "rgba(255,255,255,0.07)",
+                        border: msg.role === "manlaw" ? "1px solid rgba(212,175,55,0.3)" : "none",
+                        color: "#fff", fontSize: "14px", lineHeight: 1.7,
+                      }}>
+                        {msg.text}
+                      </div>
+                      {msg.role === "manlaw" && (
+                        <ManlawVoice text={msg.text} />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1720,7 +1802,7 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
             href="https://app.z2blegacybuilders.co.za/pricing"
             style={{ fontSize: "13px", color: "#6B21A8", fontWeight: "bold", textDecoration: "none", borderBottom: "2px solid #C4B5FD", paddingBottom: "2px" }}
           >
-            ⬆️ Ready to unlock all 90 sections? View Pricing →
+            ⬆️ Ready to unlock all 90 sessions? View Pricing →
           </a>
         </div>
       </div>
@@ -1732,11 +1814,11 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
       <div style={S.workshopHeader}>
         <button style={S.backBtn} onClick={() => setView("home")}>← Home</button>
         <h1 style={S.workshopTitle}>The Entrepreneurial Consumer Workshop</h1>
-        <p style={S.workshopSub}>90-Day Transformation Journey • 1 Section Per Day</p>
+        <p style={S.workshopSub}>90-Day Transformation Journey • 1 Session Per Day</p>
         <div style={S.progressBar}>
           <div style={{ ...S.progressFill, width: `${(completedCount / 90) * 100}%` }} />
         </div>
-        <p style={S.progressText}>{completedCount}/90 Sections Completed</p>
+        <p style={S.progressText}>{completedCount}/90 Sessions Completed</p>
       </div>
       <div style={S.sectionGrid}>
         {SECTIONS.map((sec) => {
@@ -1784,7 +1866,7 @@ ${sec ? `The member is on Section ${sec.id} — "${sec.title}" (${sec.subtitle})
       </div>
 
       <div style={S.sectionHero}>
-        <div style={S.sectionNum}>Section {section.id}</div>
+        <div style={S.sectionNum}>Session {section.id}</div>
         <h1 style={S.sectionTitle}>{section.title}</h1>
         <p style={S.sectionSubtitle}>{section.subtitle}</p>
       </div>
