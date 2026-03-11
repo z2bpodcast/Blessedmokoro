@@ -1185,6 +1185,20 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
           <button style={S.btnGold} onClick={() => setView("workshop")}>🏛️ Enter Workshop</button>
           <button style={S.btnOutline} onClick={() => setView("workshop")}>🎁 Start Free (9 Sessions)</button>
         </div>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginTop: "12px" }}>
+          <a
+            href="/vision-board"
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #B8860B, #D4AF37)", color: "#000", border: "none", padding: "12px 24px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", textDecoration: "none", fontFamily: "Georgia, serif" }}
+          >
+            🏆 My Vision Board
+          </a>
+          <a
+            href="/"
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "transparent", color: "#6B21A8", border: "2px solid #6B21A8", padding: "12px 24px", borderRadius: "10px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", textDecoration: "none", fontFamily: "Georgia, serif" }}
+          >
+            🏠 Main Home
+          </a>
+        </div>
         <div style={S.homeTeee}>
           {["Transform", "Educate", "Empower", "Enrich"].map((t) => (
             <span key={t} style={S.teeePill}>{t}</span>
