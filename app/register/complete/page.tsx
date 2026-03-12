@@ -1,13 +1,11 @@
 'use client'
 
-// app/register/complete/page.tsx
-// Shown AFTER payment is confirmed — collect full membership details
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default function RegisterComplete() {
+// ── Inner component uses useSearchParams — must be inside Suspense ──
+function RegisterCompleteInner() {
   const router       = useRouter()
   const searchParams = useSearchParams()
   const paymentId    = searchParams.get('payment_id') || ''
@@ -29,16 +27,11 @@ export default function RegisterComplete() {
   const [step,    setStep]    = useState<'form' | 'done'>('form')
 
   useEffect(() => {
-    // Pre-fill email from localStorage (set during workshop email gate)
     const savedEmail = localStorage.getItem('z2b_workshop_email') || ''
     const savedName  = localStorage.getItem('z2b_workshop_first_name') || ''
     setEmail(savedEmail)
     if (savedName) setForm(f => ({ ...f, firstName: savedName }))
-
-    // Verify payment record exists
-    if (!paymentId) {
-      router.replace('/pricing')
-    }
+    if (!paymentId) router.replace('/pricing')
   }, [paymentId, router])
 
   const set = (field: string, val: string) => setForm(f => ({ ...f, [field]: val }))
@@ -47,25 +40,21 @@ export default function RegisterComplete() {
     setError('')
     const { firstName, lastName, whatsapp, city, password, confirmPass } = form
     if (!firstName || !lastName || !whatsapp || !city) { setError('Please fill in all required fields.'); return }
-    if (!password || password.length < 8) { setError('Password must be at least 8 characters.'); return }
-    if (password !== confirmPass)          { setError('Passwords do not match.'); return }
-    if (!email)                            { setError('Email not found. Please return to workshop.'); return }
+    if (!password || password.length < 8)              { setError('Password must be at least 8 characters.'); return }
+    if (password !== confirmPass)                       { setError('Passwords do not match.'); return }
+    if (!email)                                         { setError('Email not found. Please return to workshop.'); return }
 
     setLoading(true)
     try {
-      // 1. Create Supabase auth account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: { full_name: `${firstName} ${lastName}`, tier }
-        }
+        options: { data: { full_name: `${firstName} ${lastName}`, tier } }
       })
       if (authError) throw authError
       const userId = authData.user?.id
       if (!userId) throw new Error('User creation failed')
 
-      // 2. Get referral info from workshop_prospects
       const { data: prospect } = await supabase
         .from('workshop_prospects')
         .select('referred_by')
@@ -73,46 +62,34 @@ export default function RegisterComplete() {
         .single()
 
       const referredBy = prospect?.referred_by || localStorage.getItem('z2b_ref') || null
+      const refCode    = `${firstName.slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
 
-      // 3. Generate unique referral code for new member
-      const refCode = `${firstName.slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
+      await supabase.from('profiles').upsert({
+        id:              userId,
+        email,
+        full_name:       `${firstName} ${lastName}`,
+        first_name:      firstName,
+        last_name:       lastName,
+        whatsapp_number: whatsapp,
+        city,
+        province:        form.province,
+        occupation:      form.occupation,
+        user_role:       tier,
+        is_paid_member:  true,
+        payment_status:  'paid',
+        referral_code:   refCode,
+        referred_by:     referredBy,
+        joined_at:       new Date().toISOString(),
+      })
 
-      // 4. Upsert profile — mark as paid (payment already confirmed before this step)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id:              userId,
-          email,
-          full_name:       `${firstName} ${lastName}`,
-          first_name:      firstName,
-          last_name:       lastName,
-          whatsapp_number: whatsapp,
-          city,
-          province:        form.province,
-          occupation:      form.occupation,
-          user_role:       tier,
-          is_paid_member:  true,
-          payment_status:  'paid',
-          referral_code:   refCode,
-          referred_by:     referredBy,
-          joined_at:       new Date().toISOString(),
-        })
-      if (profileError) throw profileError
-
-      // 5. Link payment record to this user
-      if (paymentId) {
-        await supabase
-          .from('payments')
+      if (paymentId && paymentId !== 'pending') {
+        await supabase.from('payments')
           .update({ user_id: userId, status: 'completed' })
           .eq('id', paymentId)
       }
 
-      // 6. Credit sponsor ISP if referred
-      if (referredBy) {
-        await creditSponsor(referredBy, userId, tier, email)
-      }
+      if (referredBy) await creditSponsor(referredBy, userId, tier, email)
 
-      // 7. Clear localStorage gate
       localStorage.removeItem('z2b_workshop_email')
       localStorage.removeItem('z2b_workshop_first_name')
       localStorage.removeItem('z2b_ref')
@@ -127,84 +104,55 @@ export default function RegisterComplete() {
 
   const creditSponsor = async (sponsorCode: string, newUserId: string, tier: string, newEmail: string) => {
     try {
-      // Get sponsor profile
       const { data: sponsor } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .eq('referral_code', sponsorCode)
-        .single()
+        .from('profiles').select('id').eq('referral_code', sponsorCode).single()
       if (!sponsor) return
 
-      // ISP rate by tier
-      const ISP_RATES: Record<string, number> = {
-        fam: 0.10, bronze: 0.18, copper: 0.22, silver: 0.25, gold: 0.28, platinum: 0.30
-      }
-      const TIER_PRICES: Record<string, number> = {
-        bronze: 480, copper: 1200, silver: 2500, gold: 5000, platinum: 12000
-      }
-      const ispRate  = ISP_RATES[tier]  || 0.18
-      const price    = TIER_PRICES[tier] || 480
+      const ISP_RATES:  Record<string, number> = { fam: 0.10, bronze: 0.18, copper: 0.22, silver: 0.25, gold: 0.28, platinum: 0.30 }
+      const TIER_PRICES: Record<string, number> = { bronze: 480, copper: 1200, silver: 2500, gold: 5000, platinum: 12000 }
+      const ispRate   = ISP_RATES[tier]  || 0.18
+      const price     = TIER_PRICES[tier] || 480
       const ispEarned = Math.round(price * ispRate)
 
-      // Record ISP earning
       await supabase.from('sponsor_earnings').insert({
-        sponsor_id:     sponsor.id,
-        new_member_id:  newUserId,
-        new_member_email: newEmail,
-        tier_purchased: tier,
-        tier_price:     price,
-        isp_rate:       ispRate,
-        isp_amount:     ispEarned,
-        earning_type:   'ISP',
-        status:         'confirmed',
-        earned_at:      new Date().toISOString(),
+        sponsor_id: sponsor.id, new_member_id: newUserId, new_member_email: newEmail,
+        tier_purchased: tier, tier_price: price, isp_rate: ispRate, isp_amount: ispEarned,
+        earning_type: 'ISP', status: 'confirmed', earned_at: new Date().toISOString(),
       })
 
-      // Notify sponsor via builder_alerts
       await supabase.from('builder_alerts').insert({
-        builder_code: sponsorCode,
-        prospect_id:  newUserId,
-        alert_type:   'conversion',
-        session_num:  0,
-        message:      `🎉 ${newEmail} just upgraded to ${tier.toUpperCase()}! You earned R${ispEarned} ISP commission.`,
-        read:         false,
+        builder_code: sponsorCode, prospect_id: newUserId, alert_type: 'conversion', session_num: 0,
+        message: `🎉 ${newEmail} just upgraded to ${tier.toUpperCase()}! You earned R${ispEarned} ISP commission.`,
+        read: false,
       })
     } catch (err) {
       console.error('Sponsor credit error:', err)
-      // Non-blocking — don't fail registration if sponsor credit fails
     }
   }
 
   const S = {
     page:  { minHeight: '100vh', background: 'linear-gradient(135deg, #0A0015, #1A0035)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'system-ui, sans-serif' } as React.CSSProperties,
     card:  { background: '#1A0035', border: '2px solid rgba(212,175,55,0.35)', borderRadius: '20px', padding: '36px 28px', maxWidth: '520px', width: '100%' } as React.CSSProperties,
-    label: { fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '5px', display: 'block', letterSpacing: '0.5px' } as React.CSSProperties,
+    label: { fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '5px', display: 'block' } as React.CSSProperties,
     input: { width: '100%', background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '12px 14px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as const } as React.CSSProperties,
     row:   { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' } as React.CSSProperties,
-    gold:  '#D4AF37',
   }
 
   if (step === 'done') return (
     <div style={S.page}>
       <div style={{ ...S.card, textAlign: 'center' }}>
         <div style={{ fontSize: '56px', marginBottom: '16px' }}>🎉</div>
-        <div style={{ fontSize: '12px', color: S.gold, letterSpacing: '3px', marginBottom: '10px' }}>WELCOME TO THE TABLE</div>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff', marginBottom: '12px' }}>
-          Your membership is active!
-        </h2>
+        <div style={{ fontSize: '12px', color: '#D4AF37', letterSpacing: '3px', marginBottom: '10px' }}>WELCOME TO THE TABLE</div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff', marginBottom: '12px' }}>Your membership is active!</h2>
         <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '28px', lineHeight: 1.7 }}>
           You are now a Z2B {tier.charAt(0).toUpperCase() + tier.slice(1)} member. Your lifetime seat at the table is secured.
         </p>
-        <button
-          onClick={() => router.push('/workshop')}
-          style={{ width: '100%', background: `linear-gradient(135deg, #B8860B, ${S.gold})`, color: '#000', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}
-        >
+        <button onClick={() => router.push('/workshop')}
+          style={{ width: '100%', background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#000', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
           Continue to Workshop →
         </button>
-        <button
-          onClick={() => router.push('/groundbreaker')}
-          style={{ width: '100%', background: 'rgba(255,255,255,0.07)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}
-        >
+        <button onClick={() => router.push('/groundbreaker')}
+          style={{ width: '100%', background: 'rgba(255,255,255,0.07)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
           Open GroundBreaker Dashboard
         </button>
       </div>
@@ -216,18 +164,16 @@ export default function RegisterComplete() {
       <div style={S.card}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <img src="/logo.jpg" alt="Z2B" style={{ width: '56px', height: '56px', borderRadius: '12px', margin: '0 auto 14px', border: '2px solid #D4AF37' }} />
-          <div style={{ fontSize: '11px', color: S.gold, letterSpacing: '3px', marginBottom: '6px' }}>STEP 2 OF 2</div>
+          <div style={{ fontSize: '11px', color: '#D4AF37', letterSpacing: '3px', marginBottom: '6px' }}>STEP 2 OF 2</div>
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#fff', marginBottom: '4px' }}>Complete Your Membership</h2>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Payment confirmed ✅ — tell us a bit about yourself</p>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Payment confirmed ✅ — tell us about yourself</p>
         </div>
 
-        {/* Email (pre-filled, read-only) */}
         <div style={{ marginBottom: '14px' }}>
           <label style={S.label}>Email address</label>
           <input type="email" value={email} readOnly style={{ ...S.input, opacity: 0.5, cursor: 'not-allowed' }} />
         </div>
 
-        {/* Name row */}
         <div style={S.row}>
           <div>
             <label style={S.label}>First name *</label>
@@ -239,13 +185,11 @@ export default function RegisterComplete() {
           </div>
         </div>
 
-        {/* WhatsApp */}
         <div style={{ marginBottom: '14px' }}>
           <label style={S.label}>WhatsApp number *</label>
           <input type="tel" value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} style={S.input} placeholder="+27 81 234 5678" />
         </div>
 
-        {/* City + Province */}
         <div style={S.row}>
           <div>
             <label style={S.label}>City *</label>
@@ -262,13 +206,11 @@ export default function RegisterComplete() {
           </div>
         </div>
 
-        {/* Occupation */}
         <div style={{ marginBottom: '14px' }}>
           <label style={S.label}>Occupation</label>
           <input type="text" value={form.occupation} onChange={e => set('occupation', e.target.value)} style={S.input} placeholder="e.g. Teacher, Nurse, Accountant..." />
         </div>
 
-        {/* Password */}
         <div style={S.row}>
           <div>
             <label style={S.label}>Create password *</label>
@@ -286,11 +228,8 @@ export default function RegisterComplete() {
           </div>
         )}
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          style={{ width: '100%', background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#000', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
-        >
+        <button onClick={handleSubmit} disabled={loading}
+          style={{ width: '100%', background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#000', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px' }}>
           {loading ? 'Activating your membership...' : 'Activate My Membership 🎉'}
         </button>
 
@@ -299,5 +238,18 @@ export default function RegisterComplete() {
         </p>
       </div>
     </div>
+  )
+}
+
+// ── Suspense wrapper — required for useSearchParams ──
+export default function RegisterComplete() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0A0015, #1A0035)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37', fontSize: '18px' }}>
+        Loading...
+      </div>
+    }>
+      <RegisterCompleteInner />
+    </Suspense>
   )
 }
