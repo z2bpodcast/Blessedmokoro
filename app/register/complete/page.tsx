@@ -170,8 +170,23 @@ function RegisterCompleteInner() {
         </div>
 
         <div style={{ marginBottom: '14px' }}>
-          <label style={S.label}>Email address</label>
-          <input type="email" value={email} readOnly style={{ ...S.input, opacity: 0.5, cursor: 'not-allowed' }} />
+          <label style={S.label}>Email address {email ? '(pre-filled from workshop)' : '*'}</label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            readOnly={!!email}
+            placeholder="your@email.com"
+            style={{ ...S.input, opacity: email ? 0.6 : 1, cursor: email ? 'not-allowed' : 'text' }}
+          />
+          {email && (
+            <button
+              onClick={() => setEmail('')}
+              style={{ fontSize:'11px', color:'#A78BFA', background:'none', border:'none', cursor:'pointer', marginTop:'4px', padding:0 }}
+            >
+              ✏️ Use a different email
+            </button>
+          )}
         </div>
 
         <div style={S.row}>

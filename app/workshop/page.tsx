@@ -3638,25 +3638,6 @@ What you are about to read is not theory. It is a mirror. It describes the life 
 
       {scrolledToBottom && (
         <>
-          <div style={S.activityCard}>
-            <div style={S.activityHeader}>📋 Your Transformation Activity</div>
-            <p style={S.activityText}>{section.activity}</p>
-            <label style={S.checkLabel}>
-              <input
-                type="checkbox"
-                checked={activityTicked}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActivityTicked(e.target.checked)}
-                style={S.checkbox}
-              />
-              <span>
-                <strong>I am true to myself — I have completed this activity.</strong> I understand that this workshop transforms those who do the work, not those who skip it. My results will reflect my honesty here.
-              </span>
-            </label>
-            <p style={{ fontSize: "12px", color: "#92400E", fontStyle: "italic", marginTop: "12px", borderTop: "1px solid #FCD34D", paddingTop: "10px" }}>
-              "The seeds you plant in private determine the harvest you reap in public." — Rev Mokoro Manana
-            </p>
-          </div>
-
           <div style={S.quizCard}>
             <div style={S.quizHeader}>📝 Comprehension Check — 5 Questions</div>
             <p style={S.quizSub}>Answer all 5 questions to proceed to the next section.</p>
@@ -3709,10 +3690,35 @@ What you are about to read is not theory. It is a mirror. It describes the life 
                   </button>
                 )}
                 {score != null && score >= 3 && !activityTicked && (
-                  <p style={S.hint}>☝️ Please tick the activity checkbox above to proceed.</p>
+                  <p style={S.hint}>☝️ Please complete the transformation activity below to proceed.</p>
                 )}
               </div>
             )}
+          </div>
+
+          {/* Activity comes LAST — after reading and quiz */}
+          <div style={S.activityCard}>
+            <div style={S.activityHeader}>📋 Your Transformation Activity</div>
+            <p style={S.activityText}>{section.activity}</p>
+            <label style={S.checkLabel}>
+              <input
+                type="checkbox"
+                checked={activityTicked}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActivityTicked(e.target.checked)}
+                style={S.checkbox}
+              />
+              <span>
+                <strong>I am true to myself — I have completed this activity.</strong> I understand that this workshop transforms those who do the work, not those who skip it. My results will reflect my honesty here.
+              </span>
+            </label>
+            {activityTicked && submitted && score != null && score >= 3 && (
+              <button style={{ ...S.btnGold, marginTop: "16px" }} onClick={handleComplete}>
+                Mark Session Complete &amp; Continue →
+              </button>
+            )}
+            <p style={{ fontSize: "12px", color: "#92400E", fontStyle: "italic", marginTop: "12px", borderTop: "1px solid #FCD34D", paddingTop: "10px" }}>
+              "The seeds you plant in private determine the harvest you reap in public." — Rev Mokoro Manana
+            </p>
           </div>
         </>
       )}
