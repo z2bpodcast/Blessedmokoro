@@ -295,7 +295,9 @@ Network Marketing transports employees from: Pure consumption → Strategic cons
 
 **Household Products as Training Wheels.** Many network marketing companies distribute household necessities. Demand already exists. You are not creating consumption — you are redirecting it. This allows builders to learn in a low-risk environment with familiar products.
 
-**Network Marketing Is Not Your Identity.** You are an Entrepreneurial Consumer first. Network Marketing is one of your tools — not your definition. Identity traps create burnout. Use it. Learn from it. Leverage it. But never mistake the vehicle for the vision.`,
+**Network Marketing Is Not Your Identity.** You are an Entrepreneurial Consumer first. Network Marketing is one of your tools — not your definition. Identity traps create burnout. Use it. Learn from it. Leverage it. But never mistake the vehicle for the vision.
+
+[[OBJECTION_DISSOLVER]]`,
     activity: "Research one legitimate network marketing company that distributes products you already buy monthly. Look at their compensation plan for 30 minutes. You don't have to join — just understand the structure. Note what surprised you.",
     questions: [
       { q: "Network Marketing is described as:", options: ["The final goal for entrepreneurs", "A guaranteed path to wealth", "A vehicle that accelerates movement toward ownership", "A replacement for employment"], answer: 2 },
@@ -327,7 +329,9 @@ You are not surrounded by employees and consumers by accident. You are surrounde
 
 **The Circle of Twelve.** Identify 12 Builders across these three layers. Why Twelve? Because Twelve represents governmental structure — 12 Tribes of Israel, 12 Disciples, 12 Foundations of New Jerusalem. Twelve is a number of organized expansion.
 
-**The Doctrine of Capital:** Financial Capital is money. Human Capital is skills, wisdom, and networks. Strategic Capital is alignment, positioning, and influence. Your Circle contains all three in seed form.`,
+**The Doctrine of Capital:** Financial Capital is money. Human Capital is skills, wisdom, and networks. Strategic Capital is alignment, positioning, and influence. Your Circle contains all three in seed form.
+
+[[CIRCLE_OF_TWELVE]]`,
     activity: "Write down 12 names — people in your life across the three layers: 4 short-term helpers, 4 medium-term builders, 4 long-term covenant partners. Don't filter — just write names. You don't need their permission yet. You just need clarity.",
     questions: [
       { q: "In Kingdom economics, what does God give BEFORE land and territory?", options: ["Money and resources", "Business ideas", "People and relationships", "A vision statement"], answer: 2 },
@@ -1361,6 +1365,436 @@ function ManlawVoice({ text }: { text: string }) {
             ⏹ Stop
           </button>
         </>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 8 — OBJECTION DISSOLVER ─────────────────────────
+function ObjectionDissolver({ firstName }: { firstName: string }) {
+  const [activeObj, setActiveObj] = React.useState<number | null>(null);
+  const [dissolved, setDissolved] = React.useState<Record<number, boolean>>({});
+
+  const objections = [
+    {
+      fear: "Is this a pyramid scheme?",
+      icon: "🔺",
+      color: "#EF4444",
+      reality: "A pyramid scheme pays people to recruit — with no real product or value exchanged. It is illegal in South Africa. Network Marketing is a legal distribution model regulated by the Consumer Protection Act. The difference is simple: real products, real customers, real value. Z2B distributes products people already buy. No product = pyramid. Real product = legitimate business vehicle.",
+      truth: "You were right to ask. Discernment is a builder's first skill. Now you know the difference.",
+    },
+    {
+      fear: "I don't want to sell to my friends and family.",
+      icon: "😬",
+      color: "#F97316",
+      reality: "You are not being asked to sell to friends. You are being equipped to share a solution with people who already have a problem. There is a difference between pestering and positioning. When you understand the Z2B model, you don't chase — you attract. People come to you because your life is changing. That is not selling. That is testimony.",
+      truth: "The best builders never feel like salespeople. They feel like people who found something valuable and couldn't keep quiet.",
+    },
+    {
+      fear: "I tried something like this before and it didn't work.",
+      icon: "💔",
+      color: "#9333EA",
+      reality: "Most people who tried and failed did so without: proper education before execution, a community for support, a clear identity as an Entrepreneurial Consumer, and a structured 90-session journey. They were handed a product and told to hustle. Z2B does the opposite — it builds you first. The vehicle did not fail you. The system around the vehicle was missing.",
+      truth: firstName + ", this is not a retry. This is a rebuild — from the foundation up.",
+    },
+    {
+      fear: "I don't have time.",
+      icon: "⏰",
+      color: "#0EA5E9",
+      reality: "The Z2B model is designed for employed people with limited time. You do not need to quit your job. You do not need 8 hours a day. You need 30 focused minutes and a smartphone. The system works through duplication — meaning your network works even when you don't. Time is not the constraint. Clarity and consistency are.",
+      truth: "The question is not whether you have time. It is whether what you are spending your time on is building anything.",
+    },
+    {
+      fear: "I don't have money to start.",
+      icon: "💸",
+      color: "#22C55E",
+      reality: "Sessions 1 to 9 are completely free. You are not asked for money to learn. When you are ready to upgrade, Z2B membership is a once-off lifetime investment of R480 — not a monthly subscription, not a recurring fee. You pay once and you are in for life. More importantly: Z2B is designed to generate income before it asks you to invest anything. You learn first. You earn first. Then you decide.",
+      truth: "The first investment Z2B asks for is not money. It is attention. You are already investing it.",
+    },
+    {
+      fear: "My family will think I've joined a cult.",
+      icon: "🏠",
+      color: "#D4AF37",
+      reality: "This is one of the most common fears — and the most human. The answer is not to argue. It is to produce results. When your account has extra income, when your stress reduces, when your vision becomes clear — the conversation changes. Don't recruit your family. Let your transformation recruit them. Z2B is a kingdom business. It is built on integrity, education, and stewardship — not hype.",
+      truth: "Your greatest testimony will not be what you say about Z2B. It will be what Z2B does through you.",
+    },
+  ];
+
+  const dissolvedCount = Object.values(dissolved).filter(Boolean).length;
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #1A0010, #0D0020)",
+      border: "2px solid #EF4444", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#FCA5A5", marginBottom: "4px" }}>
+        🛡️ The Fear Audit — Every Objection Dissolved
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(252,165,165,0.6)", marginBottom: "6px", lineHeight: 1.6 }}>
+        {firstName}, these are the six fears that stop most people from ever starting. Tap each one. Read the reality. Then decide from truth — not fear.
+      </div>
+      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "20px" }}>
+        {dissolvedCount}/6 fears dissolved
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {objections.map((obj, i) => {
+          const isOpen = activeObj === i;
+          const isDone = dissolved[i];
+          return (
+            <div key={i} style={{
+              background: isDone ? "rgba(34,197,94,0.06)" : "rgba(255,255,255,0.03)",
+              border: `1.5px solid ${isDone ? "rgba(34,197,94,0.4)" : isOpen ? obj.color : "rgba(255,255,255,0.08)"}`,
+              borderRadius: "12px", overflow: "hidden", transition: "all 0.2s",
+            }}>
+              {/* Header */}
+              <div
+                onClick={() => setActiveObj(isOpen ? null : i)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "12px",
+                  padding: "14px 16px", cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>{isDone ? "✅" : obj.icon}</span>
+                <span style={{
+                  fontSize: "14px", fontWeight: "bold", flex: 1,
+                  color: isDone ? "#22C55E" : "#fff",
+                }}>
+                  {obj.fear}
+                </span>
+                <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px" }}>
+                  {isOpen ? "▲" : "▼"}
+                </span>
+              </div>
+
+              {/* Expanded */}
+              {isOpen && (
+                <div style={{ padding: "0 16px 16px" }}>
+                  <div style={{
+                    background: "rgba(0,0,0,0.3)", borderRadius: "10px",
+                    padding: "14px", marginBottom: "12px",
+                    borderLeft: `3px solid ${obj.color}`,
+                  }}>
+                    <div style={{ fontSize: "11px", color: obj.color, fontWeight: "bold", letterSpacing: "1px", marginBottom: "8px" }}>
+                      THE REALITY
+                    </div>
+                    <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.8 }}>
+                      {obj.reality}
+                    </div>
+                  </div>
+                  <div style={{
+                    fontSize: "13px", color: "#D4AF37", fontStyle: "italic",
+                    marginBottom: "12px", paddingLeft: "4px",
+                  }}>
+                    "{obj.truth}"
+                  </div>
+                  {!isDone && (
+                    <button
+                      onClick={() => { setDissolved(prev => ({ ...prev, [i]: true })); setActiveObj(null); }}
+                      style={{
+                        background: `linear-gradient(135deg, ${obj.color}99, ${obj.color})`,
+                        color: "#fff", border: "none", borderRadius: "8px",
+                        padding: "10px 20px", fontWeight: "bold", fontSize: "13px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Fear Dissolved ✓
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {dissolvedCount === 6 && (
+        <div style={{
+          marginTop: "20px", background: "rgba(34,197,94,0.1)",
+          border: "1px solid rgba(34,197,94,0.4)",
+          borderRadius: "12px", padding: "18px",
+        }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#22C55E", marginBottom: "8px" }}>
+            {firstName}, all six fears are dissolved. 🛡️
+          </div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.8, marginBottom: "10px" }}>
+            You did not arrive at Session 8 by accident. Eight sessions of education have been building this moment.
+            You now have clarity where there was confusion, and truth where there was fear.
+            The last session is not another lesson — it is an invitation.
+          </div>
+          <div style={{ fontSize: "12px", color: "#D4AF37", fontStyle: "italic" }}>
+            🔥 Session 9 — Your Circle of Twelve is waiting. The harvest is almost ready.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 9 — CIRCLE OF TWELVE ─────────────────────────────
+function CircleOfTwelve({ firstName }: { firstName: string }) {
+  const layers = [
+    {
+      key: "ignition",
+      label: "Short-Term Destiny Helpers",
+      range: "Start immediately",
+      icon: "⚡",
+      color: "#22C55E",
+      bg: "rgba(34,197,94,0.08)",
+      border: "rgba(34,197,94,0.35)",
+      desc: "Ready to walk with you NOW. Ignition partners — they help you implement, share learning and break fear barriers.",
+      count: 4,
+    },
+    {
+      key: "strategic",
+      label: "Medium-Term Strategic Builders",
+      range: "1 to 3 years",
+      icon: "🏗️",
+      color: "#0EA5E9",
+      bg: "rgba(14,165,233,0.08)",
+      border: "rgba(14,165,233,0.35)",
+      desc: "Carry complementary capabilities. You will launch structured collaborations and combine skills with these people.",
+      count: 4,
+    },
+    {
+      key: "covenant",
+      label: "Long-Term Covenant Partners",
+      range: "5 to 10 years",
+      icon: "🤝",
+      color: "#D4AF37",
+      bg: "rgba(212,175,55,0.08)",
+      border: "rgba(212,175,55,0.35)",
+      desc: "Destiny alliances. Business partnerships, investment alliances, property and legacy ventures. These are your tribe.",
+      count: 4,
+    },
+  ];
+
+  const [names, setNames] = React.useState<Record<string, string[]>>({
+    ignition:  ["", "", "", ""],
+    strategic: ["", "", "", ""],
+    covenant:  ["", "", "", ""],
+  });
+  const [revealed, setRevealed] = React.useState(false);
+  const [harvestReady, setHarvestReady] = React.useState(false);
+
+  const updateName = (layer: string, idx: number, val: string) => {
+    setNames(prev => {
+      const updated = [...prev[layer]];
+      updated[idx] = val;
+      return { ...prev, [layer]: updated };
+    });
+  };
+
+  const filledCount = Object.values(names).flat().filter(n => n.trim().length > 1).length;
+  const allTwelveFilled = filledCount === 12;
+
+  const handleReveal = () => {
+    if (!allTwelveFilled) return;
+    setRevealed(true);
+    // Store in localStorage for builder dashboard
+    try {
+      localStorage.setItem("z2b_circle_of_twelve", JSON.stringify(names));
+    } catch(e) {}
+  };
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #1A0A00, #1A0035)",
+      border: "2px solid #D4AF37", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "4px" }}>
+        👑 Your Circle of Twelve
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(212,175,55,0.7)", marginBottom: "6px", lineHeight: 1.6 }}>
+        {firstName}, before God gives a man land — He gives him people. Write 12 names across the three layers.
+        Do not filter. Do not ask permission. Just write who comes to mind.
+      </div>
+      <div style={{
+        fontSize: "12px", color: "rgba(255,255,255,0.4)",
+        marginBottom: "20px", fontStyle: "italic",
+      }}>
+        "12 Tribes. 12 Disciples. 12 Foundations. Twelve is the number of organised expansion." — Z2B
+      </div>
+
+      {!revealed ? (
+        <>
+          {layers.map(layer => (
+            <div key={layer.key} style={{
+              background: layer.bg, border: `1.5px solid ${layer.border}`,
+              borderRadius: "14px", padding: "16px", marginBottom: "14px",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+                <span style={{ fontSize: "20px" }}>{layer.icon}</span>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: layer.color }}>{layer.label}</div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{layer.range}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "12px", lineHeight: 1.6, paddingLeft: "30px" }}>
+                {layer.desc}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                {[0,1,2,3].map(idx => (
+                  <div key={idx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{
+                      width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
+                      background: names[layer.key][idx].trim().length > 1 ? layer.color : "rgba(255,255,255,0.1)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "11px", fontWeight: "bold", color: "#000",
+                    }}>
+                      {names[layer.key][idx].trim().length > 1 ? "✓" : idx + 1}
+                    </div>
+                    <input
+                      type="text"
+                      value={names[layer.key][idx]}
+                      onChange={e => updateName(layer.key, idx, e.target.value)}
+                      placeholder={`Name ${idx + 1}`}
+                      style={{
+                        flex: 1, background: "rgba(0,0,0,0.3)",
+                        border: `1px solid ${names[layer.key][idx].trim().length > 1 ? layer.color : "rgba(255,255,255,0.1)"}`,
+                        borderRadius: "8px", padding: "8px 10px",
+                        color: "#fff", fontSize: "13px", outline: "none",
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Progress */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+              <div style={{
+                height: "100%", borderRadius: "3px",
+                width: `${(filledCount / 12) * 100}%`,
+                background: "linear-gradient(90deg, #22C55E, #D4AF37)",
+                transition: "width 0.3s",
+              }} />
+            </div>
+            <div style={{ fontSize: "13px", color: "#D4AF37", fontWeight: "bold", minWidth: "40px" }}>
+              {filledCount}/12
+            </div>
+          </div>
+
+          <button
+            onClick={handleReveal}
+            disabled={!allTwelveFilled}
+            style={{
+              background: allTwelveFilled ? "linear-gradient(135deg, #B8860B, #D4AF37)" : "rgba(255,255,255,0.08)",
+              color: allTwelveFilled ? "#000" : "rgba(255,255,255,0.3)",
+              border: "none", borderRadius: "10px", padding: "13px 32px",
+              fontWeight: "bold", fontSize: "14px",
+              cursor: allTwelveFilled ? "pointer" : "not-allowed",
+            }}
+          >
+            {allTwelveFilled ? "👑 Seal My Circle →" : `${12 - filledCount} names remaining`}
+          </button>
+        </>
+      ) : !harvestReady ? (
+        // Circle sealed — harvest moment
+        <div>
+          <div style={{
+            background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.4)",
+            borderRadius: "12px", padding: "20px", marginBottom: "16px",
+          }}>
+            <div style={{ fontSize: "20px", fontWeight: "bold", color: "#D4AF37", marginBottom: "10px" }}>
+              {firstName}, your Circle of Twelve is sealed. 👑
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
+              {layers.map(layer => (
+                <div key={layer.key} style={{
+                  background: layer.bg, border: `1px solid ${layer.border}`,
+                  borderRadius: "10px", padding: "12px", textAlign: "center",
+                }}>
+                  <div style={{ fontSize: "18px", marginBottom: "4px" }}>{layer.icon}</div>
+                  <div style={{ fontSize: "11px", color: layer.color, fontWeight: "bold", marginBottom: "6px" }}>
+                    {layer.label.split(" ").slice(0,2).join(" ")}
+                  </div>
+                  {names[layer.key].map((n, i) => (
+                    <div key={i} style={{ fontSize: "12px", color: "#fff", padding: "2px 0" }}>
+                      {n.trim() || "—"}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8 }}>
+              These 12 people are seeds. Some will grow with you immediately. Some will take years to understand
+              what you are building. Some will surprise you. Your role is not to convince them —
+              it is to remain consistent until your results do the convincing.
+            </div>
+          </div>
+
+          <div style={{
+            background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)",
+            borderRadius: "12px", padding: "16px", marginBottom: "16px",
+          }}>
+            <div style={{ fontSize: "14px", fontWeight: "bold", color: "#FCA5A5", marginBottom: "8px" }}>
+              🔥 {firstName} — You Have Completed All 9 Free Sessions.
+            </div>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8 }}>
+              You have done what most people never do. You sat down, learned, reflected, and built.
+              You mapped your assets. You chose your identity. You built your vision. You dissolved your fears.
+              You named your circle. The ground is not just broken — it is prepared.
+            </div>
+          </div>
+
+          <button
+            onClick={() => setHarvestReady(true)}
+            style={{
+              background: "linear-gradient(135deg, #7C2D12, #EF4444)",
+              color: "#fff", border: "none", borderRadius: "10px",
+              padding: "14px 32px", fontWeight: "bold", fontSize: "15px",
+              cursor: "pointer", width: "100%",
+            }}
+          >
+            🔥 I Am Ready — Show Me The Next Step
+          </button>
+        </div>
+      ) : (
+        // HARVEST READY — final screen
+        <div style={{
+          background: "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(147,51,234,0.1))",
+          border: "2px solid #D4AF37", borderRadius: "12px", padding: "24px",
+          textAlign: "center",
+        }}>
+          <div style={{ fontSize: "32px", marginBottom: "12px" }}>🏆</div>
+          <div style={{ fontSize: "22px", fontWeight: "bold", color: "#D4AF37", marginBottom: "10px" }}>
+            The Table Is Set, {firstName}.
+          </div>
+          <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)", lineHeight: 1.9, marginBottom: "20px" }}>
+            Nine sessions. Nine mirrors. Nine steps of preparation.<br />
+            You are no longer a spectator of the economy — you are being positioned as a builder within it.<br /><br />
+            The Z2B TABLE BANQUET continues beyond Session 9 — with 81 more sessions covering
+            platform ownership, income streams, digital assets, leadership, and legacy.
+            But first — the person who invited you to this table has been notified.
+            They have walked this journey with you from the first session.
+            Your next conversation with them will be different. You are ready.
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <a href="/vision-board" style={{
+              display: "block", background: "linear-gradient(135deg, #B8860B, #D4AF37)",
+              color: "#000", borderRadius: "10px", padding: "13px",
+              fontWeight: "bold", fontSize: "14px", textDecoration: "none",
+            }}>
+              🏆 Complete My Vision Board
+            </a>
+            <a href="/pricing" style={{
+              display: "block", background: "linear-gradient(135deg, #6B21A8, #9333EA)",
+              color: "#fff", borderRadius: "10px", padding: "13px",
+              fontWeight: "bold", fontSize: "14px", textDecoration: "none",
+            }}>
+              ⚡ Upgrade — Continue to Session 10
+            </a>
+          </div>
+          <div style={{ marginTop: "16px", fontSize: "12px", color: "rgba(212,175,55,0.5)", fontStyle: "italic" }}>
+            "You prepare a table before me in the presence of my enemies." — Psalm 23:5
+          </div>
+        </div>
       )}
     </div>
   );
@@ -2715,6 +3149,14 @@ What you are about to read is not theory. It is a mirror. It describes the life 
       .replace("[[MIRROR_MOMENT]]", "[[MIRROR_MOMENT]]"); // handled separately below
 
     return processed.split("\n\n").map((para, i) => {
+      if (para === "[[OBJECTION_DISSOLVER]]") {
+        return <ObjectionDissolver key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[CIRCLE_OF_TWELVE]]") {
+        return <CircleOfTwelve key={i} firstName={firstName} />;
+      }
+
       if (para === "[[SWOT_BUILDER]]") {
         return <SwotBuilder key={i} firstName={firstName} />;
       }
@@ -2922,7 +3364,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
               ⬆️ See Membership Plans
             </a>
             <div style={{ marginTop: "10px", fontSize: "11px", color: "rgba(196,181,253,0.5)" }}>
-              Builder · Leader · Legacy · Platinum — starting at R297/month
+              Once-off lifetime membership from R480 — pay once, earn forever
             </div>
           </div>
         )}
