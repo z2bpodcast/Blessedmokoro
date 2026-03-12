@@ -111,7 +111,9 @@ But for most employees, this advice feels reckless. They have families to suppor
 
 That's why many employees feel stuck between two unsatisfying options: stay employed and frustrated, or quit and gamble on uncertainty. This false choice creates paralysis.
 
-**What is rarely offered is a third option** — one that respects reality while expanding possibility. A way that does not require quitting your job. Does not demand a business idea upfront. Does not pressure you to take reckless risks. Instead, it begins with clarity, community, and intentional consumption.`,
+**What is rarely offered is a third option** — one that respects reality while expanding possibility. A way that does not require quitting your job. Does not demand a business idea upfront. Does not pressure you to take reckless risks. Instead, it begins with clarity, community, and intentional consumption.
+
+[[MONTH_CHECK]]`,
     activity: "List 5 brands or companies you spend money with every month. Next to each one, write: 'Do I participate in their profits in any way?' This exercise plants the seed of strategic awareness.",
     questions: [
       { q: "Employees are described as 'powerful ______ but powerless owners':", options: ["Workers", "Consumers", "Investors", "Entrepreneurs"], answer: 1 },
@@ -141,7 +143,9 @@ Consumption becomes a tool, not a weakness. Household expenses are turned into I
 
 **Entrepreneurial consumers do not rush to "start businesses."** They start by asking better questions: What do I already spend money on every month? Who else around me spends on the same things? Is there a way to redirect this flow so value comes back to me?
 
-This is not about inventing something new. It is about repositioning what already exists.`,
+This is not about inventing something new. It is about repositioning what already exists.
+
+[[IDENTITY_SELECTOR]]`,
     activity: "Identify which of the three identities describes you TODAY. Be honest. Write it down. Then write which identity you want to grow INTO over the next 12 months. The gap between those two is your workshop journey.",
     questions: [
       { q: "What is the 'missing identity' this section introduces?", options: ["The Investor", "The Freelancer", "The Entrepreneurial Consumer", "The Side Hustler"], answer: 2 },
@@ -171,7 +175,9 @@ This identity shift is what makes everything else work. Before income. Before bu
 
 No quitting. No gambling. No pretending. Just structured progress.
 
-Once you see yourself differently, you begin to notice opportunities that were always around you — quietly waiting for clarity. You do not need a business idea to move forward. You need a new way of seeing yourself in the economy.`,
+Once you see yourself differently, you begin to notice opportunities that were always around you — quietly waiting for clarity. You do not need a business idea to move forward. You need a new way of seeing yourself in the economy.
+
+[[ASSET_AUDIT]]`,
     activity: "Make a list under these headings: MY SKILLS, MY NETWORKS, MY ROUTINES, MY KNOWLEDGE. Fill in at least 3 items under each. You are mapping your existing capital.",
     questions: [
       { q: "Which is listed as an existing asset most employees overlook?", options: ["Luxury investments", "Predictable consumption patterns and existing networks", "Business ownership experience", "Advanced technical skills"], answer: 1 },
@@ -203,7 +209,9 @@ Enrich — how value flows back to individuals, families, and communities.
 
 This is not a slogan. It is a sequence. Transformation without education creates confusion. Education without empowerment creates frustration. Empowerment without enrichment creates burnout.
 
-**Why the Table Creates Leverage.** A single consumer has no negotiating power. But a community of aligned Entrepreneurial Consumers creates collective leverage — a distribution channel, a marketing ecosystem, a negotiation partner.`,
+**Why the Table Creates Leverage.** A single consumer has no negotiating power. But a community of aligned Entrepreneurial Consumers creates collective leverage — a distribution channel, a marketing ecosystem, a negotiation partner.
+
+[[COMMUNITY_PREVIEW]]`,
     activity: "Think of one person in your life who is quietly frustrated with their financial situation but hasn't found a way forward. Don't contact them yet — just identify them. You may be about to invite them to your table.",
     questions: [
       { q: "In the Z2B philosophy, what comes BEFORE commerce?", options: ["Products", "Sales systems", "Community", "Marketing"], answer: 2 },
@@ -233,7 +241,9 @@ Not vague dreams — structured vision.
 
 **Long Term — Legacy:** Shifts thinking beyond self. Assets, ownership, generational impact. Properties, businesses, land, structures that outlive effort. Legacy thinking changes behavior today — even if results come later.
 
-**The Five Foundational Questions:** Why. What. When. How. Where. These questions, asked correctly across all three time horizons, change everything. Most systems fail because they treat everyone the same regardless of urgency or stage. Z2B does not.`,
+**The Five Foundational Questions:** Why. What. When. How. Where. These questions, asked correctly across all three time horizons, change everything. Most systems fail because they treat everyone the same regardless of urgency or stage. Z2B does not.
+
+[[VISION_GATE]]`,
     activity: "Write one goal under each of the three time horizons: Immediate Term (next 90 days), Medium Term (1–3 years), Long Term (5–10 years). Don't overthink it. Your first answer is often your truest answer.",
     questions: [
       { q: "What does Z2B prioritise BEFORE tools, companies, and income streams?", options: ["Networking", "Vision", "Capital", "Skills training"], answer: 1 },
@@ -257,7 +267,9 @@ That is why Z2B uses SWOT analysis — not as a business-school exercise, but as
 
 **Opportunities Hidden in Plain Sight.** Opportunities hide inside repeated expenses, shared frustrations, unmet needs, and underutilized networks. When SWOT is applied across all three time horizons, patterns emerge.
 
-**Threats as Teachers.** Threats reveal what must be protected, what must be diversified, and why reliance on a single income is risky. Z2B does not promise immunity from challenges — it provides options. And options reduce fear.`,
+**Threats as Teachers.** Threats reveal what must be protected, what must be diversified, and why reliance on a single income is risky. Z2B does not promise immunity from challenges — it provides options. And options reduce fear.
+
+[[SWOT_BUILDER]]`,
     activity: "Draw a simple 2x2 grid on paper. Label the four boxes: STRENGTHS, WEAKNESSES, OPPORTUNITIES, THREATS. Fill in at least 3 items in each box as they relate to YOUR current financial and life situation.",
     questions: [
       { q: "In Z2B, SWOT analysis is used as:", options: ["A corporate planning tool only", "A personal mirror to reveal where you stand", "A way to compare yourself to competitors", "A recruitment screening process"], answer: 1 },
@@ -1354,6 +1366,1021 @@ function ManlawVoice({ text }: { text: string }) {
   );
 }
 
+// ── SESSION 7 — PERSONAL SWOT BUILDER ───────────────────────
+function SwotBuilder({ firstName }: { firstName: string }) {
+  const quadrants = [
+    {
+      key: "strengths", label: "STRENGTHS", icon: "💪", color: "#22C55E",
+      bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.35)",
+      prompt: "What do you do well? What have others praised you for? What skills has your job built in you?",
+      placeholder: "e.g. I am consistent, good with people, I know how to manage a budget...",
+    },
+    {
+      key: "weaknesses", label: "WEAKNESSES", icon: "🪞", color: "#EF4444",
+      bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.35)",
+      prompt: "What holds you back? What skills do you lack? What do you avoid? These are signals — not verdicts.",
+      placeholder: "e.g. I struggle with follow-through, I avoid conflict, I don't manage time well...",
+    },
+    {
+      key: "opportunities", label: "OPPORTUNITIES", icon: "🌱", color: "#D4AF37",
+      bg: "rgba(212,175,55,0.08)", border: "rgba(212,175,55,0.35)",
+      prompt: "What repeated expenses could be redirected? What needs do people around you have that are unmet?",
+      placeholder: "e.g. My church community needs financial education, people in my area buy from far away...",
+    },
+    {
+      key: "threats", label: "THREATS", icon: "⚠️", color: "#9333EA",
+      bg: "rgba(147,51,234,0.08)", border: "rgba(147,51,234,0.35)",
+      prompt: "What could derail your progress? What must you protect? What risks come from relying on one income?",
+      placeholder: "e.g. My job is not secure, I have no savings buffer, health challenges, limited time...",
+    },
+  ];
+
+  const [entries, setEntries] = React.useState<Record<string, string>>({
+    strengths: "", weaknesses: "", opportunities: "", threats: "",
+  });
+  const [revealed, setRevealed] = React.useState(false);
+  const [activeQuad, setActiveQuad] = React.useState<string>("strengths");
+
+  const countItems = (text: string) =>
+    text.split(/[,\n]/).filter(t => t.trim().length > 1).length;
+
+  const allFilled = quadrants.every(q => entries[q.key].trim().length > 5);
+  const totalItems = quadrants.reduce((sum, q) => sum + countItems(entries[q.key]), 0);
+
+  const activeQ = quadrants.find(q => q.key === activeQuad)!;
+
+  const insights: Record<string, string> = {
+    strengths: "These are your launchpad. Every item you listed is a tool the Z2B system can activate immediately.",
+    weaknesses: "You just named your growth map. In a community, your weaknesses become partnership opportunities — not disqualifiers.",
+    opportunities: "These are income streams hiding in plain sight. You do not need a new idea — you need a new lens on what already exists.",
+    threats: "Naming threats is how you neutralise them. Every threat you listed is an argument for building multiple income streams now.",
+  };
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #0D0020, #1A0035)",
+      border: "2px solid #9333EA", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#C4B5FD", marginBottom: "4px" }}>
+        🔎 Your Personal SWOT — A Mirror, Not a Test
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.6)", marginBottom: "20px", lineHeight: 1.6 }}>
+        {firstName}, a mirror does not judge — it simply shows you where you stand. Fill all four quadrants honestly. This is your strategy foundation.
+      </div>
+
+      {!revealed ? (
+        <>
+          {/* Tab selector */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "6px", marginBottom: "16px" }}>
+            {quadrants.map(q => (
+              <button
+                key={q.key}
+                onClick={() => setActiveQuad(q.key)}
+                style={{
+                  background: activeQuad === q.key ? q.bg : "rgba(255,255,255,0.04)",
+                  border: `2px solid ${activeQuad === q.key ? q.color : "rgba(255,255,255,0.08)"}`,
+                  borderRadius: "10px", padding: "8px 4px", cursor: "pointer",
+                  color: activeQuad === q.key ? q.color : "rgba(255,255,255,0.5)",
+                  fontSize: "11px", fontWeight: "bold", transition: "all 0.2s",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "16px", marginBottom: "2px" }}>{q.icon}</div>
+                <div>{q.label}</div>
+                {entries[q.key].trim().length > 5 && (
+                  <div style={{ fontSize: "10px", color: q.color, marginTop: "2px" }}>
+                    ✓ {countItems(entries[q.key])}
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Active quadrant input */}
+          <div style={{
+            background: activeQ.bg, border: `1px solid ${activeQ.border}`,
+            borderRadius: "12px", padding: "16px", marginBottom: "16px",
+          }}>
+            <div style={{ fontSize: "13px", color: activeQ.color, fontWeight: "bold", marginBottom: "6px" }}>
+              {activeQ.icon} {activeQ.label}
+            </div>
+            <div style={{ fontSize: "12px", color: "rgba(196,181,253,0.7)", marginBottom: "10px", lineHeight: 1.6, fontStyle: "italic" }}>
+              {activeQ.prompt}
+            </div>
+            <textarea
+              value={entries[activeQ.key]}
+              onChange={e => setEntries(prev => ({ ...prev, [activeQ.key]: e.target.value }))}
+              placeholder={activeQ.placeholder}
+              rows={3}
+              style={{
+                width: "100%", background: "rgba(0,0,0,0.3)",
+                border: `1px solid ${entries[activeQ.key].trim().length > 5 ? activeQ.color : "rgba(255,255,255,0.1)"}`,
+                borderRadius: "8px", padding: "10px 12px",
+                color: "#fff", fontSize: "13px", fontFamily: "inherit",
+                resize: "none", outline: "none", lineHeight: 1.6,
+                boxSizing: "border-box",
+              }}
+            />
+            {entries[activeQ.key].trim().length > 5 && (
+              <div style={{ fontSize: "11px", color: activeQ.color, marginTop: "4px" }}>
+                ✓ {countItems(entries[activeQ.key])}{countItems(entries[activeQ.key]) !== 1 ? " items" : " item"} · {insights[activeQ.key]}
+              </div>
+            )}
+          </div>
+
+          {/* Progress + submit */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div style={{ fontSize: "12px", color: "rgba(196,181,253,0.5)" }}>
+              {quadrants.filter(q => entries[q.key].trim().length > 5).length}/4 quadrants completed
+            </div>
+            <div style={{ display: "flex", gap: "6px" }}>
+              {quadrants.map(q => (
+                <div key={q.key} style={{
+                  width: "24px", height: "6px", borderRadius: "3px",
+                  background: entries[q.key].trim().length > 5 ? q.color : "rgba(255,255,255,0.1)",
+                  transition: "background 0.3s",
+                }} />
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => allFilled && setRevealed(true)}
+            disabled={!allFilled}
+            style={{
+              background: allFilled ? "linear-gradient(135deg, #6B21A8, #9333EA)" : "rgba(255,255,255,0.08)",
+              color: allFilled ? "#fff" : "rgba(255,255,255,0.3)",
+              border: "none", borderRadius: "10px", padding: "12px 28px",
+              fontWeight: "bold", fontSize: "14px",
+              cursor: allFilled ? "pointer" : "not-allowed",
+            }}
+          >
+            {allFilled ? "Reveal My Strategy →" : "Complete all 4 quadrants to continue"}
+          </button>
+        </>
+      ) : (
+        // Result — SWOT summary
+        <div>
+          <div style={{ fontSize: "17px", fontWeight: "bold", color: "#C4B5FD", marginBottom: "12px" }}>
+            {firstName}, you just built a {totalItems}-point personal strategy map.
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px" }}>
+            {quadrants.map(q => (
+              <div key={q.key} style={{
+                background: q.bg, border: `1px solid ${q.border}`,
+                borderRadius: "12px", padding: "14px",
+              }}>
+                <div style={{ fontSize: "12px", fontWeight: "bold", color: q.color, marginBottom: "6px" }}>
+                  {q.icon} {q.label} — {countItems(entries[q.key])} items
+                </div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
+                  {entries[q.key].split(/[,\n]/).filter(t => t.trim().length > 1).slice(0, 3).map((item, i) => (
+                    <div key={i}>· {item.trim()}</div>
+                  ))}
+                  {countItems(entries[q.key]) > 3 && (
+                    <div style={{ color: q.color, fontSize: "11px", marginTop: "2px" }}>
+                      +{countItems(entries[q.key]) - 3} more
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.3)",
+            borderRadius: "12px", padding: "16px", marginBottom: "12px",
+          }}>
+            <div style={{ fontSize: "13px", color: "#D4AF37", fontStyle: "italic", lineHeight: 1.8 }}>
+              "You do not need a business idea to move forward. You need awareness of what already exists.
+              {firstName}, you now have that awareness. Your SWOT is your strategy — not a school exercise."
+            </div>
+          </div>
+          <div style={{ fontSize: "12px", color: "#22C55E", fontStyle: "italic" }}>
+            🌱 Session 8 — The Vehicle is ready. Time to address the fears that have been holding you back.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 6 — VISION BOARD GATE ────────────────────────────
+function VisionGate({ firstName }: { firstName: string }) {
+  const [started, setStarted] = React.useState(false);
+  const [oneGoal, setOneGoal] = React.useState("");
+  const [horizon, setHorizon] = React.useState<string | null>(null);
+  const [committed, setCommitted] = React.useState(false);
+
+  const horizons = [
+    { key: "immediate", label: "Immediate Term", range: "Next 90 days", icon: "⚡", color: "#EF4444", desc: "What financial pressure do I need to relieve?" },
+    { key: "medium",    label: "Medium Term",    range: "1 to 3 years", icon: "🌱", color: "#22C55E", desc: "What freedom do I want to experience?" },
+    { key: "long",      label: "Long Term",      range: "5 to 10 years",icon: "🏆", color: "#D4AF37", desc: "What legacy do I want to leave?" },
+  ];
+
+  const isReady = horizon !== null && oneGoal.trim().length > 5;
+
+  const handleCommit = () => {
+    if (!isReady) return;
+    setCommitted(true);
+    // Save mini vision to localStorage for Vision Board page to pick up
+    try {
+      const existing = JSON.parse(localStorage.getItem("z2b_mini_vision") || "{}");
+      existing[horizon!] = oneGoal.trim();
+      localStorage.setItem("z2b_mini_vision", JSON.stringify(existing));
+    } catch(e) {}
+  };
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #1A0035, #0D0020)",
+      border: "2px solid #D4AF37", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      {/* Header */}
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "4px" }}>
+        🏆 Vision Before Execution — Your First Declaration
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.7)", marginBottom: "20px", lineHeight: 1.6 }}>
+        {firstName}, Z2B does not move forward without vision. Before Session 7 opens, you will write your first goal.
+        This is not homework. This is your declaration.
+      </div>
+
+      {!started ? (
+        // Intro card before they begin
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+            {horizons.map(h => (
+              <div key={h.key} style={{
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${h.color}40`,
+                borderRadius: "12px", padding: "14px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: "24px", marginBottom: "6px" }}>{h.icon}</div>
+                <div style={{ fontSize: "12px", fontWeight: "bold", color: h.color, marginBottom: "2px" }}>{h.label}</div>
+                <div style={{ fontSize: "11px", color: "rgba(196,181,253,0.5)" }}>{h.range}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.2)",
+            borderRadius: "12px", padding: "16px", marginBottom: "18px",
+          }}>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic" }}>
+              "Most people approach income reactively — asking what business they can start quickly.
+              Z2B begins differently. Before tools. Before companies. Before income streams —
+              we begin with <strong style={{ color: "#D4AF37" }}>structured vision.</strong>"
+            </div>
+          </div>
+          <button
+            onClick={() => setStarted(true)}
+            style={{
+              background: "linear-gradient(135deg, #6B21A8, #9333EA)",
+              color: "#fff", border: "none", borderRadius: "10px",
+              padding: "12px 28px", fontWeight: "bold", fontSize: "14px", cursor: "pointer",
+            }}
+          >
+            I Am Ready To Declare My Vision →
+          </button>
+        </div>
+      ) : !committed ? (
+        // Goal writing interface
+        <div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#C4B5FD", marginBottom: "16px" }}>
+            Step 1 — Choose your time horizon:
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "8px", marginBottom: "20px" }}>
+            {horizons.map(h => (
+              <div
+                key={h.key}
+                onClick={() => setHorizon(h.key)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "14px",
+                  background: horizon === h.key ? `${h.color}18` : "rgba(255,255,255,0.03)",
+                  border: `2px solid ${horizon === h.key ? h.color : "rgba(255,255,255,0.08)"}`,
+                  borderRadius: "12px", padding: "14px 16px", cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: "22px" }}>{h.icon}</span>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: horizon === h.key ? h.color : "#fff" }}>
+                    {h.label} — {h.range}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "rgba(196,181,253,0.6)", marginTop: "2px" }}>{h.desc}</div>
+                </div>
+                {horizon === h.key && (
+                  <div style={{ marginLeft: "auto", color: h.color, fontSize: "18px" }}>✓</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#C4B5FD", marginBottom: "10px" }}>
+            Step 2 — Write your goal in one sentence:
+          </div>
+          <textarea
+            value={oneGoal}
+            onChange={e => setOneGoal(e.target.value)}
+            placeholder={
+              horizon === "immediate" ? "e.g. I want to earn an extra R2,000/month to cover my grocery bill..."
+              : horizon === "medium" ? "e.g. I want to own a reliable car and have R5,000/month in passive income..."
+              : horizon === "long" ? "e.g. I want to own property and leave my children a financial foundation..."
+              : "Choose a time horizon above first..."
+            }
+            rows={3}
+            style={{
+              width: "100%", background: "rgba(255,255,255,0.05)",
+              border: `1px solid ${oneGoal.trim().length > 5 ? "#D4AF37" : "rgba(255,255,255,0.15)"}`,
+              borderRadius: "10px", padding: "12px 14px",
+              color: "#fff", fontSize: "13px", fontFamily: "inherit",
+              resize: "none", outline: "none", lineHeight: 1.7,
+              boxSizing: "border-box",
+            }}
+          />
+          <div style={{ fontSize: "11px", color: "rgba(196,181,253,0.5)", marginTop: "6px", marginBottom: "16px" }}>
+            {oneGoal.trim().length > 5
+              ? "✓ Your vision is taking shape. This will be saved to your Vision Board."
+              : "Be specific. The more specific your vision, the more powerful it becomes."}
+          </div>
+
+          <button
+            onClick={handleCommit}
+            disabled={!isReady}
+            style={{
+              background: isReady ? "linear-gradient(135deg, #B8860B, #D4AF37)" : "rgba(255,255,255,0.1)",
+              color: isReady ? "#000" : "rgba(255,255,255,0.3)",
+              border: "none", borderRadius: "10px", padding: "13px 32px",
+              fontWeight: "bold", fontSize: "14px",
+              cursor: isReady ? "pointer" : "not-allowed",
+            }}
+          >
+            🏆 Declare My Vision
+          </button>
+        </div>
+      ) : (
+        // Committed state — vision locked in
+        <div>
+          <div style={{
+            background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.4)",
+            borderRadius: "12px", padding: "20px", marginBottom: "16px",
+          }}>
+            <div style={{ fontSize: "11px", color: "#D4AF37", letterSpacing: "1px", marginBottom: "6px" }}>
+              {firstName.toUpperCase()}&apos;S VISION — DECLARED
+            </div>
+            <div style={{
+              fontSize: "16px", color: "#fff", fontStyle: "italic",
+              lineHeight: 1.7, borderLeft: "3px solid #D4AF37", paddingLeft: "14px",
+            }}>
+              "{oneGoal}"
+            </div>
+            <div style={{ marginTop: "10px", fontSize: "12px", color: "rgba(196,181,253,0.6)" }}>
+              {horizons.find(h => h.key === horizon)?.icon} {horizons.find(h => h.key === horizon)?.label} · {horizons.find(h => h.key === horizon)?.range}
+            </div>
+          </div>
+
+          <div style={{
+            background: "rgba(147,51,234,0.1)", border: "1px solid rgba(147,51,234,0.3)",
+            borderRadius: "12px", padding: "16px", marginBottom: "16px",
+          }}>
+            <div style={{ fontSize: "13px", color: "#C4B5FD", lineHeight: 1.8 }}>
+              {firstName}, your Vision Board is now live at{" "}
+              <a href="/vision-board" style={{ color: "#D4AF37", fontWeight: "bold" }}>
+                your Vision Board
+              </a>
+              {" "}— where this goal has been pre-loaded. After Session 9, you will complete all 9 cells.
+              For now, your declaration is made. The ground has been broken.
+            </div>
+          </div>
+
+          <div style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)",
+            borderRadius: "10px", padding: "12px 16px",
+          }}>
+            <span style={{ fontSize: "20px" }}>🌱</span>
+            <div style={{ fontSize: "12px", color: "#22C55E", lineHeight: 1.6 }}>
+              Your vision has been recorded. Session 7 is now unlocked — From SWOT to Opportunity.
+              You are about to turn your reality into your strategy.
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 5 — COMMUNITY PREVIEW ────────────────────────────
+function CommunityPreview({ firstName }: { firstName: string }) {
+  const [seatChosen, setSeatChosen] = React.useState<string | null>(null);
+
+  const members = [
+    { name: "Thandi M.", role: "Teacher, Soweto", tag: "Session 34", avatar: "👩🏾‍🏫", income: "R3,200/mo extra", joined: "4 months ago" },
+    { name: "Sipho K.", role: "Security Guard, Joburg", tag: "Session 61", avatar: "👨🏿‍💼", income: "R6,800/mo extra", joined: "7 months ago" },
+    { name: "Nomsa D.", role: "Admin Clerk, Pretoria", tag: "Session 19", avatar: "👩🏽‍💻", income: "R1,400/mo extra", joined: "2 months ago" },
+    { name: "David L.", role: "Driver, Durban", tag: "Session 78", avatar: "👨🏾‍🚗", income: "R11,500/mo extra", joined: "11 months ago" },
+    { name: "Precious N.", role: "Nurse, Cape Town", tag: "Session 45", avatar: "👩🏿‍⚕️", income: "R5,100/mo extra", joined: "6 months ago" },
+    { name: "You", role: firstName + ", your seat is open", tag: "Session 1", avatar: "🪑", income: "Your journey begins", joined: "Today" },
+  ];
+
+  const tableValues = [
+    { icon: "📚", label: "Education First", desc: "Every member learns before they earn" },
+    { icon: "🤝", label: "Trust Before Transactions", desc: "Relationships are built before business" },
+    { icon: "🌍", label: "Community Leverage", desc: "What one cannot do alone, many can do together" },
+    { icon: "🔁", label: "Duplication Over Hustle", desc: "Systems work even when you sleep" },
+  ];
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #0D0020, #1A0035)",
+      border: "2px solid #D4AF37", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "4px" }}>
+        🏛️ A Seat Has Been Reserved For You
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.7)", marginBottom: "20px", lineHeight: 1.6 }}>
+        {firstName}, the Z2B Table is already full of people just like you — employees who decided to stop watching and start building. Here is who is already seated:
+      </div>
+
+      {/* Member cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+        {members.map((m, i) => {
+          const isYou = m.name === "You";
+          return (
+            <div
+              key={i}
+              onClick={() => isYou && setSeatChosen("yes")}
+              style={{
+                background: isYou
+                  ? seatChosen ? "rgba(212,175,55,0.15)" : "rgba(212,175,55,0.07)"
+                  : "rgba(255,255,255,0.04)",
+                border: isYou ? "2px dashed #D4AF37" : "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "12px", padding: "14px",
+                cursor: isYou ? "pointer" : "default",
+                transition: "all 0.2s",
+              }}
+            >
+              <div style={{ fontSize: "26px", marginBottom: "6px" }}>{m.avatar}</div>
+              <div style={{ fontSize: "13px", fontWeight: "bold", color: isYou ? "#D4AF37" : "#fff", marginBottom: "2px" }}>
+                {m.name}
+              </div>
+              <div style={{ fontSize: "11px", color: "rgba(196,181,253,0.6)", marginBottom: "6px" }}>{m.role}</div>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                <span style={{
+                  background: isYou ? "rgba(212,175,55,0.2)" : "rgba(147,51,234,0.2)",
+                  color: isYou ? "#D4AF37" : "#C4B5FD",
+                  fontSize: "10px", padding: "2px 8px", borderRadius: "10px",
+                }}>{m.tag}</span>
+                <span style={{
+                  background: "rgba(34,197,94,0.15)", color: "#22C55E",
+                  fontSize: "10px", padding: "2px 8px", borderRadius: "10px",
+                }}>{m.income}</span>
+              </div>
+              {isYou && !seatChosen && (
+                <div style={{ marginTop: "8px", fontSize: "11px", color: "#D4AF37", fontStyle: "italic" }}>
+                  👆 Tap to take your seat
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Table values */}
+      <div style={{
+        background: "rgba(0,0,0,0.3)", borderRadius: "12px",
+        padding: "16px", marginBottom: "16px",
+      }}>
+        <div style={{ fontSize: "12px", color: "#D4AF37", fontWeight: "bold", letterSpacing: "1px", marginBottom: "12px" }}>
+          WHAT THE TABLE STANDS FOR
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          {tableValues.map((v, i) => (
+            <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <span style={{ fontSize: "16px", flexShrink: 0 }}>{v.icon}</span>
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: "bold", color: "#fff", marginBottom: "2px" }}>{v.label}</div>
+                <div style={{ fontSize: "11px", color: "rgba(196,181,253,0.6)", lineHeight: 1.5 }}>{v.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Seat chosen response */}
+      {seatChosen ? (
+        <div style={{
+          background: "rgba(212,175,55,0.1)",
+          border: "1px solid rgba(212,175,55,0.4)",
+          borderRadius: "12px", padding: "18px",
+        }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "8px" }}>
+            {firstName}, your seat is confirmed. 🏆
+          </div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.8, marginBottom: "10px" }}>
+            Every person at this table was once exactly where you are right now — reading, learning, wondering if this is real.
+            The only difference between them and where you sit today is that they kept going.
+            Session 6 is where your Vision Board begins. That is where everything becomes personal.
+          </div>
+          <div style={{ fontSize: "12px", color: "#D4AF37", fontStyle: "italic" }}>
+            🌱 The ground is being prepared. Session 6 — Vision Before Execution — is waiting for you.
+          </div>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center", padding: "12px 0" }}>
+          <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.6)", fontStyle: "italic" }}>
+            Tap your seat card above to claim your place at the table, {firstName}.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 4 — HIDDEN ASSET AUDIT ───────────────────────────
+function AssetAudit({ firstName }: { firstName: string }) {
+  const categories = [
+    {
+      key: "skills",
+      icon: "🛠️",
+      label: "MY SKILLS",
+      color: "#9333EA",
+      border: "rgba(147,51,234,0.4)",
+      placeholder: "e.g. Communication, Excel, Driving, Cooking, Teaching...",
+      hint: "What do people come to you for? What do you do well at work or home?",
+    },
+    {
+      key: "networks",
+      icon: "🤝",
+      label: "MY NETWORKS",
+      color: "#0EA5E9",
+      border: "rgba(14,165,233,0.4)",
+      placeholder: "e.g. Church community, Work colleagues, School parents, WhatsApp groups...",
+      hint: "Who do you have access to? Who trusts you?",
+    },
+    {
+      key: "routines",
+      icon: "⏰",
+      label: "MY ROUTINES",
+      color: "#22C55E",
+      border: "rgba(34,197,94,0.4)",
+      placeholder: "e.g. Early riser, Weekend free, Lunch breaks, School run...",
+      hint: "When do you have predictable windows of time or energy?",
+    },
+    {
+      key: "knowledge",
+      icon: "🧠",
+      label: "MY KNOWLEDGE",
+      color: "#D4AF37",
+      border: "rgba(212,175,55,0.4)",
+      placeholder: "e.g. Industry experience, Local area knowledge, Parenting, Finance basics...",
+      hint: "What do you know that others in your circle do not?",
+    },
+  ];
+
+  const [entries, setEntries] = React.useState<Record<string, string>>({
+    skills: "", networks: "", routines: "", knowledge: "",
+  });
+  const [revealed, setRevealed] = React.useState(false);
+
+  const totalWords = Object.values(entries).join(" ").trim().split(/\s+/).filter(w => w.length > 0).length;
+  const isReady = Object.values(entries).every(v => v.trim().length > 3);
+
+  const countItems = (text: string) =>
+    text.split(/[,\n]/).filter(t => t.trim().length > 1).length;
+
+  const totalItems = Object.values(entries).reduce((sum, v) => sum + countItems(v), 0);
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #0D0020, #1A0035)",
+      border: "2px solid #D4AF37", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "6px" }}>
+        💎 Your Hidden Asset Audit
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.7)", marginBottom: "20px", lineHeight: 1.6 }}>
+        {firstName}, before you look for opportunity outside — look at what you already carry.
+        Fill in at least 3 items in each category. Be honest. Be specific.
+      </div>
+
+      {categories.map(cat => (
+        <div key={cat.key} style={{ marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+            <span style={{ fontSize: "18px" }}>{cat.icon}</span>
+            <span style={{ fontSize: "13px", fontWeight: "bold", color: cat.color, letterSpacing: "1px" }}>
+              {cat.label}
+            </span>
+          </div>
+          <div style={{ fontSize: "11px", color: "rgba(196,181,253,0.5)", marginBottom: "6px", paddingLeft: "26px" }}>
+            {cat.hint}
+          </div>
+          <textarea
+            value={entries[cat.key]}
+            onChange={e => setEntries(prev => ({ ...prev, [cat.key]: e.target.value }))}
+            placeholder={cat.placeholder}
+            rows={2}
+            style={{
+              width: "100%", background: "rgba(255,255,255,0.04)",
+              border: `1px solid ${entries[cat.key].trim().length > 3 ? cat.color : "rgba(255,255,255,0.1)"}`,
+              borderRadius: "10px", padding: "10px 12px",
+              color: "#fff", fontSize: "13px", fontFamily: "inherit",
+              resize: "none", outline: "none", lineHeight: 1.6,
+              boxSizing: "border-box",
+            }}
+          />
+          {entries[cat.key].trim().length > 3 && (
+            <div style={{ fontSize: "11px", color: cat.color, marginTop: "3px", paddingLeft: "4px" }}>
+              ✓ {countItems(entries[cat.key])}{countItems(entries[cat.key]) !== 1 ? " items" : " item"} identified
+            </div>
+          )}
+        </div>
+      ))}
+
+      {!revealed ? (
+        <button
+          onClick={() => isReady && setRevealed(true)}
+          disabled={!isReady}
+          style={{
+            marginTop: "8px",
+            background: isReady ? "linear-gradient(135deg, #B8860B, #D4AF37)" : "rgba(255,255,255,0.1)",
+            color: isReady ? "#000" : "rgba(255,255,255,0.3)",
+            border: "none", borderRadius: "10px", padding: "12px 28px",
+            fontWeight: "bold", fontSize: "14px",
+            cursor: isReady ? "pointer" : "not-allowed",
+          }}
+        >
+          {isReady ? "Reveal My Capital →" : "Fill in all 4 categories to continue"}
+        </button>
+      ) : (
+        <div style={{
+          marginTop: "16px", background: "rgba(212,175,55,0.08)",
+          border: "1px solid rgba(212,175,55,0.35)",
+          borderRadius: "12px", padding: "20px",
+        }}>
+          <div style={{ fontSize: "20px", fontWeight: "bold", color: "#D4AF37", marginBottom: "8px" }}>
+            {firstName}, you just mapped {totalItems} capital assets.
+          </div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.8, marginBottom: "14px" }}>
+            Every item you wrote down is something a community-based business model can leverage.
+            Your skills are your service. Your networks are your market. Your routines are your schedule.
+            Your knowledge is your edge. You did not arrive here empty-handed.
+            {totalItems >= 10
+              ? " You are sitting on a goldmine of untapped capital. The only thing missing was the system to activate it."
+              : totalItems >= 6
+              ? " You have more than enough to begin. Most successful builders started with less than what you have listed here."
+              : " Even these few items, when placed inside the right system, can generate your first income stream."}
+          </div>
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "14px",
+          }}>
+            {categories.map(cat => (
+              <div key={cat.key} style={{
+                background: "rgba(0,0,0,0.3)", borderRadius: "8px",
+                padding: "10px 12px", borderLeft: `3px solid ${cat.color}`,
+              }}>
+                <div style={{ fontSize: "11px", color: cat.color, fontWeight: "bold", marginBottom: "2px" }}>
+                  {cat.icon} {cat.label}
+                </div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
+                  {countItems(entries[cat.key])}{countItems(entries[cat.key]) !== 1 ? " assets" : " asset"} identified
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            background: "rgba(0,0,0,0.3)", borderRadius: "10px",
+            padding: "12px 16px", borderLeft: "3px solid #D4AF37",
+          }}>
+            <div style={{ fontSize: "13px", color: "#D4AF37", fontStyle: "italic", lineHeight: 1.7 }}>
+              "You do not need a business idea to move forward. You need a new way of seeing yourself in the economy. You just took that step."
+            </div>
+          </div>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: "#22C55E", fontStyle: "italic" }}>
+            🌱 Session 5 will show you the table where all these assets come together.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 3 — IDENTITY SELECTOR ────────────────────────────
+function IdentitySelector({ firstName }: { firstName: string }) {
+  const [selected, setSelected] = React.useState<number | null>(null);
+  const [currentGoal, setCurrentGoal] = React.useState<number | null>(null);
+  const [stage, setStage] = React.useState<"pick" | "goal" | "result">("pick");
+
+  const identities = [
+    {
+      id: 0,
+      icon: "👤",
+      label: "The Consumer",
+      color: "#6B7280",
+      border: "rgba(107,114,128,0.4)",
+      bg: "rgba(107,114,128,0.08)",
+      desc: "I earn. I spend. My income goes to bills and lifestyle. I have no ownership in the value I create.",
+      truth: "This is where most people start. There is no shame here — only awareness.",
+    },
+    {
+      id: 1,
+      icon: "⚡",
+      label: "The Entrepreneurial Consumer",
+      color: "#D4AF37",
+      border: "rgba(212,175,55,0.5)",
+      bg: "rgba(212,175,55,0.08)",
+      desc: "I earn income AND I am beginning to redirect my spending toward systems that flow value back to me.",
+      truth: "This is the missing identity. The one you were never taught. The one Z2B was built for.",
+    },
+    {
+      id: 2,
+      icon: "🚀",
+      label: "The Entrepreneur",
+      color: "#9333EA",
+      border: "rgba(147,51,234,0.4)",
+      bg: "rgba(147,51,234,0.08)",
+      desc: "I build products, services or systems. I take on risk and operate under uncertainty in exchange for ownership.",
+      truth: "You have taken the leap. Now Z2B will help you build the systems to sustain and scale it.",
+    },
+  ];
+
+  const results: Record<string, { heading: string; body: string; challenge: string }> = {
+    "0-0": {
+      heading: "Awareness is the first step, " + firstName + ".",
+      body: "You are honest — and that honesty is rare. Most people live as consumers without ever questioning it. You have just named your current reality. That is more powerful than it sounds. The Consumer identity is not a life sentence. It is a starting point. Z2B was built to move you from here.",
+      challenge: "Your challenge: In the next 24 hours, identify ONE monthly expense that could potentially flow value back to you if redirected strategically.",
+    },
+    "0-1": {
+      heading: firstName + ", you are closer than you think.",
+      body: "You are currently a Consumer but your heart is already reaching toward the Entrepreneurial Consumer identity. That gap — between where you are and where you want to be — is exactly what this workshop closes. Session by session. Day by day.",
+      challenge: "Your challenge: Write down what makes you feel that the Entrepreneurial Consumer identity is possible for you. That feeling is your seed.",
+    },
+    "0-2": {
+      heading: "Big vision, " + firstName + ". Let us build the bridge.",
+      body: "You are a Consumer today but you see yourself as a full Entrepreneur. That is a bold and worthy goal. Z2B recommends not skipping the Entrepreneurial Consumer stage — it builds the skills, income, and community you will need to sustain entrepreneurship long term.",
+      challenge: "Your challenge: Before you build a business, build a network. That network becomes your first market.",
+    },
+    "1-1": {
+      heading: firstName + ", you are already in motion.",
+      body: "You have chosen the Entrepreneurial Consumer identity NOW and in the FUTURE. This is the power position. You are not waiting to quit your job. You are not gambling everything. You are building ownership strategically while your employment provides stability. This is exactly the Z2B way.",
+      challenge: "Your challenge: Name ONE system you are currently building or redirecting income toward. If you cannot name it yet — that is what Sessions 4 to 9 will unlock.",
+    },
+    "1-2": {
+      heading: "You are on the right path, " + firstName + ".",
+      body: "You are an Entrepreneurial Consumer growing toward full Entrepreneurship. This is the natural Z2B progression. Build your consumer network first. Let it generate income. Let that income fund your entrepreneurial ambitions. Never burn the bridge that feeds you.",
+      challenge: "Your challenge: What entrepreneurial idea are you already sitting on? Write it down. The next 6 sessions will show you how to test it without quitting your job.",
+    },
+    "2-2": {
+      heading: firstName + ", the table is already yours.",
+      body: "You are an Entrepreneur and you want to remain one. Z2B will help you scale what you have built by adding the Entrepreneurial Consumer model as a distribution and duplication engine. Your next level is not another hustle — it is a system that grows without you.",
+      challenge: "Your challenge: How many people in your network are potential Entrepreneurial Consumers who could distribute your products or expand your reach? That number is your next growth target.",
+    },
+  };
+
+  const getResult = () => {
+    const key = selected + "-" + currentGoal;
+    return results[key] || results["0-1"];
+  };
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #1A0035, #0D0020)",
+      border: "2px solid #9333EA", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#C4B5FD", marginBottom: "6px" }}>
+        🪪 Which Identity Are You Living Right Now?
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.6)", marginBottom: "20px" }}>
+        Be honest. This is not a test — it is a mirror.
+      </div>
+
+      {/* Stage 1 — Pick current identity */}
+      {stage === "pick" && (
+        <>
+          {identities.map(id => (
+            <div
+              key={id.id}
+              onClick={() => setSelected(id.id)}
+              style={{
+                background: selected === id.id ? id.bg : "rgba(255,255,255,0.03)",
+                border: `2px solid ${selected === id.id ? id.color : "rgba(255,255,255,0.08)"}`,
+                borderRadius: "14px", padding: "16px 18px", marginBottom: "12px",
+                cursor: "pointer", transition: "all 0.2s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+                <span style={{ fontSize: "22px" }}>{id.icon}</span>
+                <span style={{ fontSize: "15px", fontWeight: "bold", color: id.color }}>{id.label}</span>
+              </div>
+              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, paddingLeft: "34px" }}>
+                {id.desc}
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={() => selected !== null && setStage("goal")}
+            disabled={selected === null}
+            style={{
+              marginTop: "8px",
+              background: selected !== null ? "linear-gradient(135deg, #6B21A8, #9333EA)" : "rgba(255,255,255,0.1)",
+              color: selected !== null ? "#fff" : "rgba(255,255,255,0.3)",
+              border: "none", borderRadius: "10px", padding: "12px 28px",
+              fontWeight: "bold", fontSize: "14px",
+              cursor: selected !== null ? "pointer" : "not-allowed",
+            }}
+          >
+            This Is Me Today →
+          </button>
+        </>
+      )}
+
+      {/* Stage 2 — Pick goal identity */}
+      {stage === "goal" && (
+        <>
+          <div style={{ fontSize: "14px", color: "#C4B5FD", marginBottom: "16px", fontWeight: "bold" }}>
+            Now — which identity do you want to grow INTO in the next 12 months?
+          </div>
+          {identities.map(id => (
+            <div
+              key={id.id}
+              onClick={() => setCurrentGoal(id.id)}
+              style={{
+                background: currentGoal === id.id ? id.bg : "rgba(255,255,255,0.03)",
+                border: `2px solid ${currentGoal === id.id ? id.color : "rgba(255,255,255,0.08)"}`,
+                borderRadius: "14px", padding: "14px 18px", marginBottom: "10px",
+                cursor: "pointer", transition: "all 0.2s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "20px" }}>{id.icon}</span>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: id.color }}>{id.label}</div>
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "2px" }}>{id.truth}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={() => currentGoal !== null && setStage("result")}
+            disabled={currentGoal === null}
+            style={{
+              marginTop: "8px",
+              background: currentGoal !== null ? "linear-gradient(135deg, #B8860B, #D4AF37)" : "rgba(255,255,255,0.1)",
+              color: currentGoal !== null ? "#000" : "rgba(255,255,255,0.3)",
+              border: "none", borderRadius: "10px", padding: "12px 28px",
+              fontWeight: "bold", fontSize: "14px",
+              cursor: currentGoal !== null ? "pointer" : "not-allowed",
+            }}
+          >
+            Show Me My Path →
+          </button>
+        </>
+      )}
+
+      {/* Stage 3 — Personalised result */}
+      {stage === "result" && (
+        <div style={{
+          background: "rgba(212,175,55,0.07)",
+          border: "1px solid rgba(212,175,55,0.3)",
+          borderRadius: "12px", padding: "20px",
+        }}>
+          <div style={{ fontSize: "17px", fontWeight: "bold", color: "#D4AF37", marginBottom: "10px" }}>
+            {getResult().heading}
+          </div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.8, marginBottom: "16px" }}>
+            {getResult().body}
+          </div>
+          <div style={{
+            background: "rgba(0,0,0,0.3)", borderRadius: "10px",
+            padding: "14px 16px", marginBottom: "12px",
+            borderLeft: "3px solid #D4AF37",
+          }}>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "4px", letterSpacing: "1px" }}>YOUR 24-HOUR CHALLENGE</div>
+            <div style={{ fontSize: "13px", color: "#fff", lineHeight: 1.7 }}>{getResult().challenge}</div>
+          </div>
+          <div style={{ fontSize: "12px", color: "#D4AF37", fontStyle: "italic" }}>
+            🌱 The seed has been planted. Session 4 will show you the assets you already own.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSION 2 — MONTH CHECK QUIZ ─────────────────────────────
+function MonthCheckQuiz({ firstName }: { firstName: string }) {
+  const [selected, setSelected] = React.useState<Record<number, boolean>>({});
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const expenses = [
+    { label: "Rent / Bond", emoji: "🏠" },
+    { label: "Transport / Petrol", emoji: "🚗" },
+    { label: "Groceries", emoji: "🛒" },
+    { label: "School fees / Kids", emoji: "🎒" },
+    { label: "Electricity / Water", emoji: "💡" },
+    { label: "Data / Airtime", emoji: "📱" },
+    { label: "Insurance", emoji: "🛡️" },
+    { label: "Clothing accounts", emoji: "👗" },
+    { label: "Medical / Pharmacy", emoji: "💊" },
+    { label: "Entertainment / DStv", emoji: "📺" },
+  ];
+
+  const selectedCount = Object.values(selected).filter(Boolean).length;
+  const totalEstimate = selectedCount * 1200; // rough R1,200 avg per category
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #0D1F0D, #0A2010)",
+      border: "2px solid #22C55E", borderRadius: "16px",
+      padding: "24px", margin: "24px 0",
+    }}>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#22C55E", marginBottom: "6px" }}>
+        💸 Does This Sound Like Your Month?
+      </div>
+      <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", marginBottom: "20px" }}>
+        Tick every expense that leaves your account before month-end:
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+        {expenses.map((exp, i) => (
+          <div
+            key={i}
+            onClick={() => !submitted && setSelected(prev => ({ ...prev, [i]: !prev[i] }))}
+            style={{
+              display: "flex", alignItems: "center", gap: "10px",
+              background: selected[i] ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${selected[i] ? "#22C55E" : "rgba(255,255,255,0.1)"}`,
+              borderRadius: "10px", padding: "10px 12px", cursor: submitted ? "default" : "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            <div style={{
+              width: "20px", height: "20px", borderRadius: "5px", flexShrink: 0,
+              background: selected[i] ? "#22C55E" : "rgba(255,255,255,0.1)",
+              border: `2px solid ${selected[i] ? "#22C55E" : "rgba(255,255,255,0.3)"}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "12px", fontWeight: "bold", color: "#000",
+            }}>
+              {selected[i] ? "✓" : ""}
+            </div>
+            <span style={{ fontSize: "13px", color: "#fff" }}>{exp.emoji} {exp.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {!submitted ? (
+        <button
+          onClick={() => setSubmitted(true)}
+          disabled={selectedCount === 0}
+          style={{
+            background: selectedCount > 0 ? "linear-gradient(135deg, #15803D, #22C55E)" : "rgba(255,255,255,0.1)",
+            color: selectedCount > 0 ? "#000" : "rgba(255,255,255,0.4)",
+            border: "none", borderRadius: "10px", padding: "12px 28px",
+            fontWeight: "bold", fontSize: "14px",
+            cursor: selectedCount > 0 ? "pointer" : "not-allowed",
+          }}
+        >
+          Show Me My Reality
+        </button>
+      ) : (
+        <div style={{
+          background: "rgba(34,197,94,0.08)",
+          border: "1px solid rgba(34,197,94,0.4)",
+          borderRadius: "12px", padding: "20px",
+        }}>
+          <div style={{ fontSize: "22px", fontWeight: "bold", color: "#22C55E", marginBottom: "8px" }}>
+            {firstName}, you ticked {selectedCount} out of 10 expenses.
+          </div>
+          <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8, marginBottom: "12px" }}>
+            That is roughly <strong style={{ color: "#22C55E" }}>R{totalEstimate.toLocaleString()}+</strong> flowing
+            OUT of your account every month — to companies you will never own a share of.
+            {selectedCount >= 7
+              ? " You are not spending recklessly. You are funding the economy without participating in its rewards."
+              : selectedCount >= 4
+              ? " Every rand you spend makes someone else wealthy. The question is — when does it start making YOU wealthy?"
+              : " Even a few of these categories represent thousands of rands leaving your hands every month with no return."}
+          </div>
+          <div style={{
+            background: "rgba(0,0,0,0.3)", borderRadius: "10px",
+            padding: "14px 16px", marginBottom: "12px",
+          }}>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>The question Z2B asks:</div>
+            <div style={{ fontSize: "15px", color: "#D4AF37", fontWeight: "bold", fontStyle: "italic" }}>
+              "What if even ONE of these monthly expenses could flow value BACK to you?"
+            </div>
+          </div>
+          <div style={{ fontSize: "12px", color: "#22C55E", fontStyle: "italic" }}>
+            Continue to Session 3 — you are about to discover the identity that changes everything.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function WorkshopInner() {
   const searchParams = useSearchParams();
   const [view, setView]                     = useState<ViewType>("home");
@@ -1688,6 +2715,30 @@ What you are about to read is not theory. It is a mirror. It describes the life 
       .replace("[[MIRROR_MOMENT]]", "[[MIRROR_MOMENT]]"); // handled separately below
 
     return processed.split("\n\n").map((para, i) => {
+      if (para === "[[SWOT_BUILDER]]") {
+        return <SwotBuilder key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[VISION_GATE]]") {
+        return <VisionGate key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[COMMUNITY_PREVIEW]]") {
+        return <CommunityPreview key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[ASSET_AUDIT]]") {
+        return <AssetAudit key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[IDENTITY_SELECTOR]]") {
+        return <IdentitySelector key={i} firstName={firstName} />;
+      }
+
+      if (para === "[[MONTH_CHECK]]") {
+        return <MonthCheckQuiz key={i} firstName={firstName} />;
+      }
+
       if (para === "[[MIRROR_MOMENT]]") {
         return (
           <div key={i} style={{
