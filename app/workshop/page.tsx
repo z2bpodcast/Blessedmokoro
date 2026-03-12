@@ -2998,6 +2998,36 @@ function WorkshopInner() {
             },
             { onConflict: "user_id,section_id" }
           );
+
+        // ── GroundBreaker milestone hooks ──────────────────────────
+        // Upsert prospect milestone row on Session 1
+        if (currentSection === 1) {
+          const ref = localStorage.getItem("z2b_ref") || null;
+          await supabase.from("prospect_milestones").upsert(
+            { user_id: userId, referred_by: ref, session_1_started_at: new Date().toISOString() },
+            { onConflict: "user_id" }
+          );
+        }
+        // Session 3 — Seed alert
+        if (currentSection === 3) {
+          await supabase.from("prospect_milestones")
+            .update({ session_3_completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq("user_id", userId);
+        }
+        // Session 6 — Vision alert
+        if (currentSection === 6) {
+          await supabase.from("prospect_milestones")
+            .update({ session_6_completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq("user_id", userId);
+        }
+        // Session 9 — Harvest Ready alert
+        if (currentSection === 9) {
+          await supabase.from("prospect_milestones")
+            .update({ session_9_completed_at: new Date().toISOString(), harvest_ready: true, updated_at: new Date().toISOString() })
+            .eq("user_id", userId);
+        }
+        // ──────────────────────────────────────────────────────────
+
       } catch (err) {
         console.error("Workshop progress save error:", err);
       }
