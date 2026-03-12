@@ -65,7 +65,9 @@ const SECTIONS: Section[] = [
     id: 1, free: true,
     title: "The Silent Frustration of Employees",
     subtitle: "Understanding the System You Were Never Told About",
-    content: `Most employees are not failing. They are surviving inside a system that was never designed for ownership.
+    content: `[[PERSONAL_OPENING]]
+
+Most employees are not failing. They are surviving inside a system that was never designed for ownership.
 
 Every month follows the same rhythm. You wake up early. You commute. You give your best hours to work. You get paid. And before the next paycheck arrives, most of it is already gone — rent, transport, food, school fees, electricity, data, insurance.
 
@@ -77,7 +79,9 @@ Yet this struggle is rarely spoken about openly. Employees are expected to be gr
 
 The issue is not effort. The issue is structure. Employees are trapped in a time-for-money model where income has a ceiling, but expenses do not. Inflation has no loyalty. Emergencies do not wait for promotions.
 
-**You Are Not Broken — You Are Mispositioned.** If you are an employee feeling uneasy, hear this clearly: You are not lazy. You are not incapable. You are not late. You have simply been positioned only as a worker and a consumer — not as a participant in value creation.`,
+**You Are Not Broken — You Are Mispositioned.** If you are an employee feeling uneasy, hear this clearly: You are not lazy. You are not incapable. You are not late. You have simply been positioned only as a worker and a consumer — not as a participant in value creation.
+
+[[MIRROR_MOMENT]]`,
     activity: "Write down your three biggest monthly expenses and next to each one, ask: 'Could this ever flow value back to me?' Don't answer yet — just sit with the question.",
     questions: [
       { q: "What is the PRIMARY reason most employees struggle financially?", options: ["They spend irresponsibly", "They lack education", "They are trapped in a time-for-money structure", "They don't work hard enough"], answer: 2 },
@@ -973,6 +977,7 @@ function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onCl
   const [step, setStep]           = useState<"welcome" | "contact" | "thanks">("welcome");
   const [name, setName]           = useState("");
   const [whatsapp, setWhatsapp]   = useState("");
+  const [memberName, setMemberName]             = useState<string>("");
   const [saving, setSaving]       = useState(false);
   const [error, setError]         = useState("");
 
@@ -1351,6 +1356,7 @@ function ManlawVoice({ text }: { text: string }) {
 }
 
 export default function WorkshopPage() {
+  const searchParams = useSearchParams();
   const [view, setView]                     = useState<ViewType>("home");
   const [progress, setProgress]             = useState<ProgressMap>(createInitialProgress);
   const [currentSection, setCurrentSection] = useState<number | null>(null);
@@ -1377,6 +1383,21 @@ export default function WorkshopPage() {
   const [manlawLoading, setManlawLoading]     = useState(false);
   const manlawEndRef = useRef<HTMLDivElement>(null);
   const [manlawMemberName, setManlawMemberName] = useState<string | null>(null);
+  const [referredBy, setReferredBy]             = useState<string | null>(null);
+
+  // Capture ?ref= referral code from URL
+  useEffect(() => {
+    const ref = searchParams ? searchParams.get("ref") : null;
+    if (ref) {
+      setReferredBy(ref);
+      try { localStorage.setItem("z2b_ref", ref); } catch(e) {}
+    } else {
+      try {
+        const stored = localStorage.getItem("z2b_ref");
+        if (stored) setReferredBy(stored);
+      } catch(e) {}
+    }
+  }, [searchParams]);
   const [manlawAskedName, setManlawAskedName]   = useState(false);
 
   const section        = currentSection != null ? SECTIONS.find((s) => s.id === currentSection) ?? null : null;
@@ -1417,6 +1438,10 @@ export default function WorkshopPage() {
           .eq("id", user.id)
           .single();
         if (profileData?.referral_code) setBuilderRef(profileData.referral_code);
+        if (profileData?.full_name) {
+          const firstName = profileData.full_name.trim().split(" ")[0];
+          setMemberName(firstName);
+        }
         // Fetch member first name for Coach Manlaw personalisation
         if (profileData?.full_name) {
           const firstName = profileData.full_name.trim().split(" ")[0];
@@ -1642,15 +1667,108 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
     callManlaw(userMsg, manlawMessages);
   };
 
-  // ---- render content with **bold** support ----
-  const renderContent = (content: string) =>
-    content.split("\n\n").map((para, i) => {
+  // ---- Mirror Moment Quiz State ----
+  const [mirrorAnswers, setMirrorAnswers] = useState<Record<number, boolean | null>>({});
+  const [mirrorSubmitted, setMirrorSubmitted] = useState(false);
+  const mirrorQuestions = [
+    "My salary is gone before the next one arrives.",
+    "I work hard but my income never seems to grow.",
+    "I feel stuck between staying employed and the risk of starting something.",
+    "I have dreams but responsibility makes them feel dangerous.",
+    "I smile at work but privately wonder: Is this really it?",
+  ];
+
+  const mirrorScore = Object.values(mirrorAnswers).filter(v => v === true).length;
+
+  // ---- render content with **bold** support + personalisation + mirror moment ----
+  const renderContent = (text: string) => {
+    const firstName = memberName || "Builder";
+    // Replace placeholders
+    const processed = text
+      .replace("[[PERSONAL_OPENING]]",
+        `**Welcome, ${firstName}. This session was written for you.**
+
+What you are about to read is not theory. It is a mirror. It describes the life of millions of employed South Africans who work hard, pay their bills, and still quietly wonder if this is all there is. Read slowly. Be honest with yourself. Nothing here is meant to shame you — everything here is meant to free you.`)
+      .replace("[[MIRROR_MOMENT]]", "[[MIRROR_MOMENT]]"); // handled separately below
+
+    return processed.split("\n\n").map((para, i) => {
+      if (para === "[[MIRROR_MOMENT]]") {
+        return (
+          <div key={i} style={{
+            background: "linear-gradient(135deg, #1A0035, #0D0020)",
+            border: "2px solid #D4AF37", borderRadius: "16px",
+            padding: "24px", margin: "24px 0",
+          }}>
+            <div style={{ fontSize: "18px", fontWeight: "bold", color: "#D4AF37", marginBottom: "6px" }}>
+              🪞 Mirror Moment
+            </div>
+            <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.7)", marginBottom: "20px" }}>
+              Be honest. Tick every statement that reflects your current reality:
+            </div>
+            {mirrorQuestions.map((q, qi) => (
+              <div key={qi} style={{
+                display: "flex", alignItems: "flex-start", gap: "12px",
+                marginBottom: "14px", cursor: "pointer",
+              }}
+                onClick={() => !mirrorSubmitted && setMirrorAnswers(prev => ({ ...prev, [qi]: !prev[qi] }))}
+              >
+                <div style={{
+                  width: "22px", height: "22px", borderRadius: "6px", flexShrink: 0, marginTop: "1px",
+                  background: mirrorAnswers[qi] ? "#D4AF37" : "rgba(255,255,255,0.1)",
+                  border: `2px solid ${mirrorAnswers[qi] ? "#D4AF37" : "rgba(255,255,255,0.3)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "14px", fontWeight: "bold", color: "#000",
+                }}>
+                  {mirrorAnswers[qi] ? "✓" : ""}
+                </div>
+                <div style={{ fontSize: "14px", color: "#fff", lineHeight: 1.6 }}>{q}</div>
+              </div>
+            ))}
+            {!mirrorSubmitted ? (
+              <button
+                onClick={() => setMirrorSubmitted(true)}
+                style={{
+                  marginTop: "12px", background: "linear-gradient(135deg, #B8860B, #D4AF37)",
+                  color: "#000", border: "none", borderRadius: "10px",
+                  padding: "10px 28px", fontWeight: "bold", fontSize: "14px", cursor: "pointer",
+                }}
+              >
+                See My Result
+              </button>
+            ) : (
+              <div style={{
+                marginTop: "16px", background: "rgba(212,175,55,0.1)",
+                border: "1px solid rgba(212,175,55,0.4)", borderRadius: "12px", padding: "16px",
+              }}>
+                <div style={{ fontSize: "16px", fontWeight: "bold", color: "#D4AF37", marginBottom: "8px" }}>
+                  {mirrorScore >= 4
+                    ? `${firstName}, this workshop was built for exactly where you are.`
+                    : mirrorScore >= 2
+                    ? `${firstName}, you are already questioning the system. That awareness is your first asset.`
+                    : `${firstName}, you are further along than most. This workshop will sharpen what you already sense.`}
+                </div>
+                <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.8)", lineHeight: 1.7 }}>
+                  {mirrorScore >= 4
+                    ? "You ticked " + mirrorScore + " out of 5. You are not alone. Millions of employed South Africans live exactly this reality. The difference between those who stay here and those who escape is not luck — it is positioning. That is what this workshop changes."
+                    : mirrorScore >= 2
+                    ? "You ticked " + mirrorScore + " out of 5. You feel the friction. The next 8 sessions will show you exactly why that friction exists and what to do about it."
+                    : "You ticked " + mirrorScore + " out of 5. Your foundation is more stable than most. Now it is time to build leverage on top of it."}
+                </div>
+                <div style={{ marginTop: "12px", fontSize: "12px", color: "#D4AF37", fontStyle: "italic" }}>
+                  Continue reading below. Session 2 will show you exactly why this happens. 
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
       if (para.startsWith("**") && para.endsWith("**")) {
         return <h3 key={i} style={S.sectionH3}>{para.replace(/\*\*/g, "")}</h3>;
       }
       const formatted = para.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
       return <p key={i} style={S.para} dangerouslySetInnerHTML={{ __html: formatted }} />;
     });
+  };
 
   // ============================================================
   // RENDER VIEWS
