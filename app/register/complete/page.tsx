@@ -10,6 +10,7 @@ function RegisterCompleteInner() {
   const searchParams = useSearchParams()
   const paymentId    = searchParams.get('payment_id') || ''
   const tier         = searchParams.get('tier')        || 'bronze'
+  const urlRef       = searchParams.get('ref')         || ''
 
   const [form, setForm] = useState({
     firstName:   '',
@@ -21,17 +22,44 @@ function RegisterCompleteInner() {
     password:    '',
     confirmPass: '',
   })
-  const [email,   setEmail]   = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
-  const [step,    setStep]    = useState<'form' | 'done'>('form')
+  const [email,        setEmail]        = useState('')
+  const [emailLocked,  setEmailLocked]  = useState(false)
+  const [loading,      setLoading]      = useState(false)
+  const [error,        setError]        = useState('')
+  const [step,         setStep]         = useState<'form' | 'done'>('form')
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('z2b_workshop_email') || ''
-    const savedName  = localStorage.getItem('z2b_workshop_first_name') || ''
-    setEmail(savedEmail)
-    if (savedName) setForm(f => ({ ...f, firstName: savedName }))
-    if (!paymentId) router.replace('/pricing')
+    if (!paymentId) { router.replace('/pricing'); return }
+
+    // Only pre-fill if there is a logged-in Supabase user (they paid while logged in)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        // Logged-in user — pre-fill and lock their email
+        setEmail(user.email)
+        setEmailLocked(true)
+        supabase.from('profiles').select('full_name').eq('id', user.id).single()
+          .then(({ data }) => {
+            if (data?.full_name) {
+              const parts = data.full_name.split(' ')
+              setForm(f => ({ ...f, firstName: parts[0] || '', lastName: parts.slice(1).join(' ') || '' }))
+            }
+          })
+        return
+      }
+
+      // Not logged in — check if THIS payment_id has an email recorded
+      if (paymentId && paymentId !== 'pending') {
+        supabase.from('payments').select('email').eq('id', paymentId).single()
+          .then(({ data }) => {
+            if (data?.email) {
+              setEmail(data.email)
+              setEmailLocked(true)
+            }
+            // else: blank — prospect types their own email
+          })
+      }
+      // paymentId === 'pending' (EFT/ATM) — leave blank, prospect types email
+    })
   }, [paymentId, router])
 
   const set = (field: string, val: string) => setForm(f => ({ ...f, [field]: val }))
@@ -42,7 +70,7 @@ function RegisterCompleteInner() {
     if (!firstName || !lastName || !whatsapp || !city) { setError('Please fill in all required fields.'); return }
     if (!password || password.length < 8)              { setError('Password must be at least 8 characters.'); return }
     if (password !== confirmPass)                       { setError('Passwords do not match.'); return }
-    if (!email)                                         { setError('Email not found. Please return to workshop.'); return }
+    if (!email || !email.includes('@'))               { setError('Please enter a valid email address.'); return }
 
     setLoading(true)
     try {
@@ -61,7 +89,7 @@ function RegisterCompleteInner() {
         .eq('email', email)
         .single()
 
-      const referredBy = prospect?.referred_by || localStorage.getItem('z2b_ref') || null
+      const referredBy = prospect?.referred_by || urlRef || null
       const refCode    = `${firstName.slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
 
       await supabase.from('profiles').upsert({
@@ -90,9 +118,12 @@ function RegisterCompleteInner() {
 
       if (referredBy) await creditSponsor(referredBy, userId, tier, email)
 
-      localStorage.removeItem('z2b_workshop_email')
-      localStorage.removeItem('z2b_workshop_first_name')
-      localStorage.removeItem('z2b_ref')
+      // Only clear localStorage if this is the same person who went through workshop
+      if (localStorage.getItem('z2b_workshop_email') === email) {
+        localStorage.removeItem('z2b_workshop_email')
+        localStorage.removeItem('z2b_workshop_first_name')
+        localStorage.removeItem('z2b_ref')
+      }
 
       setStep('done')
     } catch (err: any) {
@@ -170,18 +201,18 @@ function RegisterCompleteInner() {
         </div>
 
         <div style={{ marginBottom: '14px' }}>
-          <label style={S.label}>Email address {email ? '(pre-filled from workshop)' : '*'}</label>
+          <label style={S.label}>Email address *</label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            readOnly={!!email}
+            readOnly={emailLocked}
             placeholder="your@email.com"
-            style={{ ...S.input, opacity: email ? 0.6 : 1, cursor: email ? 'not-allowed' : 'text' }}
+            style={{ ...S.input, opacity: emailLocked ? 0.6 : 1, cursor: emailLocked ? 'not-allowed' : 'text' }}
           />
-          {email && (
+          {emailLocked && (
             <button
-              onClick={() => setEmail('')}
+              onClick={() => setEmailLocked(false)}
               style={{ fontSize:'11px', color:'#A78BFA', background:'none', border:'none', cursor:'pointer', marginTop:'4px', padding:0 }}
             >
               ✏️ Use a different email
