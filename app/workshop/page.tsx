@@ -1354,7 +1354,7 @@ function ManlawVoice({ text }: { text: string }) {
   );
 }
 
-export default function WorkshopPage() {
+function WorkshopInner() {
   const searchParams = useSearchParams();
   const [view, setView]                     = useState<ViewType>("home");
   const [progress, setProgress]             = useState<ProgressMap>(createInitialProgress);
@@ -2176,4 +2176,12 @@ What you are about to read is not theory. It is a mirror. It describes the life 
   );
 
   return null;
+}
+
+export default function WorkshopPage() {
+  return (
+    <React.Suspense fallback={<div style={{ background: "#0A0015", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#D4AF37", fontSize: "18px" }}>Loading Workshop...</div>}>
+      <WorkshopInner />
+    </React.Suspense>
+  );
 }
