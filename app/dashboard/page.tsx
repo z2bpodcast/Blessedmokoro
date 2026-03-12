@@ -73,18 +73,37 @@ export default function DashboardPage() {
 
       setUser(user)
 
-      // Get profile with specific columns
-      const { data: profileData, error: profileError } = await supabase
+      // Get profile — auto-create if missing (first login before register/complete)
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, email, full_name, user_role, referral_code, is_paid_member, sponsor_name, sponsor_id, referred_by')
         .eq('id', user.id)
         .single()
 
-      if (profileError) {
-        console.error('Profile fetch error:', profileError)
-        setError(`Unable to load profile: ${profileError.message}`)
-        setLoading(false)
-        return
+      if (profileError || !profileData) {
+        // Profile doesn't exist yet — create a default one
+        const refCode = `${(user.email || 'ZZZ').slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .upsert({
+            id:             user.id,
+            email:          user.email,
+            full_name:      user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member',
+            user_role:      'fam',
+            referral_code:  refCode,
+            is_paid_member: false,
+            payment_status: 'free',
+            joined_at:      new Date().toISOString(),
+          })
+          .select('id, email, full_name, user_role, referral_code, is_paid_member, sponsor_name, sponsor_id, referred_by')
+          .single()
+
+        if (createError || !newProfile) {
+          setError(`Unable to load profile: ${profileError?.message || 'Profile creation failed'}`)
+          setLoading(false)
+          return
+        }
+        profileData = newProfile
       }
 
       setProfile(profileData)

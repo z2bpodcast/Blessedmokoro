@@ -88,12 +88,31 @@ export default function GroundBreakerPage() {
     if (!user) { setAuthError(true); setLoading(false); return; }
 
     // Builder profile
-    const { data: profile } = await supabase
+    let { data: profile } = await supabase
       .from("profiles")
-      .select("full_name, referral_code")
+      .select("id, full_name, referral_code, user_role, email")
       .eq("id", user.id)
       .single();
-    if (!profile?.referral_code) { setAuthError(true); setLoading(false); return; }
+
+    // Auto-create profile if missing
+    if (!profile) {
+      const refCode = `${(user.email || 'ZZZ').slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
+      await supabase.from("profiles").upsert({
+        id: user.id, email: user.email,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Builder',
+        user_role: 'fam', referral_code: refCode,
+        is_paid_member: false, joined_at: new Date().toISOString(),
+      })
+      profile = { id: user.id, full_name: user.email?.split('@')[0] || 'Builder', referral_code: refCode, user_role: 'fam', email: user.email }
+    }
+
+    // Auto-generate referral code if missing
+    if (!profile.referral_code) {
+      const refCode = `${(user.email || 'ZZZ').slice(0,3).toUpperCase()}${Math.random().toString(36).slice(2,6).toUpperCase()}`
+      await supabase.from("profiles").update({ referral_code: refCode }).eq("id", user.id)
+      profile.referral_code = refCode
+    }
+
     setBuilder(profile);
 
     // Prospects via pipeline view
