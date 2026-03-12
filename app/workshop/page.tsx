@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 
 import React, { useState, useRef, useEffect, useCallback, CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
+import WorkshopEmailGate from "@/components/WorkshopEmailGate";
 
 // ============================================================
 // TYPES
@@ -2817,6 +2818,10 @@ function MonthCheckQuiz({ firstName }: { firstName: string }) {
 
 function WorkshopInner() {
   const searchParams = useSearchParams();
+  // ── Email gate — set on first visit, persists in localStorage ──
+  const [workshopEmail, setWorkshopEmail] = useState<string | null>(() => {
+    try { return localStorage.getItem("z2b_workshop_email") || null; } catch { return null; }
+  });
   const [view, setView]                     = useState<ViewType>("home");
   const [progress, setProgress]             = useState<ProgressMap>(createInitialProgress);
   const [currentSection, setCurrentSection] = useState<number | null>(null);
@@ -3290,6 +3295,22 @@ What you are about to read is not theory. It is a mirror. It describes the life 
   };
 
   // ============================================================
+  // ── Email gate — show before anything else ──
+  if (!workshopEmail) {
+    return (
+      <WorkshopEmailGate
+        onEnter={(email) => {
+          setWorkshopEmail(email);
+          // Also pre-fill manlawMemberName from localStorage if available
+          const savedName = typeof window !== "undefined"
+            ? localStorage.getItem("z2b_workshop_first_name") || ""
+            : "";
+          if (savedName) setManlawMemberName(savedName);
+        }}
+      />
+    );
+  }
+
   // RENDER VIEWS
   // ============================================================
   // ── Welcome overlay rendered on top of any view ──
