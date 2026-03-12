@@ -977,7 +977,6 @@ function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onCl
   const [step, setStep]           = useState<"welcome" | "contact" | "thanks">("welcome");
   const [name, setName]           = useState("");
   const [whatsapp, setWhatsapp]   = useState("");
-  const [memberName, setMemberName]             = useState<string>("");
   const [saving, setSaving]       = useState(false);
   const [error, setError]         = useState("");
 
@@ -1438,10 +1437,7 @@ export default function WorkshopPage() {
           .eq("id", user.id)
           .single();
         if (profileData?.referral_code) setBuilderRef(profileData.referral_code);
-        if (profileData?.full_name) {
-          const firstName = profileData.full_name.trim().split(" ")[0];
-          setMemberName(firstName);
-        }
+
         // Fetch member first name for Coach Manlaw personalisation
         if (profileData?.full_name) {
           const firstName = profileData.full_name.trim().split(" ")[0];
@@ -1682,7 +1678,7 @@ ${sec ? `The member is on Session ${sec.id} — "${sec.title}" (${sec.subtitle})
 
   // ---- render content with **bold** support + personalisation + mirror moment ----
   const renderContent = (text: string) => {
-    const firstName = memberName || "Builder";
+    const firstName = manlawMemberName || "Builder";
     // Replace placeholders
     const processed = text
       .replace("[[PERSONAL_OPENING]]",
