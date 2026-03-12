@@ -1,26 +1,21 @@
 'use client'
 
-import WorkshopEmailGate from '@/components/WorkshopEmailGate'
-// In your WorkshopPage component, before rendering:
-if (!workshopEmail) return <WorkshopEmailGate onEnter={setWorkshopEmail} />
-
 import { useState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 interface Props {
   onEnter: (email: string) => void
 }
-export default function WorkshopEmailGate({ onEnter }: Props) {
-  const [email,       setEmail]       = useState('')
-  const [firstName,   setFirstName]   = useState('')
-  const [loading,     setLoading]     = useState(false)
-  const [error,       setError]       = useState('')
-  const searchParams  = useSearchParams()
-  const router        = useRouter()
-  const refCode       = searchParams.get('ref') || ''
 
-  // If user already registered with this email, skip gate
+export default function WorkshopEmailGate({ onEnter }: Props) {
+  const [email,     setEmail]     = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState('')
+  const searchParams = useSearchParams()
+  const refCode      = searchParams.get('ref') || ''
+
   useEffect(() => {
     const saved = localStorage.getItem('z2b_workshop_email')
     if (saved) onEnter(saved)
@@ -33,7 +28,6 @@ export default function WorkshopEmailGate({ onEnter }: Props) {
 
     setLoading(true)
     try {
-      // Upsert prospect — lock referral code to email on first touch
       const { error: upsertError } = await supabase
         .from('workshop_prospects')
         .upsert({
@@ -43,17 +37,15 @@ export default function WorkshopEmailGate({ onEnter }: Props) {
           registered_at:  new Date().toISOString(),
           last_active_at: new Date().toISOString(),
         }, {
-          onConflict:     'email',
-          ignoreDuplicates: false,   // update last_active but keep original referred_by
+          onConflict:       'email',
+          ignoreDuplicates: false,
         })
 
-      // If email already exists, DO NOT overwrite referred_by — handled by DB trigger
       if (upsertError) throw upsertError
 
-      // Save locally so they don't see gate again this session
       localStorage.setItem('z2b_workshop_email',      email.toLowerCase().trim())
       localStorage.setItem('z2b_workshop_first_name', firstName.trim())
-      if (refCode) localStorage.setItem('z2b_ref',   refCode)
+      if (refCode) localStorage.setItem('z2b_ref',    refCode)
 
       onEnter(email.toLowerCase().trim())
     } catch (err: any) {
@@ -76,7 +68,6 @@ export default function WorkshopEmailGate({ onEnter }: Props) {
         borderRadius: '20px', padding: '40px 32px',
         maxWidth: '420px', width: '100%', textAlign: 'center',
       }}>
-        {/* Logo */}
         <img src="/logo.jpg" alt="Z2B" style={{ width: '72px', height: '72px', borderRadius: '16px', margin: '0 auto 20px', border: '2px solid #D4AF37' }} />
 
         <div style={{ fontSize: '12px', color: '#D4AF37', letterSpacing: '3px', fontWeight: 'bold', marginBottom: '10px' }}>
