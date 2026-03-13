@@ -106,12 +106,16 @@ export default function AdminMembersPage() {
 
     if (error) { console.error('Load error:', error.message); return }
     if (data) {
-      setMembers(data as Member[])
+      const enriched = (data as any[]).map(m => ({
+        ...m,
+        _isPaid: m.paid_tier && m.paid_tier !== 'fam' && m.payment_status !== 'suspended',
+      }))
+      setMembers(enriched as Member[])
       setStats({
-        total:     data.length,
-        paid:      data.filter((m:any) => m.is_paid_member).length,
-        free:      data.filter((m:any) => !m.is_paid_member).length,
-        suspended: data.filter((m:any) => m.payment_status === 'suspended').length,
+        total:     enriched.length,
+        paid:      enriched.filter(m => m._isPaid).length,
+        free:      enriched.filter(m => !m._isPaid).length,
+        suspended: enriched.filter(m => m.payment_status === 'suspended').length,
       })
     }
   }
@@ -415,10 +419,13 @@ export default function AdminMembersPage() {
                         {m.paid_tier.toUpperCase()}
                       </span>
                     )}
-                    {m.is_paid_member
-                      ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
-                      : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
-                    }
+                    {(() => {
+                      const tier = m.paid_tier || 'fam'
+                      const isPaid = tier !== 'fam' && m.payment_status !== 'suspended'
+                      return isPaid
+                        ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
+                        : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
+                    })()}
                     <span className="text-xs text-gray-400 hidden lg:block">
                       {new Date(m.created_at).toLocaleDateString('en-ZA')}
                     </span>
