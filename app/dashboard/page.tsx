@@ -35,6 +35,8 @@ type Profile = {
   payment_status: string | null
   referred_by: string | null
   sponsor_name?: string
+  whatsapp_number?: string | null
+  city?: string | null
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -63,6 +65,7 @@ function DashboardInner() {
   const searchParams   = useSearchParams()
   const pendingUpgrade = searchParams.get('upgrade')
   const isPending      = searchParams.get('pending') === 'true'
+  const justUpgraded   = searchParams.get('upgraded') || null
 
   const [user,              setUser]              = useState<any>(null)
   const [profile,           setProfile]           = useState<Profile | null>(null)
@@ -75,6 +78,10 @@ function DashboardInner() {
   const [teamCount,         setTeamCount]         = useState(0)
   const [totalEarned,       setTotalEarned]       = useState(0)
   const [monthEarned,       setMonthEarned]       = useState(0)
+  const [profileComplete,   setProfileComplete]   = useState(true)
+  const [showProfileModal,  setShowProfileModal]  = useState(false)
+  const [profileForm,       setProfileForm]       = useState({ whatsapp: '', city: '', province: '', occupation: '' })
+  const [savingProfile,     setSavingProfile]     = useState(false)
 
   const router = useRouter()
 
@@ -91,7 +98,7 @@ function DashboardInner() {
       // Load profile
       let { data: prof } = await supabase
         .from('profiles')
-        .select('id, email, full_name, user_role, paid_tier, referral_code, is_paid_member, payment_status, referred_by, sponsor_name')
+        .select('id, email, full_name, user_role, paid_tier, referral_code, is_paid_member, payment_status, referred_by, sponsor_name, whatsapp_number, city')
         .eq('id', user.id)
         .single()
 
@@ -113,6 +120,10 @@ function DashboardInner() {
 
       if (!prof) { setError('Profile could not be loaded.'); setLoading(false); return }
       setProfile(prof as Profile)
+
+      // Check if profile needs completing
+      const incomplete = !prof.whatsapp_number || !prof.city
+      setProfileComplete(!incomplete)
 
       // Load team count
       const { count: tc } = await supabase
@@ -201,6 +212,21 @@ function DashboardInner() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const saveProfile = async () => {
+    if (!user || !profileForm.whatsapp || !profileForm.city) return
+    setSavingProfile(true)
+    await supabase.from('profiles').update({
+      whatsapp_number: profileForm.whatsapp,
+      city:            profileForm.city,
+      province:        profileForm.province,
+      occupation:      profileForm.occupation,
+    }).eq('id', user.id)
+    setProfile(prev => prev ? { ...prev, whatsapp_number: profileForm.whatsapp, city: profileForm.city } : prev)
+    setProfileComplete(true)
+    setShowProfileModal(false)
+    setSavingProfile(false)
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -246,6 +272,22 @@ function DashboardInner() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+      {/* Upgrade success banner */}
+      {justUpgraded && (
+        <div className="bg-green-50 border-b-4 border-green-400 px-4 py-4">
+          <div className="max-w-7xl mx-auto flex items-center gap-4">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="font-black text-green-800">Welcome to {justUpgraded.toUpperCase()}!</p>
+              <p className="text-green-700 text-sm">Your membership has been upgraded successfully. Enjoy your new benefits!</p>
+            </div>
+            <a href="/my-earnings" className="ml-auto bg-green-600 text-white px-4 py-2 rounded-xl font-black text-sm">
+              View My Earnings →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Pending upgrade banner */}
       {isPending && pendingUpgrade && (
@@ -428,6 +470,32 @@ function DashboardInner() {
           ))}
         </div>
 
+        {/* ── UPGRADE PROMPT (non-platinum only) ── */}
+        {tier !== 'platinum' && (
+          <div className="mb-6 rounded-2xl p-5 border-2 border-yellow-400/50 flex items-center gap-4 flex-wrap"
+            style={{ background: 'linear-gradient(135deg,#78350f20,#4c1d9520)' }}>
+            <div className="flex-1">
+              <p className="text-gray-800 font-black text-lg">
+                🚀 Ready to unlock more earnings?
+              </p>
+              <p className="text-gray-600 text-sm mt-0.5">
+                You're on <strong style={{ color: tierColor }}>{tier.toUpperCase()}</strong> — {
+                  tier === 'fam'     ? 'upgrade to Bronze (R480) to start earning commissions' :
+                  tier === 'bronze'  ? 'upgrade to Copper (R1,200) for 22% ISP + G4 TSC' :
+                  tier === 'copper'  ? 'upgrade to Silver (R2,500) for 25% ISP + G6 TSC' :
+                  tier === 'silver'  ? 'upgrade to Gold (R5,000) for 28% ISP + Marketplace access' :
+                  tier === 'gold'    ? 'upgrade to Platinum (R12,000) for 30% ISP + G10 TSC' : ''
+                }
+              </p>
+            </div>
+            <Link href="/pricing"
+              className="px-6 py-3 rounded-xl font-black text-purple-900 whitespace-nowrap hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#fbbf24,#D4AF37)' }}>
+              Upgrade Now →
+            </Link>
+          </div>
+        )}
+
         {/* ── REFERRAL LINK ── */}
         <div className="bg-white rounded-2xl border-2 border-yellow-300 shadow-sm p-6 mb-6">
           <h3 className="text-lg font-black text-gray-800 mb-3">🔗 Your Referral Link</h3>
@@ -443,6 +511,24 @@ function DashboardInner() {
             {copied ? <><CheckCircle className="w-5 h-5"/>Copied!</> : <><Copy className="w-5 h-5"/>Copy Referral Link</>}
           </button>
         </div>
+
+        {/* ── COMPLETE PROFILE PROMPT ── */}
+        {!profileComplete && (
+          <div className="bg-white rounded-2xl border-2 border-amber-300 shadow-sm p-6 mb-6">
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="text-4xl">📋</div>
+              <div className="flex-1">
+                <h3 className="text-lg font-black text-gray-800">Complete Your Profile</h3>
+                <p className="text-gray-500 text-sm mt-1">Add your WhatsApp number and city so your sponsor and team can reach you.</p>
+              </div>
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className="bg-amber-400 text-amber-900 font-black px-5 py-2.5 rounded-xl text-sm hover:bg-amber-300">
+                Complete Now →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── QUICK ACTIONS ── */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-sm p-6">
@@ -545,6 +631,60 @@ function DashboardInner() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── COMPLETE PROFILE MODAL ── */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setShowProfileModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            onClick={e => e.stopPropagation()}>
+            <h2 className="text-xl font-black text-gray-800 mb-1">📋 Complete Your Profile</h2>
+            <p className="text-gray-500 text-sm mb-5">This helps your sponsor and teammates connect with you.</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-black text-gray-600 mb-1 block">WhatsApp Number *</label>
+                <input type="tel" placeholder="+27 81 234 5678"
+                  value={profileForm.whatsapp}
+                  onChange={e => setProfileForm(f => ({ ...f, whatsapp: e.target.value }))}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold focus:border-purple-400 outline-none"/>
+              </div>
+              <div>
+                <label className="text-xs font-black text-gray-600 mb-1 block">City *</label>
+                <input type="text" placeholder="e.g. Pretoria"
+                  value={profileForm.city}
+                  onChange={e => setProfileForm(f => ({ ...f, city: e.target.value }))}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold focus:border-purple-400 outline-none"/>
+              </div>
+              <div>
+                <label className="text-xs font-black text-gray-600 mb-1 block">Province</label>
+                <input type="text" placeholder="e.g. Gauteng"
+                  value={profileForm.province}
+                  onChange={e => setProfileForm(f => ({ ...f, province: e.target.value }))}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold focus:border-purple-400 outline-none"/>
+              </div>
+              <div>
+                <label className="text-xs font-black text-gray-600 mb-1 block">Occupation</label>
+                <input type="text" placeholder="e.g. Teacher, Nurse, Entrepreneur"
+                  value={profileForm.occupation}
+                  onChange={e => setProfileForm(f => ({ ...f, occupation: e.target.value }))}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold focus:border-purple-400 outline-none"/>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setShowProfileModal(false)}
+                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl text-sm">
+                Later
+              </button>
+              <button onClick={saveProfile} disabled={savingProfile || !profileForm.whatsapp || !profileForm.city}
+                className="flex-1 font-black py-3 rounded-xl text-sm text-white disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg,#7C3AED,#9333EA)' }}>
+                {savingProfile ? 'Saving...' : 'Save Profile'}
+              </button>
             </div>
           </div>
         </div>

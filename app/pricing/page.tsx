@@ -48,8 +48,19 @@ export default function PricingPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       if (user) {
-        supabase.from('profiles').select('user_role').eq('id', user.id).single()
-          .then(({ data }) => { if (data) setCurrentTier(data.user_role) })
+        supabase.from('profiles').select('user_role, paid_tier').eq('id', user.id).single()
+          .then(({ data }) => { if (data) setCurrentTier(data.paid_tier || data.user_role || 'fam') })
+
+        // Auto-open payment modal if returning from login with ?autoopen=tier
+        const params = new URLSearchParams(window.location.search)
+        const autoOpen = params.get('autoopen')
+        if (autoOpen && MEMBERSHIP_TIERS[autoOpen as keyof typeof MEMBERSHIP_TIERS]) {
+          setTimeout(() => {
+            setSelectedTier(autoOpen)
+            setPaymentMethod(null)
+            setShowModal(true)
+          }, 600)
+        }
       }
     })
 
@@ -68,6 +79,13 @@ export default function PricingPage() {
   const openPayment = (tierKey: string) => {
     const tier = MEMBERSHIP_TIERS[tierKey as keyof typeof MEMBERSHIP_TIERS]
     if (tier.price === 0) { router.push('/workshop'); return }
+
+    // Must be logged in to upgrade — send to login with return URL
+    if (!user) {
+      router.push(`/login?redirect=/pricing&upgrade=${tierKey}`)
+      return
+    }
+
     setSelectedTier(tierKey)
     setPaymentMethod(null)
     setShowModal(true)
@@ -121,13 +139,13 @@ export default function PricingPage() {
           // If already logged in — update profile immediately
           if (user) {
             await supabase.from('profiles').update({
-              user_role:      selectedTier,
+              paid_tier:      selectedTier,
               is_paid_member: true,
               payment_status: 'paid',
               paid_at:        new Date().toISOString(),
             }).eq('id', user.id)
             closeModal()
-            router.push('/dashboard')
+            router.push(`/dashboard?upgraded=${selectedTier}`)
             return
           }
 
@@ -142,7 +160,7 @@ export default function PricingPage() {
     }
   }
 
-  // ── EFT / ATM: record pending → /register/complete ──
+  // ── EFT / ATM: record pending payment ──
   const recordManualPayment = async (method: 'bank'|'atm') => {
     if (!selectedTier) return
     const tier     = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
@@ -162,7 +180,18 @@ export default function PricingPage() {
     }).select().single()
 
     closeModal()
-    router.push(`/register/complete?payment_id=${(payRec as any)?.id || 'pending'}&tier=${selectedTier}&method=pending`)
+
+    if (user) {
+      // Existing member — update tier to pending, go to dashboard
+      await supabase.from('profiles').update({
+        paid_tier:      selectedTier,
+        payment_status: 'pending',
+      }).eq('id', user.id)
+      router.push(`/dashboard?upgrade=${selectedTier}&pending=true`)
+    } else {
+      // New prospect — light signup then dashboard
+      router.push(`/register/complete?payment_id=${(payRec as any)?.id || 'pending'}&tier=${selectedTier}&method=pending`)
+    }
   }
 
   const selTier = selectedTier ? MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS] : null
