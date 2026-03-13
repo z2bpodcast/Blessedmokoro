@@ -126,31 +126,32 @@ export default function AdminCompensationPage() {
   useEffect(() => { checkAccess() }, [checkAccess])
 
   const loadData = async () => {
-    // Load sponsor_earnings joined with profiles
+    // Load comp_earnings (new unified table)
     const { data: earningsData } = await supabase
-      .from('sponsor_earnings')
+      .from('comp_earnings')
       .select(`
-        id, user_id, earning_type, isp_amount, isp_rate,
-        tier_purchased, tier_price, status, created_at,
-        profiles!sponsor_earnings_user_id_fkey (full_name, email, referral_code, paid_tier)
+        id, builder_id, earning_type, amount, rate,
+        tier_at_earning, tier_purchased, sale_amount,
+        generation, status, created_at,
+        profiles!comp_earnings_builder_id_fkey (full_name, email, referral_code, paid_tier)
       `)
       .order('created_at', { ascending: false })
       .limit(200)
 
     if (earningsData) {
       const enriched = earningsData.map((e: any) => ({
-        id:           e.id,
-        user_id:      e.user_id,
-        full_name:    e.profiles?.full_name || 'Unknown',
-        email:        e.profiles?.email || '',
-        referral_code:e.profiles?.referral_code || '',
-        paid_tier:    e.profiles?.paid_tier || 'fam',
-        earning_type: e.earning_type || 'ISP',
-        amount:       e.isp_amount || 0,
-        isp_rate:     e.isp_rate,
+        id:             e.id,
+        user_id:        e.builder_id,
+        full_name:      e.profiles?.full_name || 'Unknown',
+        email:          e.profiles?.email || '',
+        referral_code:  e.profiles?.referral_code || '',
+        paid_tier:      e.profiles?.paid_tier || e.tier_at_earning || 'fam',
+        earning_type:   e.earning_type || 'ISP',
+        amount:         Number(e.amount) || 0,
+        isp_rate:       e.rate,
         tier_purchased: e.tier_purchased,
-        status:       e.status || 'confirmed',
-        created_at:   e.created_at,
+        status:         e.status || 'pending',
+        created_at:     e.created_at,
       }))
       setEarnings(enriched)
 
@@ -166,37 +167,54 @@ export default function AdminCompensationPage() {
       })
     }
 
-    // Load competitions from builder_alerts or a competitions table if exists
+    // Load competitions
     const { data: compsData } = await supabase
-      .from('builder_alerts')
+      .from('ceo_competitions')
       .select('*')
-      .eq('alert_type', 'competition')
       .order('created_at', { ascending: false })
     if (compsData) setCompetitions(compsData)
 
     // Load awards
     const { data: awardsData } = await supabase
-      .from('builder_alerts')
+      .from('ceo_awards')
       .select('*')
-      .eq('alert_type', 'award')
-      .order('created_at', { ascending: false })
+      .order('issued_at', { ascending: false })
     if (awardsData) setAwards(awardsData)
   }
 
   const saveRules = async () => {
     setSaving(true)
-    // Store rules in a settings/config table or as a profile metadata
-    // For now save to localStorage as fallback + alert
     try {
-      localStorage.setItem('z2b_comp_rules', JSON.stringify(editRules))
+      const { data: { user } } = await supabase.auth.getUser()
+      const updates = [
+        { setting_key: 'isp_rates',    setting_value: editRules.isp },
+        { setting_key: 'qpb_settings', setting_value: editRules.qpb },
+        { setting_key: 'tsc_rates',    setting_value: editRules.tsc.rates },
+        { setting_key: 'tsc_max_gen',  setting_value: editRules.tsc.max_gen },
+        { setting_key: 'mkt_settings', setting_value: editRules.mkt },
+      ]
+      for (const u of updates) {
+        await supabase.from('comp_settings').update({
+          setting_value: u.setting_value,
+          updated_by: user?.id,
+          updated_at: new Date().toISOString(),
+        }).eq('setting_key', u.setting_key)
+      }
       setRules(editRules)
       setEditMode(false)
-      alert('✅ Compensation rules saved locally. To persist to DB, add a settings table.')
+      alert('✅ Compensation rates saved to database.')
+    } catch(err: any) {
+      alert('Error saving: ' + err.message)
     } finally { setSaving(false) }
   }
 
   const approveEarning = async (id: string) => {
-    const { error } = await supabase.from('sponsor_earnings').update({ status: 'confirmed' }).eq('id', id)
+    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.from('comp_earnings').update({
+      status: 'confirmed',
+      approved_by: user?.id,
+      approved_at: new Date().toISOString(),
+    }).eq('id', id)
     if (!error) loadData()
     else alert('Error: ' + error.message)
   }
@@ -205,13 +223,16 @@ export default function AdminCompensationPage() {
     if (!newComp.title) { alert('Add a title.'); return }
     setSaving(true)
     try {
-      await supabase.from('builder_alerts').insert({
-        builder_code: 'ALL',
-        prospect_id:  null,
-        alert_type:   'competition',
-        session_num:  0,
-        message:      JSON.stringify(newComp),
-        read:         false,
+      const { data: { user } } = await supabase.auth.getUser()
+      await supabase.from('ceo_competitions').insert({
+        title:         newComp.title,
+        description:   newComp.description,
+        prize:         newComp.prize,
+        qualification: newComp.qualification,
+        start_date:    newComp.start_date || null,
+        end_date:      newComp.end_date || null,
+        status:        'active',
+        created_by:    user?.id,
       })
       setNewComp({ title:'', description:'', prize:'', start_date:'', end_date:'', qualification:'' })
       setAddingComp(false)
@@ -223,13 +244,16 @@ export default function AdminCompensationPage() {
     if (!newAward.recipient_name || !newAward.award_type) { alert('Fill required fields.'); return }
     setSaving(true)
     try {
-      await supabase.from('builder_alerts').insert({
-        builder_code: 'CEO_AWARD',
-        prospect_id:  null,
-        alert_type:   'award',
-        session_num:  0,
-        message:      JSON.stringify(newAward),
-        read:         false,
+      const { data: { user } } = await supabase.auth.getUser()
+      await supabase.from('ceo_awards').insert({
+        recipient_name:  newAward.recipient_name,
+        recipient_email: newAward.recipient_email,
+        award_type:      newAward.award_type,
+        amount:          Number(newAward.amount) || 0,
+        description:     newAward.description,
+        quarter:         newAward.quarter,
+        status:          'issued',
+        issued_by:       user?.id,
       })
       setNewAward({ recipient_name:'', recipient_email:'', award_type:'', amount:'', description:'', quarter:'' })
       setAddingAward(false)
@@ -624,28 +648,25 @@ export default function AdminCompensationPage() {
                     <p className="font-bold">No competitions yet. CEO can create one above.</p>
                   </div>
                 )}
-                {competitions.map(c => {
-                  let data: any = {}
-                  try { data = JSON.parse(c.message) } catch {}
-                  return (
-                    <div key={c.id} className="bg-black/40 rounded-2xl p-5 border border-purple-800">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-white font-black text-lg">{data.title || 'Untitled Competition'}</h3>
-                          <p className="text-yellow-400 font-bold text-sm mt-1">🎁 Prize: {data.prize || 'TBD'}</p>
-                          {data.qualification && <p className="text-purple-300 text-xs mt-2">📋 {data.qualification}</p>}
-                          {data.description && <p className="text-gray-400 text-xs mt-1">{data.description}</p>}
-                          {data.start_date && (
-                            <p className="text-xs text-purple-400 mt-2">
-                              📅 {data.start_date} → {data.end_date}
-                            </p>
-                          )}
-                        </div>
-                        <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded-full font-bold">Active</span>
+                {competitions.map(c => (
+                  <div key={c.id} className="bg-black/40 rounded-2xl p-5 border border-purple-800">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-white font-black text-lg">{c.title || 'Untitled Competition'}</h3>
+                        <p className="text-yellow-400 font-bold text-sm mt-1">🎁 Prize: {c.prize || 'TBD'}</p>
+                        {c.qualification && <p className="text-purple-300 text-xs mt-2">📋 {c.qualification}</p>}
+                        {c.description && <p className="text-gray-400 text-xs mt-1">{c.description}</p>}
+                        {c.start_date && (
+                          <p className="text-xs text-purple-400 mt-2">📅 {c.start_date} → {c.end_date}</p>
+                        )}
                       </div>
+                      <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                        c.status === 'active' ? 'bg-green-900 text-green-300' :
+                        c.status === 'closed' ? 'bg-gray-800 text-gray-400' : 'bg-yellow-900 text-yellow-300'
+                      }`}>{c.status?.toUpperCase()}</span>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -749,29 +770,26 @@ export default function AdminCompensationPage() {
                     <p className="font-bold">No awards issued yet.</p>
                   </div>
                 )}
-                {awards.map(a => {
-                  let data: any = {}
-                  try { data = JSON.parse(a.message) } catch {}
-                  return (
-                    <div key={a.id} className="bg-black/40 rounded-2xl p-5 border border-red-900">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-white font-black">{data.recipient_name || 'Recipient'}</h3>
-                          <p className="text-xs text-gray-400">{data.recipient_email}</p>
-                          <div className="flex gap-2 mt-2 flex-wrap">
-                            <span className="text-xs bg-red-900 text-red-300 px-2 py-1 rounded-full font-bold">
-                              {data.award_type?.replace('_',' ').toUpperCase() || 'AWARD'}
-                            </span>
-                            {data.amount && <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded-full font-bold">R{data.amount}</span>}
-                            {data.quarter && <span className="text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded-full font-bold">{data.quarter}</span>}
-                          </div>
-                          {data.description && <p className="text-gray-400 text-xs mt-2">{data.description}</p>}
+                {awards.map(a => (
+                  <div key={a.id} className="bg-black/40 rounded-2xl p-5 border border-red-900">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-white font-black">{a.recipient_name || 'Recipient'}</h3>
+                        <p className="text-xs text-gray-400">{a.recipient_email}</p>
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          <span className="text-xs bg-red-900 text-red-300 px-2 py-1 rounded-full font-bold">
+                            {a.award_type?.replace(/_/g,' ').toUpperCase() || 'AWARD'}
+                          </span>
+                          {a.amount > 0 && <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded-full font-bold">R{Number(a.amount).toLocaleString()}</span>}
+                          {a.quarter && <span className="text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded-full font-bold">{a.quarter}</span>}
+                          <span className={`text-xs px-2 py-1 rounded-full font-bold ${a.status === 'paid' ? 'bg-green-900 text-green-300' : 'bg-blue-900 text-blue-300'}`}>{a.status?.toUpperCase()}</span>
                         </div>
-                        <span className="text-xs text-gray-500">{new Date(a.created_at).toLocaleDateString('en-ZA')}</span>
+                        {a.description && <p className="text-gray-400 text-xs mt-2">{a.description}</p>}
                       </div>
+                      <span className="text-xs text-gray-500">{new Date(a.issued_at || a.created_at).toLocaleDateString('en-ZA')}</span>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
