@@ -91,12 +91,13 @@ const PERMISSIONS: { key: string; label: string; icon: string; roles: string[] }
 // ─── Nav sections ────────────────────────────────────────────────────────────
 
 const NAV_SECTIONS = [
-  { href:'/admin/payments', icon:'💳', label:'Payments & Grants', desc:'Approve EFT · Commission upgrades · CEO grants',     color:'#D97706', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
-  { href:'/admin/members',  icon:'👥', label:'Manage Members',    desc:'View, edit, suspend or delete members',               color:'#0369A1', bg:'#E0F2FE', roles:['ceo','superadmin','admin','support'] },
-  { href:'/admin/referrals',icon:'🔗', label:'Referral Tree',     desc:'View sponsor chains and referral analytics',          color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin','support'] },
-  { href:'/admin/content',  icon:'📝', label:'Content Manager',   desc:'Create and manage workshop sessions',                 color:'#7C3AED', bg:'#EDE9FE', roles:['ceo','superadmin','content_admin'] },
-  { href:'/admin/earnings', icon:'💰', label:'Earnings Report',   desc:'ISP commissions, QPB, tier revenue breakdown',        color:'#16A34A', bg:'#DCFCE7', roles:['ceo','superadmin','admin'] },
-  { href:'/dashboard',      icon:'🏠', label:'My Dashboard',      desc:'Return to your personal member dashboard',            color:'#6B7280', bg:'#F3F4F6', roles:['ceo','superadmin','admin','content_admin','support','staff'] },
+  { href:'/admin/payments',      icon:'💳', label:'Payments & Grants',    desc:'Approve EFT · Commission upgrades · CEO grants',        color:'#D97706', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
+  { href:'/admin/members',       icon:'👥', label:'Manage Members',       desc:'View, edit, suspend or delete members',                  color:'#0369A1', bg:'#E0F2FE', roles:['ceo','superadmin','admin','support'] },
+  { href:'/admin/compensation',  icon:'💎', label:'Compensation Engine',  desc:'ISP · QPB · TSC · CEO Awards · MKT · Founders Circle',  color:'#7C3AED', bg:'#EDE9FE', roles:['ceo','superadmin','admin'] },
+  { href:'/admin/referrals',     icon:'🔗', label:'Referral Tree',        desc:'View sponsor chains and referral analytics',             color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin','support'] },
+  { href:'/admin/content',       icon:'📝', label:'Content Manager',      desc:'Create and manage workshop sessions',                    color:'#4F46E5', bg:'#EEF2FF', roles:['ceo','superadmin','content_admin'] },
+  { href:'/admin/earnings',      icon:'💰', label:'Earnings Report',      desc:'ISP commissions, QPB, tier revenue breakdown',           color:'#16A34A', bg:'#DCFCE7', roles:['ceo','superadmin','admin'] },
+  { href:'/dashboard',           icon:'🏠', label:'My Dashboard',         desc:'Return to your personal member dashboard',               color:'#6B7280', bg:'#F3F4F6', roles:['ceo','superadmin','admin','content_admin','support','staff'] },
 ]
 
 interface StaffMember {
