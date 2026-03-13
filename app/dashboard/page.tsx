@@ -96,11 +96,13 @@ function DashboardInner() {
       setUser(user)
 
       // Load profile
-      let { data: prof } = await supabase
+      let prof: any
+      ;({ data: prof } = await supabase
         .from('profiles')
         .select('id, email, full_name, user_role, paid_tier, referral_code, is_paid_member, payment_status, referred_by, sponsor_name, whatsapp_number, city')
         .eq('id', user.id)
         .single()
+      )
 
       // Auto-create if missing
       if (!prof) {
@@ -115,7 +117,7 @@ function DashboardInner() {
           is_paid_member: false,
           payment_status: 'free',
         }).select('id, email, full_name, user_role, paid_tier, referral_code, is_paid_member, payment_status, referred_by, sponsor_name').single()
-        prof = newProf
+        prof = newProf ?? null
       }
 
       if (!prof) { setError('Profile could not be loaded.'); setLoading(false); return }
