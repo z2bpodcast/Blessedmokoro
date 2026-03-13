@@ -291,14 +291,19 @@ function DashboardInner() {
         </div>
       )}
 
-      {/* Pending upgrade banner */}
-      {isPending && pendingUpgrade && (
-        <div className="bg-amber-50 border-b-4 border-amber-400 px-4 py-4">
+      {/* Pending payment banner — shows from URL param OR live from profile */}
+      {(isPending || profile?.payment_status === 'pending') && (
+        <div className="border-b-4 border-amber-400 px-4 py-4 animate-pulse"
+          style={{ background:'linear-gradient(135deg,#FEF3C7,#FDE68A)' }}>
           <div className="max-w-7xl mx-auto flex items-center gap-4">
-            <span className="text-2xl">⏳</span>
-            <div>
-              <p className="font-bold text-amber-800">{pendingUpgrade.toUpperCase()} upgrade pending verification</p>
-              <p className="text-amber-700 text-sm">Your EFT payment has been recorded. We will activate your {pendingUpgrade} membership within 24 hours after verifying your deposit.</p>
+            <span className="text-2xl animate-bounce">⏳</span>
+            <div className="flex-1">
+              <p className="font-black text-amber-800">
+                {(pendingUpgrade || profile?.paid_tier || 'Tier').toUpperCase()} upgrade pending verification
+              </p>
+              <p className="text-amber-700 text-sm">
+                Your EFT / ATM payment has been recorded. We will activate your membership within 24 hours after verifying your deposit.
+              </p>
             </div>
           </div>
         </div>
@@ -423,12 +428,13 @@ function DashboardInner() {
                   {roleInfo.emoji} {roleInfo.label}
                 </span>
               )}
-              {/* Paid badge */}
-              {(profile.is_paid_member || profile.payment_status === 'paid') && (
-                <span className="px-3 py-1.5 rounded-full text-sm font-black bg-green-100 text-green-700 border-2 border-green-300">
-                  ✅ Paid
-                </span>
-              )}
+              {/* Status badge */}
+              {profile.payment_status === 'pending'
+                ? <span className="px-3 py-1.5 rounded-full text-sm font-black bg-amber-100 text-amber-700 border-2 border-amber-400 animate-pulse">⏳ Pending</span>
+                : (profile.is_paid_member || profile.payment_status === 'paid')
+                ? <span className="px-3 py-1.5 rounded-full text-sm font-black bg-green-100 text-green-700 border-2 border-green-300">✅ Active</span>
+                : null
+              }
             </div>
           </div>
 
@@ -449,6 +455,7 @@ function DashboardInner() {
               <p className="text-xs text-gray-500 font-bold mb-1">Status</p>
               <p className="text-lg font-black text-gray-700">
                 {profile.payment_status === 'suspended' ? '🚫 Suspended' :
+                 profile.payment_status === 'pending'   ? '⏳ Pending'   :
                  (profile.is_paid_member || profile.payment_status === 'paid') ? '✅ Active' : '🆓 Free'}
               </p>
             </div>

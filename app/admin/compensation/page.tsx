@@ -335,7 +335,19 @@ export default function AdminCompensationPage() {
         {activeTab === 'overview' && (
           <div className="space-y-8">
 
-            {/* Stats */}
+            {/* Unconfirmed payment warning */}
+            <div className="rounded-2xl p-5 border-2 border-amber-400 flex items-start gap-4"
+              style={{ background:'linear-gradient(135deg,#FEF3C7,#FDE68A)' }}>
+              <div className="text-3xl animate-bounce">⏳</div>
+              <div>
+                <p className="font-black text-amber-900 text-base">Always verify payment status before approving earnings</p>
+                <p className="text-amber-800 text-sm mt-1">
+                  Members with <strong>⏳ Unconfirmed</strong> payment status must not receive commissions at their requested tier.
+                  Go to <a href="/admin/payments" className="underline font-black">Payments & Grants</a> to confirm their deposit first,
+                  then approve earnings here.
+                </p>
+              </div>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label:'Total Paid Out',    value: fmtR(stats.total_paid),       icon:'💸', color:'#D4AF37' },

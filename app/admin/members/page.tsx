@@ -58,7 +58,7 @@ export default function AdminMembersPage() {
   const [search,      setSearch]      = useState('')
   const [filterRole,  setFilterRole]  = useState('all')
   const [filterPaid,  setFilterPaid]  = useState('all')
-  const [stats,       setStats]       = useState({ total:0, paid:0, free:0, suspended:0 })
+  const [stats,       setStats]       = useState({ total:0, paid:0, free:0, suspended:0, pending:0 })
   const [saving,      setSaving]      = useState<string|null>(null)
   const [expanded,    setExpanded]    = useState<string|null>(null)
   const [activePanel, setActivePanel] = useState<'tier'|'role'|'sponsor'|'danger'|null>(null)
@@ -117,9 +117,10 @@ export default function AdminMembersPage() {
       setMembers(enriched as Member[])
       setStats({
         total:     enriched.length,
-        paid:      enriched.filter(m => m._isPaid).length,
-        free:      enriched.filter(m => !m._isPaid).length,
+        paid:      enriched.filter(m => m.payment_status === 'paid' || (m.is_paid_member && m.payment_status !== 'pending')).length,
+        free:      enriched.filter(m => !m._isPaid && m.payment_status !== 'pending' && m.payment_status !== 'suspended').length,
         suspended: enriched.filter(m => m.payment_status === 'suspended').length,
+        pending:   enriched.filter(m => m.payment_status === 'pending').length,
       })
     }
   }
@@ -307,7 +308,12 @@ export default function AdminMembersPage() {
     const q = search.toLowerCase()
     const matchSearch = !search || [m.full_name, m.email, m.referral_code, m.referred_by].some(v => v?.toLowerCase().includes(q))
     const matchRole   = filterRole === 'all' || m.user_role === filterRole
-    const matchPaid   = filterPaid === 'all' || (filterPaid === 'paid' ? m.is_paid_member : filterPaid === 'free' ? !m.is_paid_member : m.payment_status === 'suspended')
+    const matchPaid   = filterPaid === 'all'
+      || (filterPaid === 'paid'      ? (m.payment_status === 'paid' || m.is_paid_member)
+        : filterPaid === 'pending'   ? m.payment_status === 'pending'
+        : filterPaid === 'free'      ? (!m.is_paid_member && m.payment_status !== 'pending' && m.payment_status !== 'suspended')
+        : filterPaid === 'suspended' ? m.payment_status === 'suspended'
+        : true)
     return matchSearch && matchRole && matchPaid
   })
 
@@ -355,14 +361,36 @@ export default function AdminMembersPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* Pending payments alert */}
+        {stats.pending > 0 && (
+          <a href="/admin/payments"
+            className="flex items-center gap-4 rounded-2xl p-5 mb-6 border-2 border-amber-400 hover:shadow-lg transition-all"
+            style={{ background:'linear-gradient(135deg,#FEF3C7,#FDE68A)' }}>
+            <div className="text-4xl animate-bounce">⏳</div>
+            <div className="flex-1">
+              <p className="font-black text-amber-900 text-lg">
+                {stats.pending} Member{stats.pending > 1 ? 's' : ''} with Unconfirmed Payment
+              </p>
+              <p className="text-amber-700 text-sm mt-0.5">
+                ⚠️ Do not pay commission on pending tiers — go to Payments to verify and approve first
+              </p>
+            </div>
+            <div className="bg-amber-500 text-white font-black px-5 py-2 rounded-xl text-sm whitespace-nowrap">
+              Approve Now →
+            </div>
+          </a>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {[
             { label:'Total',     value:stats.total,     icon:'👥', color:'#1D4ED8', bg:'#DBEAFE' },
-            { label:'Paid',      value:stats.paid,      icon:'💎', color:'#059669', bg:'#D1FAE5' },
-            { label:'Free',      value:stats.free,      icon:'🆓', color:'#6B7280', bg:'#F3F4F6' },
-            { label:'Suspended', value:stats.suspended, icon:'🚫', color:'#DC2626', bg:'#FEE2E2' },
-          ].map(s => (
-            <div key={s.label} style={{ background:s.bg, border:`2px solid ${s.color}25` }} className="rounded-2xl p-4 text-center shadow-sm">
+            { label:'Confirmed', value:stats.paid,      icon:'✅', color:'#059669', bg:'#D1FAE5' },
+            { label:'Pending',   value:stats.pending,   icon:'⏳', color:'#D97706', bg:'#FEF3C7', pulse: stats.pending > 0 },
+            { label:'Free',      value:stats.free,      icon:'🆓', color:'#6B7280', bg:'#F3F4F6', pulse: false },
+            { label:'Suspended', value:stats.suspended, icon:'🚫', color:'#DC2626', bg:'#FEE2E2', pulse: false },
+          ].map((s: any) => (
+            <div key={s.label} style={{ background:s.bg, border:`2px solid ${s.color}25` }}
+              className={`rounded-2xl p-4 text-center shadow-sm ${s.pulse ? 'animate-pulse' : ''}`}>
               <div className="text-2xl mb-1">{s.icon}</div>
               <div className="text-2xl font-black" style={{ color:s.color }}>{s.value}</div>
               <div className="text-xs font-semibold text-gray-500 mt-1">{s.label}</div>
@@ -387,9 +415,10 @@ export default function AdminMembersPage() {
             <select value={filterPaid} onChange={e => setFilterPaid(e.target.value)}
               className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none">
               <option value="all">All Members</option>
-              <option value="paid">Paid</option>
-              <option value="free">Free</option>
-              <option value="suspended">Suspended</option>
+              <option value="paid">✅ Confirmed</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="free">🆓 Free</option>
+              <option value="suspended">🚫 Suspended</option>
             </select>
             <span className="text-sm text-gray-500 font-semibold">
               {filtered.length} / {stats.total}
@@ -446,9 +475,11 @@ export default function AdminMembersPage() {
                       {(m.paid_tier || 'FAM').toUpperCase()}
                     </span>
                     {/* PAID STATUS */}
-                    {m.payment_status === 'paid' || m.is_paid_member
-                      ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
-                      : null
+                    {m.payment_status === 'pending'
+                      ? <span className="text-xs bg-amber-100 text-amber-700 border border-amber-400 px-2 py-1 rounded-full font-black animate-pulse">⏳ Unconfirmed</span>
+                      : m.payment_status === 'paid' || m.is_paid_member
+                      ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Confirmed</span>
+                      : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
                     }
                     {/* ROLE */}
                     {getRoleBadge(m)}
