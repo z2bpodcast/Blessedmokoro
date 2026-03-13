@@ -104,7 +104,6 @@ export default function AdminMembersPage() {
     const { data, error } = await supabase.from('profiles')
       .select('id, full_name, email, user_role, paid_tier, membership_type, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
       .order('created_at', { ascending: false })
-      .throwOnError()
 
     if (error) { console.error('Load error:', error.message); return }
     if (data) {
