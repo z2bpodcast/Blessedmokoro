@@ -124,7 +124,7 @@ export default function AdminPaymentsPage() {
     setApproving(payment.id)
     try {
       await supabase.from('payments').update({ status:'completed', verified_at:new Date().toISOString(), verified_by:adminId }).eq('id', payment.id)
-      await supabase.from('profiles').update({ user_role:payment.tier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', payment.user_id)
+      await supabase.from('profiles').update({ user_role:payment.tier, paid_tier:payment.tier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', payment.user_id)
       if (payment.profiles?.referred_by) {
         const ispRate   = ISP_RATES[payment.tier]||0.18
         const ispAmount = Math.round(payment.amount*ispRate)
@@ -167,7 +167,7 @@ export default function AdminPaymentsPage() {
     setCommLoading(true)
     try {
       await supabase.from('payments').insert({ user_id:commMember.id, email:commMember.email, tier:commTier, amount:price, currency:'ZAR', payment_provider:'commission_upgrade', payment_id:`COMM_${commMember.referral_code}_${Date.now()}`, status:'completed', payment_type:'tier_upgrade', verified_at:new Date().toISOString(), verified_by:adminId, metadata:{note:'Commission balance used as payment'} })
-      await supabase.from('profiles').update({ user_role:commTier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', commMember.id)
+      await supabase.from('profiles').update({ user_role:commTier, paid_tier:commTier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', commMember.id)
       await supabase.from('sponsor_earnings').insert({ sponsor_id:commMember.id, new_member_id:commMember.id, tier_purchased:commTier, tier_price:price, isp_rate:0, isp_amount:-price, earning_type:'COMMISSION_UPGRADE_DEBIT', status:'confirmed' })
       await supabase.from('builder_alerts').insert({ builder_code:commMember.referral_code, prospect_id:commMember.id, alert_type:'system', session_num:0, message:`🎉 Your R${price} commission balance has been used to upgrade you to ${commTier.toUpperCase()} tier!`, read:false })
       alert(`✅ ${commMember.full_name} upgraded to ${commTier.toUpperCase()} using R${price} commission.`)
@@ -185,7 +185,7 @@ export default function AdminPaymentsPage() {
     setGrantLoading(true)
     try {
       await supabase.from('payments').insert({ user_id:grantMember.id, email:grantMember.email, tier:grantTier, amount:0, currency:'ZAR', payment_provider:'ceo_grant', payment_id:`GRANT_${grantMember.referral_code}_${Date.now()}`, status:'completed', payment_type:'ceo_grant', verified_at:new Date().toISOString(), verified_by:adminId, metadata:{grant_reason:grantReason, granted_by:adminId} })
-      await supabase.from('profiles').update({ user_role:grantTier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', grantMember.id)
+      await supabase.from('profiles').update({ user_role:grantTier, paid_tier:grantTier, is_paid_member:true, payment_status:'paid', paid_at:new Date().toISOString() }).eq('id', grantMember.id)
       await supabase.from('builder_alerts').insert({ builder_code:grantMember.referral_code, prospect_id:grantMember.id, alert_type:'system', session_num:0, message:`🏆 The Z2B CEO has granted you ${grantTier.toUpperCase()} membership! "${grantReason}"`, read:false })
       alert(`✅ ${grantMember.full_name} granted ${grantTier.toUpperCase()}.\nReason logged: ${grantReason}`)
       setShowGrantModal(false); setGrantMember(null); setGrantReason(''); setGrantSearch(''); setGrantResults([])
