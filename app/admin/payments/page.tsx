@@ -76,10 +76,14 @@ export default function AdminPaymentsPage() {
   const router = useRouter()
 
   const checkAdmin = useCallback(async () => {
+    if (typeof window !== 'undefined') {
+      const token = sessionStorage.getItem('z2b_cmd_auth')
+      if (token !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k'); return }
+    }
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+    if (!user) { router.push('/z2b-command-7x9k'); return }
     const { data: profile } = await supabase.from('profiles').select('user_role').eq('id', user.id).single()
-    if (!['admin','superadmin'].includes(String(profile?.user_role||''))) { router.push('/dashboard'); return }
+    if (!['admin','superadmin','ceo'].includes(String(profile?.user_role||''))) { router.push('/dashboard'); return }
     setIsAdmin(true)
     setAdminId(user.id)
     loadPayments()
@@ -227,7 +231,7 @@ export default function AdminPaymentsPage() {
             <button onClick={loadPayments} className="flex items-center gap-2 bg-white/10 border border-gold-400 text-white px-4 py-2 rounded-lg hover:bg-white/20 text-sm">
               <RefreshCw className="w-4 h-4"/>Refresh
             </button>
-            <a href="/admin" className="bg-white text-primary-700 px-4 py-2 rounded-lg font-semibold text-sm border-2 border-gold-400">Admin Home</a>
+            <a href="/z2b-command-7x9k/hub" className="bg-white text-primary-700 px-4 py-2 rounded-lg font-semibold text-sm border-2 border-gold-400">Admin Hub</a>
           </div>
         </div>
       </header>
