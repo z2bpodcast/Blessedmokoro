@@ -137,12 +137,32 @@ export default function AdminMembersPage() {
     }
   }
 
-  const getRoleBadge = (role: string) => {
-    const r = ROLE_LABELS[role] || { label: role, emoji:'👤', color:'#6B7280', bg:'#F3F4F6' }
+  const getRoleBadge = (member: Member) => {
+    // Suspended overrides everything
+    if (member.payment_status === 'suspended') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold border"
+          style={{ background:'#FEE2E2', color:'#DC2626', borderColor:'#FCA5A5' }}>
+          🚫 Suspended
+        </span>
+      )
+    }
+    // Admin roles
+    const adminRoles = ['ceo','superadmin','admin','content_admin','support','staff']
+    if (adminRoles.includes(member.user_role)) {
+      const r = ROLE_LABELS[member.user_role]
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold border"
+          style={{ background:r?.bg, color:r?.color, borderColor:`${r?.color}40` }}>
+          {r?.emoji} {r?.label}
+        </span>
+      )
+    }
+    // Everyone else — Active or Suspended
     return (
       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold border"
-        style={{ background:r.bg, color:r.color, borderColor:`${r.color}40` }}>
-        {r.emoji} {r.label}
+        style={{ background:'#D1FAE5', color:'#059669', borderColor:'#6EE7B7' }}>
+        ✅ Active
       </span>
     )
   }
@@ -431,7 +451,7 @@ export default function AdminMembersPage() {
                       : null
                     }
                     {/* ROLE */}
-                    {getRoleBadge(m.user_role)}
+                    {getRoleBadge(m)}
                     <span className="text-xs text-gray-400 hidden lg:block">
                       {new Date(m.created_at).toLocaleDateString('en-ZA')}
                     </span>
