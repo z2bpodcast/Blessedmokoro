@@ -108,7 +108,7 @@ export default function AdminMembersPage() {
     if (data) {
       const enriched = (data as any[]).map(m => ({
         ...m,
-        _isPaid: m.paid_tier && m.paid_tier !== 'fam' && m.payment_status !== 'suspended',
+        _isPaid: m.paid_tier && m.paid_tier !== 'fam',
       }))
       setMembers(enriched as Member[])
       setStats({
@@ -420,8 +420,8 @@ export default function AdminMembersPage() {
                       </span>
                     )}
                     {(() => {
-                      const tier = m.paid_tier || 'fam'
-                      const isPaid = tier !== 'fam' && m.payment_status !== 'suspended'
+                      const tier   = m.paid_tier || 'fam'
+                      const isPaid = tier !== 'fam' && tier !== null
                       return isPaid
                         ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
                         : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
