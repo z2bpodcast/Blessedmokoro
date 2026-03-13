@@ -85,23 +85,25 @@ export default function AdminMembersPage() {
     setMyRole(role)
     setMyId(user.id)
     setMyName(profile?.full_name || 'Admin')
-    loadMembers()
+    await loadMembers()
   }, [router])
 
   useEffect(() => { checkAccess() }, [checkAccess])
 
   const loadMembers = async () => {
     setLoading(true)
-    const { data } = await supabase.from('profiles')
-      .select('id, full_name, email, user_role, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number, suspended')
+    const { data, error } = await supabase.from('profiles')
+      .select('id, full_name, email, user_role, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
       .order('created_at', { ascending: false })
+    if (error) console.error('Members load error:', error.message)
     if (data) {
-      setMembers(data as Member[])
+      const enriched = data.map((m: any) => ({ ...m, suspended: m.payment_status === 'suspended' }))
+      setMembers(enriched as Member[])
       setStats({
-        total:     data.length,
-        paid:      data.filter((m:any) => m.is_paid_member).length,
-        free:      data.filter((m:any) => !m.is_paid_member).length,
-        suspended: data.filter((m:any) => m.suspended).length,
+        total:     enriched.length,
+        paid:      enriched.filter(m => m.is_paid_member).length,
+        free:      enriched.filter(m => !m.is_paid_member).length,
+        suspended: enriched.filter(m => m.suspended).length,
       })
     }
     setLoading(false)
@@ -175,7 +177,9 @@ export default function AdminMembersPage() {
     if (!confirm(`${action} ${member.full_name}?`)) return
     setSaving(member.id)
     try {
-      await supabase.from('profiles').update({ suspended: !member.suspended }).eq('id', member.id)
+      await supabase.from('profiles')
+        .update({ payment_status: member.suspended ? 'paid' : 'suspended' })
+        .eq('id', member.id)
       loadMembers()
     } catch(err:any) { alert('Error: ' + err.message) }
     finally { setSaving(null) }
