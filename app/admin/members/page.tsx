@@ -14,6 +14,7 @@ interface Member {
   email:           string
   user_role:       string
   paid_tier:       string | null
+  membership_type: string | null
   referral_code:   string
   referred_by:     string | null
   is_paid_member:  boolean
@@ -101,14 +102,18 @@ export default function AdminMembersPage() {
 
   const loadMembers = async () => {
     const { data, error } = await supabase.from('profiles')
-      .select('id, full_name, email, user_role, paid_tier, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
+      .select('id, full_name, email, user_role, paid_tier, membership_type, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
       .order('created_at', { ascending: false })
+      .throwOnError()
 
     if (error) { console.error('Load error:', error.message); return }
     if (data) {
       const enriched = (data as any[]).map(m => ({
         ...m,
-        _isPaid: m.paid_tier && m.paid_tier !== 'fam',
+        _isPaid:
+          (m.paid_tier && m.paid_tier !== 'fam') ||
+          m.is_paid_member === true ||
+          m.payment_status === 'paid',
       }))
       setMembers(enriched as Member[])
       setStats({
@@ -420,8 +425,11 @@ export default function AdminMembersPage() {
                       </span>
                     )}
                     {(() => {
-                      const tier   = m.paid_tier || 'fam'
-                      const isPaid = tier !== 'fam' && tier !== null
+                      const isPaid =
+                        (m.paid_tier && m.paid_tier !== 'fam') ||
+                        m.is_paid_member === true ||
+                        m.payment_status === 'paid' ||
+                        (m.membership_type && m.membership_type !== 'free' && m.membership_type !== 'fam')
                       return isPaid
                         ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
                         : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
