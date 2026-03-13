@@ -473,7 +473,7 @@ function DashboardInner() {
         {/* ── UPGRADE PROMPT (non-platinum only) ── */}
         {tier !== 'platinum' && (
           <div className="mb-6 rounded-2xl p-5 border-2 border-yellow-400/50 flex items-center gap-4 flex-wrap"
-            style={{ background: 'linear-gradient(135deg,#78350f20,#4c1d9520)' }}>
+            style={{ background: 'linear-gradient(135deg,rgba(120,53,15,0.12),rgba(76,29,149,0.12))' }}>
             <div className="flex-1">
               <p className="text-gray-800 font-black text-lg">
                 🚀 Ready to unlock more earnings?
