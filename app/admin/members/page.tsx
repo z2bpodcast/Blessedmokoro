@@ -304,6 +304,30 @@ export default function AdminMembersPage() {
     finally { setSaving(null) }
   }
 
+  const confirmPayment = async (member: Member) => {
+    if (!confirm(
+      `✅ CONFIRM PAYMENT for ${member.full_name}?\n\n` +
+      `Tier: ${(member.paid_tier || 'fam').toUpperCase()}\n` +
+      `This will set their status to PAID and activate their tier.\n\n` +
+      `Only do this after verifying their EFT/ATM deposit.`
+    )) return
+    setSaving(member.id)
+    try {
+      await supabase.from('profiles').update({
+        payment_status: 'paid',
+        is_paid_member: true,
+        paid_at:        new Date().toISOString(),
+      }).eq('id', member.id)
+      // Also mark their pending payment as completed
+      await supabase.from('payments')
+        .update({ status: 'completed', verified_at: new Date().toISOString() })
+        .eq('user_id', member.id)
+        .eq('status', 'pending')
+      loadMembers()
+    } catch(err:any) { alert('Error: ' + err.message) }
+    finally { setSaving(null) }
+  }
+
   const filtered = members.filter(m => {
     const q = search.toLowerCase()
     const matchSearch = !search || [m.full_name, m.email, m.referral_code, m.referred_by].some(v => v?.toLowerCase().includes(q))
@@ -638,22 +662,46 @@ export default function AdminMembersPage() {
                     {/* DANGER ZONE */}
                     {activePanel === 'danger' && (
                       <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-5">
-                        <h3 className="font-black text-gray-800 mb-4">⚠️ Danger Zone</h3>
+                        <h3 className="font-black text-gray-800 mb-1">⚠️ Danger Zone</h3>
+                        <p className="text-xs text-red-500 font-semibold mb-4">
+                          CEO &amp; Super Admin only — these actions are irreversible or financially significant
+                        </p>
                         <div className="flex gap-3 flex-wrap">
-                          <button onClick={() => suspendMember(m)} disabled={isBusy}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-bold text-sm disabled:opacity-40 ${
-                              isSuspended
-                                ? 'bg-green-50 border-green-300 text-green-700 hover:bg-green-100'
-                                : 'bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100'
-                            }`}>
-                            {isSuspended ? <><CheckCircle className="w-4 h-4"/>Reinstate Member</> : <><Ban className="w-4 h-4"/>Suspend Member</>}
-                          </button>
+
+                          {/* CONFIRM PAYMENT — CEO/superadmin only */}
+                          {ceo && m.payment_status === 'pending' && (
+                            <button onClick={() => confirmPayment(m)} disabled={isBusy}
+                              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-green-400 bg-green-50 text-green-700 hover:bg-green-100 font-bold text-sm disabled:opacity-40">
+                              <CheckCircle className="w-4 h-4"/>Confirm Payment
+                            </button>
+                          )}
+
+                          {/* SUSPEND / REINSTATE — CEO/superadmin only */}
+                          {ceo && (
+                            <button onClick={() => suspendMember(m)} disabled={isBusy}
+                              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-bold text-sm disabled:opacity-40 ${
+                                isSuspended
+                                  ? 'bg-green-50 border-green-300 text-green-700 hover:bg-green-100'
+                                  : 'bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100'
+                              }`}>
+                              {isSuspended ? <><CheckCircle className="w-4 h-4"/>Reinstate Member</> : <><Ban className="w-4 h-4"/>Suspend Member</>}
+                            </button>
+                          )}
+
+                          {/* DELETE — CEO/superadmin only */}
                           {ceo && (
                             <button onClick={() => deleteMember(m)} disabled={isBusy}
                               className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-red-400 bg-red-100 text-red-700 hover:bg-red-200 font-bold text-sm disabled:opacity-40">
                               <Trash2 className="w-4 h-4"/>Delete Permanently
                             </button>
                           )}
+
+                          {!ceo && (
+                            <p className="text-sm text-red-400 font-semibold py-2">
+                              🔒 These actions require CEO or Super Admin access
+                            </p>
+                          )}
+
                           <button onClick={() => { setExpanded(null); setActivePanel(null) }}
                             className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold text-sm">
                             Cancel
