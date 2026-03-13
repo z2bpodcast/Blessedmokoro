@@ -13,6 +13,7 @@ interface Member {
   full_name:       string
   email:           string
   user_role:       string
+  paid_tier:       string | null
   referral_code:   string
   referred_by:     string | null
   is_paid_member:  boolean
@@ -100,7 +101,7 @@ export default function AdminMembersPage() {
 
   const loadMembers = async () => {
     const { data, error } = await supabase.from('profiles')
-      .select('id, full_name, email, user_role, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
+      .select('id, full_name, email, user_role, paid_tier, referral_code, referred_by, is_paid_member, payment_status, paid_at, created_at, whatsapp_number')
       .order('created_at', { ascending: false })
 
     if (error) { console.error('Load error:', error.message); return }
@@ -144,9 +145,9 @@ export default function AdminMembersPage() {
     if (!confirm(`Upgrade ${member.full_name} to ${newTier.toUpperCase()}?\n\n${tierNote || 'No note.'}`)) return
     setSaving(member.id)
     try {
-      // 1. Update profile — only columns we know exist
+      // 1. Update profile — paid_tier for membership level, NOT user_role (enum)
       const { error: profileErr } = await supabase.from('profiles').update({
-        user_role:      newTier,
+        paid_tier:      newTier,
         is_paid_member: newTier !== 'fam',
         payment_status: newTier !== 'fam' ? 'paid' : 'free',
         paid_at:        new Date().toISOString(),
@@ -385,7 +386,7 @@ export default function AdminMembersPage() {
                 {/* Main row */}
                 <div className="flex items-center gap-3 px-5 py-4 flex-wrap">
                   <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-white text-lg shadow flex-shrink-0"
-                    style={{ background: TIER_COLORS[m.user_role] || '#6B7280' }}>
+                    style={{ background: TIER_COLORS[m.paid_tier || 'fam'] || '#6B7280' }}>
                     {(m.full_name||'?').charAt(0)}
                   </div>
 
@@ -408,6 +409,12 @@ export default function AdminMembersPage() {
 
                   <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
                     {getRoleBadge(m.user_role)}
+                    {m.paid_tier && m.paid_tier !== 'fam' && (
+                      <span className="text-xs font-bold px-2 py-1 rounded-full border"
+                        style={{ background: TIER_COLORS[m.paid_tier]+'20', color: TIER_COLORS[m.paid_tier], borderColor: TIER_COLORS[m.paid_tier]+'60' }}>
+                        {m.paid_tier.toUpperCase()}
+                      </span>
+                    )}
                     {m.is_paid_member
                       ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
                       : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
@@ -463,7 +470,7 @@ export default function AdminMembersPage() {
                         <h3 className="font-black text-gray-800 mb-1 flex items-center gap-2">
                           <ArrowUp className="w-5 h-5 text-amber-600"/>Upgrade Tier
                         </h3>
-                        <p className="text-xs text-gray-500 mb-4">Current: <strong>{m.user_role.toUpperCase()}</strong> · Select new tier below</p>
+                        <p className="text-xs text-gray-500 mb-4">Current tier: <strong>{(m.paid_tier || 'fam').toUpperCase()}</strong> · Select new tier below</p>
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
                           {TIERS.map(t => (
                             <button key={t} onClick={() => setNewTier(t)}
