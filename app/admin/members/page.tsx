@@ -416,23 +416,22 @@ export default function AdminMembersPage() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
+                    {/* TIER */}
+                    <span className="text-xs font-black px-2 py-1 rounded-full border"
+                      style={{
+                        background: TIER_COLORS[m.paid_tier || 'fam'] + '20',
+                        color: TIER_COLORS[m.paid_tier || 'fam'],
+                        borderColor: TIER_COLORS[m.paid_tier || 'fam'] + '60'
+                      }}>
+                      {(m.paid_tier || 'FAM').toUpperCase()}
+                    </span>
+                    {/* PAID STATUS */}
+                    {m.payment_status === 'paid' || m.is_paid_member
+                      ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
+                      : null
+                    }
+                    {/* ROLE */}
                     {getRoleBadge(m.user_role)}
-                    {m.paid_tier && m.paid_tier !== 'fam' && (
-                      <span className="text-xs font-bold px-2 py-1 rounded-full border"
-                        style={{ background: TIER_COLORS[m.paid_tier]+'20', color: TIER_COLORS[m.paid_tier], borderColor: TIER_COLORS[m.paid_tier]+'60' }}>
-                        {m.paid_tier.toUpperCase()}
-                      </span>
-                    )}
-                    {(() => {
-                      const isPaid =
-                        (m.paid_tier && m.paid_tier !== 'fam') ||
-                        m.is_paid_member === true ||
-                        m.payment_status === 'paid' ||
-                        (m.membership_type && m.membership_type !== 'free' && m.membership_type !== 'fam')
-                      return isPaid
-                        ? <span className="text-xs bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded-full font-bold">✅ Paid</span>
-                        : <span className="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2 py-1 rounded-full font-bold">🆓 Free</span>
-                    })()}
                     <span className="text-xs text-gray-400 hidden lg:block">
                       {new Date(m.created_at).toLocaleDateString('en-ZA')}
                     </span>
