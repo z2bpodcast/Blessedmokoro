@@ -58,6 +58,213 @@ interface Tier {
 }
 
 // ============================================================
+// MORNING SESSIONS — 9 EC DAILY BRIEFINGS (Audio Only)
+// ============================================================
+interface MorningSession {
+  id: number;
+  title: string;
+  subtitle: string;
+  content: string;
+}
+
+const MORNING_SESSIONS: MorningSession[] = [
+  {
+    id: 1,
+    title: "Who You Are and Why You Are Here",
+    subtitle: "Your identity is the foundation of everything you will build",
+    content: `Good morning, Legacy Builder.
+
+Before you step into your day — take 60 seconds to remember who you are and why you are here.
+
+You are not just an employee. You are not just a consumer. You are an Entrepreneurial Consumer — someone who has chosen the third path. Someone who has decided to stop being a passive participant in the economy and start building equity while still employed.
+
+This was not an accident. You found Z2B because something inside you already knew that the old formula — work hard, get paid, spend, repeat — was not enough. That knowing is the first sign of a builder's mindset.
+
+You are here because you believe in Mindset, Systems, Relationships and Legacy. The four legs of your table. You may not have all four strong yet — but you are building. And that is what matters.
+
+Every morning this week, these sessions will give you a 60-second mental anchor before the noise of the day begins. A reminder of who you are becoming.
+
+Today's anchor: I am an Entrepreneurial Consumer. I am building while I am employed. I am participating in value creation. I have a seat at the table.
+
+Carry that with you today. Now go and build. God bless your day.`,
+  },
+  {
+    id: 2,
+    title: "The Mindset Shift — From Employee to Builder",
+    subtitle: "The most important upgrade you will ever make happens in your mind",
+    content: `Good morning, Legacy Builder.
+
+The most important upgrade you will ever make does not happen on a pricing page. It does not happen in your bank account. It happens in your mind.
+
+For most of your life, you were trained to think like an employee. Show up. Do the work. Get paid. Be grateful. Wait for the promotion. Save if you can. Repeat until retirement.
+
+This is not a criticism of hard work. Hard work is honourable. But hard work inside an employee mindset will always hit a ceiling. Not because of your effort — but because of the structure.
+
+The builder's mindset is different. A builder asks different questions. Not "how do I earn more?" but "how do I build a system that earns?" Not "who will give me a chance?" but "who can I serve and partner with?" Not "when will things get better?" but "what can I build today?"
+
+The shift from employee thinking to builder thinking is not a one-time event. It is a daily practice. This is why we start the morning here — before the emails, before the commute, before the demands of the day. To reset the lens through which you see your life.
+
+Today's anchor: I am not just an employee — I am a builder in progress. Every decision I make today is a brick in my table.
+
+Go build. God bless your day.`,
+  },
+  {
+    id: 3,
+    title: "Understanding the Income Model",
+    subtitle: "How value flows — and how to position yourself in the flow",
+    content: `Good morning, Legacy Builder.
+
+Most people think about income in one direction — from employer to employee. Work is done. Money is received. That is the only flow most people ever experience.
+
+But value in the economy does not only flow in one direction. It flows through networks. It flows through referrals. It flows through relationships. It flows through systems.
+
+The Z2B income model is built on this truth. When you share knowledge — value flows. When someone joins through you — value flows. When they build their own table — value flows deeper. Through TSC commissions across generations. Through QPB bonuses for consistent growth. Through the marketplace. Through CEO competitions and awards.
+
+You are not just earning a commission. You are positioning yourself inside a value chain. And the further you build that chain — the more value returns to you, even when you are not actively working.
+
+This morning, think about the people in your life. The employees who are frustrated. The consumers who are spending without building. Each one is a potential node in your value chain — if you share the invitation.
+
+Today's anchor: I am not selling. I am positioning. I am inviting others into a value chain that benefits everyone who enters it.
+
+Go and invite someone today. God bless your day.`,
+  },
+  {
+    id: 4,
+    title: "Building Your First System",
+    subtitle: "Systems work while you sleep — start with one",
+    content: `Good morning, Legacy Builder.
+
+A salary requires your presence. A system does not.
+
+This is the fundamental difference between being employed and being an Entrepreneurial Consumer. Your employer pays you for your time. A system pays you for the value it delivers — whether you are awake, asleep, at church, or on holiday.
+
+Your first system in Z2B is simple: your referral link. That link — shared consistently through your content, your conversations, your WhatsApp status — works 24 hours a day. Every time someone clicks it and registers, your funnel activates. The 9-day email sequence begins. The pipeline tracks their journey. The WhatsApp Launcher reminds you when to reach out.
+
+You do not have to be everywhere all the time. You build the system once. The system runs. And as your team grows, they each build their own systems — and your TSC commissions deepen automatically.
+
+This is not passive income in the naive sense. It is leveraged income. You still work — but your work multiplies because it is plugged into a system.
+
+Today's anchor: I am building a system today, not just completing tasks. Every post I make, every person I invite, every prospect I follow up — is adding leverage to my life.
+
+Go build leverage. God bless your day.`,
+  },
+  {
+    id: 5,
+    title: "Growing Your Relationships Intentionally",
+    subtitle: "Your network is your net worth — but only if you tend it",
+    content: `Good morning, Legacy Builder.
+
+Your most undervalued asset is not your salary. It is not your savings. It is your relationships.
+
+Every person in your life — your colleagues, your church family, your neighbours, your WhatsApp contacts, your social media followers — is a potential member of your table. Not to be exploited. But to be invited. There is a difference.
+
+Exploitation takes. Invitation gives. When you share Z2B, you are not taking from people — you are offering them a third path they may never have heard of before. The path of the Entrepreneurial Consumer. The path from consumption to ownership. The path from someone else's table to their own.
+
+Intentional relationship building means you do not wait for opportunities to appear. You create them. You show up. You add value before you make any invitation. You listen before you speak. You build trust before you ask for action.
+
+The Purple Cow principle applies here — you do not chase people. You become so remarkable in how you show up that people are drawn to ask what you are doing. That curiosity becomes your invitation.
+
+Today's anchor: I will add value to at least one relationship today before I make any invitation. I am building a community, not just a commission structure.
+
+Go tend your table. God bless your day.`,
+  },
+  {
+    id: 6,
+    title: "The Legacy Mission and Long-Term Vision",
+    subtitle: "What you are building is bigger than this month's commission",
+    content: `Good morning, Legacy Builder.
+
+Legacy is not a word we use lightly at Z2B. It is the fourth leg of your table — and arguably the most important.
+
+Short-term thinking builds income. Long-term thinking builds legacy. The difference is not just time — it is meaning.
+
+When you think about your legacy, you are thinking about what remains after you. The financial foundation your children inherit. The mindset you model for your community. The businesses you helped launch. The employees you helped graduate into Entrepreneurial Consumers. The table you set — and who got to sit at it.
+
+This vision is what sustains you on the days when the system is slow. When prospects do not convert. When the content gets no engagement. When doubt whispers that this is not working.
+
+On those days, come back to the legacy. Come back to the why that is bigger than this month's commission. Come back to the faces of the people who need what you are building — even if they do not know it yet.
+
+Z2B is not a side hustle. It is a Kingdom assignment. Every Bronze member you bring in is an ordinary person choosing an extraordinary path. Your legacy is measured in lives redirected, not rands collected.
+
+Today's anchor: I am not building for this month. I am building for the next generation. My table has seats for people who are not yet at it.
+
+Go build with vision. God bless your day.`,
+  },
+  {
+    id: 7,
+    title: "The Entrepreneurial Consumer Identity",
+    subtitle: "Stepping fully into who you are becoming",
+    content: `Good morning, Legacy Builder.
+
+Identity precedes action. What you believe about yourself determines what you attempt, what you tolerate, and what you build.
+
+For most people, the deepest identity is still employee. Even when they are building Z2B on the side, there is a quiet inner voice that says — but I am really just an employee who is trying something. This identity keeps them playing small. Posting inconsistently. Giving up too early.
+
+Today we name it and replace it.
+
+You are an Entrepreneurial Consumer. This is not a title you will earn one day when you reach a certain income level. It is who you are right now — by decision, not by achievement. You made the decision to stop being passive. You made the decision to participate in value creation. You made the decision to build while employed.
+
+That decision changed your identity. The income is following. The team is growing. The legacy is forming. But the identity shifted the moment you said yes to the third path.
+
+Speak it today. Tell someone who you are. Not to impress them — to reinforce it in yourself. Identity is strengthened through declaration.
+
+Today's anchor: I am an Entrepreneurial Consumer. I say it. I mean it. I build from it.
+
+Declare it today. God bless your day.`,
+  },
+  {
+    id: 8,
+    title: "Your Table in the Community",
+    subtitle: "Building is not a solo sport — your community is your acceleration",
+    content: `Good morning, Legacy Builder.
+
+No table stands in isolation. A banquet requires guests. A community of builders multiplies what any single builder could do alone.
+
+This is why the Z2B community matters beyond strategy. Yes, your team generates TSC commissions. Yes, your downline expands your reach. But the deepest value of community is not financial — it is motivational.
+
+When you are in a community of people who see what you see — who understand the third path, who believe in Entrepreneurial Consumerism, who are building their four table legs alongside you — your belief is reinforced daily. You do not have to explain yourself to everyone around you. You belong somewhere that gets it.
+
+This is why your Corporate WhatsApp Group matters. This is why your sponsor relationship matters. This is why the leaderboard matters. This is why celebrating team wins matters. You are not just building income — you are building belonging.
+
+And the people you invite into Z2B are not just prospects. They are future table companions. You are not recruiting — you are gathering. There is a difference in the energy you bring to every invitation when you see it this way.
+
+Today's anchor: I am gathering people for a banquet, not recruiting for a downline. Every person I invite, I am welcoming to a table.
+
+Go gather your guests. God bless your day.`,
+  },
+  {
+    id: 9,
+    title: "Your First Step — From Learning to Doing",
+    subtitle: "The bridge between the morning and the evening sessions",
+    content: `Good morning, Legacy Builder.
+
+You have spent 8 mornings anchoring your identity, your mindset, your vision and your community. Now it is time to bridge what you know with what you do.
+
+The Evening Sessions — Sessions 1 through 9 — are your practical foundation. They go deeper. They challenge your thinking with comprehension questions, mirror moments and daily activities. They build the intellectual and strategic framework that the morning briefings have been preparing you for.
+
+But knowledge without action is just inspiration. And inspiration without implementation is just a feeling.
+
+Today's morning session is a bridge. Before you enter the Evening Sessions, ask yourself three questions:
+
+One — What have the morning sessions revealed about how I see myself?
+
+Two — What belief about employment or entrepreneurship am I ready to let go of?
+
+Three — What is the one action I will take this week because of what I have learned?
+
+Write your answers down. Not on your phone — on paper. The physical act of writing reinforces commitment in a way that typing does not.
+
+Then open Evening Session 1. And begin. Not someday. Today.
+
+The table is built one session at a time. One morning briefing at a time. One conversation at a time. One decision at a time.
+
+Today's anchor: I am not just learning. I am becoming. The doing begins today.
+
+Go begin. God bless your journey, Legacy Builder.`,
+  },
+];
+
+// ============================================================
 // WORKSHOP DATA — 90 SECTIONS
 // ============================================================
 const SECTIONS: Section[] = [
@@ -2823,6 +3030,8 @@ function WorkshopInner() {
     try { return localStorage.getItem("z2b_workshop_email") || null; } catch { return null; }
   });
   const [view, setView]                     = useState<ViewType>("home");
+  const [morningSession, setMorningSession] = useState<MorningSession | null>(null);
+  const [showMorningAudio, setShowMorningAudio] = useState(false);
   const [progress, setProgress]             = useState<ProgressMap>(createInitialProgress);
   const [currentSection, setCurrentSection] = useState<number | null>(null);
   const [answers, setAnswers]               = useState<Record<number, number>>({});
@@ -2954,6 +3163,15 @@ function WorkshopInner() {
     setActivityTicked(progress[id]?.activityDone ?? false);
     setScrolledToBottom(progress[id]?.read ?? false);
     setView("section");
+    window.scrollTo(0, 0);
+  };
+
+  const openMorningSession = (id: number) => {
+    const ms = MORNING_SESSIONS.find(s => s.id === id);
+    if (!ms) return;
+    setMorningSession(ms);
+    setShowMorningAudio(false);
+    setView("morning" as any);
     window.scrollTo(0, 0);
   };
 
@@ -3561,42 +3779,164 @@ What you are about to read is not theory. It is a mirror. It describes the life 
           </div>
         </div>
         <h1 style={S.workshopTitle}>The Entrepreneurial Consumer Workshop</h1>
-        <p style={S.workshopSub}>90-Day Transformation Journey • 1 Session Per Day</p>
+        <p style={S.workshopSub}>A 99-Session Transformation Journey</p>
         <div style={S.progressBar}>
-          <div style={{ ...S.progressFill, width: `${(completedCount / 90) * 100}%` }} />
+          <div style={{ ...S.progressFill, width: `${(completedCount / 99) * 100}%` }} />
         </div>
-        <p style={S.progressText}>{completedCount}/90 Sessions Completed</p>
+        <p style={S.progressText}>{completedCount}/99 Sessions Completed</p>
       </div>
-      <div style={S.sectionGrid}>
-        {SECTIONS.map((sec) => {
-          const done     = progress[sec.id]?.completed ?? false;
-          const unlocked = isSectionUnlocked(sec.id);
-          const isNext   = sec.free && !done && unlocked;
-          return (
-            <div
-              key={sec.id}
+
+      {/* ── MORNING SESSIONS ── */}
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "24px 16px 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+          <span style={{ fontSize: "28px" }}>🌅</span>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "900", color: "#1e1b4b" }}>
+              EC Morning Workshop
+            </h2>
+            <p style={{ margin: 0, fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
+              Entrepreneurial Consumer Daily Briefing · Audio only · Listen &amp; go · No tasks
+            </p>
+          </div>
+        </div>
+        <div style={S.sectionGrid}>
+          {MORNING_SESSIONS.map((ms) => (
+            <div key={`m${ms.id}`}
               style={{
                 ...S.sectionCard,
-                ...(done    ? S.cardDone   : {}),
-                ...(!sec.free ? S.cardLocked : {}),
-                ...(isNext  ? S.cardNext   : {}),
-                cursor: (unlocked || done) ? "pointer" : "default",
+                background: "linear-gradient(135deg,#fffbea,#fef9e7)",
+                border: "2px solid #D4AF37",
+                cursor: "pointer",
               }}
-              onClick={() => {
-                if (!sec.free) { setView("paywall"); return; }
-                if (unlocked || done) openSection(sec.id);
-              }}
+              onClick={() => openMorningSession(ms.id)}
             >
-              <div style={S.cardNum}>{done ? "✓" : !sec.free ? "🔒" : sec.id}</div>
+              <div style={{ ...S.cardNum, background: "linear-gradient(135deg,#D4AF37,#fbbf24)", color: "#78350f" }}>
+                {ms.id}
+              </div>
               <div style={S.cardInfo}>
-                <div style={S.cardTitle}>{sec.title}</div>
-                <div style={S.cardSub}>{sec.subtitle}</div>
-                {sec.free && <span style={S.freeBadge}>FREE</span>}
-                {done && <span style={S.doneBadge}>✓ Done · {progress[sec.id]?.score}/5</span>}
+                <div style={{ ...S.cardTitle, color: "#78350f" }}>{ms.title}</div>
+                <div style={S.cardSub}>{ms.subtitle}</div>
+                <span style={{ ...S.freeBadge, background: "#D4AF37", color: "#78350f" }}>🌅 MORNING</span>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
+      </div>
+
+      {/* ── EVENING SESSIONS ── */}
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "8px 16px 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px", marginTop: "16px" }}>
+          <span style={{ fontSize: "28px" }}>🌙</span>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "900", color: "#1e1b4b" }}>
+              EC Evening Workshop
+            </h2>
+            <p style={{ margin: 0, fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
+              9 Free Sessions · Mirror, Comprehension &amp; Activity · Sessions 10–90 for paid members
+            </p>
+          </div>
+        </div>
+        <div style={S.sectionGrid}>
+          {SECTIONS.map((sec) => {
+            const done     = progress[sec.id]?.completed ?? false;
+            const unlocked = isSectionUnlocked(sec.id);
+            const isNext   = sec.free && !done && unlocked;
+            return (
+              <div
+                key={sec.id}
+                style={{
+                  ...S.sectionCard,
+                  ...(done    ? S.cardDone   : {}),
+                  ...(!sec.free ? S.cardLocked : {}),
+                  ...(isNext  ? S.cardNext   : {}),
+                  cursor: (unlocked || done) ? "pointer" : "default",
+                }}
+                onClick={() => {
+                  if (!sec.free) { setView("paywall"); return; }
+                  if (unlocked || done) openSection(sec.id);
+                }}
+              >
+                <div style={S.cardNum}>{done ? "✓" : !sec.free ? "🔒" : sec.id}</div>
+                <div style={S.cardInfo}>
+                  <div style={S.cardTitle}>{sec.title}</div>
+                  <div style={S.cardSub}>{sec.subtitle}</div>
+                  {sec.free && <span style={S.freeBadge}>FREE</span>}
+                  {done && <span style={S.doneBadge}>✓ Done · {progress[sec.id]?.score}/5</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── MORNING SESSION VIEW ──
+  if ((view as any) === "morning" && morningSession) return (
+    <div style={S.page}>
+      <div style={S.sectionTopBar}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button style={S.backBtn} onClick={() => setView("home")}>🏠 Home</button>
+          <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
+        </div>
+        <span style={{ ...S.sectionBadge, background: "linear-gradient(135deg,#D4AF37,#fbbf24)", color: "#78350f" }}>
+          🌅 Morning Session {morningSession.id} of 9
+        </span>
+      </div>
+
+      <div style={{ ...S.sectionHero, background: "linear-gradient(135deg,#78350f,#92400e,#78350f)" }}>
+        <div style={{ ...S.sectionNum, background: "rgba(212,175,55,0.2)", color: "#D4AF37", border: "2px solid #D4AF37" }}>
+          🌅 {morningSession.id}
+        </div>
+        <h1 style={{ ...S.sectionTitle, color: "#fff" }}>{morningSession.title}</h1>
+        <p style={{ ...S.sectionSubtitle, color: "#FDE68A" }}>{morningSession.subtitle}</p>
+        <span style={{ display: "inline-block", marginTop: "8px", fontSize: "11px", padding: "4px 12px", borderRadius: "20px", background: "rgba(212,175,55,0.2)", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.4)", fontWeight: "bold", letterSpacing: "1px" }}>
+          EC MORNING WORKSHOP · AUDIO ONLY · NO TASKS
+        </span>
+      </div>
+
+      {/* Audio toggle */}
+      <div style={{ maxWidth: "760px", margin: "0 auto 8px", padding: "0 20px", display: "flex", justifyContent: "flex-end" }}>
+        <button
+          style={{ ...S.backBtn, background: showMorningAudio ? "#1E1B2E" : "#FEF3C7", color: showMorningAudio ? "#C4B5FD" : "#92400E", border: showMorningAudio ? "1.5px solid #6B21A8" : "1.5px solid #D4AF37" }}
+          onClick={() => setShowMorningAudio(!showMorningAudio)}
+        >
+          🎙️ {showMorningAudio ? "Hide Audio" : "Listen to Session"}
+        </button>
+      </div>
+
+      {showMorningAudio && <AudioPlayer text={morningSession.content} sectionTitle={morningSession.title} />}
+
+      {/* Content — read only, no scroll lock, no questions */}
+      <div style={{ ...S.contentCard, maxHeight: "none", overflow: "visible" }}>
+        <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.8, fontSize: "15px", color: "#1f2937" }}>
+          {morningSession.content}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div style={{ maxWidth: "760px", margin: "0 auto", padding: "16px 20px 40px", display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" as const }}>
+        {morningSession.id > 1 && (
+          <button style={{ ...S.backBtn, padding: "10px 20px" }}
+            onClick={() => openMorningSession(morningSession.id - 1)}>
+            ← Morning {morningSession.id - 1}
+          </button>
+        )}
+        <div style={{ flex: 1 }}/>
+        {morningSession.id < 9 && (
+          <button
+            style={{ background: "linear-gradient(135deg,#D4AF37,#fbbf24)", color: "#78350f", border: "none", padding: "10px 24px", borderRadius: "10px", fontWeight: "900", fontSize: "14px", cursor: "pointer" }}
+            onClick={() => openMorningSession(morningSession.id + 1)}>
+            Morning {morningSession.id + 1} →
+          </button>
+        )}
+        {morningSession.id === 9 && (
+          <button
+            style={{ background: "linear-gradient(135deg,#6B21A8,#9333EA)", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "10px", fontWeight: "900", fontSize: "14px", cursor: "pointer" }}
+            onClick={() => setView("workshop")}>
+            Go to Evening Sessions →
+          </button>
+        )}
       </div>
     </div>
   );
