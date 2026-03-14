@@ -1,7 +1,7 @@
 'use client'
 
 // app/my-funnel/page.tsx
-// Z2B FunnelCommand — Phase 1
+// Z2B My Sales Funnel — Phase 1
 // Pipeline View + WhatsApp Launcher + Sign-up Tracker
 
 import { useState, useEffect, useCallback } from 'react'
@@ -167,7 +167,7 @@ function enrichProspect(p: Prospect): Prospect {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function FunnelCommandPage() {
+export default function MySalesFunnelPage() {
   const [profile,         setProfile]         = useState<Profile | null>(null)
   const [prospects,       setProspects]       = useState<Prospect[]>([])
   const [loading,         setLoading]         = useState(true)
@@ -342,7 +342,7 @@ export default function FunnelCommandPage() {
       style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)' }}>
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400 mx-auto mb-4"/>
-        <p className="text-yellow-300 font-black">Loading FunnelCommand...</p>
+        <p className="text-yellow-300 font-black">Loading My Sales Funnel...</p>
       </div>
     </div>
   )
@@ -355,7 +355,7 @@ export default function FunnelCommandPage() {
       <div className="max-w-md w-full rounded-2xl border-2 border-white/10 p-8 text-center"
         style={{ background: '#1e1b4b' }}>
         <Lock className="w-16 h-16 text-yellow-400 mx-auto mb-4"/>
-        <h2 className="text-2xl font-black text-white mb-2">FunnelCommand</h2>
+        <h2 className="text-2xl font-black text-white mb-2">My Sales Funnel</h2>
         <p className="text-purple-300 mb-1">Available to Bronze members and above</p>
         <p className="text-purple-400 text-sm mb-6">
           Upgrade to Bronze (R480 once-off) to unlock your personal pipeline,
@@ -470,7 +470,7 @@ Generate a complete ${aiPlatform} ${aiContentType.toLowerCase()} script for Z2B 
               <div className="flex items-center gap-3">
                 <span className="text-3xl">🎯</span>
                 <div>
-                  <h1 className="text-2xl font-black text-white">FunnelCommand</h1>
+                  <h1 className="text-2xl font-black text-white">My Sales Funnel</h1>
                   <p className="text-purple-300 text-sm">
                     {profile.full_name} ·
                     <span className="font-black ml-1" style={{ color: tierColor }}>

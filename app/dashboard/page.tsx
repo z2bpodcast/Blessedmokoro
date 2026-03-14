@@ -551,7 +551,7 @@ function DashboardInner() {
             <Link href="/my-funnel"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor: '#7C3AED', color: '#fff' }}>
-              <span className="text-2xl">🎯</span>FunnelCommand
+              <span className="text-2xl">🎯</span>My Sales Funnel
             </Link>
             <Link href="/my-earnings"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-green-300 bg-green-50 text-green-800 font-bold text-center text-sm hover:scale-105 transition-transform">
