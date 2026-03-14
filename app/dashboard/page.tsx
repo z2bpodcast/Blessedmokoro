@@ -542,11 +542,16 @@ function DashboardInner() {
         {/* ── QUICK ACTIONS ── */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-sm p-6">
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Link href="/workshop"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-yellow-300 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)', color: '#78350f' }}>
               <span className="text-2xl">🎓</span>Workshop
+            </Link>
+            <Link href="/my-funnel"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor: '#7C3AED', color: '#fff' }}>
+              <span className="text-2xl">🎯</span>FunnelCommand
             </Link>
             <Link href="/my-earnings"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-green-300 bg-green-50 text-green-800 font-bold text-center text-sm hover:scale-105 transition-transform">
