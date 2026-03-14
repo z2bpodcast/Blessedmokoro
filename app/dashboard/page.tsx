@@ -320,6 +320,20 @@ function DashboardInner() {
         </div>
       </div>
 
+      {/* ── START HERE FLOATING BUTTON ── */}
+      <div className="relative">
+        <a href="/start-here"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-black text-white text-sm border-2 border-yellow-400 hover:scale-105 transition-all"
+          style={{ background: 'linear-gradient(135deg,#1e1b4b,#4c1d95)' }}>
+          {/* Animated 3D arrow */}
+          <span className="text-2xl animate-bounce">👆</span>
+          <span>
+            <span className="block text-yellow-400 text-xs font-bold">New? Lost? Need direction?</span>
+            <span className="block text-white text-base">❤️ Start Here</span>
+          </span>
+        </a>
+      </div>
+
       {/* Pending payment banner — shows from URL param OR live from profile */}
       {(isPending || profile?.payment_status === 'pending') && (
         <div className="border-b-4 border-amber-400 px-4 py-4 animate-pulse"
@@ -571,7 +585,12 @@ function DashboardInner() {
         {/* ── QUICK ACTIONS ── */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-sm p-6">
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <Link href="/start-here"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-red-300 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#FFF5F5,#FFE4E4)', color: '#DC2626' }}>
+              <span className="text-2xl">❤️</span>Start Here
+            </Link>
             <Link href="/workshop"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-yellow-300 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)', color: '#78350f' }}>

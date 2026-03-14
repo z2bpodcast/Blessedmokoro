@@ -1,193 +1,31 @@
 'use client'
 
 // app/start-here/page.tsx
-// Welcome to Abundance — Z2B Orientation Guide
-// Always accessible. Permanent reference. Opens from dashboard.
+// Z2B Welcome to Abundance — Permanent Orientation & Reference Page
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Heart, ChevronDown, ChevronUp, ArrowRight, ExternalLink } from 'lucide-react'
+import { ChevronDown, ChevronUp, Heart, ExternalLink } from 'lucide-react'
 
 interface Profile {
   id: string
   full_name: string
   paid_tier: string | null
   referral_code: string
-  sponsor_name?: string
-  referred_by?: string
+  sponsor_name: string | null
+  referred_by: string | null
 }
 
-const CARDS = [
-  {
-    id: 'guide1',
-    number: '01',
-    emoji: '🧠',
-    title: 'Your Personal Table',
-    subtitle: 'Personal & Business Development — The Big Why',
-    color: '#7C3AED',
-    bg: '#F3F0FF',
-    border: '#C4B5FD',
-    content: {
-      opening: `Before you explore this platform — pause for a moment and ask yourself one honest question:
-
-"In 5 years from now, if nothing changes — where will I be?"
-
-If the answer makes you uncomfortable, you are in exactly the right place.`,
-      sections: [
-        {
-          heading: 'Why Most Employed People Stay Stuck',
-          body: `The system was not designed to make you wealthy. It was designed to make you useful. You were taught to study hard, get a job, work for 40 years, and retire on a fraction of your final salary.
-
-Nobody taught you to build. Nobody taught you to own. Nobody taught you that there is a third path between employment and full entrepreneurship.
-
-That third path is called Entrepreneurial Consumerism — and Z2B is built on it.`,
-        },
-        {
-          heading: 'The 4 Legs of Your Table 🍽️',
-          body: `A table with one leg falls. Most people's financial lives rest on one leg — their salary. One retrenchment and everything collapses.
-
-Z2B builds four strong legs under you:
-
-🧠 Mindset — You cannot build a new life with old thinking. We renew the mind first.
-
-⚙️ Systems — Income that works while you sleep. Not more hours — more leverage.
-
-🤝 Relationships — Your network is not just your net worth. It is your safety net, your growth engine and your legacy builders.
-
-🏆 Legacy — We are not just building income. We are building something to hand to our children.
-
-The Z2B Table Banquet Workshop builds each leg, session by session.`,
-        },
-        {
-          heading: 'Meet Coach Manlaw 🤖',
-          body: `You do not go through this journey alone.
-
-Coach Manlaw is your personal AI business coach — available 24 hours a day, 7 days a week, 365 days a year. No appointment needed. No judgment. No charge.
-
-Coach Manlaw knows the Z2B framework inside out. He understands Entrepreneurial Consumerism. He will help you think through your business, generate content, craft messages to prospects, and coach you through challenges.
-
-He is in your My Sales Funnel under Content Studio — and he is waiting for your first question.`,
-        },
-      ],
-      cta: { label: '🎓 Start the Free Workshop', href: '/workshop' },
-    },
-  },
-  {
-    id: 'guide2',
-    number: '02',
-    emoji: '🌱',
-    title: 'Share As You Grow',
-    subtitle: 'The Purple Cow Principle — Only Share What Genuinely Impresses You',
-    color: '#059669',
-    bg: '#F0FFF4',
-    border: '#6EE7B7',
-    content: {
-      opening: `There is a concept from author Seth Godin called the Purple Cow.
-
-He says: if you are driving through the countryside and you see an ordinary cow — you ignore it. But if you see a purple cow, you cannot stop talking about it. You call your friends. You take photos. You tell everyone.
-
-You do not share the purple cow because someone told you to. You share it because you simply cannot help yourself.
-
-That is the only sharing Z2B ever asks of you.`,
-      sections: [
-        {
-          heading: 'You Are Not a Salesperson',
-          body: `Z2B does not want you to pressure anyone. We do not want you to bother your family. We do not want you to send cold messages to strangers.
-
-We want you to go through the Workshop. We want you to learn. We want you to grow.
-
-And then — only if you find something in these sessions that genuinely moves you, genuinely shifts your thinking, genuinely feels like a Purple Cow — we invite you to share your referral link with the people around you.
-
-Not because you have a quota. Because you have a discovery worth sharing.`,
-        },
-        {
-          heading: 'Who to Invite',
-          body: `Think about the people in your life who are:
-
-👔 Employed but frustrated — they work hard but the money never stretches far enough
-🛒 Consumers who spend but never build — they buy, but their wealth never grows
-🌱 Curious about business but too scared to jump — they want something but do not know what
-
-These people are not looking for a job opportunity. They are looking for a third path. They are looking for a seat at the table.
-
-When the time feels right — share your workshop link. Just say: "I found something worth seeing. Take a look — it is free."
-
-That is all. The Workshop does the rest.`,
-        },
-        {
-          heading: 'Your Referral Link Is Ready',
-          body: `Every person who signs up through your personal referral link is automatically tracked in your My Sales Funnel. You will get a notification the moment they register.
-
-The 9-day email nurture sequence follows up with them automatically. Your WhatsApp Launcher gives you the right words at the right time.
-
-You do not chase. You share. The system follows up.`,
-        },
-      ],
-      cta: { label: '🔗 Get My Referral Link', href: '/dashboard' },
-    },
-  },
-  {
-    id: 'guide3',
-    number: '03',
-    emoji: '🎯',
-    title: 'Your Sales Funnel',
-    subtitle: 'How the System Works While You Live Your Life',
-    color: '#D97706',
-    bg: '#FFFBEA',
-    border: '#FCD34D',
-    content: {
-      opening: `You do not have to manually follow up with every person you invite. You do not have to remember who is on day 3 or day 6. You do not have to guess what to say.
-
-My Sales Funnel does it all for you — automatically.
-
-Here is exactly how it works:`,
-      sections: [
-        {
-          heading: 'The Pipeline — Your Prospect Journey',
-          body: `Every person who signs up through your link enters your pipeline automatically. The system calculates which day they are on and shows you their card in the right column:
-
-✨ NEW → 👋 DAY 1–2 → ⏳ DAY 3–5 → 🔥 DAY 6 → ⚡ DAY 9 → ✅ BRONZE
-
-On Day 6 and Day 9 you will receive overdue alerts — the system tells you exactly who needs a WhatsApp follow-up and which script to use. One tap opens WhatsApp with the message pre-written and personalised.`,
-        },
-        {
-          heading: 'The 9-Day Nurture Engine 📧',
-          body: `From the moment someone signs up, a 9-day email sequence begins automatically:
-
-Day 0 — Welcome to Z2B
-Day 2 — The real reason your salary is never enough
-Day 3 — What other South Africans are building
-Day 4 — How R480 can become R12,000+ per month
-Day 5 — "Is Z2B a pyramid scheme?" — Answered honestly
-Day 6 — 🔥 Upgrade push — Bronze R480 once-off
-Day 7 — The founder story — faith, family, legacy
-Day 8 — The table invitation
-Day 9 — ⚡ Final push
-
-You do not send these emails. The system does. You just share and let the automation work.`,
-        },
-        {
-          heading: 'The Content Studio + Coach Manlaw 🤖',
-          body: `The Content Studio gives you two powerful tools:
-
-📚 Script Library — 13 ready-to-use scripts for TikTok, Facebook and WhatsApp, all built around the Entrepreneurial Consumer philosophy. Filter by platform. Tap to expand. Copy and post.
-
-🤖 Coach Manlaw AI — Tell Coach Manlaw what you need: "Generate a 45-second TikTok about the third path for employed South Africans." He will write the full script, caption and hashtags in seconds — personalised with your name and referral link.
-
-You do not need to be a content creator. You just need to show up.`,
-        },
-      ],
-      cta: { label: '🎯 Open My Sales Funnel', href: '/my-funnel' },
-    },
-  },
-]
+const TIER_COLORS: Record<string, string> = {
+  fam: '#6B7280', bronze: '#CD7F32', copper: '#B87333',
+  silver: '#9CA3AF', gold: '#D4AF37', platinum: '#9333EA',
+}
 
 export default function StartHerePage() {
-  const [profile,      setProfile]      = useState<Profile | null>(null)
-  const [loading,      setLoading]      = useState(true)
-  const [openCards,    setOpenCards]    = useState<string[]>([])
-  const [entered,      setEntered]      = useState(false)
+  const [profile,   setProfile]   = useState<Profile | null>(null)
+  const [loading,   setLoading]   = useState(true)
+  const [openCards, setOpenCards] = useState<Set<string>>(new Set(['welcome']))
   const router = useRouter()
 
   useEffect(() => {
@@ -199,282 +37,447 @@ export default function StartHerePage() {
         .then(({ data }) => {
           if (data) setProfile(data as Profile)
           setLoading(false)
-          setTimeout(() => setEntered(true), 100)
         })
     })
   }, [router])
 
-  const toggleCard = (id: string) => {
-    setOpenCards(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    )
+  const toggle = (key: string) => {
+    setOpenCards(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
   }
 
-  const referralLink = profile
-    ? `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/workshop?ref=${profile.referral_code}`
-    : ''
-
-  const sponsorWA = profile?.referred_by
-    ? `https://wa.me/?text=${encodeURIComponent(`Hi ${profile.sponsor_name || 'Coach'}, I just completed my Z2B orientation. Please add me to the Corporate WhatsApp Group. My name is ${profile.full_name}. 🙏`)}`
-    : null
+  const getFirstName = () => profile?.full_name?.split(' ')[0] || 'Builder'
+  const tier      = profile?.paid_tier || 'fam'
+  const tierColor = TIER_COLORS[tier] || '#6B7280'
+  const workshopLink = `https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || ''}`
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg,#0A0015,#1A0035)' }}>
+      style={{ background: 'linear-gradient(135deg,#0a0015,#1a0035,#0a0015)' }}>
       <div className="text-center">
-        <Heart className="w-12 h-12 text-red-400 mx-auto mb-4 animate-pulse"/>
-        <p className="text-white font-black text-lg">Welcome to Abundance...</p>
+        <div className="text-6xl mb-4 animate-pulse">❤️</div>
+        <p className="text-yellow-300 font-black text-lg">Preparing your welcome...</p>
       </div>
     </div>
   )
 
-  return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#0A0015 0%,#1A0035 40%,#0D001A 100%)' }}>
-
-      {/* ── HERO ── */}
-      <div className={`relative overflow-hidden transition-all duration-1000 ${entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
-        {/* Background glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-20"
-            style={{ background: 'radial-gradient(circle, #DC2626 0%, transparent 70%)', filter: 'blur(60px)' }}/>
-          <div className="absolute top-20 left-10 w-64 h-64 rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, #D4AF37 0%, transparent 70%)', filter: 'blur(40px)' }}/>
-          <div className="absolute top-20 right-10 w-64 h-64 rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, #7C3AED 0%, transparent 70%)', filter: 'blur(40px)' }}/>
-        </div>
-
-        <div className="max-w-2xl mx-auto px-6 pt-16 pb-12 text-center relative z-10">
-
-          {/* Heart icon */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#DC2626,#EF4444)', boxShadow: '0 0 40px rgba(220,38,38,0.5)' }}>
-                <Heart className="w-10 h-10 text-white fill-white"/>
-              </div>
-              {/* Pulse rings */}
-              <div className="absolute inset-0 rounded-full animate-ping opacity-20"
-                style={{ background: 'rgba(220,38,38,0.4)' }}/>
-            </div>
-          </div>
-
-          {/* Welcome text */}
-          <p className="text-yellow-400 font-black text-sm tracking-widest uppercase mb-3">
-            Z2B Legacy Builders
-          </p>
-          <h1 className="font-black text-white mb-4 leading-tight"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', textShadow: '0 0 60px rgba(220,38,38,0.3)' }}>
-            Welcome to<br/>
-            <span style={{ background: 'linear-gradient(135deg,#DC2626,#EF4444,#D4AF37)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Abundance
-            </span>
-          </h1>
-
-          {profile && (
-            <p className="text-purple-300 text-lg mb-4">
-              <span className="text-white font-black">{profile.full_name}</span> — you just stepped into something bigger than a membership.
+  const CARDS = [
+    {
+      key: 'welcome',
+      emoji: '❤️',
+      label: 'Welcome to Abundance',
+      sublabel: 'Your new identity starts here',
+      accent: '#DC2626',
+      accentBg: '#FFF5F5',
+      content: (
+        <div className="space-y-5">
+          <div className="rounded-2xl p-5 text-white"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)' }}>
+            <p className="text-yellow-400 font-black text-xl mb-3">
+              {getFirstName()}, welcome to the Z2B Table Banquet. 🍽️
             </p>
-          )}
-
-          <p className="text-purple-300 text-base leading-relaxed mb-8 max-w-lg mx-auto">
-            You stepped into a <strong className="text-white">movement</strong>. A community of Entrepreneurial Consumers who are building their four table legs — Mindset, Systems, Relationships and Legacy — one step at a time.
-          </p>
-
-          {/* 3D Arrow + Start Here */}
-          <div className="flex flex-col items-center gap-3 mb-6">
-            {/* Animated arrow */}
-            <div className="flex flex-col items-center gap-1 animate-bounce">
-              {[0.9, 0.7, 0.5].map((opacity, i) => (
-                <svg key={i} width="32" height="20" viewBox="0 0 32 20" style={{ opacity }}>
-                  <path d="M1 1 L16 18 L31 1" stroke="#D4AF37" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ))}
-            </div>
-            <p className="text-yellow-400 text-xs font-black tracking-widest uppercase">Open any guide below</p>
+            <p className="text-white leading-relaxed mb-3">
+              You have just stepped into something bigger than a membership.
+              You stepped into a <strong className="text-yellow-300">movement</strong> — and a new identity.
+            </p>
+            <p className="text-purple-200 leading-relaxed mb-3">
+              The world offers most people two options: stay an employee and trade time for money forever,
+              or take the big risky leap into full entrepreneurship. Most people choose neither and stay stuck.
+            </p>
+            <p className="text-white leading-relaxed font-bold">
+              Z2B offers a third path. And you just found it.
+            </p>
           </div>
 
-          {/* Stat pills */}
-          <div className="flex justify-center gap-3 flex-wrap">
+          <div className="grid grid-cols-2 gap-3">
             {[
-              { label:'3 Guides', emoji:'📖' },
-              { label:'Free Workshop', emoji:'🎓' },
-              { label:'Coach Manlaw AI', emoji:'🤖' },
-              { label:'Your Sales Funnel', emoji:'🎯' },
-            ].map(s => (
-              <span key={s.label} className="px-4 py-2 rounded-full text-xs font-black border border-white/10 text-purple-300"
-                style={{ background: 'rgba(255,255,255,0.05)' }}>
-                {s.emoji} {s.label}
-              </span>
+              { emoji:'🧠', title:'Mindset',       desc:'Break the employee thinking that keeps you stuck' },
+              { emoji:'⚙️', title:'Systems',       desc:'Build income that works while you sleep' },
+              { emoji:'🤝', title:'Relationships', desc:'Turn your network into your net worth' },
+              { emoji:'🏆', title:'Legacy',        desc:'Build something to pass on to your children' },
+            ].map(leg => (
+              <div key={leg.title} className="rounded-xl p-4 border-2 border-purple-100 bg-white">
+                <div className="text-2xl mb-2">{leg.emoji}</div>
+                <p className="font-black text-purple-900 text-sm">{leg.title}</p>
+                <p className="text-gray-500 text-xs mt-1 leading-relaxed">{leg.desc}</p>
+              </div>
             ))}
           </div>
+
+          <div className="rounded-2xl p-5 border-2 border-yellow-400 text-center"
+            style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(76,29,149,0.1))' }}>
+            <p className="text-gray-800 font-black text-lg">
+              "I am an Entrepreneurial Consumer."
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              This is your new identity. Not what you do — <strong>who you are.</strong>{' '}
+              Someone who creates value, builds equity and participates in the wealth chain —
+              while still employed.
+            </p>
+          </div>
+
+          <p className="text-center text-gray-400 text-sm italic">
+            This page is your compass. Come back anytime you need direction. ❤️
+          </p>
         </div>
-      </div>
+      ),
+    },
+    {
+      key: 'guide1',
+      emoji: '🧠',
+      label: 'Guide 1 — Your Personal Table',
+      sublabel: 'Personal & Business Development — The Big Why',
+      accent: '#7C3AED',
+      accentBg: '#F3F0FF',
+      content: (
+        <div className="space-y-5">
+          <div className="rounded-2xl p-5 border-2 border-purple-200 bg-purple-50">
+            <p className="font-black text-purple-900 text-base mb-2">Why most employed people stay stuck</p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              It is not laziness. It is not lack of talent. It is a system designed to keep you consuming,
+              not creating. School teaches you to get a job. Nobody teaches you to build a table.
+              Z2B changes that — one leg at a time.
+            </p>
+          </div>
 
-      {/* ── GUIDE CARDS ── */}
-      <div className="max-w-2xl mx-auto px-4 pb-8 space-y-4">
-
-        {CARDS.map((card, ci) => {
-          const isOpen = openCards.includes(card.id)
-          return (
-            <div key={card.id}
-              className={`rounded-2xl overflow-hidden border-2 transition-all duration-500 ${entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{
-                borderColor: isOpen ? card.color : 'rgba(255,255,255,0.1)',
-                background: isOpen ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)',
-                transitionDelay: `${ci * 150}ms`
-              }}>
-
-              {/* Card header — always visible */}
-              <button onClick={() => toggleCard(card.id)}
-                className="w-full flex items-center gap-4 p-5 text-left hover:opacity-90 transition-opacity">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 font-black"
-                  style={{ background: `${card.color}25`, border: `2px solid ${card.color}40` }}>
-                  {card.emoji}
+          <div className="rounded-2xl p-5 border-2 border-purple-200 bg-white">
+            <p className="font-black text-purple-900 text-base mb-3">🎓 The Free Workshop — Your Foundation</p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+              The Z2B Workshop is 9 sessions of personal and business development —
+              designed specifically for employed people who are ready to think differently.
+              Each session builds one leg of your table. Go at your own pace.
+              There is no deadline. There is only direction.
+            </p>
+            <div className="space-y-2 mb-4">
+              {[
+                'Session 1 — Who you are and why you are here',
+                'Session 2 — The Mindset shift from employee to builder',
+                'Session 3 — Understanding the income model',
+                'Session 4 — Building your first system',
+                'Session 5 — Growing your relationships intentionally',
+                'Session 6 — The Legacy mission and long-term vision',
+              ].map((s, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm text-gray-700">
+                  <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-black text-xs flex items-center justify-center flex-shrink-0">
+                    {i + 1}
+                  </span>
+                  {s}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-black tracking-widest" style={{ color: card.color }}>
-                      GUIDE {card.number}
-                    </span>
+              ))}
+            </div>
+            <a href="/workshop"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-purple-900"
+              style={{ background: 'linear-gradient(135deg,#fbbf24,#D4AF37)' }}>
+              Start the Workshop <ExternalLink className="w-4 h-4"/>
+            </a>
+          </div>
+
+          <div className="rounded-2xl p-5 border-2 border-yellow-300"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg,#D4AF37,#fbbf24)' }}>
+                🤖
+              </div>
+              <div>
+                <p className="text-yellow-400 font-black text-base">Meet Coach Manlaw</p>
+                <p className="text-purple-300 text-xs">Your personal AI business coach — available 24/7</p>
+              </div>
+            </div>
+            <p className="text-white text-sm leading-relaxed mb-3">
+              Coach Manlaw is not a chatbot. He is a purpose-built AI coach trained on the Z2B philosophy,
+              the 4 table legs and the Entrepreneurial Consumer mindset.
+              Ask him anything — about your business, your mindset, your next step.
+              He speaks your language and knows your mission.
+            </p>
+            <p className="text-yellow-300 text-sm font-bold italic">
+              "You have a coach in your pocket. Use him." — Rev Mokoro
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'guide2',
+      emoji: '🌱',
+      label: 'Guide 2 — Share As You Grow',
+      sublabel: 'Inviting Others — Only When You Are Moved To',
+      accent: '#065F46',
+      accentBg: '#F0FFF4',
+      content: (
+        <div className="space-y-5">
+          <div className="rounded-2xl p-5 border-2 border-green-200 bg-green-50">
+            <p className="font-black text-green-900 text-base mb-2">
+              You are not a salesperson. You are a student.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Z2B does not ask you to chase people, pressure friends or meet quotas.
+              We believe in a different principle — one that author Seth Godin called
+              the <strong className="text-green-800">Purple Cow</strong>.
+            </p>
+          </div>
+
+          <div className="rounded-2xl p-5 border-l-4 border-green-500 bg-white border border-green-100">
+            <p className="text-green-800 font-black text-sm mb-2">🐄 The Purple Cow Principle</p>
+            <p className="text-gray-600 text-sm leading-relaxed italic">
+              "When you drive past a field of brown cows, you don't stop. But if you see a purple cow —
+              you tell everyone. Not because you have to. Because you can't help it."
+            </p>
+            <p className="text-gray-700 text-sm leading-relaxed mt-3 font-bold">
+              If Z2B impresses you — share it. If the workshop moves you — invite someone.
+              If Entrepreneurial Consumerism resonates — tell an employed friend.
+              Only share what you genuinely believe in. That is the only rule.
+            </p>
+          </div>
+
+          <div className="rounded-2xl p-5 border-2 border-green-200 bg-white">
+            <p className="font-black text-gray-800 text-base mb-3">🌍 Who to Invite</p>
+            <div className="space-y-3">
+              {[
+                { icon:'👔', who:'Employed people',  why:'They feel stuck and do not know about the third path' },
+                { icon:'🛒', who:'Consumers',        why:'Every rand they spend builds someone else. Show them the alternative' },
+                { icon:'🌱', who:'Students',         why:'They are forming their identity. Help them form the right one' },
+                { icon:'🙏', who:'Church community', why:'Legacy and Kingdom building is in their DNA — Z2B speaks their language' },
+              ].map(r => (
+                <div key={r.who} className="flex items-start gap-3">
+                  <span className="text-xl flex-shrink-0">{r.icon}</span>
+                  <div>
+                    <p className="font-bold text-gray-800 text-sm">{r.who}</p>
+                    <p className="text-gray-500 text-xs">{r.why}</p>
                   </div>
-                  <h2 className="font-black text-white text-lg leading-tight">{card.title}</h2>
-                  <p className="text-purple-400 text-xs mt-0.5 leading-snug">{card.subtitle}</p>
                 </div>
-                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: isOpen ? `${card.color}30` : 'rgba(255,255,255,0.05)' }}>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl p-5 border-2 border-green-300"
+            style={{ background: 'linear-gradient(135deg,#065F4610,#16A34A08)' }}>
+            <p className="font-black text-green-900 text-sm mb-2">📎 Your Referral Link</p>
+            <p className="text-xs text-gray-500 mb-2">Share this — every sign-up is automatically tracked to you:</p>
+            <code className="text-green-800 text-xs font-mono break-all bg-white rounded-xl px-3 py-2 block border border-green-200">
+              {workshopLink}
+            </code>
+            <p className="text-xs text-gray-400 mt-2 italic">
+              No pressure. Share only when you feel the Purple Cow moment. 🐄
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'guide3',
+      emoji: '🎯',
+      label: 'Guide 3 — Your Sales Funnel',
+      sublabel: 'How the System Works While You Live Your Life',
+      accent: '#1D4ED8',
+      accentBg: '#EFF6FF',
+      content: (
+        <div className="space-y-5">
+          <div className="rounded-2xl p-5 border-2 border-blue-200 bg-blue-50">
+            <p className="font-black text-blue-900 text-base mb-2">You invite. The system follows up.</p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              My Sales Funnel is your personal command center — built so that once you share
+              your link, the system does most of the follow-up work for you.
+              You focus on sharing. The funnel focuses on converting.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              { step:'1', icon:'📊', title:'Pipeline View',        desc:'Every person you invite appears as a card. The system tracks which day they are on — Day 1 through Day 9 — and tells you exactly when to reach out.' },
+              { step:'2', icon:'📧', title:'9-Day Nurture Engine', desc:'A sequence of 9 emails goes out automatically to every sign-up through your link — building trust, answering objections, inviting them to upgrade. Already written. Fully automated.' },
+              { step:'3', icon:'💬', title:'WhatsApp Launcher',    desc:'On key days the system shows you the exact right WhatsApp message to send. One tap opens WhatsApp with the message pre-written. All you do is press send.' },
+              { step:'4', icon:'🎬', title:'Content Studio',       desc:'Pre-written TikTok, Facebook and WhatsApp scripts built around Entrepreneurial Consumerism. Plus Coach Manlaw AI generates custom content on demand — in your voice, with your referral link.' },
+              { step:'5', icon:'🎯', title:'Sign-up Tracker',      desc:'See how many people signed up today, this week and this month. Track your conversion rate and watch your progress toward the First 100 Bronze members.' },
+            ].map(s => (
+              <div key={s.step} className="flex gap-4 bg-white rounded-2xl p-4 border-2 border-blue-100">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg,#1D4ED8,#3B82F6)' }}>
+                  {s.step}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{s.icon}</span>
+                    <p className="font-black text-gray-800 text-sm">{s.title}</p>
+                  </div>
+                  <p className="text-gray-500 text-xs leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl p-4 border-2 border-yellow-300 flex items-start gap-3"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+            <span className="text-2xl flex-shrink-0">🤖</span>
+            <div>
+              <p className="text-yellow-400 font-black text-sm">Coach Manlaw is in the Studio</p>
+              <p className="text-purple-200 text-xs leading-relaxed mt-1">
+                Stuck on what to post? Open Content Studio → Generate with AI.
+                Tell Coach Manlaw your platform, your audience and what you want to say.
+                He will write it in seconds — in your voice, with your referral link included.
+              </p>
+            </div>
+          </div>
+
+          <a href="/my-funnel"
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-black text-white text-lg"
+            style={{ background: 'linear-gradient(135deg,#1D4ED8,#3B82F6)' }}>
+            🎯 Open My Sales Funnel <ExternalLink className="w-5 h-5"/>
+          </a>
+        </div>
+      ),
+    },
+    {
+      key: 'community',
+      emoji: '🙏',
+      label: 'Join the Community',
+      sublabel: 'You are not building alone',
+      accent: '#D4AF37',
+      accentBg: '#FFFBEA',
+      content: (
+        <div className="space-y-5">
+          <div className="rounded-2xl p-5 border-2 border-yellow-200"
+            style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(76,29,149,0.1))' }}>
+            <p className="font-black text-gray-800 text-base mb-2">A table needs people around it. 🍽️</p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              The Z2B Table Banquet is not built in isolation. Every Legacy Builder around you
+              is on the same journey — breaking the employee mindset, building systems, deepening
+              relationships and creating a legacy. You grow faster together than alone.
+            </p>
+          </div>
+
+          <div className="rounded-2xl p-5 border-2 border-purple-200 bg-white">
+            <p className="font-black text-purple-900 text-base mb-3">👤 Connect with Your Sponsor</p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+              Your sponsor invited you to this table. They are your first point of contact,
+              your guide and your accountability partner.
+              Reach out, introduce yourself and let them know you are here and ready to build.
+            </p>
+            {profile?.sponsor_name ? (
+              <div className="rounded-xl p-4 bg-purple-50 border border-purple-200 text-center">
+                <p className="text-xs text-gray-500 mb-1">Your Sponsor</p>
+                <p className="font-black text-purple-900 text-lg">{profile.sponsor_name}</p>
+                <p className="text-xs text-gray-400 mt-1">Send them a WhatsApp to say you are ready 🙏</p>
+              </div>
+            ) : (
+              <div className="rounded-xl p-4 bg-gray-50 border border-gray-200 text-center">
+                <p className="text-gray-500 text-sm">Contact your sponsor to introduce yourself and get started</p>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl p-5 border-2 border-green-300"
+            style={{ background: 'linear-gradient(135deg,#F0FFF4,#DCFCE7)' }}>
+            <p className="font-black text-green-900 text-base mb-2">
+              💬 Join the Z2B Corporate WhatsApp Group
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+              Our Corporate WhatsApp Group is where the Z2B family gathers —
+              for encouragement, announcements, team wins, training updates and Kingdom business
+              conversations. Ask your sponsor to add you, or tap the button below to request
+              directly.
+            </p>
+            <a href="https://wa.me/27770490163?text=Hi%2C%20I%20am%20a%20new%20Z2B%20Legacy%20Builder%20and%20I%20would%20like%20to%20be%20added%20to%20the%20Corporate%20WhatsApp%20Group.%20My%20name%20is%20"
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-black text-white"
+              style={{ background: '#25D366' }}>
+              <span className="text-xl">💬</span>
+              Request to Join — +27 77 049 0163
+            </a>
+            <p className="text-xs text-gray-400 mt-3 text-center italic">
+              Opens WhatsApp with a pre-written request message
+            </p>
+          </div>
+
+          <div className="rounded-2xl p-6 text-center"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)' }}>
+            <div className="text-4xl mb-3">❤️</div>
+            <p className="text-yellow-400 font-black text-lg mb-2">
+              Welcome to Abundance, {getFirstName()}.
+            </p>
+            <p className="text-white text-sm leading-relaxed mb-3">
+              You did not stumble upon Z2B by accident.
+              You are here because you were ready for the third path.
+              The table is set. Your seat is waiting.
+            </p>
+            <p className="text-purple-300 text-xs italic">
+              "The plans of the diligent lead surely to abundance." — Proverbs 21:5
+            </p>
+          </div>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <div className="min-h-screen" style={{ background: '#F8F6FF' }}>
+
+      {/* HEADER */}
+      <header style={{ background: 'linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%)' }}
+        className="border-b-4 border-yellow-400 shadow-2xl">
+        <div className="max-w-2xl mx-auto px-4 py-6 text-center">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Heart className="w-8 h-8 text-red-500 fill-red-500 animate-pulse"/>
+            <h1 className="text-3xl font-black text-white">Welcome to Abundance</h1>
+            <Heart className="w-8 h-8 text-red-500 fill-red-500 animate-pulse"/>
+          </div>
+          <p className="text-yellow-300 font-bold mb-1">
+            {profile?.full_name} ·
+            <span className="ml-1 font-black" style={{ color: tierColor }}>{tier.toUpperCase()}</span>
+          </p>
+          <p className="text-purple-300 text-sm">
+            Your orientation guide — always here when you need direction
+          </p>
+        </div>
+      </header>
+
+      {/* CARDS */}
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-3">
+        {CARDS.map(card => {
+          const isOpen = openCards.has(card.key)
+          return (
+            <div key={card.key}
+              className="rounded-2xl overflow-hidden shadow-sm border-2 transition-all duration-200"
+              style={{ borderColor: isOpen ? card.accent : '#E5E7EB' }}>
+
+              <button onClick={() => toggle(card.key)}
+                className="w-full flex items-center gap-4 px-5 py-4 text-left transition-all"
+                style={{ background: isOpen ? card.accentBg : '#FFFFFF' }}>
+                <span className="text-3xl flex-shrink-0">{card.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-gray-900 text-base leading-tight">{card.label}</p>
+                  {card.sublabel && (
+                    <p className="text-gray-500 text-xs mt-0.5">{card.sublabel}</p>
+                  )}
+                </div>
+                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2"
+                  style={{ borderColor: card.accent, background: isOpen ? card.accent : 'transparent' }}>
                   {isOpen
-                    ? <ChevronUp className="w-4 h-4" style={{ color: card.color }}/>
-                    : <ChevronDown className="w-4 h-4 text-purple-400"/>
+                    ? <ChevronUp className="w-4 h-4 text-white"/>
+                    : <ChevronDown className="w-4 h-4" style={{ color: card.accent }}/>
                   }
                 </div>
               </button>
 
-              {/* Card content — expandable */}
               {isOpen && (
-                <div className="px-5 pb-6 border-t border-white/5">
-
-                  {/* Opening paragraph */}
-                  <div className="mt-5 mb-6 rounded-xl p-4 border-l-4"
-                    style={{ borderColor: card.color, background: `${card.color}10` }}>
-                    <pre className="text-purple-200 text-sm leading-relaxed whitespace-pre-wrap font-sans italic">
-                      {card.content.opening}
-                    </pre>
-                  </div>
-
-                  {/* Sections */}
-                  <div className="space-y-5">
-                    {card.content.sections.map((section, si) => (
-                      <div key={si}>
-                        <h3 className="font-black text-white text-base mb-2 flex items-center gap-2">
-                          <span className="w-1.5 h-5 rounded-full flex-shrink-0" style={{ background: card.color }}/>
-                          {section.heading}
-                        </h3>
-                        <pre className="text-purple-300 text-sm leading-relaxed whitespace-pre-wrap font-sans pl-4">
-                          {section.body}
-                        </pre>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA button */}
-                  <a href={card.content.cta.href}
-                    className="mt-6 flex items-center justify-center gap-2 py-4 rounded-xl font-black text-white text-sm transition-all hover:scale-105"
-                    style={{ background: `linear-gradient(135deg,${card.color},${card.color}BB)` }}>
-                    {card.content.cta.label}
-                    <ArrowRight className="w-4 h-4"/>
-                  </a>
+                <div className="px-5 pb-5 pt-2 border-t-2" style={{ borderColor: `${card.accent}30` }}>
+                  {card.content}
                 </div>
               )}
             </div>
           )
         })}
 
-        {/* ── COMMUNITY CLOSE ── */}
-        <div className={`rounded-2xl overflow-hidden border-2 border-red-500/30 transition-all duration-500 ${entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-          style={{ background: 'linear-gradient(135deg,rgba(220,38,38,0.08),rgba(76,29,149,0.08))', transitionDelay: '600ms' }}>
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ background: 'rgba(220,38,38,0.2)', border: '2px solid rgba(220,38,38,0.3)' }}>
-                🙏
-              </div>
-              <div>
-                <p className="text-red-400 font-black text-xs tracking-widest uppercase">You Are Not Alone</p>
-                <h2 className="text-white font-black text-lg">Join the Community</h2>
-              </div>
-            </div>
-
-            <p className="text-purple-300 text-sm leading-relaxed mb-5">
-              The Z2B Table Banquet is built on relationships. Your sponsor was placed in your life for a reason — they are your first table leg, your guide and your accountability partner. Reach out. Introduce yourself. Let them walk alongside you.
-            </p>
-
-            <p className="text-purple-300 text-sm leading-relaxed mb-5">
-              And beyond your sponsor, there is a whole community of Entrepreneurial Consumers across South Africa who are on this same journey. The Corporate WhatsApp Group is where we celebrate wins, share insights and hold each other to a higher standard.
-            </p>
-
-            <div className="space-y-3">
-
-              {/* Sponsor WhatsApp */}
-              {sponsorWA && (
-                <a href={sponsorWA} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 rounded-xl border border-green-500/30 hover:border-green-400/60 transition-all"
-                  style={{ background: 'rgba(34,197,94,0.08)' }}>
-                  <span className="text-2xl">💬</span>
-                  <div className="flex-1">
-                    <p className="text-white font-black text-sm">WhatsApp Your Sponsor</p>
-                    <p className="text-green-400 text-xs mt-0.5">
-                      {profile?.sponsor_name || 'Your Sponsor'} — tap to introduce yourself
-                    </p>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-green-400"/>
-                </a>
-              )}
-
-              {/* Corporate Group */}
-              <a href="https://wa.me/27770490163"
-                target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-xl border border-red-500/30 hover:border-red-400/60 transition-all"
-                style={{ background: 'rgba(220,38,38,0.08)' }}>
-                <span className="text-2xl">🏛️</span>
-                <div className="flex-1">
-                  <p className="text-white font-black text-sm">Join Our Corporate WhatsApp Group</p>
-                  <p className="text-red-400 text-xs mt-0.5">
-                    +27 77 049 0163 — Request to be added
-                  </p>
-                </div>
-                <ExternalLink className="w-4 h-4 text-red-400"/>
-              </a>
-
-              {/* Referral link copy */}
-              {referralLink && (
-                <div className="p-4 rounded-xl border border-yellow-500/30"
-                  style={{ background: 'rgba(212,175,55,0.08)' }}>
-                  <p className="text-yellow-400 font-black text-sm mb-1">🔗 Your Referral Link</p>
-                  <p className="text-purple-300 text-xs font-mono break-all leading-relaxed">
-                    {referralLink}
-                  </p>
-                  <p className="text-purple-400 text-xs mt-2 italic">
-                    Share this when you find your Purple Cow moment.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Back to dashboard */}
-        <div className="text-center pb-8 pt-2">
+        <div className="text-center py-4">
           <a href="/dashboard"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-black text-purple-900 text-sm hover:scale-105 transition-transform"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-black text-purple-900"
             style={{ background: 'linear-gradient(135deg,#fbbf24,#D4AF37)' }}>
             ← Back to Dashboard
           </a>
-          <p className="text-purple-500 text-xs mt-3">
-            This guide is always here whenever you need to find your footing again. 🙏
-          </p>
         </div>
-
       </div>
     </div>
   )
