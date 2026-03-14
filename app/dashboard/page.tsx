@@ -291,6 +291,35 @@ function DashboardInner() {
         </div>
       )}
 
+      {/* ── START HERE BANNER — always visible ── */}
+      <div style={{ background: 'linear-gradient(135deg,#7C0000,#DC2626,#7C0000)' }}
+        className="border-b-4 border-yellow-400 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-3 flex-1">
+            <span className="text-2xl animate-pulse">❤️</span>
+            <div>
+              <p className="font-black text-white text-sm">Welcome to Abundance</p>
+              <p className="text-red-200 text-xs">New here? Start with your orientation guide. Already a builder? Come back anytime you need direction.</p>
+            </div>
+          </div>
+          {/* 3D-style arrow + button */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1 items-center">
+              {[1,0.7,0.4].map((op, i) => (
+                <svg key={i} width="12" height="20" viewBox="0 0 12 20" style={{ opacity: op }}>
+                  <path d="M1 1 L6 18 L11 1" stroke="#D4AF37" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ))}
+            </div>
+            <a href="/start-here"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm whitespace-nowrap hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#fbbf24,#D4AF37)', color: '#7C0000' }}>
+              ❤️ Start Here
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Pending payment banner — shows from URL param OR live from profile */}
       {(isPending || profile?.payment_status === 'pending') && (
         <div className="border-b-4 border-amber-400 px-4 py-4 animate-pulse"
