@@ -289,6 +289,8 @@ The issue is not effort. The issue is structure. Employees are trapped in a time
 
 **You Are Not Broken — You Are Mispositioned.** If you are an employee feeling uneasy, hear this clearly: You are not lazy. You are not incapable. You are not late. You have simply been positioned only as a worker and a consumer — not as a participant in value creation.
 
+**The Permission You Were Never Given.** Nobody sat you down at school and said — you are allowed to own things. You are allowed to build things. You are allowed to participate in the economy as more than a spender and a worker. That permission was withheld — not maliciously, but systematically. The Z2B Table Banquet is not just an opportunity. It is the permission that was always yours to claim.
+
 [[MIRROR_MOMENT]]`,
     activity: "Write down your three biggest monthly expenses and next to each one, ask: 'Could this ever flow value back to me?' Don't answer yet — just sit with the question.",
     questions: [
@@ -320,6 +322,8 @@ But for most employees, this advice feels reckless. They have families to suppor
 That's why many employees feel stuck between two unsatisfying options: stay employed and frustrated, or quit and gamble on uncertainty. This false choice creates paralysis.
 
 **What is rarely offered is a third option** — one that respects reality while expanding possibility. A way that does not require quitting your job. Does not demand a business idea upfront. Does not pressure you to take reckless risks. Instead, it begins with clarity, community, and intentional consumption.
+
+**The Good News Hidden in the Problem.** The fact that you consume consistently every month is not a weakness — it is an asset waiting to be repositioned. The same loyalty you give to supermarkets, telecoms and fuel stations can be redirected into a system that flows value back to you. You do not need to change how much you spend. You need to change where the value of that spending goes. That is the shift Z2B is built on.
 
 [[MONTH_CHECK]]`,
     activity: "List 5 brands or companies you spend money with every month. Next to each one, write: 'Do I participate in their profits in any way?' This exercise plants the seed of strategic awareness.",
@@ -353,6 +357,8 @@ Consumption becomes a tool, not a weakness. Household expenses are turned into I
 
 This is not about inventing something new. It is about repositioning what already exists.
 
+**The Identity You Carry Changes Everything Around You.** When you shift from Consumer to Entrepreneurial Consumer, the people around you begin to look different too. Your colleague stops being just a co-worker — they become a potential table companion. Your friend who always complains about month-end stops being a frustrated bystander — they become someone you can invite to a different path. Identity is not just internal. It reshapes how you see your entire world and everyone in it.
+
 [[IDENTITY_SELECTOR]]`,
     activity: "Identify which of the three identities describes you TODAY. Be honest. Write it down. Then write which identity you want to grow INTO over the next 12 months. The gap between those two is your workshop journey.",
     questions: [
@@ -384,6 +390,8 @@ This identity shift is what makes everything else work. Before income. Before bu
 No quitting. No gambling. No pretending. Just structured progress.
 
 Once you see yourself differently, you begin to notice opportunities that were always around you — quietly waiting for clarity. You do not need a business idea to move forward. You need a new way of seeing yourself in the economy.
+
+**The Most Underestimated Asset of All — Your Story.** Every frustration you have lived through as an employee is not wasted material. It is your most powerful marketing tool. When you tell someone — honestly and simply — what it felt like to work hard and still feel stuck, and then show them the third path you found, that story resonates in a way no sales script ever could. Your lived experience is your credibility. Your journey is your invitation. Never underestimate the power of a story told from genuine transformation.
 
 [[ASSET_AUDIT]]`,
     activity: "Make a list under these headings: MY SKILLS, MY NETWORKS, MY ROUTINES, MY KNOWLEDGE. Fill in at least 3 items under each. You are mapping your existing capital.",
@@ -419,6 +427,8 @@ This is not a slogan. It is a sequence. Transformation without education creates
 
 **Why the Table Creates Leverage.** A single consumer has no negotiating power. But a community of aligned Entrepreneurial Consumers creates collective leverage — a distribution channel, a marketing ecosystem, a negotiation partner.
 
+**Why the Z2B Table Is Different From a Group Chat.** Many people have been part of groups, teams and communities before — and been disappointed. The difference with the Z2B Table is sequencing. Most communities form around shared excitement and fall apart when excitement fades. The Z2B Table forms around shared transformation. When people are growing together — mindset by mindset, session by session — the bond is not emotional hype. It is built on the bedrock of mutual investment in becoming. That kind of community does not dissolve. It deepens.
+
 [[COMMUNITY_PREVIEW]]`,
     activity: "Think of one person in your life who is quietly frustrated with their financial situation but hasn't found a way forward. Don't contact them yet — just identify them. You may be about to invite them to your table.",
     questions: [
@@ -451,6 +461,8 @@ Not vague dreams — structured vision.
 
 **The Five Foundational Questions:** Why. What. When. How. Where. These questions, asked correctly across all three time horizons, change everything. Most systems fail because they treat everyone the same regardless of urgency or stage. Z2B does not.
 
+**Vision Is Not a Luxury — It Is a Survival Tool.** In difficult economic times, many people abandon dreaming because it feels irresponsible. "I cannot afford to think about the future — I am managing today." But the opposite is true. Without vision, every difficulty feels permanent. Every slow month feels like failure. Every challenge confirms the fear that this will never work. Vision does not ignore difficulty — it contextualises it. It gives you a reason to keep building on the hard days when results are not yet visible.
+
 [[VISION_GATE]]`,
     activity: "Write one goal under each of the three time horizons: Immediate Term (next 90 days), Medium Term (1–3 years), Long Term (5–10 years). Don't overthink it. Your first answer is often your truest answer.",
     questions: [
@@ -476,6 +488,8 @@ That is why Z2B uses SWOT analysis — not as a business-school exercise, but as
 **Opportunities Hidden in Plain Sight.** Opportunities hide inside repeated expenses, shared frustrations, unmet needs, and underutilized networks. When SWOT is applied across all three time horizons, patterns emerge.
 
 **Threats as Teachers.** Threats reveal what must be protected, what must be diversified, and why reliance on a single income is risky. Z2B does not promise immunity from challenges — it provides options. And options reduce fear.
+
+**Your SWOT Is Not Static — It Grows With You.** The SWOT you do today is a snapshot, not a sentence. Twelve months from now, after completing this workshop, building your team, running your funnel and developing your skills — your strengths will be different, your weaknesses will be fewer, your opportunities will be larger, and your threats will be better managed. The purpose of the Reality Audit is not to define your limits. It is to show you your starting point so that you can measure your progress. You are not being evaluated. You are being positioned.
 
 [[SWOT_BUILDER]]`,
     activity: "Draw a simple 2x2 grid on paper. Label the four boxes: STRENGTHS, WEAKNESSES, OPPORTUNITIES, THREATS. Fill in at least 3 items in each box as they relate to YOUR current financial and life situation.",
@@ -504,6 +518,8 @@ Network Marketing transports employees from: Pure consumption → Strategic cons
 **Household Products as Training Wheels.** Many network marketing companies distribute household necessities. Demand already exists. You are not creating consumption — you are redirecting it. This allows builders to learn in a low-risk environment with familiar products.
 
 **Network Marketing Is Not Your Identity.** You are an Entrepreneurial Consumer first. Network Marketing is one of your tools — not your definition. Identity traps create burnout. Use it. Learn from it. Leverage it. But never mistake the vehicle for the vision.
+
+**The Z2B Vehicle Is Built for the South African Context.** Z2B Legacy Builders was not designed for Silicon Valley or for wealthy investors. It was designed for the employed South African — someone with a salary, a community, a story and a phone. The products are personal development — something every human being needs regardless of income level. The distribution model is relationship-based — something South Africans are culturally wired for. The philosophy is Kingdom Economics — something that resonates in a nation where faith and community are deeply interwoven. This vehicle was built for you, on roads you already know.
 
 [[OBJECTION_DISSOLVER]]`,
     activity: "Research one legitimate network marketing company that distributes products you already buy monthly. Look at their compensation plan for 30 minutes. You don't have to join — just understand the structure. Note what surprised you.",
@@ -538,6 +554,8 @@ You are not surrounded by employees and consumers by accident. You are surrounde
 **The Circle of Twelve.** Identify 12 Builders across these three layers. Why Twelve? Because Twelve represents governmental structure — 12 Tribes of Israel, 12 Disciples, 12 Foundations of New Jerusalem. Twelve is a number of organized expansion.
 
 **The Doctrine of Capital:** Financial Capital is money. Human Capital is skills, wisdom, and networks. Strategic Capital is alignment, positioning, and influence. Your Circle contains all three in seed form.
+
+**What R480 Actually Unlocks.** Before you build your Circle of Twelve, understand what you are inviting them into. Bronze membership — R480 once-off, no monthly fees — activates your referral link, your 18% ISP commission on every Bronze sale you facilitate, your QPB bonus when you bring in four or more builders in a month, and your TSC commissions from your team up to three generations deep. When your Circle of Twelve each upgrades to Bronze and begins building their own circles, the income is not linear — it is exponential. You are not inviting twelve people to spend R480. You are inviting twelve people to activate a system that pays them and pays you simultaneously.
 
 [[CIRCLE_OF_TWELVE]]`,
     activity: "Write down 12 names — people in your life across the three layers: 4 short-term helpers, 4 medium-term builders, 4 long-term covenant partners. Don't filter — just write names. You don't need their permission yet. You just need clarity.",
