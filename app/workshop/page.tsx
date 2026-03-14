@@ -86,7 +86,7 @@ Every morning this week, these sessions will give you a 60-second mental anchor 
 
 Today's anchor: I am an Entrepreneurial Consumer. I am building while I am employed. I am participating in value creation. I have a seat at the table.
 
-Carry that with you today. Now go and build. God bless your day.`,
+Carry that with you today. Now go and build. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 2,
@@ -106,7 +106,7 @@ The shift from employee thinking to builder thinking is not a one-time event. It
 
 Today's anchor: I am not just an employee — I am a builder in progress. Every decision I make today is a brick in my table.
 
-Go build. God bless your day.`,
+Go build. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 3,
@@ -126,7 +126,7 @@ This morning, think about the people in your life. The employees who are frustra
 
 Today's anchor: I am not selling. I am positioning. I am inviting others into a value chain that benefits everyone who enters it.
 
-Go and invite someone today. God bless your day.`,
+Go and invite someone today. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 4,
@@ -146,7 +146,7 @@ This is not passive income in the naive sense. It is leveraged income. You still
 
 Today's anchor: I am building a system today, not just completing tasks. Every post I make, every person I invite, every prospect I follow up — is adding leverage to my life.
 
-Go build leverage. God bless your day.`,
+Go build leverage. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 5,
@@ -166,7 +166,7 @@ The Purple Cow principle applies here — you do not chase people. You become so
 
 Today's anchor: I will add value to at least one relationship today before I make any invitation. I am building a community, not just a commission structure.
 
-Go tend your table. God bless your day.`,
+Go tend your table. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 6,
@@ -188,7 +188,7 @@ Z2B is not a side hustle. It is a Kingdom assignment. Every Bronze member you br
 
 Today's anchor: I am not building for this month. I am building for the next generation. My table has seats for people who are not yet at it.
 
-Go build with vision. God bless your day.`,
+Go build with vision. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 7,
@@ -210,7 +210,7 @@ Speak it today. Tell someone who you are. Not to impress them — to reinforce i
 
 Today's anchor: I am an Entrepreneurial Consumer. I say it. I mean it. I build from it.
 
-Declare it today. God bless your day.`,
+Declare it today. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 8,
@@ -230,7 +230,7 @@ And the people you invite into Z2B are not just prospects. They are future table
 
 Today's anchor: I am gathering people for a banquet, not recruiting for a downline. Every person I invite, I am welcoming to a table.
 
-Go gather your guests. God bless your day.`,
+Go gather your guests. Hallelujah! Let's get busy with it!`,
   },
   {
     id: 9,
@@ -260,7 +260,7 @@ The table is built one session at a time. One morning briefing at a time. One co
 
 Today's anchor: I am not just learning. I am becoming. The doing begins today.
 
-Go begin. God bless your journey, Legacy Builder.`,
+Go begin. Hallelujah! Let's get busy with it!`,
   },
 ];
 
