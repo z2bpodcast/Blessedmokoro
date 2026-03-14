@@ -505,10 +505,10 @@ Generate a complete ${aiPlatform} ${aiContentType.toLowerCase()} script for Z2B 
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-4">
+          <div className="flex gap-1 mt-4 overflow-x-auto pb-1" style={{ scrollbarWidth:'none' }}>
             {TABS.map(t => (
               <button key={t.key} onClick={() => setActiveTab(t.key as any)}
-                className={`px-4 py-2.5 rounded-t-xl text-sm font-black transition-all ${
+                className={`px-3 py-2.5 rounded-t-xl text-xs font-black transition-all whitespace-nowrap flex-shrink-0 ${
                   activeTab === t.key ? 'bg-white text-purple-900' : 'text-purple-300 hover:text-white hover:bg-white/10'
                 }`}>
                 {t.emoji} {t.label}
