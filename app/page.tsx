@@ -474,6 +474,294 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── BUSINESS OPPORTUNITY PAGE ── */}
+      <section className="py-20" style={{ background: 'linear-gradient(135deg,#0A0015 0%,#1A0035 50%,#0A0015 100%)' }}>
+        <div className="max-w-5xl mx-auto px-4">
+
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <p className="text-yellow-400 font-black text-sm tracking-widest uppercase mb-3">The Invitation</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+              The Z2B Business Opportunity
+            </h2>
+            <div className="w-24 h-1 mx-auto rounded-full mb-5" style={{ background: 'linear-gradient(90deg,#D4AF37,#fbbf24)' }}/>
+            <p className="text-purple-300 text-lg max-w-2xl mx-auto">
+              Everything you need to know before you decide. No pressure. Just clarity.
+            </p>
+          </div>
+
+          {/* Questions grid */}
+          <div className="space-y-4">
+
+            {/* Q1 — Who are we? */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">🏛️</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 1</p>
+                  <h3 className="text-white font-black text-xl">Who are we?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-purple-200 leading-relaxed mb-4">
+                  <strong className="text-white">Z2B Legacy Builders</strong> is a global personal and business development company built on one foundational belief: ordinary employees and consumers have the power to become Entrepreneurial Consumers — people who create value, build equity and participate in the wealth chain without quitting their jobs.
+                </p>
+                <p className="text-purple-300 leading-relaxed">
+                  We are a digital-first business operating worldwide. Our platform — the Z2B Table Banquet — is built around four pillars: <strong className="text-yellow-400">Mindset. Systems. Relationships. Legacy.</strong> We use network marketing as our distribution vehicle, not our identity.
+                </p>
+              </div>
+            </div>
+
+            {/* Q2 — What do we sell? */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">📦</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 2</p>
+                  <h3 className="text-white font-black text-xl">What do we sell?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-purple-200 leading-relaxed mb-5">
+                  We sell <strong className="text-white">personal and business development memberships</strong> — the most universally needed product in the world. Every human being, regardless of income, location or background, needs to grow their mindset, build systems and develop relationships.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    { emoji:'🎓', title:'99-Session Workshop', desc:'Entrepreneurial Consumer transformation journey' },
+                    { emoji:'🤖', title:'Coach Manlaw AI', desc:'Personal AI business coach available 24/7' },
+                    { emoji:'🎯', title:'My Sales Funnel', desc:'Automated pipeline and prospect management system' },
+                    { emoji:'🎬', title:'Content Studio', desc:'Scripts, captions and AI content generation' },
+                    { emoji:'📊', title:'Compensation Engine', desc:'6 income streams tracked in real time' },
+                    { emoji:'🌍', title:'Global Community', desc:'A table of Entrepreneurial Consumers worldwide' },
+                  ].map((p, i) => (
+                    <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="text-2xl mb-2">{p.emoji}</div>
+                      <p className="text-white font-black text-sm">{p.title}</p>
+                      <p className="text-purple-400 text-xs mt-1">{p.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Q3 — Who is our best customer? */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">🎯</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 3</p>
+                  <h3 className="text-white font-black text-xl">Who is our best customer?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-purple-200 leading-relaxed mb-5">
+                  Our ideal customer is <strong className="text-white">any employed person or consumer anywhere in the world</strong> who is tired of the gap between their income and their lifestyle — and is ready to explore the third path between employment and full entrepreneurship.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { emoji:'👔', label:'Employees', desc:'Frustrated with the salary ceiling' },
+                    { emoji:'🛒', label:'Consumers', desc:'Spending without building equity' },
+                    { emoji:'🌱', label:'Students', desc:'Forming their financial identity' },
+                    { emoji:'🙏', label:'Faith communities', desc:'Kingdom-minded legacy builders' },
+                  ].map((c, i) => (
+                    <div key={i} className="rounded-xl p-4 text-center border border-purple-800/40" style={{ background: 'rgba(76,29,149,0.2)' }}>
+                      <div className="text-3xl mb-2">{c.emoji}</div>
+                      <p className="text-white font-black text-sm">{c.label}</p>
+                      <p className="text-purple-400 text-xs mt-1">{c.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Q4 — How do we sell? */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">📱</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 4</p>
+                  <h3 className="text-white font-black text-xl">How do we sell?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-purple-200 leading-relaxed mb-5">
+                  We use the <strong className="text-white">Purple Cow Strategy</strong> — you share what genuinely moves you. Your daily workshop session becomes your content. Your personal transformation becomes your testimony. Your referral link does the rest.
+                </p>
+                <div className="flex flex-wrap gap-3 items-center">
+                  {[
+                    { step:'1', text:'Do your daily workshop session', color:'#7C3AED' },
+                    { step:'→', text:'', color:'transparent' },
+                    { step:'2', text:'Post 4 times on social media', color:'#1D4ED8' },
+                    { step:'→', text:'', color:'transparent' },
+                    { step:'3', text:'4 free sign-ups enter your pipeline', color:'#065F46' },
+                    { step:'→', text:'', color:'transparent' },
+                    { step:'4', text:'System nurtures for 9 days automatically', color:'#92400E' },
+                    { step:'→', text:'', color:'transparent' },
+                    { step:'5', text:'15% upgrade to Bronze = your income', color:'#D4AF37' },
+                  ].map((s, i) => s.step === '→' ? (
+                    <span key={i} className="text-purple-500 text-xl font-black">→</span>
+                  ) : (
+                    <div key={i} className="flex items-center gap-2 rounded-xl px-4 py-2 border border-white/10" style={{ background: `${s.color}25` }}>
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0" style={{ background: s.color }}>{s.step}</span>
+                      <span className="text-white text-sm font-semibold">{s.text}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-purple-400 text-sm mt-4 italic">The ratio: 4 posts · 4 sign-ups/day · 5 days · 4 weeks · 15% conversion = 12 Bronze upgrades/month</p>
+              </div>
+            </div>
+
+            {/* Q5 — How much do builders earn? */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">💰</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 5</p>
+                  <h3 className="text-white font-black text-xl">How much do our Builders earn?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-purple-200 leading-relaxed mb-5">
+                  Z2B has <strong className="text-white">6 income streams</strong>. Every paid tier unlocks more. Bronze is the starting point. Platinum unlocks all 10 generations of Team Sales Commission.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                  {[
+                    { code:'ISP', name:'Individual Sales Profit', desc:'18%–30% on your personal sales', color:'#7C3AED' },
+                    { code:'QPB', name:'Quick Pathfinder Bonus', desc:'7.5%–10% for fast recruiting in first 90 days', color:'#D97706' },
+                    { code:'TSC', name:'Team Sales Commission', desc:'1%–10% on your team across up to 10 generations', color:'#1D4ED8' },
+                    { code:'MKT', name:'Marketplace Sales', desc:'95% of your asking price (Gold & Platinum)', color:'#065F46' },
+                    { code:'CEO', name:'CEO Competitions', desc:'Variable prizes set by the CEO', color:'#DC2626' },
+                    { code:'AWD', name:'CEO Quarterly Awards', desc:'Gold Pool, Platinum Pool & Founders Circle', color:'#9333EA' },
+                  ].map((s, i) => (
+                    <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: `${s.color}15` }}>
+                      <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: s.color, color: '#fff' }}>{s.code}</span>
+                      <p className="text-white font-black text-sm mt-1">{s.name}</p>
+                      <p className="text-purple-300 text-xs mt-1">{s.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Q6 — Potential Income */}
+            <div className="rounded-2xl overflow-hidden border-2 border-yellow-400/40">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#78350f,#92400e)' }}>
+                <span className="text-3xl flex-shrink-0">📈</span>
+                <div>
+                  <p className="text-yellow-300 font-black text-xs tracking-widest uppercase">Question 6</p>
+                  <h3 className="text-white font-black text-xl">Potential Income</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(120,53,15,0.15)' }}>
+                <p className="text-purple-200 leading-relaxed mb-6">
+                  Running the 4:4:5:4:15% ratio consistently. All projections based on Bronze sales at R480.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                  {[
+                    { stage:'Month 1', tier:'Bronze', amount:'R1,564', desc:'12 personal upgrades · ISP + QPB' },
+                    { stage:'Stage 3', tier:'Silver TSC', amount:'R427,219', desc:'6-generation team · G2–G6 active' },
+                    { stage:'Stage 4', tier:'Platinum G7', amount:'R1,371,225', desc:'7 generations deep · G2–G7 only' },
+                    { stage:'Stage 5', tier:'Platinum G10', amount:'Unlimited', desc:'G8–G10 not projected. Beyond measure.' },
+                  ].map((p, i) => (
+                    <div key={i} className="rounded-2xl p-4 text-center border-2" style={{
+                      background: i === 3 ? 'linear-gradient(135deg,#1e1b4b,#4c1d95)' : 'rgba(255,255,255,0.05)',
+                      borderColor: i === 3 ? '#D4AF37' : 'rgba(255,255,255,0.1)'
+                    }}>
+                      <p className="text-yellow-400 font-black text-xs mb-1">{p.stage}</p>
+                      <p className="text-yellow-300 text-xs mb-2">{p.tier}</p>
+                      <p className={`font-black ${i === 3 ? 'text-3xl text-yellow-400' : 'text-2xl text-white'}`}>{p.amount}</p>
+                      <p className="text-purple-400 text-xs mt-2">{p.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-xl p-4 border border-yellow-400/30 text-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                  <p className="text-yellow-300 font-black">⚡ Even at 10% team performance — you can still potentially earn <strong className="text-yellow-400 text-lg">R137,000/month</strong> at Stage 4</p>
+                  <p className="text-yellow-500 text-xs mt-1 italic">Projections are mathematical potential based on consistent ratio execution. Not a guarantee. Results vary.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Q7 — How to Sign Up */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#065F46,#047857)' }}>
+                <span className="text-3xl flex-shrink-0">🚀</span>
+                <div>
+                  <p className="text-green-200 font-black text-xs tracking-widest uppercase">Question 7</p>
+                  <h3 className="text-white font-black text-xl">How to Sign Up?</h3>
+                </div>
+              </div>
+              <div className="px-6 py-6" style={{ background: 'rgba(6,95,70,0.1)' }}>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  {[
+                    { step:'1', emoji:'🎓', title:'Start Free', desc:'Join the free workshop. No credit card. No pressure. 9 sessions free.' },
+                    { step:'2', emoji:'🧠', title:'Learn & Grow', desc:'Complete the morning and evening sessions. Find your Purple Cow.' },
+                    { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R480 once-off. Card, EFT or ATM cash. No monthly fees. Ever.' },
+                    { step:'4', emoji:'🌳', title:'Build Your Table', desc:'Share your referral link. Help your first 4. Watch it multiply.' },
+                  ].map((s, i) => (
+                    <div key={i} className="rounded-2xl p-5 text-center border border-green-800/40" style={{ background: 'rgba(6,95,70,0.15)' }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white mx-auto mb-3 text-lg" style={{ background: 'linear-gradient(135deg,#065F46,#059669)' }}>{s.step}</div>
+                      <div className="text-3xl mb-2">{s.emoji}</div>
+                      <p className="text-white font-black text-sm mb-1">{s.title}</p>
+                      <p className="text-green-300 text-xs">{s.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/workshop"
+                    className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-lg border-2 border-yellow-400 text-yellow-900 hover:scale-105 transition-all shadow-xl"
+                    style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}>
+                    🎓 Start Free Workshop
+                  </Link>
+                  <Link href="/pricing"
+                    className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-lg border-2 border-purple-400 text-white hover:scale-105 transition-all"
+                    style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)' }}>
+                    💎 View Membership Tiers
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Testimonials */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">⭐</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">From the Table</p>
+                  <h3 className="text-white font-black text-xl">Testimonials</h3>
+                </div>
+              </div>
+              <div className="px-6 py-8" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="rounded-2xl p-5 border border-white/10 animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-purple-800/40"/>
+                        <div className="space-y-2">
+                          <div className="h-3 bg-purple-800/40 rounded w-24"/>
+                          <div className="h-2 bg-purple-800/30 rounded w-16"/>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-purple-800/30 rounded w-full"/>
+                        <div className="h-3 bg-purple-800/30 rounded w-4/5"/>
+                        <div className="h-3 bg-purple-800/30 rounded w-3/5"/>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <span className="text-purple-500 text-xs font-bold tracking-widest">LOADING TESTIMONIALS...</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-purple-500 text-sm mt-6 italic">
+                  Real testimonials from Z2B Legacy Builders coming soon. The table is being filled. 🍽️
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-primary-900 text-white py-8 mt-16 border-t-8 border-gold-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
