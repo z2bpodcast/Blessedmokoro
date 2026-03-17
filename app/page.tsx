@@ -131,6 +131,11 @@ export default function Home() {
                   >
                     🎓 Workshop
                   </Link>
+                  <a href="#business-opportunity"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
+                    style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
+                    💼 Opportunity
+                  </a>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -162,6 +167,11 @@ export default function Home() {
                   >
                     🎁 Free Workshop
                   </Link>
+                  <a href="#business-opportunity"
+                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
+                    style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
+                    💼 Opportunity
+                  </a>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -475,7 +485,7 @@ export default function Home() {
       </section>
 
       {/* ── BUSINESS OPPORTUNITY PAGE ── */}
-      <section className="py-20" style={{ background: 'linear-gradient(135deg,#0A0015 0%,#1A0035 50%,#0A0015 100%)' }}>
+      <section id="business-opportunity" className="py-20" style={{ background: 'linear-gradient(135deg,#0A0015 0%,#1A0035 50%,#0A0015 100%)' }}>
         <div className="max-w-5xl mx-auto px-4">
 
           {/* Section header */}
