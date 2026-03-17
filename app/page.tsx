@@ -588,9 +588,15 @@ export default function Home() {
                   </div>
                 ))}
 
-                <div className="rounded-2xl p-5 text-center border border-yellow-400/30 mb-6" style={{ background: 'rgba(212,175,55,0.08)' }}>
-                  <p className="text-yellow-400 font-black text-base mb-1">The Bottom Line</p>
-                  <p className="text-white text-sm leading-relaxed">Employment gives you <em>security without freedom</em>. Business ownership offers <em>freedom with high risk</em>. The Entrepreneurial Consumer gives you <strong className="text-yellow-400">a safe path to build freedom.</strong></p>
+                <div className="rounded-2xl p-5 text-center border border-yellow-400/30 mb-6" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(76,29,149,0.12))' }}>
+                  <p className="text-yellow-400 font-black text-base mb-3">The Bottom Line</p>
+                  <p className="text-white text-sm leading-relaxed mb-4">
+                    Employment gives you <em className="text-purple-300">security without freedom.</em> Business ownership offers <em className="text-purple-300">freedom with high risk.</em> <strong className="text-yellow-400">The Entrepreneurial Consumer gives you a safe path to build freedom.</strong>
+                  </p>
+                  <div className="border-t border-yellow-400/20 pt-3 mt-3">
+                    <p className="text-yellow-500 text-xs font-black tracking-wide">— Rev Mokoro Manana</p>
+                    <p className="text-purple-400 text-xs">Founder & CEO · Z2B Legacy Builders</p>
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -751,10 +757,29 @@ export default function Home() {
 
                 {/* Core identity */}
                 <div className="rounded-2xl p-5 mb-5 border border-yellow-400/20" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(76,29,149,0.12))' }}>
-                  <p className="text-white font-black text-lg mb-2">Z2B Legacy Builders</p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-3xl">🔱</span>
+                    <div>
+                      <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Our Solution</p>
+                      <p className="text-white font-black text-lg">Entrepreneurial Consumer Solutions</p>
+                    </div>
+                  </div>
                   <p className="text-yellow-300 leading-relaxed text-sm font-semibold mb-3">
                     A Personal and Business Development Coaching and AI Systems Service Provider dedicated to transforming the lives of employees and consumers worldwide.
                   </p>
+                  <p className="text-purple-300 text-sm leading-relaxed mb-4">
+                    We deliver this through the <strong className="text-white">Z2B Table Banquet platform</strong> — a complete ecosystem of workshops, AI coaching, sales tools and digital building solutions designed to walk any employee smoothly from consumption to ownership.
+                  </p>
+                  {/* Rev's quote locked in */}
+                  <div className="rounded-xl p-4 border border-yellow-400/30 mb-4" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                    <p className="text-white text-sm leading-relaxed italic mb-2">
+                      "Employment gives you security without freedom. Business ownership offers freedom with high risk. <strong className="text-yellow-400">The Entrepreneurial Consumer gives you a safe path to build freedom.</strong>"
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg,#D4AF37,#fbbf24)' }}/>
+                      <p className="text-yellow-500 text-xs font-black">Rev Mokoro Manana — Founder & CEO, Z2B Legacy Builders</p>
+                    </div>
+                  </div>
                   <a href="/about" className="inline-flex items-center gap-2 text-yellow-400 text-xs font-black hover:text-yellow-300 transition-colors">
                     Read our full story → app.z2blegacybuilders.co.za/about
                   </a>
@@ -797,12 +822,78 @@ export default function Home() {
                 </div>
 
                 {/* 4 pillars strip */}
-                <div className="rounded-xl p-4 border border-white/10 flex flex-wrap gap-3 items-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <span className="text-purple-400 text-xs font-black tracking-widest">THE 4 TABLE LEGS:</span>
-                  {['🧠 Mindset','⚙️ Systems','🤝 Relationships','🏆 Legacy'].map((leg, i) => (
-                    <span key={i} className="px-3 py-1.5 rounded-full text-xs font-black text-yellow-900 border border-yellow-400/40"
-                      style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}>{leg}</span>
-                  ))}
+                <div className="rounded-xl p-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <span className="text-purple-400 text-xs font-black tracking-widest block mb-3">THE 4 TABLE LEGS — hover each leg to learn more:</span>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      {
+                        emoji: '🧠', leg: 'Mindset',
+                        color: '#7C3AED', bg: 'rgba(124,58,237,0.12)', border: 'rgba(124,58,237,0.35)',
+                        hoverBg: 'linear-gradient(135deg,#2e1065,#4c1d95)',
+                        teaching: [
+                          'Mindset is the foundation of everything. Before systems, before income, before team — your beliefs about yourself determine what you attempt and what you quit.',
+                          'Most employees carry a hidden belief: "I am not the kind of person who builds businesses." This belief was formed by years of education designed to produce workers, not owners.',
+                          'The Z2B Workshop breaks this belief session by session. Mirror moments reveal where your thinking is limiting you. Morning sessions anchor a new identity every day before the noise of the world can overwrite it.',
+                          'The shift is not from poor to rich. It is from passive to active. From consumer to Entrepreneurial Consumer. Once that shift happens in your mind — your actions follow automatically.',
+                        ]
+                      },
+                      {
+                        emoji: '⚙️', leg: 'Systems',
+                        color: '#1D4ED8', bg: 'rgba(29,78,216,0.12)', border: 'rgba(29,78,216,0.35)',
+                        hoverBg: 'linear-gradient(135deg,#1e3a8a,#1D4ED8)',
+                        teaching: [
+                          'A system is anything that works while you sleep. Employees trade time for money — the moment they stop working, income stops. Systems break that dependency.',
+                          'Z2B gives you your first system on Day 1: your referral link + the 9-Day Nurture Engine + My Sales Funnel. You share the link once. The system follows up for 9 days automatically.',
+                          'Your second system is the Content Calendar. Post 4 times a day from your workshop insights. Each post is a seed. Each seed can produce a sign-up. Each sign-up enters your pipeline automatically.',
+                          'As you grow, your team becomes your most powerful system. When 12 builders each run their own ratio — your income multiplies without you generating every sale. That is the beauty of TSC across 10 generations.',
+                        ]
+                      },
+                      {
+                        emoji: '🤝', leg: 'Relationships',
+                        color: '#065F46', bg: 'rgba(6,95,70,0.12)', border: 'rgba(6,95,70,0.35)',
+                        hoverBg: 'linear-gradient(135deg,#064e3b,#065F46)',
+                        teaching: [
+                          '"Your network is your net worth" is not a cliché — it is economics. Every person in your circle is a potential node in a value chain. The question is whether you have positioned yourself to activate that value.',
+                          'Z2B teaches you to see people differently. Your colleague is not just a co-worker — they are a potential table companion. Your friend who complains about month-end is not just frustrated — they are ready for the third path.',
+                          'The Circle of Twelve is your relationship architecture: 4 short-term destiny helpers who walk with you now, 4 medium-term strategic builders who add capability, and 4 long-term covenant partners who walk with you into legacy ventures.',
+                          'Community is not a bonus feature of Z2B — it is the product. When you are surrounded by people who see what you see, your belief is reinforced daily. You do not have to explain yourself. You belong somewhere that gets it.',
+                        ]
+                      },
+                      {
+                        emoji: '🏆', leg: 'Legacy',
+                        color: '#D4AF37', bg: 'rgba(212,175,55,0.10)', border: 'rgba(212,175,55,0.35)',
+                        hoverBg: 'linear-gradient(135deg,#78350f,#92400e)',
+                        teaching: [
+                          'Legacy is the reason all of this matters. Not just income for this month. Not just freedom for yourself. But something that outlives your effort — something your children inherit, not just your debt.',
+                          '"Before God gives a man land, He gives him people." Before He releases territory, He releases relationships. Before He entrusts wealth, He tests stewardship through human connection. Z2B is a Kingdom assignment.',
+                          'Legacy thinking changes your behaviour today — even before the income arrives. When you know you are building for the next generation, you post consistently even when no one responds. You show up for your G1 team even when results are slow.',
+                          'The Z2B Table Banquet is named deliberately. A banquet is not a meal for one. It is a feast prepared for many. Your seat at the table is not the end of the story — it is the beginning of a generational gathering.',
+                        ]
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="group relative rounded-2xl p-4 border cursor-pointer transition-all duration-300 min-h-[80px]"
+                        style={{ background: item.bg, borderColor: item.border }}>
+                        {/* Default pill view */}
+                        <div className="flex items-center gap-2 transition-opacity duration-300 group-hover:opacity-0">
+                          <span className="text-2xl">{item.emoji}</span>
+                          <span className="font-black text-sm" style={{ color: item.color }}>{item.leg}</span>
+                        </div>
+                        {/* Hover teaching card */}
+                        <div className="absolute inset-0 rounded-2xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-y-auto z-10"
+                          style={{ background: item.hoverBg, border: `2px solid ${item.color}` }}>
+                          <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
+                            <span className="text-xl">{item.emoji}</span>
+                            <span className="text-white font-black text-sm">{item.leg}</span>
+                          </div>
+                          <div className="space-y-2">
+                            {item.teaching.map((para, j) => (
+                              <p key={j} className="text-white/90 text-xs leading-relaxed">{para}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
