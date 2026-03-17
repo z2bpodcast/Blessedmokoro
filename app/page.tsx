@@ -653,6 +653,160 @@ export default function Home() {
               </div>
             </div>
 
+            {/* TIER COMPARISON TABLE */}
+            <div className="rounded-2xl overflow-hidden border border-white/10">
+              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+                <span className="text-3xl flex-shrink-0">📊</span>
+                <div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Bonus Structure</p>
+                  <h3 className="text-white font-black text-xl">Team Performance Bonuses — Per Tier</h3>
+                  <p className="text-purple-300 text-xs mt-0.5">
+                    <span className="text-yellow-300 font-black">🟡 Bronze</span> and <span className="text-blue-300 font-black">🔵 Silver</span> highlighted for easy comparison
+                  </p>
+                </div>
+              </div>
+              <div className="px-4 py-5 overflow-x-auto" style={{ background: 'rgba(255,255,255,0.03)' }}>
+
+                {/* Table */}
+                <table className="w-full text-xs border-collapse min-w-[700px]">
+
+                  {/* Tier header row */}
+                  <thead>
+                    <tr>
+                      <th className="text-left px-3 py-3 font-black text-white text-xs" style={{ background: '#1E1B4B', width: '22%' }}>INCOME STREAM</th>
+                      {[
+                        { tier:'FAM',      price:'Free',        bg:'#374151',   text:'#9CA3AF', hl:false },
+                        { tier:'BRONZE',   price:'R480',        bg:'#D97706',   text:'#1A0A00', hl:true  },
+                        { tier:'COPPER',   price:'R1,200',      bg:'#92400E',   text:'#FEF3C7', hl:false },
+                        { tier:'SILVER',   price:'R2,500',      bg:'#1D4ED8',   text:'#EFF6FF', hl:true  },
+                        { tier:'GOLD',     price:'R5,000',      bg:'#78350F',   text:'#FEF9C3', hl:false },
+                        { tier:'PLATINUM', price:'R12,000',     bg:'#4C1D95',   text:'#F3F0FF', hl:false },
+                      ].map(({ tier, price, bg, text, hl }) => (
+                        <th key={tier} className="px-2 py-2 text-center" style={{
+                          background: bg,
+                          border: hl ? `3px solid ${tier==='BRONZE'?'#FDE68A':'#93C5FD'}` : undefined,
+                          minWidth: '80px',
+                        }}>
+                          <div className="font-black text-xs" style={{ color: text }}>{tier}</div>
+                          <div className="font-bold text-xs mt-0.5 opacity-80" style={{ color: text }}>{price}</div>
+                          {hl && <div className="text-xs mt-0.5" style={{ color: tier==='BRONZE'?'#FDE68A':'#BFDBFE' }}>★ HIGHLIGHTED</div>}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {/* ISP SECTION */}
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>💰 ISP — Individual Sales Profit (on your personal R480 sales)</td></tr>
+                    {[
+                      ['ISP Rate',                '10%',  '18%',   '22%',   '25%',   '28%',   '30%'   ],
+                      ['Rand per R480 sale',      'R48',  'R86.40','R105.60','R120', 'R134.40','R144' ],
+                    ].map(([label,...vals], ri) => (
+                      <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
+                        <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
+                        {vals.map((v,ci) => (
+                          <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                            color: ci===1?'#92400E':ci===3?'#1E3A8A':'#E5E7EB',
+                            background: ci===1?'#FDE68A':ci===3?'#BFDBFE':'transparent',
+                            border: ci===1?'2px solid #D97706':ci===3?'2px solid #3B82F6':'none',
+                            fontSize: ci===1||ci===3?'13px':'11px',
+                          }}>{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+
+                    {/* QPB SECTION */}
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>⚡ QPB — Quick Pathfinder Bonus (first 90 days · min 4 sales/month)</td></tr>
+                    {[
+                      ['First 4 sales/month',     '✗',    '7.5% = R144','7.5% = R144','7.5% = R144','7.5% = R144','7.5% = R144'],
+                      ['Each next set of 4',       '✗',    '10% = R192', '10% = R192', '10% = R192', '10% = R192', '10% = R192' ],
+                    ].map(([label,...vals], ri) => (
+                      <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
+                        <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
+                        {vals.map((v,ci) => (
+                          <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                            color: v==='✗'?'#6B7280':ci===1?'#92400E':ci===3?'#1E3A8A':'#E5E7EB',
+                            background: ci===1?'#FDE68A':ci===3?'#BFDBFE':'transparent',
+                            border: ci===1?'2px solid #D97706':ci===3?'2px solid #3B82F6':'none',
+                          }}>{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+
+                    {/* TSC SECTION */}
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🌳 TSC — Team Sales Commission (on your team's Bronze sales · G2 onwards)</td></tr>
+                    {[
+                      ['G2 (10%)', '10%','10%','10%','10%','10%','10%'],
+                      ['G3 (5%)',  '—',  '5%', '5%', '5%', '5%', '5%' ],
+                      ['G4 (3%)',  '—',  '—',  '3%', '3%', '3%', '3%' ],
+                      ['G5 (2%)',  '—',  '—',  '—',  '2%', '2%', '2%' ],
+                      ['G6 (1%)',  '—',  '—',  '—',  '1%', '1%', '1%' ],
+                      ['G7 (1%)',  '—',  '—',  '—',  '—',  '1%', '1%' ],
+                      ['G8 (1%)',  '—',  '—',  '—',  '—',  '1%', '1%' ],
+                      ['G9 (1%)',  '—',  '—',  '—',  '—',  '—',  '1%' ],
+                      ['G10 (1%)', '—',  '—',  '—',  '—',  '—',  '1%' ],
+                    ].map(([label,...vals], ri) => (
+                      <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
+                        <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
+                        {vals.map((v,ci) => (
+                          <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                            color: v==='—'?'#4B5563':ci===1?'#92400E':ci===3?'#1E3A8A':v!=='—'?'#E5E7EB':'#4B5563',
+                            background: ci===1&&v!=='—'?'#FDE68A':ci===3&&v!=='—'?'#BFDBFE':'transparent',
+                            border: ci===1&&v!=='—'?'2px solid #D97706':ci===3&&v!=='—'?'2px solid #3B82F6':'none',
+                          }}>{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+                    <tr style={{ background:'rgba(255,255,255,0.06)' }}>
+                      <td className="px-3 py-2 text-white font-black text-xs">Generations Deep</td>
+                      {[['G2 only','#374151'],['G2–G3','#D97706'],['G2–G4','#92400E'],['G2–G6','#1D4ED8'],['G2–G8','#78350F'],['G2–G10','#4C1D95']].map(([v,bg],ci) => (
+                        <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                          background: ci===1?'#FDE68A':ci===3?'#BFDBFE':bg+'33',
+                          color: ci===1?'#92400E':ci===3?'#1E3A8A':'#E5E7EB',
+                          border: ci===1?'2px solid #D97706':ci===3?'2px solid #3B82F6':'none',
+                          fontSize:'12px',
+                        }}>{v}</td>
+                      ))}
+                    </tr>
+
+                    {/* MKT / CEO */}
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🛒 MKT Marketplace · CEO Competitions · CEO Quarterly Awards</td></tr>
+                    {[
+                      ['Marketplace (MKT)',    '✗','✗',     '✗',     '✗',     '95%',   '95%'   ],
+                      ['CEO Competitions',     '✓','✓',     '✓',     '✓',     '✓',     '✓'     ],
+                      ['CEO Quarterly Awards', '✗','✗',     '✗',     '✗',     '✓ Gold','✓ Plat.'],
+                    ].map(([label,...vals], ri) => (
+                      <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
+                        <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
+                        {vals.map((v,ci) => (
+                          <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                            color: v==='✗'?'#6B7280':v==='✓'||v.startsWith('✓')?'#10B981':ci===1?'#92400E':ci===3?'#1E3A8A':'#E5E7EB',
+                            background: ci===1?'#FDE68A':ci===3?'#BFDBFE':'transparent',
+                            border: ci===1?'2px solid #D97706':ci===3?'2px solid #3B82F6':'none',
+                          }}>{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-white/10">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded" style={{ background:'#FDE68A', border:'2px solid #D97706' }}/>
+                    <span className="text-yellow-300 text-xs font-black">BRONZE — R480 once-off · Start here · 18% ISP · QPB active · TSC to G3</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded" style={{ background:'#BFDBFE', border:'2px solid #3B82F6' }}/>
+                    <span className="text-blue-300 text-xs font-black">SILVER — R2,500 once-off · 25% ISP · TSC opens to G6 · Best upgrade value</span>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="text-purple-400 text-xs italic">⚡ QPB active in first 90 days from Bronze upgrade date only</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Q6 — Potential Income */}
             <div className="rounded-2xl overflow-hidden border-2 border-yellow-400/40">
               <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#78350f,#92400e)' }}>
