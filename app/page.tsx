@@ -871,24 +871,39 @@ export default function Home() {
                         ]
                       },
                     ].map((item, i) => (
-                      <div key={i} className="group relative rounded-2xl p-4 border cursor-pointer transition-all duration-300 min-h-[80px]"
-                        style={{ background: item.bg, borderColor: item.border }}>
-                        {/* Default pill view */}
-                        <div className="flex items-center gap-2 transition-opacity duration-300 group-hover:opacity-0">
+                      <div key={i} className="group relative">
+                        {/* Pill button */}
+                        <div className="rounded-2xl p-4 border cursor-pointer transition-all duration-200 group-hover:scale-105 flex items-center gap-2"
+                          style={{ background: item.bg, borderColor: item.border }}>
                           <span className="text-2xl">{item.emoji}</span>
                           <span className="font-black text-sm" style={{ color: item.color }}>{item.leg}</span>
                         </div>
-                        {/* Hover teaching card */}
-                        <div className="absolute inset-0 rounded-2xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-y-auto z-10"
-                          style={{ background: item.hoverBg, border: `2px solid ${item.color}` }}>
-                          <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
-                            <span className="text-xl">{item.emoji}</span>
-                            <span className="text-white font-black text-sm">{item.leg}</span>
+
+                        {/* Big floating card on hover */}
+                        <div className="absolute left-0 top-full mt-3 z-50 w-80 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 group-hover:translate-y-0 translate-y-2"
+                          style={{ background: item.hoverBg, border: `2px solid ${item.color}`, boxShadow: `0 25px 50px rgba(0,0,0,0.6), 0 0 30px ${item.color}40` }}>
+                          {/* Card header */}
+                          <div className="px-5 py-4 border-b border-white/10 flex items-center gap-3">
+                            <span className="text-3xl">{item.emoji}</span>
+                            <div>
+                              <p className="text-white font-black text-base">{item.leg}</p>
+                              <p className="text-white/50 text-xs">The {i+1}{i===0?'st':i===1?'nd':i===2?'rd':'th'} leg of your table</p>
+                            </div>
                           </div>
-                          <div className="space-y-2">
+                          {/* Card body */}
+                          <div className="px-5 py-4 space-y-3">
                             {item.teaching.map((para, j) => (
-                              <p key={j} className="text-white/90 text-xs leading-relaxed">{para}</p>
+                              <p key={j} className="text-white/90 text-xs leading-relaxed"
+                                style={{ borderLeft: j === 0 ? `3px solid ${item.color}` : 'none', paddingLeft: j === 0 ? '10px' : '0' }}>
+                                {para}
+                              </p>
                             ))}
+                          </div>
+                          {/* Card footer */}
+                          <div className="px-5 py-3 border-t border-white/10 rounded-b-2xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                            <a href="/workshop" className="text-xs font-black flex items-center gap-1 hover:gap-2 transition-all" style={{ color: item.color }}>
+                              🎓 Build this leg in the Workshop →
+                            </a>
                           </div>
                         </div>
                       </div>
