@@ -30,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [activeArticle, setActiveArticle] = useState<string | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -414,39 +415,113 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Public Content Section */}
+      {/* ── FEATURED CONTENT ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
           <h3 className="text-4xl font-bold text-primary-800 mb-2">Featured Content</h3>
           <div className="w-32 h-1 bg-gold-gradient mx-auto rounded-full"></div>
+          <p className="text-gray-500 text-sm mt-3">Free to read. Share what moves you.</p>
         </div>
-        
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="card animate-pulse border-4 border-primary-200">
-                <div className="bg-gray-300 h-48 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+
+        {/* Hardcoded featured articles — always visible */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+
+          {/* Article 1 — The Third Path */}
+          <div onClick={() => setActiveArticle('third-path')}
+            className="card hover:shadow-2xl transition-all cursor-pointer h-full border-4 border-primary-200 hover:border-gold-400 group">
+            <div className="relative mb-4">
+              <div className="w-full h-48 rounded-lg flex items-center justify-center text-white shadow-lg overflow-hidden"
+                style={{ background: 'linear-gradient(135deg,#1e1b4b 0%,#4c1d95 50%,#1e3a8a 100%)' }}>
+                <div className="text-center px-6">
+                  <div className="text-5xl mb-3">🔱</div>
+                  <p className="font-black text-yellow-400 text-sm">THE 3rd ALTERNATIVE</p>
+                </div>
               </div>
-            ))}
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-primary-600 to-primary-800 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 border-2 border-gold-400 shadow-lg">
+                <FileText className="w-4 h-4" />
+                <span className="font-semibold">Article</span>
+              </div>
+              <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-black" style={{ background:'#D4AF37', color:'#1A0A00' }}>FREE</div>
+            </div>
+            <h4 className="text-xl font-bold text-primary-800 mb-2 group-hover:text-gold-600 transition-colors">
+              The Third Path: From Employee to Entrepreneurial Consumer
+            </h4>
+            <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+              Society gives you two options: stay employed (safe but stuck) or start a business (free but risky). There is a third, smarter path — and most people have never heard of it.
+            </p>
+            <div className="flex items-center gap-2 mt-auto">
+              <span className="text-purple-600 text-xs font-black">Click to read preview →</span>
+            </div>
           </div>
-        ) : publicContent.length === 0 ? (
-          <div className="card text-center py-12 border-4 border-primary-300">
-            <p className="text-primary-700 text-lg font-medium">No public content available yet. Check back soon!</p>
+
+          {/* Article 2 — The Mindset Gap */}
+          <div onClick={() => setActiveArticle('mindset-gap')}
+            className="card hover:shadow-2xl transition-all cursor-pointer h-full border-4 border-primary-200 hover:border-gold-400 group">
+            <div className="relative mb-4">
+              <div className="w-full h-48 rounded-lg flex items-center justify-center text-white shadow-lg overflow-hidden"
+                style={{ background: 'linear-gradient(135deg,#065F46 0%,#047857 50%,#1e1b4b 100%)' }}>
+                <div className="text-center px-6">
+                  <div className="text-5xl mb-3">🧠</div>
+                  <p className="font-black text-yellow-400 text-sm">THE MINDSET GAP</p>
+                </div>
+              </div>
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-primary-600 to-primary-800 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 border-2 border-gold-400 shadow-lg">
+                <FileText className="w-4 h-4" />
+                <span className="font-semibold">Article</span>
+              </div>
+              <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-black" style={{ background:'#D4AF37', color:'#1A0A00' }}>FREE</div>
+            </div>
+            <h4 className="text-xl font-bold text-primary-800 mb-2 group-hover:text-gold-600 transition-colors">
+              The Employee Mindset vs The Entrepreneur Mindset
+            </h4>
+            <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+              The biggest gap between where you are and where you want to be is not money. It is not time. It is how you think. This is the mindset shift that changes everything.
+            </p>
+            <div className="flex items-center gap-2 mt-auto">
+              <span className="text-purple-600 text-xs font-black">Click to read preview →</span>
+            </div>
           </div>
-        ) : (
+
+          {/* Article 3 — Purple Cow */}
+          <div onClick={() => setActiveArticle('purple-cow')}
+            className="card hover:shadow-2xl transition-all cursor-pointer h-full border-4 border-primary-200 hover:border-gold-400 group">
+            <div className="relative mb-4">
+              <div className="w-full h-48 rounded-lg flex items-center justify-center text-white shadow-lg overflow-hidden"
+                style={{ background: 'linear-gradient(135deg,#78350f 0%,#92400e 50%,#1e1b4b 100%)' }}>
+                <div className="text-center px-6">
+                  <div className="text-5xl mb-3">🐄</div>
+                  <p className="font-black text-yellow-400 text-sm">THE PURPLE COW</p>
+                </div>
+              </div>
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-primary-600 to-primary-800 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 border-2 border-gold-400 shadow-lg">
+                <FileText className="w-4 h-4" />
+                <span className="font-semibold">Article</span>
+              </div>
+              <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-black" style={{ background:'#D4AF37', color:'#1A0A00' }}>FREE</div>
+            </div>
+            <h4 className="text-xl font-bold text-primary-800 mb-2 group-hover:text-gold-600 transition-colors">
+              The Purple Cow: Why Sharing What Moves You Is Your Greatest Sales Tool
+            </h4>
+            <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+              You are not a salesperson. You are a student who discovered something remarkable. And when you see a purple cow — you cannot help but tell people about it.
+            </p>
+            <div className="flex items-center gap-2 mt-auto">
+              <span className="text-purple-600 text-xs font-black">Click to read preview →</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Dynamic content from Supabase (if any) */}
+        {!loading && publicContent.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {publicContent.map(content => (
               <Link key={content.id} href={`/content/${content.id}`}>
                 <div className="card hover:shadow-2xl transition-all cursor-pointer h-full border-4 border-primary-200 hover:border-gold-400 group">
                   <div className="relative mb-4">
                     {content.thumbnail_url ? (
-                      <img 
-                        src={content.thumbnail_url} 
-                        alt={content.title}
-                        className="w-full h-48 object-cover rounded-lg border-2 border-primary-100 group-hover:border-gold-300 transition-all"
-                      />
+                      <img src={content.thumbnail_url} alt={content.title}
+                        className="w-full h-48 object-cover rounded-lg border-2 border-primary-100 group-hover:border-gold-300 transition-all"/>
                     ) : (
                       <div className="w-full h-48 bg-royal-gradient rounded-lg flex items-center justify-center text-white shadow-lg">
                         {getIcon(content.type)}
@@ -467,6 +542,166 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* ── ARTICLE MODAL ── */}
+      {activeArticle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setActiveArticle(null) }}>
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0A0015,#1A0035)' }}>
+
+            {/* Modal close */}
+            <button onClick={() => setActiveArticle(null)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center font-black text-white hover:scale-110 transition-all"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              ✕
+            </button>
+
+            {/* Article: The Third Path */}
+            {activeArticle === 'third-path' && (
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-3">🔱</div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-2">Featured Article</p>
+                  <h2 className="text-2xl font-black text-white mb-2">The Third Path</h2>
+                  <p className="text-purple-300">From Employee to Entrepreneurial Consumer</p>
+                  <div className="w-16 h-0.5 mx-auto mt-3" style={{ background: '#D4AF37' }}/>
+                </div>
+
+                {[
+                  { heading:'1. The First Alternative: Employment', emoji:'🏢', color:'#9CA3AF',
+                    body:`Society has conditioned most of us to follow one path: go to school, get a good job, and you'll be secure. And employment does offer real benefits — stable income, lower risk, structure, and benefits like medical aid and pension. But beneath the surface, millions of employees are deeply frustrated.\n\nYou trade your time for money — no work, no income. Your salary has a ceiling. Your growth depends on someone else's decisions. One restructuring can change your entire life overnight. The truth is: employment is safe — but it often keeps people stuck.` },
+                  { heading:'2. The Second Alternative: Business Ownership', emoji:'🚀', color:'#F59E0B',
+                    body:`Then there is the entrepreneurial dream — build something of your own. Unlimited income, time freedom, full control, wealth creation, legacy. The dream is real. But so is the reality: most businesses fail in the first few years. The financial pressure is immense. Freedom is delayed, not immediate. You can lose everything.\n\nFor most employed people, the leap into full entrepreneurship feels reckless — not because they lack ambition, but because responsibility is heavy and the stakes are too high.` },
+                  { heading:'3. The Third Alternative: The Entrepreneurial Consumer', emoji:'🔱', color:'#D4AF37',
+                    body:`What if you did not have to choose between safety and freedom?\n\nThe Entrepreneurial Consumer is a hybrid model — someone who still earns income from employment, but leverages their everyday spending, networks and platforms to generate additional income streams. Instead of just consuming, you become a profiting consumer.\n\nNo need to quit your job. No all-in gamble. You build income streams while still employed, develop entrepreneurial skills without pressure, and grow beyond salary limitations over time. The mindset gap between employee and entrepreneur closes — gradually, naturally, safely.\n\nThat is the power of the Third Path.` },
+                ].map((section, i) => (
+                  <div key={i} className="mb-7">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">{section.emoji}</span>
+                      <h3 className="font-black text-base" style={{ color: section.color }}>{section.heading}</h3>
+                    </div>
+                    {section.body.split('\n\n').map((para, j) => (
+                      <p key={j} className="text-purple-200 text-sm leading-relaxed mb-3">{para}</p>
+                    ))}
+                  </div>
+                ))}
+
+                <div className="rounded-2xl p-5 text-center border border-yellow-400/30 mb-6" style={{ background: 'rgba(212,175,55,0.08)' }}>
+                  <p className="text-yellow-400 font-black text-base mb-1">The Bottom Line</p>
+                  <p className="text-white text-sm leading-relaxed">Employment gives you <em>security without freedom</em>. Business ownership offers <em>freedom with high risk</em>. The Entrepreneurial Consumer gives you <strong className="text-yellow-400">a safe path to build freedom.</strong></p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link href="/workshop"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-black text-yellow-900 hover:scale-105 transition-all"
+                    style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}
+                    onClick={() => setActiveArticle(null)}>
+                    🎓 Start Free Workshop
+                  </Link>
+                  <Link href="/about"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-black text-white border border-purple-500/40 hover:scale-105 transition-all"
+                    style={{ background: 'rgba(76,29,149,0.3)' }}
+                    onClick={() => setActiveArticle(null)}>
+                    Read Our Full Story →
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Article: The Mindset Gap */}
+            {activeArticle === 'mindset-gap' && (
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-3">🧠</div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-2">Featured Article</p>
+                  <h2 className="text-2xl font-black text-white mb-2">The Mindset Gap</h2>
+                  <p className="text-purple-300">Employee Thinking vs Entrepreneurial Thinking</p>
+                  <div className="w-16 h-0.5 mx-auto mt-3" style={{ background: '#D4AF37' }}/>
+                </div>
+
+                <p className="text-purple-200 text-sm leading-relaxed mb-6">The biggest gap between where you are and where you want to be is not your bank balance. It is not your qualifications. It is not even your time. It is the way you think about yourself in relation to money, work and value.</p>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {[
+                    { title:'Employee Mindset', color:'#9CA3AF', bg:'rgba(107,114,128,0.1)', border:'rgba(107,114,128,0.3)',
+                      points:['Seeks security above all else','Avoids risk and uncertainty','Follows instructions given','Thinks in terms of salary','Waits for permission to grow','Sees spending as unavoidable'] },
+                    { title:'Entrepreneur Mindset', color:'#D4AF37', bg:'rgba(212,175,55,0.08)', border:'rgba(212,175,55,0.3)',
+                      points:['Seeks value and opportunity','Embraces calculated risk','Creates systems and solutions','Thinks in terms of scalability','Takes responsibility to grow','Sees spending as potential equity'] },
+                  ].map((col, i) => (
+                    <div key={i} className="rounded-xl p-4 border" style={{ background: col.bg, borderColor: col.border }}>
+                      <p className="font-black text-sm mb-3" style={{ color: col.color }}>{col.title}</p>
+                      {col.points.map((pt, j) => (
+                        <div key={j} className="flex items-start gap-2 mb-1.5">
+                          <span className="text-xs mt-0.5" style={{ color: col.color }}>•</span>
+                          <p className="text-purple-200 text-xs leading-relaxed">{pt}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl p-5 mb-6 border border-purple-500/20" style={{ background: 'rgba(124,58,237,0.1)' }}>
+                  <p className="text-purple-300 text-sm leading-relaxed">This gap is why many employees fail when they try to start a business. Why many return to jobs after trying entrepreneurship. Why many never try at all — not because they lack talent, but because the mindset was never developed. The Z2B Workshop exists to close this gap — session by session, morning by morning, one mirror moment at a time.</p>
+                </div>
+
+                <Link href="/workshop"
+                  className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-black text-yellow-900 hover:scale-105 transition-all"
+                  style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}
+                  onClick={() => setActiveArticle(null)}>
+                  🎓 Start Closing the Gap — Free Workshop
+                </Link>
+              </div>
+            )}
+
+            {/* Article: Purple Cow */}
+            {activeArticle === 'purple-cow' && (
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-3">🐄</div>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-2">Featured Article</p>
+                  <h2 className="text-2xl font-black text-white mb-2">The Purple Cow</h2>
+                  <p className="text-purple-300">Why Sharing What Moves You Is Your Greatest Sales Tool</p>
+                  <div className="w-16 h-0.5 mx-auto mt-3" style={{ background: '#D4AF37' }}/>
+                </div>
+
+                {[
+                  { heading:'What is a Purple Cow?', emoji:'🐄',
+                    body:`Seth Godin said it best: when you drive past a field of ordinary brown cows, you do not stop. You have seen cows before. But if you see a purple cow — you slam on the brakes. You take a photo. You call someone. You cannot help but tell people.\n\nThe Purple Cow is anything remarkable enough that people feel compelled to talk about it. Not because they were paid to. Not because they were told to. Because they genuinely could not keep it to themselves.` },
+                  { heading:'You Are Not a Salesperson', emoji:'🙅',
+                    body:`The biggest mistake new Z2B builders make is approaching their network like salespeople. Pitching. Pushing. Following up with pressure. This approach repels the very people you want to attract.\n\nYou are not selling. You are a student who found something remarkable — and you are sharing it the way any honest person would. With enthusiasm, without pressure, and only when you genuinely believe in what you are sharing.` },
+                  { heading:'Your Workshop Session Is Your Content', emoji:'📚',
+                    body:`Every time you sit with a workshop session and something shifts inside you — that is your Purple Cow moment. That is your content. A sentence from the mirror moment that hit differently. An activity result that surprised you. A comprehension question that made you realise how long you have been thinking like an employee.\n\nPost that. Not a sales pitch. Not a company flyer. Your genuine moment of discovery. That is what stops the scroll. That is what makes someone ask: "What is this thing you are doing?"` },
+                ].map((section, i) => (
+                  <div key={i} className="mb-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">{section.emoji}</span>
+                      <h3 className="font-black text-sm text-yellow-400">{section.heading}</h3>
+                    </div>
+                    {section.body.split('\n\n').map((para, j) => (
+                      <p key={j} className="text-purple-200 text-sm leading-relaxed mb-3">{para}</p>
+                    ))}
+                  </div>
+                ))}
+
+                <div className="rounded-2xl p-5 text-center border border-yellow-400/30 mb-6" style={{ background: 'rgba(212,175,55,0.08)' }}>
+                  <p className="text-white text-sm italic leading-relaxed">"Do not post when you have nothing to say. Post when the workshop session gave you something you cannot keep to yourself. <strong className="text-yellow-400">That energy is the Purple Cow.</strong>"</p>
+                  <p className="text-yellow-500 text-xs mt-2">— Rev Mokoro Manana</p>
+                </div>
+
+                <Link href="/workshop"
+                  className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-black text-yellow-900 hover:scale-105 transition-all"
+                  style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}
+                  onClick={() => setActiveArticle(null)}>
+                  🎓 Find Your Purple Cow — Free Workshop
+                </Link>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
 
       {/* Members Only Teaser */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -1123,6 +1358,8 @@ export default function Home() {
             <img src="/logo.jpg" alt="Z2B Logo" className="h-12 w-12 rounded-lg border-2 border-gold-400" />
             <span className="text-2xl font-bold text-gold-300">Z2B TABLE BANQUET</span>
           </div>
+          <p className="text-yellow-400 text-sm italic mb-2">"The plans of the diligent lead surely to abundance." — Proverbs 21:5</p>
+          <p className="text-purple-300 text-xs mb-3">#Reka_Obesa_Okatuka — Many sticks. One Bonfire. 🔥</p>
           <p className="text-gold-200">&copy; 2026 Z2B Table Banquet. All rights reserved.</p>
         </div>
       </footer>
