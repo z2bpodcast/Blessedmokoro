@@ -513,12 +513,62 @@ export default function Home() {
                 </div>
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <p className="text-purple-200 leading-relaxed mb-4">
-                  <strong className="text-white">Z2B Legacy Builders</strong> is a global personal and business development company built on one foundational belief: ordinary employees and consumers have the power to become Entrepreneurial Consumers — people who create value, build equity and participate in the wealth chain without quitting their jobs.
-                </p>
-                <p className="text-purple-300 leading-relaxed">
-                  We are a digital-first business operating worldwide. Our platform — the Z2B Table Banquet — is built around four pillars: <strong className="text-yellow-400">Mindset. Systems. Relationships. Legacy.</strong> We use network marketing as our distribution vehicle, not our identity.
-                </p>
+
+                {/* Core identity */}
+                <div className="rounded-2xl p-5 mb-5 border border-yellow-400/20" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(76,29,149,0.12))' }}>
+                  <p className="text-white font-black text-lg mb-2">Z2B Legacy Builders</p>
+                  <p className="text-yellow-300 leading-relaxed text-sm font-semibold mb-3">
+                    A Personal and Business Development Coaching and AI Systems Service Provider dedicated to transforming the lives of employees and consumers worldwide.
+                  </p>
+                  <a href="/about" className="inline-flex items-center gap-2 text-yellow-400 text-xs font-black hover:text-yellow-300 transition-colors">
+                    Read our full story → app.z2blegacybuilders.co.za/about
+                  </a>
+                </div>
+
+                {/* 3 pillars */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                  {[
+                    {
+                      emoji: '🔄',
+                      title: 'Our Focus',
+                      color: '#7C3AED',
+                      bg: 'rgba(124,58,237,0.1)',
+                      border: 'rgba(124,58,237,0.3)',
+                      desc: 'Helping employees make a smooth transition to entrepreneurship by teaching them to flip everyday expenses into income-generating assets within a powerful wealth-building ecosystem.'
+                    },
+                    {
+                      emoji: '🤖',
+                      title: 'AI-Powered',
+                      color: '#1D4ED8',
+                      bg: 'rgba(29,78,216,0.1)',
+                      border: 'rgba(29,78,216,0.3)',
+                      desc: 'Leveraging cutting-edge AI technology to provide personalised coaching, automated learning paths, and intelligent business systems that accelerate your journey to ownership.'
+                    },
+                    {
+                      emoji: '🌍',
+                      title: 'Global & Digital',
+                      color: '#065F46',
+                      bg: 'rgba(6,95,70,0.1)',
+                      border: 'rgba(6,95,70,0.3)',
+                      desc: 'A digital-first business operating worldwide. Our platform is accessible from any device, in any country. We use network marketing as our distribution vehicle — not our identity.'
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="rounded-2xl p-5 border" style={{ background: item.bg, borderColor: item.border }}>
+                      <div className="text-3xl mb-3">{item.emoji}</div>
+                      <p className="font-black text-white text-sm mb-2" style={{ color: item.color }}>{item.title}</p>
+                      <p className="text-purple-300 text-xs leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 4 pillars strip */}
+                <div className="rounded-xl p-4 border border-white/10 flex flex-wrap gap-3 items-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <span className="text-purple-400 text-xs font-black tracking-widest">THE 4 TABLE LEGS:</span>
+                  {['🧠 Mindset','⚙️ Systems','🤝 Relationships','🏆 Legacy'].map((leg, i) => (
+                    <span key={i} className="px-3 py-1.5 rounded-full text-xs font-black text-yellow-900 border border-yellow-400/40"
+                      style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)' }}>{leg}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -528,28 +578,168 @@ export default function Home() {
                 <span className="text-3xl flex-shrink-0">📦</span>
                 <div>
                   <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 2</p>
-                  <h3 className="text-white font-black text-xl">What do we sell?</h3>
+                  <h3 className="text-white font-black text-xl">What do we offer?</h3>
+                  <p className="text-purple-300 text-xs mt-0.5">Hover over any card for full details</p>
                 </div>
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <p className="text-purple-200 leading-relaxed mb-5">
-                  We sell <strong className="text-white">personal and business development memberships</strong> — the most universally needed product in the world. Every human being, regardless of income, location or background, needs to grow their mindset, build systems and develop relationships.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {[
-                    { emoji:'🎓', title:'99-Session Workshop', desc:'Entrepreneurial Consumer transformation journey' },
-                    { emoji:'🤖', title:'Coach Manlaw AI', desc:'Personal AI business coach available 24/7' },
-                    { emoji:'🎯', title:'My Sales Funnel', desc:'Automated pipeline and prospect management system' },
-                    { emoji:'🎬', title:'Content Studio', desc:'Scripts, captions and AI content generation' },
-                    { emoji:'📊', title:'Compensation Engine', desc:'6 income streams tracked in real time' },
-                    { emoji:'🌍', title:'Global Community', desc:'A table of Entrepreneurial Consumers worldwide' },
-                  ].map((p, i) => (
-                    <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                      <div className="text-2xl mb-2">{p.emoji}</div>
-                      <p className="text-white font-black text-sm">{p.title}</p>
-                      <p className="text-purple-400 text-xs mt-1">{p.desc}</p>
+
+                {/* Category 1 — Membership & Coaching */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-6 rounded-full" style={{ background: '#7C3AED' }}/>
+                    <p className="text-white font-black text-sm tracking-wide">MEMBERSHIP & PERSONAL DEVELOPMENT COACHING</p>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      {
+                        emoji:'🎓', title:'99-Session Workshop',
+                        tag:'ALL TIERS', tagColor:'#7C3AED',
+                        short:'Entrepreneurial Consumer transformation journey',
+                        detail:'A structured 99-session personal and business development programme split into Morning Sessions (identity anchoring, audio only) and Evening Sessions (deep learning with mirror moments, comprehension questions and daily activities). Sessions 1–9 are free. Sessions 10–99 unlock with Bronze and above.',
+                      },
+                      {
+                        emoji:'🤖', title:'Coach Manlaw AI',
+                        tag:'BRONZE+', tagColor:'#92400E',
+                        short:'Personal AI business coach — 24/7',
+                        detail:'Coach Manlaw is a purpose-built AI business coach trained on the Z2B philosophy, the 4 table legs and the Entrepreneurial Consumer mindset. Ask him anything about your mindset, your business strategy, your next step or your content. He responds in your context — knowing your tier, your referral code and your mission.',
+                      },
+                      {
+                        emoji:'🎯', title:'My Sales Funnel',
+                        tag:'BRONZE+', tagColor:'#92400E',
+                        short:'Automated pipeline and prospect management',
+                        detail:'A full 6-tab sales management system: Pipeline (Kanban board), Nurture Engine (9-day email sequence), Content Calendar, Sign-up Tracker, Content Studio with AI generation, and Add Prospect form. Every prospect who signs up via your referral link enters your pipeline automatically and gets nurtured by the system.',
+                      },
+                      {
+                        emoji:'🎬', title:'Content Studio',
+                        tag:'BRONZE+', tagColor:'#92400E',
+                        short:'Scripts, captions and AI content on demand',
+                        detail:'A library of 13 pre-written Purple Cow scripts for TikTok, Facebook and WhatsApp — all built around the Entrepreneurial Consumer philosophy. Plus Coach Manlaw AI mode generates custom scripts in seconds. Choose your platform, your audience type and your message — Coach Manlaw writes it with your referral link included.',
+                      },
+                      {
+                        emoji:'📊', title:'Compensation Engine',
+                        tag:'ALL TIERS', tagColor:'#7C3AED',
+                        short:'6 income streams tracked in real time',
+                        detail:'Your personal earnings dashboard tracks all 6 income streams: ISP (Individual Sales Profit), QPB (Quick Pathfinder Bonus), TSC (Team Sales Commission), MKT (Marketplace Sales), CEO Competitions and CEO Quarterly Awards. See confirmed earnings, pending payments and team depth — all in one view.',
+                      },
+                      {
+                        emoji:'❤️', title:'Start Here Orientation',
+                        tag:'ALL TIERS', tagColor:'#7C3AED',
+                        short:'Permanent onboarding and compass page',
+                        detail:'A permanent orientation page that every builder can return to at any time. It covers: Welcome to Abundance (with audio reader), Guide 1 (Personal Development & The Big Why), Guide 2 (Purple Cow sharing strategy), Guide 3 (How to use the Sales Funnel), and a Community section with sponsor connection and corporate WhatsApp group access.',
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="group relative rounded-xl p-4 border border-white/10 cursor-pointer transition-all duration-300 hover:border-purple-400/50"
+                        style={{ background: 'rgba(255,255,255,0.05)' }}>
+                        {/* Default view */}
+                        <div className="transition-opacity duration-300 group-hover:opacity-0">
+                          <div className="text-2xl mb-2">{item.emoji}</div>
+                          <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: item.tagColor + '30', color: item.tagColor, border: `1px solid ${item.tagColor}50` }}>{item.tag}</span>
+                          <p className="text-white font-black text-sm mt-1">{item.title}</p>
+                          <p className="text-purple-400 text-xs mt-1">{item.short}</p>
+                        </div>
+                        {/* Hover detail card */}
+                        <div className="absolute inset-0 rounded-xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-y-auto"
+                          style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)', border: '2px solid rgba(167,139,250,0.4)' }}>
+                          <div className="flex items-start gap-2 mb-2">
+                            <span className="text-xl flex-shrink-0">{item.emoji}</span>
+                            <div>
+                              <p className="text-yellow-400 font-black text-xs">{item.title}</p>
+                              <span className="text-xs font-black px-1.5 py-0.5 rounded-full" style={{ background: item.tagColor + '40', color: item.tagColor }}>{item.tag}</span>
+                            </div>
+                          </div>
+                          <p className="text-purple-200 text-xs leading-relaxed">{item.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category 2 — SaaS & Digital Building */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-6 rounded-full" style={{ background: '#1D4ED8' }}/>
+                    <p className="text-white font-black text-sm tracking-wide">SAAS SERVICES & DIGITAL BUILDING SOLUTIONS</p>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-black" style={{ background: 'rgba(29,78,216,0.2)', color:'#93C5FD', border:'1px solid rgba(29,78,216,0.4)' }}>SILVER TIER & ABOVE</span>
+                  </div>
+                  <p className="text-purple-300 text-xs mb-4 leading-relaxed">
+                    From Silver tier upwards, Z2B members gain access to App Brainstorming &amp; Building consultations and digital business solutions — because we believe every Entrepreneurial Consumer should eventually own their own digital infrastructure.
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      {
+                        emoji:'💡', title:'App Brainstorming',
+                        tag:'SILVER+', tagColor:'#1D4ED8',
+                        short:'Turn your idea into a buildable concept',
+                        detail:'A structured consultation session to map out your app idea, define your target user, design your core features and plan your MVP (Minimum Viable Product). We help you think through monetisation, user flows and technical requirements before a single line of code is written. Available from Silver tier.',
+                      },
+                      {
+                        emoji:'📱', title:'App Building Solutions',
+                        tag:'SILVER+', tagColor:'#1D4ED8',
+                        short:'From concept to deployed application',
+                        detail:'End-to-end app development support using modern stacks (Next.js, React, Supabase, Vercel). From web apps to PWAs and mobile-first platforms. We build with your branding, your business logic and your revenue model. Pricing discussed per project scope. Available from Silver tier upward.',
+                      },
+                      {
+                        emoji:'🌐', title:'Digital Business Setup',
+                        tag:'SILVER+', tagColor:'#1D4ED8',
+                        short:'Domain, hosting, branding and launch',
+                        detail:'Complete digital presence setup: domain registration, hosting configuration, landing page design, brand identity (logo, colours, typography), email setup and social media integration. We help you go from idea to a professional online presence ready to receive customers.',
+                      },
+                      {
+                        emoji:'🤖', title:'AI Business Systems',
+                        tag:'GOLD+', tagColor:'#78350F',
+                        short:'Custom AI tools built for your business',
+                        detail:'Custom AI integrations for your business — AI chatbots, automated content generation pipelines, AI-powered CRM systems, voice cloning and video avatar solutions. Built using cutting-edge APIs (OpenAI, Anthropic, ElevenLabs, D-ID) and tailored to your specific workflow. Available from Gold tier.',
+                      },
+                      {
+                        emoji:'🎨', title:'Brand & Content Systems',
+                        tag:'SILVER+', tagColor:'#1D4ED8',
+                        short:'Visual identity and automated content pipelines',
+                        detail:'Complete brand identity design plus automated content systems: social media scheduling, content templates, Canva brand kits, video editing workflows and AI caption generation. We build the system so your brand shows up consistently across all platforms without daily manual effort.',
+                      },
+                      {
+                        emoji:'📈', title:'Growth & Analytics Setup',
+                        tag:'GOLD+', tagColor:'#78350F',
+                        short:'Data-driven dashboards for your business',
+                        detail:'Business intelligence setup: Google Analytics, conversion tracking, referral tracking, funnel analytics and custom dashboards. Know exactly where your customers come from, what converts and where to focus. Turn your data into decisions. Available from Gold tier.',
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="group relative rounded-xl p-4 border cursor-pointer transition-all duration-300 hover:border-blue-400/50"
+                        style={{ background: 'rgba(29,78,216,0.06)', borderColor: 'rgba(29,78,216,0.2)' }}>
+                        {/* Default view */}
+                        <div className="transition-opacity duration-300 group-hover:opacity-0">
+                          <div className="text-2xl mb-2">{item.emoji}</div>
+                          <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: item.tagColor + '30', color: item.tagColor, border: `1px solid ${item.tagColor}50` }}>{item.tag}</span>
+                          <p className="text-white font-black text-sm mt-1">{item.title}</p>
+                          <p className="text-blue-300 text-xs mt-1">{item.short}</p>
+                        </div>
+                        {/* Hover detail */}
+                        <div className="absolute inset-0 rounded-xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-y-auto"
+                          style={{ background: 'linear-gradient(135deg,#1e3a8a,#1e1b4b)', border: '2px solid rgba(59,130,246,0.5)' }}>
+                          <div className="flex items-start gap-2 mb-2">
+                            <span className="text-xl flex-shrink-0">{item.emoji}</span>
+                            <div>
+                              <p className="text-blue-300 font-black text-xs">{item.title}</p>
+                              <span className="text-xs font-black px-1.5 py-0.5 rounded-full" style={{ background: item.tagColor + '40', color: item.tagColor }}>{item.tag}</span>
+                            </div>
+                          </div>
+                          <p className="text-blue-100 text-xs leading-relaxed">{item.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* SaaS CTA */}
+                  <div className="mt-4 rounded-xl p-4 border border-blue-800/30 flex flex-col sm:flex-row items-start sm:items-center gap-3" style={{ background: 'rgba(29,78,216,0.08)' }}>
+                    <div className="flex-1">
+                      <p className="text-white font-black text-sm">Ready to build your digital empire?</p>
+                      <p className="text-blue-300 text-xs mt-0.5">SaaS services are available from Silver tier. Upgrade your membership to unlock digital building solutions.</p>
                     </div>
-                  ))}
+                    <a href="/pricing" className="flex-shrink-0 px-5 py-2.5 rounded-xl font-black text-sm text-white border border-blue-400/40 hover:scale-105 transition-all whitespace-nowrap"
+                      style={{ background: 'linear-gradient(135deg,#1D4ED8,#3B82F6)' }}>
+                      View Tiers →
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
