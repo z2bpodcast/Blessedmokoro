@@ -745,8 +745,8 @@ export default function Home() {
           <div className="space-y-4">
 
             {/* Q1 — Who are we? */}
-            <div className="rounded-2xl overflow-hidden border border-white/10">
-              <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+            <div className="rounded-2xl border border-white/10" style={{ position: 'relative', zIndex: 10 }}>
+              <div className="flex items-center gap-4 px-6 py-5 rounded-t-2xl" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
                 <span className="text-3xl flex-shrink-0">🏛️</span>
                 <div>
                   <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Question 1</p>
@@ -824,7 +824,7 @@ export default function Home() {
                 {/* 4 pillars strip */}
                 <div className="rounded-xl p-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
                   <span className="text-purple-400 text-xs font-black tracking-widest block mb-3">THE 4 TABLE LEGS — hover each leg to learn more:</span>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3" style={{ position: 'relative', zIndex: 1 }}>
                     {[
                       {
                         emoji: '🧠', leg: 'Mindset',
@@ -880,8 +880,8 @@ export default function Home() {
                         </div>
 
                         {/* Big floating card on hover */}
-                        <div className="absolute left-0 top-full mt-3 z-50 w-80 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 group-hover:translate-y-0 translate-y-2"
-                          style={{ background: item.hoverBg, border: `2px solid ${item.color}`, boxShadow: `0 25px 50px rgba(0,0,0,0.6), 0 0 30px ${item.color}40` }}>
+                        <div className="absolute left-0 bottom-full mb-3 z-[9999] w-80 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 group-hover:translate-y-0 translate-y-2"
+                          style={{ background: item.hoverBg, border: `2px solid ${item.color}`, boxShadow: `0 25px 50px rgba(0,0,0,0.8), 0 0 40px ${item.color}60` }}>
                           {/* Card header */}
                           <div className="px-5 py-4 border-b border-white/10 flex items-center gap-3">
                             <span className="text-3xl">{item.emoji}</span>
