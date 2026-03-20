@@ -941,7 +941,7 @@ interface ProspectRegistrationGateProps {
 }
 
 // ── Styles ────────────────────────────────────────────────────
-const S = {
+const PGS = {
   overlay: {
     position: "fixed" as const,
     inset: 0,
@@ -1280,17 +1280,17 @@ function ProspectRegistrationGate({
   const firstName = sponsorName ? sponsorName.split(" ")[0] : "your builder";
 
   return (
-    <div style={S.overlay}>
-      <div style={S.modal}>
+    <div style={PGS.overlay}>
+      <div style={PGS.modal}>
 
         {/* Gold top bar */}
-        <div style={S.goldBar} />
+        <div style={PGS.goldBar} />
 
         {/* Header */}
-        <div style={S.header}>
-          <span style={S.hearts}>❤️ ❤️</span>
-          <h1 style={S.title}>Welcome to Abundance</h1>
-          <p style={S.subtitle}>
+        <div style={PGS.header}>
+          <span style={PGS.hearts}>❤️ ❤️</span>
+          <h1 style={PGS.title}>Welcome to Abundance</h1>
+          <p style={PGS.subtitle}>
             {sponsorName
               ? `${firstName} has personally invited you to start your Entrepreneurial Consumer journey.`
               : "You have been invited to start your Entrepreneurial Consumer journey."}
@@ -1299,20 +1299,20 @@ function ProspectRegistrationGate({
 
         {/* Sponsor box */}
         {sponsorName && (
-          <div style={S.inviteBox}>
-            <p style={S.inviteLabel}>Personally invited by</p>
-            <p style={S.builderName}>🏆 {sponsorName}</p>
-            <p style={S.inviteSub}>
+          <div style={PGS.inviteBox}>
+            <p style={PGS.inviteLabel}>Personally invited by</p>
+            <p style={PGS.builderName}>🏆 {sponsorName}</p>
+            <p style={PGS.inviteSub}>
               Your sponsor will be permanently credited when you upgrade. This link is yours.
             </p>
           </div>
         )}
 
-        <div style={S.divider} />
+        <div style={PGS.divider} />
 
         {/* Free tier pills */}
         <div style={{ padding: "0 28px" }}>
-          <div style={S.freeTag}>
+          <div style={PGS.freeTag}>
             <div style={S.pill("#6EE7B7")}>
               ✅ FREE<br />18 Sessions
             </div>
@@ -1323,21 +1323,21 @@ function ProspectRegistrationGate({
         </div>
 
         {/* Form */}
-        <div style={S.body}>
+        <div style={PGS.body}>
 
           {step === "register" && (
             <>
-              {error && <div style={S.error}>{error}</div>}
+              {error && <div style={PGS.error}>{error}</div>}
 
               {/* Name */}
-              <div style={S.formGroup}>
-                <label style={S.formLabel}>Full Name *</label>
+              <div style={PGS.formGroup}>
+                <label style={PGS.formLabel}>Full Name *</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Thabo Nkosi"
-                  style={S.input}
+                  style={PGS.input}
                   onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.7)"; }}
                   onBlur={(e)  => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
                   disabled={loading}
@@ -1345,14 +1345,14 @@ function ProspectRegistrationGate({
               </div>
 
               {/* WhatsApp */}
-              <div style={S.formGroup}>
-                <label style={S.formLabel}>WhatsApp Number *</label>
+              <div style={PGS.formGroup}>
+                <label style={PGS.formLabel}>WhatsApp Number *</label>
                 <input
                   type="tel"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   placeholder="e.g. 0821234567"
-                  style={S.input}
+                  style={PGS.input}
                   onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.7)"; }}
                   onBlur={(e)  => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
                   disabled={loading}
@@ -1360,14 +1360,14 @@ function ProspectRegistrationGate({
               </div>
 
               {/* Email */}
-              <div style={S.formGroup}>
-                <label style={S.formLabel}>Email Address *</label>
+              <div style={PGS.formGroup}>
+                <label style={PGS.formLabel}>Email Address *</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. thabo@email.com"
-                  style={S.input}
+                  style={PGS.input}
                   onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.7)"; }}
                   onBlur={(e)  => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
                   disabled={loading}
@@ -1380,7 +1380,7 @@ function ProspectRegistrationGate({
                 onClick={handleRegister}
                 disabled={loading}
                 style={{
-                  ...S.btn,
+                  ...PGS.btn,
                   opacity: loading ? 0.7 : 1,
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
@@ -1410,14 +1410,14 @@ function ProspectRegistrationGate({
 
               {/* Skip option */}
               {!sponsorRef && (
-                <button style={S.skipBtn} onClick={handleSkip}>
+                <button style={PGS.skipBtn} onClick={handleSkip}>
                   Continue without registering
                 </button>
               )}
 
               {/* Sponsor credit note */}
               {sponsorName && (
-                <p style={S.sponsorNote}>
+                <p style={PGS.sponsorNote}>
                   🔒 {firstName}'s referral link will be permanently locked to your account.
                   Even if you upgrade months from now, they will be credited.
                 </p>
@@ -1451,7 +1451,7 @@ function ProspectRegistrationGate({
         </div>
 
         {/* Gold bottom bar */}
-        <div style={S.footer} />
+        <div style={PGS.footer} />
 
       </div>
 
