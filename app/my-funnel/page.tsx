@@ -398,19 +398,70 @@ export default function MySalesFunnelPage() {
     setAiError('')
     setAiResult('')
     try {
-      const systemPrompt = `You are Coach Manlaw, the AI business coach for Z2B Legacy Builders (z2blegacybuilders.co.za).
-You are generating content for a builder named ${profile?.full_name || 'the builder'} who is a ${(profile?.paid_tier || 'bronze').toUpperCase()} member.
-Their referral code is ${profile?.referral_code || 'Z2BCODE'}.
-Their referral link is: https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}
-Their pricing link is: https://app.z2blegacybuilders.co.za/pricing
+      const systemPrompt = `You are Coach Manlaw — the personal AI business coach of Z2B Legacy Builders (app.z2blegacybuilders.co.za), created by Rev Mokoro Manana, Founder of Zero2Billionaires.
 
-Z2B is a personal and business development company that uses network marketing as its distribution model.
-The transformation story: from employee mindset to entrepreneur builder.
-Bronze membership is R480 once-off. No monthly fees.
+YOUR IDENTITY
+You are not a chatbot. You are a wise, direct, faith-aware business mentor. You coach with depth, precision and genuine care. You speak with the authority of someone who has sat at the table with ordinary people who built extraordinary legacies.
 
-Generate ONLY the requested content. No preamble. No explanation. Just the content itself.
-Format clearly with sections labelled: HOOK, BODY, CTA, CAPTION, HASHTAGS (where applicable).
-Keep it authentic, South African, faith-inspired where natural, and conversion-focused.`
+THE Z2B PHILOSOPHY YOU EMBODY
+- The Entrepreneurial Consumer is the third path: between employment (safe, limited) and full entrepreneurship (free, risky). Smooth transition. No quitting. Build while employed.
+- The 4 Table Legs: Mindset (break employee thinking), Systems (income that works while you sleep), Relationships (network becomes net worth), Legacy (generational wealth).
+- #Reka_Obesa_Okatuka: We put up sticks and leaves together and build a Bonfire. Many people. One fire.
+- The Purple Cow Strategy: share only what genuinely moves you. Your transformation is your content. Authenticity over production value.
+- The Sales Ratio: 4 posts × 4 sign-ups × 5 days × 4 weeks × 15% = 12 Bronze upgrades/month.
+
+THE BUILDER YOU ARE SERVING
+Name: ${profile?.full_name || 'the builder'}
+Tier: ${(profile?.paid_tier || 'bronze').toUpperCase()} member
+Referral code: ${profile?.referral_code || 'Z2BCODE'}
+Referral link: https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}
+Pricing link: https://app.z2blegacybuilders.co.za/pricing
+
+THE Z2B CURRICULUM (use for content context)
+Morning Sessions (identity anchoring, audio only): M1 Who You Are & Why, M2 Mindset Shift, M3 Income Model, M4 First System, M5 Growing Relationships, M6 Legacy Mission, M7 EC Identity, M8 Your Table in Community, M9 From Learning to Doing.
+Evening Sessions 1-9 (free, full content): S1 Silent Frustration of Employees, S2 Consumption Without Leverage, S3 Three Identities in the Marketplace, S4 Employees Already Have Assets, S5 TABLE Philosophy Community Before Commerce, S6 Vision Before Execution, S7 SWOT to Opportunity, S8 Network Marketing A Vehicle Not the Destination, S9 Building Your Circle of Twelve.
+Paid Sessions 10-20: S10 Innovators and Early Adopters, S11 Ethical Collaboration, S12 AI Technology The Digital Oil, S13 Smartphone as Income Engine, S14 Copywriting Words Into Currency, S15 Platform Funnel Economic Architecture, S16 Platform Ownership Tenant to Landlord, S17 Digital Assets Legacy Infrastructure, S18 Strategic Capital, S19 Sourcing Quality Business Partners, S20 Circle as Economic Incubator.
+Sessions 21-99 continue with: Financial Literacy, Employee vs Owner Mindset, Personal Income Blueprint, Psychology of Money, Compensation Plans, Team Building, Art of Invitation, Handling Objections, Leadership vs Management, Duplication Systems, Personal Branding, Content Creation, Video Marketing, WhatsApp as Platform, Facebook Strategy, TikTok Marketing, Email Marketing, Goal Setting, Time Management, Morning Routines, Financial Planning, Debt Strategy, Compound Effect, Creating Products, Pricing Value, Customer Service, Referral Systems, Faith and Business, Stewardship, Character Development, Resilience, Public Speaking, Negotiation, Scaling, Multiple Income Streams, Legacy Mindset, Wealth Transfer, Philanthropy, Brand Authority, The Diamond Legacy Path.
+
+INCOME STREAMS (6 total):
+- ISP (Individual Sales Profit): 18% Bronze, 25% Silver, 28% Gold, 30% Platinum on R480 Bronze sales
+- QPB (Quick Pathfinder Bonus): 7.5% first 4 sales, 10% subsequent sets — first 90 days
+- TSC (Team Sales Commission): G2 10%, G3 5%, G4 3%, G5 2%, G6+ 1% — depth depends on tier
+- MKT (Marketplace): 95% revenue — Gold and Platinum only
+- CEO Competitions: all paid tiers
+- CEO Quarterly Awards: Gold and Platinum pools
+
+YOUR CONTENT GENERATION RULES
+Generate ONLY the post itself. No preamble. No explanation. No meta-commentary. Just the content.
+
+OUTPUT FORMAT — STRICT, NO EXCEPTIONS:
+Line 1: THE CAPTION IN ALL CAPITAL LETTERS (scroll-stopper — no label, just the caps text)
+[blank line]
+The post body — builder's authentic voice, EC philosophy, transformation story
+[blank line]
+https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}
+[blank line]
+#hashtags #here
+
+ABSOLUTE NON-NEGOTIABLE RULES:
+1. The FIRST LINE must be the caption in ALL CAPS — no "CAPTION:" prefix, no label of any kind, just the text itself in caps
+2. The referral link https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'} MUST appear in the output — no exceptions, no matter what, every single time
+3. NEVER write HOOK:, BODY:, CTA:, CAPTION:, HASHTAGS: — these words must never appear in your output as labels
+4. No section headers of any kind. No structural labels. No formatting markers.
+5. The output is ready to copy-paste directly onto social media with zero editing required
+6. Write from genuine transformation — never corporate, never generic, never templated-sounding
+7. Faith-inspired where natural. Globally relevant. Invite without pressure.
+
+EXAMPLE — copy this exact style:
+I USED TO THINK MY SALARY WAS MY INCOME. I WAS WRONG.
+
+For 8 years I showed up, worked hard, and watched my bank account stay the same. Then I found the third path — not quitting my job, not risking everything. Building while employed.
+
+This workshop changed how I see every rand I earn and every hour I spend.
+
+https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}
+
+#EntrepreneurialConsumer #Z2B #BuildWhileEmployed #ThirdPath #PurpleCow`
 
       const userMessage = `Platform: ${aiPlatform}
 Content Type: ${aiContentType}
@@ -1347,13 +1398,21 @@ Generate a complete ${aiPlatform} ${aiContentType.toLowerCase()} script for Z2B 
                 .map(script => {
                   const plt = PLATFORM_COLORS[script.platform] || { color:'#6B7280', bg:'#F3F4F6', emoji:'📱' }
                   const isExpanded = expandedScript === script.id
+                  // Build clean copy text: CAPTION first (caps), then body, then referral link, then hashtags
+                  // No HOOK:/BODY:/CTA: labels — these are internal structure only, never shown to audience
+                  const refLink = `https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}`
+                  // Always replace "Link in my bio" / "link in bio" with the actual referral link
+                  const bodyWithLink = (script.body || '')
+                    .replace(/link in my bio\.?/gi, refLink)
+                    .replace(/link in bio\.?/gi, refLink)
+                    .replace(/dm me for the free workshop link\.?/gi, `Start free: ${refLink}`)
+                  const hasRef = bodyWithLink.includes('z2blegacybuilders')
                   const fullText = [
-                    script.hook && `HOOK:\n${script.hook}`,
-                    script.body && `\nBODY:\n${script.body}`,
-                    script.cta && `\nCTA:\n${script.cta}`,
-                    script.caption && `\nCAPTION:\n${script.caption}`,
-                    script.hashtags && `\nHASHTAGS:\n${script.hashtags}`,
-                  ].filter(Boolean).join('\n')
+                    script.caption && script.caption.toUpperCase(),
+                    bodyWithLink,
+                    !hasRef ? refLink : '',
+                    script.hashtags || '',
+                  ].filter(Boolean).join('\n\n').trim()
 
                   return (
                     <div key={script.id} className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden">
@@ -1385,41 +1444,42 @@ Generate a complete ${aiPlatform} ${aiContentType.toLowerCase()} script for Z2B 
                       {isExpanded && (
                         <div className="border-t-2 border-gray-100 p-4 space-y-3"
                           style={{ background: '#FAFAFA' }}>
-                          {script.hook && (
-                            <div>
-                              <p className="text-xs font-black text-gray-500 mb-1">🎣 HOOK</p>
-                              <p className="text-sm text-gray-800 font-bold bg-yellow-50 rounded-xl px-4 py-3 border border-yellow-200">
-                                "{script.hook}"
-                              </p>
-                            </div>
-                          )}
-                          {script.body && (
-                            <div>
-                              <p className="text-xs font-black text-gray-500 mb-1">📹 BODY / SCRIPT</p>
-                              <pre className="text-sm text-gray-800 bg-white rounded-xl px-4 py-3 border-2 border-gray-200 whitespace-pre-wrap font-sans leading-relaxed">
-                                {script.body}
-                              </pre>
-                            </div>
-                          )}
-                          {script.cta && (
-                            <div>
-                              <p className="text-xs font-black text-gray-500 mb-1">📢 CTA</p>
-                              <p className="text-sm text-gray-800 bg-green-50 rounded-xl px-4 py-3 border border-green-200 font-bold">
-                                {script.cta}
-                              </p>
-                            </div>
-                          )}
+                          {/* CAPTION FIRST — large, bold, scroll-stopper */}
                           {script.caption && (
                             <div>
-                              <p className="text-xs font-black text-gray-500 mb-1">✏️ CAPTION</p>
-                              <p className="text-sm text-gray-800 bg-blue-50 rounded-xl px-4 py-3 border border-blue-200">
+                              {/* Caption label removed — caption speaks for itself */}
+                              <p className="text-lg font-black text-purple-900 bg-purple-50 rounded-xl px-4 py-3 border-2 border-purple-300 uppercase tracking-wide">
                                 {script.caption}
                               </p>
                             </div>
                           )}
+                          {/* Body — shown with real referral link replacing 'link in bio' */}
+                          {script.body && (() => {
+                            const refLinkDisplay = `https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}`
+                            const displayBody = script.body
+                              .replace(/link in my bio\.?/gi, refLinkDisplay)
+                              .replace(/link in bio\.?/gi, refLinkDisplay)
+                              .replace(/dm me for the free workshop link\.?/gi, `Start free: ${refLinkDisplay}`)
+                            return (
+                              <div>
+                                <pre className="text-sm text-gray-800 bg-white rounded-xl px-4 py-3 border-2 border-gray-200 whitespace-pre-wrap font-sans leading-relaxed">
+                                  {displayBody}
+                                </pre>
+                              </div>
+                            )
+                          })()}
+                          {/* Opening hook merged into body display — no label */}
+                          {script.hook && !script.body?.includes(script.hook) && (
+                            <div>
+                              <p className="text-sm text-gray-800 font-bold bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
+                                {script.hook}
+                              </p>
+                            </div>
+                          )}
+                          {/* Hashtags */}
                           {script.hashtags && (
                             <div>
-                              <p className="text-xs font-black text-gray-500 mb-1"># HASHTAGS</p>
+                              <p className="text-xs font-black text-gray-500 mb-1"># Hashtags</p>
                               <p className="text-xs text-purple-600 bg-purple-50 rounded-xl px-4 py-3 border border-purple-200 font-mono">
                                 {script.hashtags}
                               </p>
@@ -1532,49 +1592,120 @@ Generate a complete ${aiPlatform} ${aiContentType.toLowerCase()} script for Z2B 
                 </div>
 
                 {/* AI Result */}
-                {aiResult && (
-                  <div className="bg-white rounded-2xl border-2 border-purple-300 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-purple-100 flex items-center justify-between"
-                      style={{ background:'linear-gradient(135deg,#F3F0FF,#EDE9FE)' }}>
-                      <div>
-                        <p className="font-black text-purple-900">✨ Generated Script</p>
-                        <p className="text-xs text-purple-600">{aiPlatform} · {aiContentType}</p>
-                      </div>
-                      <button onClick={() => copyText(aiResult, 'ai-result')}
-                        className={`px-4 py-2 rounded-xl font-black text-sm transition-all ${
-                          copiedId === 'ai-result'
-                            ? 'bg-green-500 text-white'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                        }`}>
-                        {copiedId === 'ai-result' ? '✅ Copied!' : '📋 Copy'}
-                      </button>
-                    </div>
-                    <div className="p-5">
-                      <pre className="text-sm text-gray-800 whitespace-pre-wrap font-sans leading-relaxed">
-                        {aiResult}
-                      </pre>
-                    </div>
-                    <div className="px-5 pb-5 flex gap-3">
-                      <button onClick={generateWithAI} disabled={aiLoading}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
-                        🔄 Regenerate
-                      </button>
-                      <button onClick={() => setAiResult('')}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100">
-                        ✕ Clear
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {aiResult && (() => {
+                  // Clean the AI result — strip any accidental HOOK:/BODY:/CTA:/CAPTION:/HASHTAGS: labels
+                  const cleanResult = aiResult
+                    .replace(/^HOOK:\s*/gim, '')
+                    .replace(/^BODY:\s*/gim, '')
+                    .replace(/^CTA:\s*/gim, '')
+                    .replace(/^CAPTION:\s*/gim, '')
+                    .replace(/^HASHTAGS:\s*/gim, '')
+                    .trim()
 
-                {/* Context note */}
+                  // Split: first line = caption, rest = body
+                  const lines = cleanResult.split('\n')
+                  const captionLine = lines[0] || ''
+                  const restLines = lines.slice(1).join('\n').trim()
+
+                  // Check referral link presence
+                  const refLink = `https://app.z2blegacybuilders.co.za/workshop?ref=${profile?.referral_code || 'Z2BCODE'}`
+                  const hasRef = cleanResult.includes('z2blegacybuilders.co.za')
+
+                  // Final copy text — caption + body + refLink (if missing) 
+                  const copyContent = hasRef ? cleanResult : `${cleanResult}\n\n${refLink}`
+
+                  return (
+                    <div className="bg-white rounded-2xl border-2 border-purple-300 overflow-hidden">
+                      {/* Header */}
+                      <div className="px-5 py-4 border-b border-purple-100 flex items-center justify-between"
+                        style={{ background:'linear-gradient(135deg,#F3F0FF,#EDE9FE)' }}>
+                        <div>
+                          <p className="font-black text-purple-900">✨ Your {aiPlatform} Content is Ready</p>
+                          <p className="text-xs text-purple-600">{aiContentType} · Referral link included</p>
+                        </div>
+                        <button onClick={() => copyText(copyContent, 'ai-result')}
+                          className={`px-4 py-2 rounded-xl font-black text-sm transition-all ${
+                            copiedId === 'ai-result'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-purple-600 text-white hover:bg-purple-700'
+                          }`}>
+                          {copiedId === 'ai-result' ? '✅ Copied!' : '📋 Copy All'}
+                        </button>
+                      </div>
+
+                      {/* Clean post preview */}
+                      <div className="p-5 space-y-3">
+
+                        {/* CAPTION — large, bold, all caps, scroll-stopper — NO label, straight to the text */}
+                        {captionLine && (
+                          <div>
+                            <p className="text-lg font-black text-purple-900 bg-purple-50 rounded-xl px-4 py-3 border-2 border-purple-300 uppercase tracking-wide leading-snug">
+                              {captionLine}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Post body — clean, no labels at all */}
+                        {restLines && (
+                          <div>
+                            <pre className="text-sm text-gray-800 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 whitespace-pre-wrap font-sans leading-relaxed">
+                              {restLines}
+                            </pre>
+                          </div>
+                        )}
+
+                        {/* Referral link — always visible, always confirmed */}
+                        <div className={`rounded-xl px-4 py-3 border-2 flex items-start gap-3 ${hasRef ? 'bg-green-50 border-green-300' : 'bg-amber-50 border-amber-400'}`}>
+                          <span className="text-lg flex-shrink-0">{hasRef ? '✅' : '⚠️'}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-black mb-1 ${hasRef ? 'text-green-700' : 'text-amber-700'}`}>
+                              {hasRef ? 'Your referral link is included' : 'Referral link missing — added below for you'}
+                            </p>
+                            <p className="text-xs font-mono text-gray-600 break-all">{refLink}</p>
+                          </div>
+                          <button onClick={() => copyText(refLink, 'ref-link')}
+                            className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-50">
+                            {copiedId === 'ref-link' ? '✅' : '📋'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="px-5 pb-5 flex gap-3">
+                        <button onClick={generateWithAI} disabled={aiLoading}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+                          🔄 Regenerate
+                        </button>
+                        <button onClick={() => setAiResult('')}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100">
+                          ✕ Clear
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })()}
+
+                {/* Context note + V2 teaser */}
                 {!aiResult && !aiLoading && (
-                  <div className="rounded-2xl p-4 border-2 border-white/10 text-center"
-                    style={{ background:'#1e1b4b' }}>
-                    <p className="text-purple-300 text-sm">
-                      Coach Manlaw knows your name, tier, referral code and Z2B's full story.
-                      Every script is personalised to you and ready to post.
-                    </p>
+                  <div className="space-y-3">
+                    <div className="rounded-2xl p-4 border-2 border-white/10 text-center"
+                      style={{ background:'#1e1b4b' }}>
+                      <p className="text-purple-300 text-sm">
+                        Coach Manlaw knows your name, tier, referral code and Z2B's full story.
+                        Your caption appears first. Your referral link is always included.
+                      </p>
+                    </div>
+                    {/* Content Studio V2 teaser */}
+                    <div className="rounded-2xl p-4 border-2 border-gold-400 text-center"
+                      style={{ background:'linear-gradient(135deg,#1A0A00,#2D1500)' }}>
+                      <p className="text-yellow-300 font-black text-sm mb-1">🚀 Content Studio V2 — Coming Soon</p>
+                      <p className="text-yellow-100 text-xs leading-relaxed mb-2">
+                        100% automated · 1–3 min text-to-video creation · Auto-post to Facebook & TikTok · Connect your social accounts once · Never post manually again.
+                      </p>
+                      <span className="inline-block bg-yellow-400 text-yellow-900 text-xs font-black px-3 py-1 rounded-full">
+                        Premium Add-On · Coming Q2 2026
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>

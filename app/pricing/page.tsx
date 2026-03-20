@@ -219,11 +219,12 @@ export default function PricingPage() {
     { label:'TPB Generations',   vals:['None','Gen 3','Gen 4','Gen 6','Gen 8','Gen 10'] },
     { label:'QPB Eligible',      vals:['✗','✓','✓','✓','✓','✓'] },
     { label:'CEO Awards',        vals:['✗','✗','✗','✓','✓','✓'] },
-    { label:'Workshop Sessions', vals:['1–9','1–90','1–90','1–90','1–90','1–90'] },
+    { label:'Workshop Sessions', vals:['1–9','1–99','1–99','1–99','1–99','1–99'] },
     { label:'Coach Manlaw AI',   vals:['3/sess','∞','∞','∞','∞','∞'] },
     { label:'Vision Board',      vals:['View','Full','Full','Full','Full','Full'] },
     { label:'GroundBreaker',     vals:['✓','✓','✓','✓','✓','✓'] },
     { label:'TableBuilder',      vals:['✗','✓','✓','✓','✓','✓'] },
+    { label:'My Sales Funnel',     vals:['✗','✗','✗','✗','✓','✓'] },
     { label:'Marketplace',       vals:['✗','✗','✗','✗','✓','✓'] },
     { label:'App Building',      vals:['✗','✗','✗','x1','x2','x4'] },
     { label:'1-on-1 Coaching',   vals:['✗','✗','✗','✗','✓','✓'] },
@@ -339,12 +340,63 @@ export default function PricingPage() {
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🌱 GroundBreaker dashboard</span></li>
                       </>}
                       {key!=='fam' && <>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎓 All 90 Sessions — lifetime</span></li>
+                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎓 All 99 Sessions — lifetime</span></li>
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🤖 Coach Manlaw AI — unlimited</span></li>
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🌱 GroundBreaker dashboard</span></li>
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🏛️ TableBuilder dashboard</span></li>
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎯 Vision Board — full</span></li>
                       </>}
+                      {(key==='gold'||key==='platinum') && (<>
+                        <li className="flex items-start gap-2 text-sm mt-1">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700">
+                            <strong className="text-yellow-700">🚀 My Sales Funnel — Full Access</strong>
+                            <span className="block text-xs text-gray-500 mt-0.5">Your complete 6-layer economic architecture — working 24/7 even while you sleep.</span>
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">📊 Pipeline Tracker (Kanban)</strong> — Visual Day 1→9 journey for every prospect. Know exactly who needs a WhatsApp today.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">📧 9-Day Nurture Engine</strong> — Automated email sequence follows up on every prospect for 9 days. No manual chasing required.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">💬 WhatsApp Launcher</strong> — One-tap personalised scripts at Day 6 and Day 9. The right message at the right moment, automatically.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">🎬 Content Studio with AI</strong> — Coach Manlaw writes your TikTok, Facebook, WhatsApp and YouTube scripts in your voice with your referral link embedded.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">📅 Content Calendar</strong> — Plan and schedule 4 posts per day across platforms. Run the 4:4:5:4:15% ratio automatically.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">🔔 Prospect Notifications</strong> — Instant dashboard alerts when a prospect registers, completes sessions, or is ready to upgrade.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
+                          <span className="text-gray-700 text-xs">
+                            <strong className="text-yellow-700">📝 Sign-up Tracker</strong> — Full record of every prospect: name, WhatsApp, email, stage, days since joining, upgrade status.
+                          </span>
+                        </li>
+                      </>)}
                     </ul>
                   </div>
 
