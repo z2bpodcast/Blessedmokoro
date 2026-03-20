@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import React, { useState, useRef, useEffect, useCallback, CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
 import WorkshopEmailGate from "@/components/WorkshopEmailGate";
+import ECPosterStudio from "@/components/ECPosterStudio";
 // ── PurpleCowShareTool — inlined ─────────────────────────────
 // ============================================================
 // FILE LOCATION: components/PurpleCowShareTool.tsx
@@ -6984,6 +6985,12 @@ What you are about to read is not theory. It is a mirror. It describes the life 
 
       {/* ── Purple Cow Share Tool — always available while reading ── */}
       <PurpleCowShareTool
+        builderRef={builderRef}
+        builderName={manlawMemberName}
+      />
+
+      {/* ── EC Poster Studio — create & share workshop posters ── */}
+      <ECPosterStudio
         builderRef={builderRef}
         builderName={manlawMemberName}
       />
