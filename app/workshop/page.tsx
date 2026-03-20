@@ -1314,10 +1314,10 @@ function ProspectRegistrationGate({
         {/* Free tier pills */}
         <div style={{ padding: "0 28px" }}>
           <div style={PGS.freeTag}>
-            <div style={S.pill("#6EE7B7")}>
+            <div style={PGS.pill("#6EE7B7")}>
               ✅ FREE<br />18 Sessions
             </div>
-            <div style={S.pill("#F5D060")}>
+            <div style={PGS.pill("#F5D060")}>
               🔑 R480 Once-Off<br />All 99 Sessions
             </div>
           </div>
