@@ -1,297 +1,231 @@
 'use client'
 
+// app/z2b-command-7x9k/page.tsx
+// SECRET ADMIN ENTRY — do not link to this page publicly
+// URL: /z2b-command-7x9k
+// This is the ONLY way into the admin system
+
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
-type Product = {
-  id?: string; name: string; tagline: string; description: string
-  category: string; price_monthly: number|null; price_once: number|null
-  badge: string; icon: string; color: string
-  is_active: boolean; is_coming_soon: boolean
-  features: string[]; slug: string; sort_order: number
-}
+// ── SECRET PASSPHRASE ── change this to something only you know ──
+const ADMIN_PASSPHRASE = 'legacy7table9'
+const SESSION_KEY      = 'z2b_cmd_auth'
+const SESSION_VALUE    = 'z2b_unlocked_2026'
 
-const EMPTY: Product = { name:'', tagline:'', description:'', category:'app', price_monthly:null, price_once:null, badge:'', icon:'🔧', color:'#7C3AED', is_active:false, is_coming_soon:false, features:[], slug:'', sort_order:0 }
-
-const CATS = ['app','tool','template','course','service']
-
-export default function AdminMarketplacePage() {
+export default function AdminGatePage() {
+  const [phase,    setPhase]    = useState<'loading'|'login'|'passphrase'|'denied'>('loading')
+  const [email,    setEmail]    = useState('')
+  const [password, setPassword] = useState('')
+  const [phrase,   setPhrase]   = useState('')
+  const [error,    setError]    = useState('')
+  const [busy,     setBusy]     = useState(false)
+  const [attempts, setAttempts] = useState(0)
   const router = useRouter()
-  const [products, setProducts]   = useState<Product[]>([])
-  const [editing, setEditing]     = useState<Product|null>(null)
-  const [isNew, setIsNew]         = useState(false)
-  const [saving, setSaving]       = useState(false)
-  const [msg, setMsg]             = useState('')
-  const [featureInput, setFeatureInput] = useState('')
-  const [stats, setStats]         = useState({ total:0, active:0, subscribers:0, mrr:0 })
+
+  const ADMIN_ROLES = ['ceo','superadmin','admin','content_admin','support','staff']
 
   useEffect(() => {
-    // Auth check
-    const session = sessionStorage.getItem('z2b_cmd_auth')
-    if (session !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k/'); return }
-    loadProducts()
-    loadStats()
+    checkSession()
   }, [])
 
-  const loadProducts = async () => {
-    const { data } = await supabase.from('marketplace_products').select('*').order('sort_order')
-    if (data) setProducts(data)
-  }
-
-  const loadStats = async () => {
-    const [{ count: total }, { count: active }, subs] = await Promise.all([
-      supabase.from('marketplace_products').select('*', {count:'exact',head:true}),
-      supabase.from('marketplace_products').select('*', {count:'exact',head:true}).eq('is_active',true),
-      supabase.from('cs_plus_subscriptions').select('plan'),
-    ])
-    const subData = subs.data || []
-    const mrr = subData.reduce((sum: number, s: any) => {
-      const price = s.plan==='starter'?297:s.plan==='pro'?597:s.plan==='elite'?997:0
-      return sum + price
-    }, 0)
-    setStats({ total:total||0, active:active||0, subscribers:subData.length, mrr })
-  }
-
-  const startNew = () => { setEditing({...EMPTY}); setIsNew(true); setFeatureInput('') }
-  const startEdit = (p: Product) => { setEditing({...p}); setIsNew(false); setFeatureInput('') }
-  const cancelEdit = () => { setEditing(null); setIsNew(false) }
-
-  const addFeature = () => {
-    if (!featureInput.trim() || !editing) return
-    setEditing(prev => prev ? {...prev, features:[...prev.features, featureInput.trim()]} : prev)
-    setFeatureInput('')
-  }
-
-  const removeFeature = (idx: number) => {
-    if (!editing) return
-    setEditing(prev => prev ? {...prev, features:prev.features.filter((_,i)=>i!==idx)} : prev)
-  }
-
-  const handleSave = async () => {
-    if (!editing) return
-    if (!editing.name || !editing.slug) { setMsg('Name and slug are required.'); return }
-    setSaving(true); setMsg('')
-    try {
-      if (isNew) {
-        const { error } = await supabase.from('marketplace_products').insert(editing)
-        if (error) throw error
-        setMsg('✅ Product created successfully')
-      } else {
-        const { error } = await supabase.from('marketplace_products').update(editing).eq('id', editing.id)
-        if (error) throw error
-        setMsg('✅ Product updated successfully')
+  const checkSession = async () => {
+    // Already has session token?
+    const token = sessionStorage.getItem(SESSION_KEY)
+    if (token === SESSION_VALUE) {
+      // Verify still logged in with admin role
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('user_role').eq('id', user.id).single()
+        if (ADMIN_ROLES.includes(String(profile?.user_role || ''))) {
+          router.push('/z2b-command-7x9k/hub')
+          return
+        }
       }
-      await loadProducts()
-      setEditing(null); setIsNew(false)
-    } catch (err: any) {
-      setMsg(`❌ Error: ${err.message}`)
-    } finally {
-      setSaving(false)
+    }
+    // Check if already logged into Supabase
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('user_role').eq('id', user.id).single()
+      if (ADMIN_ROLES.includes(String(profile?.user_role || ''))) {
+        // Logged in + admin role — just need passphrase
+        setPhase('passphrase')
+        return
+      }
+    }
+    setPhase('login')
+  }
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) { setError('Enter your credentials.'); return }
+    setBusy(true); setError('')
+    try {
+      const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password })
+      if (authErr) throw authErr
+      // Check admin role
+      const { data: profile } = await supabase.from('profiles').select('user_role').eq('id', data.user.id).single()
+      if (!ADMIN_ROLES.includes(String(profile?.user_role || ''))) {
+        await supabase.auth.signOut()
+        setPhase('denied')
+        return
+      }
+      setPhase('passphrase')
+    } catch(err: any) {
+      setError('Invalid credentials. Try again.')
+      setAttempts(a => a + 1)
+      if (attempts >= 4) {
+        setError('Too many failed attempts. Please wait.')
+        setTimeout(() => setAttempts(0), 60000)
+      }
+    } finally { setBusy(false) }
+  }
+
+  const handlePassphrase = () => {
+    if (phrase.trim().toLowerCase() === ADMIN_PASSPHRASE) {
+      sessionStorage.setItem(SESSION_KEY, SESSION_VALUE)
+      router.push('/z2b-command-7x9k/hub')
+    } else {
+      setError('Incorrect passphrase.')
+      setPhrase('')
+      setAttempts(a => a + 1)
+      if (attempts >= 3) {
+        supabase.auth.signOut()
+        setPhase('denied')
+      }
     }
   }
 
-  const toggleActive = async (p: Product) => {
-    await supabase.from('marketplace_products').update({ is_active: !p.is_active }).eq('id', p.id)
-    await loadProducts()
-  }
+  // ── LOADING ──
+  if (phase === 'loading') return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background:'#0f0f1a' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-400"/>
+    </div>
+  )
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Delete this product? This cannot be undone.')) return
-    await supabase.from('marketplace_products').delete().eq('id', id)
-    await loadProducts()
-  }
-
-  const inp: React.CSSProperties = { width:'100%', background:'rgba(255,255,255,0.06)', border:'1.5px solid rgba(255,255,255,0.1)', borderRadius:'9px', padding:'10px 13px', color:'#F5F3FF', fontSize:'13px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' }
-  const lbl: React.CSSProperties = { display:'block', fontSize:'10px', fontWeight:700, color:'rgba(212,175,55,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'5px' }
+  // ── DENIED ──
+  if (phase === 'denied') return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background:'#0f0f1a' }}>
+      <div className="text-center max-w-sm mx-auto px-6">
+        <div className="text-6xl mb-6">🚫</div>
+        <h2 className="text-white text-2xl font-black mb-3">Access Denied</h2>
+        <p className="text-gray-400 text-sm mb-6">You don't have permission to access this area.</p>
+        <button onClick={() => { setPhase('login'); setAttempts(0); setError('') }}
+          className="text-yellow-400 text-sm underline">Try again</button>
+      </div>
+    </div>
+  )
 
   return (
-    <div style={{ minHeight:'100vh', background:'#0A0818', fontFamily:'Georgia,serif', color:'#F5F3FF', padding:'0 0 60px' }}>
+    <div className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0f1a0f 100%)' }}>
 
-      {/* Header */}
-      <div style={{ background:'rgba(0,0,0,0.5)', borderBottom:'1px solid rgba(212,175,55,0.15)', padding:'18px 32px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <div>
-          <h1 style={{ margin:0, fontSize:'20px', fontWeight:700, color:'#D4AF37' }}>🏪 Marketplace Admin</h1>
-          <p style={{ margin:'3px 0 0', fontSize:'12px', color:'rgba(196,181,253,0.6)' }}>Manage products, tools and services</p>
-        </div>
-        <div style={{ display:'flex', gap:'10px' }}>
-          <a href="/marketplace" target="_blank" style={{ padding:'9px 18px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'9px', color:'rgba(255,255,255,0.6)', fontSize:'12px', textDecoration:'none', fontFamily:'Georgia,serif' }}>View Marketplace ↗</a>
-          <button onClick={startNew} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'9px', color:'#F5D060', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>+ Add Product</button>
-        </div>
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-5"
+          style={{ background:'radial-gradient(circle, #7C3AED, transparent)' }}/>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-5"
+          style={{ background:'radial-gradient(circle, #D4AF37, transparent)' }}/>
       </div>
 
-      <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'32px 24px' }}>
+      <div className="relative w-full max-w-sm">
 
-        {/* Stats */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'16px', marginBottom:'32px' }}>
-          {[
-            { label:'Total Products', value:stats.total, color:'#7C3AED' },
-            { label:'Active Listings', value:stats.active, color:'#059669' },
-            { label:'CS+ Subscribers', value:stats.subscribers, color:'#0EA5E9' },
-            { label:'CS+ MRR', value:`R${stats.mrr.toLocaleString()}`, color:'#D4AF37' },
-          ].map(s => (
-            <div key={s.label} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'14px', padding:'20px' }}>
-              <div style={{ fontSize:'28px', fontWeight:700, color:s.color, marginBottom:'4px' }}>{s.value}</div>
-              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)' }}>{s.label}</div>
-            </div>
-          ))}
+        {/* Logo mark */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-2xl"
+            style={{ background:'linear-gradient(135deg, #D4AF37, #F59E0B)' }}>
+            <span className="text-2xl">👑</span>
+          </div>
+          <h1 className="text-white text-xl font-black tracking-widest uppercase">Z2B Command</h1>
+          <p className="text-gray-600 text-xs mt-1 tracking-wider">RESTRICTED ACCESS</p>
         </div>
 
-        {msg && (
-          <div style={{ background:msg.startsWith('✅')?'rgba(16,185,129,0.1)':'rgba(239,68,68,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.3)'}`, borderRadius:'10px', padding:'12px 16px', color:msg.startsWith('✅')?'#6EE7B7':'#FCA5A5', fontSize:'13px', marginBottom:'20px' }}>
-            {msg}
-          </div>
-        )}
+        {/* ── PHASE: LOGIN ── */}
+        {phase === 'login' && (
+          <div className="rounded-2xl p-8 shadow-2xl border border-white/10"
+            style={{ background:'rgba(255,255,255,0.05)', backdropFilter:'blur(20px)' }}>
+            <h2 className="text-white font-bold text-lg mb-6 text-center">Sign In</h2>
 
-        {/* Edit / New form */}
-        {editing && (
-          <div style={{ background:'rgba(255,255,255,0.04)', border:'1.5px solid rgba(212,175,55,0.25)', borderRadius:'18px', padding:'28px', marginBottom:'32px' }}>
-            <h3 style={{ margin:'0 0 24px', fontSize:'18px', fontWeight:700, color:'#D4AF37' }}>{isNew ? '+ New Product' : `Editing: ${editing.name}`}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-2">Email</label>
+                <input
+                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  onKeyDown={e => e.key==='Enter' && handleLogin()}
+                  placeholder="admin@z2b.co.za"
+                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-all"
+                  autoComplete="off"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-2">Password</label>
+                <input
+                  type="password" value={password} onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key==='Enter' && handleLogin()}
+                  placeholder="••••••••"
+                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-all"
+                />
+              </div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginBottom:'16px' }}>
-              <div>
-                <label style={lbl}>Product Name *</label>
-                <input value={editing.name} onChange={e=>setEditing(p=>p?{...p,name:e.target.value}:p)} style={inp} placeholder="e.g. Content Studio+" />
-              </div>
-              <div>
-                <label style={lbl}>Slug * (URL path)</label>
-                <input value={editing.slug} onChange={e=>setEditing(p=>p?{...p,slug:e.target.value.toLowerCase().replace(/\s+/g,'-')}:p)} style={inp} placeholder="e.g. cs-plus" />
-              </div>
-              <div style={{ gridColumn:'1/-1' }}>
-                <label style={lbl}>Tagline</label>
-                <input value={editing.tagline} onChange={e=>setEditing(p=>p?{...p,tagline:e.target.value}:p)} style={inp} placeholder="Short description shown on marketplace card" />
-              </div>
-              <div style={{ gridColumn:'1/-1' }}>
-                <label style={lbl}>Description</label>
-                <textarea value={editing.description} onChange={e=>setEditing(p=>p?{...p,description:e.target.value}:p)} rows={3} style={{ ...inp, resize:'vertical', cursor:'text' }} placeholder="Full product description" />
-              </div>
-              <div>
-                <label style={lbl}>Category</label>
-                <select value={editing.category} onChange={e=>setEditing(p=>p?{...p,category:e.target.value}:p)} style={inp}>
-                  {CATS.map(c=><option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>Icon (emoji)</label>
-                <input value={editing.icon} onChange={e=>setEditing(p=>p?{...p,icon:e.target.value}:p)} style={inp} placeholder="🔧" />
-              </div>
-              <div>
-                <label style={lbl}>Monthly Price (R) — leave blank if once-off</label>
-                <input type="number" value={editing.price_monthly||''} onChange={e=>setEditing(p=>p?{...p,price_monthly:e.target.value?Number(e.target.value):null}:p)} style={inp} placeholder="e.g. 297" />
-              </div>
-              <div>
-                <label style={lbl}>Once-off Price (R) — leave blank if monthly</label>
-                <input type="number" value={editing.price_once||''} onChange={e=>setEditing(p=>p?{...p,price_once:e.target.value?Number(e.target.value):null}:p)} style={inp} placeholder="e.g. 980" />
-              </div>
-              <div>
-                <label style={lbl}>Badge (e.g. NEW, Soon, Phase 2)</label>
-                <input value={editing.badge} onChange={e=>setEditing(p=>p?{...p,badge:e.target.value}:p)} style={inp} placeholder="NEW" />
-              </div>
-              <div>
-                <label style={lbl}>Accent Color</label>
-                <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-                  <input type="color" value={editing.color} onChange={e=>setEditing(p=>p?{...p,color:e.target.value}:p)} style={{ width:'44px', height:'38px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer', background:'none' }} />
-                  <input value={editing.color} onChange={e=>setEditing(p=>p?{...p,color:e.target.value}:p)} style={{ ...inp, flex:1 }} placeholder="#7C3AED" />
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+                  {error}
                 </div>
-              </div>
-              <div>
-                <label style={lbl}>Sort Order (lower = first)</label>
-                <input type="number" value={editing.sort_order} onChange={e=>setEditing(p=>p?{...p,sort_order:Number(e.target.value)}:p)} style={inp} placeholder="0" />
-              </div>
-              <div>
-                <div style={{ display:'flex', gap:'20px', marginTop:'8px' }}>
-                  <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
-                    <input type="checkbox" checked={editing.is_active} onChange={e=>setEditing(p=>p?{...p,is_active:e.target.checked}:p)} style={{ width:'16px', height:'16px', accentColor:'#059669' }} />
-                    Active (visible on marketplace)
-                  </label>
-                  <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
-                    <input type="checkbox" checked={editing.is_coming_soon} onChange={e=>setEditing(p=>p?{...p,is_coming_soon:e.target.checked}:p)} style={{ width:'16px', height:'16px', accentColor:'#D4AF37' }} />
-                    Coming Soon
-                  </label>
-                </div>
-              </div>
-            </div>
+              )}
 
-            {/* Features */}
-            <div style={{ marginBottom:'20px' }}>
-              <label style={lbl}>Features / Bullet Points</label>
-              <div style={{ display:'flex', gap:'8px', marginBottom:'10px' }}>
-                <input value={featureInput} onChange={e=>setFeatureInput(e.target.value)} onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault();addFeature()} }} style={{ ...inp, flex:1 }} placeholder="Type a feature and press Enter or Add" />
-                <button onClick={addFeature} style={{ padding:'10px 16px', background:'rgba(124,58,237,0.2)', border:'1px solid rgba(124,58,237,0.35)', borderRadius:'9px', color:'#C4B5FD', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif', flexShrink:0 }}>Add</button>
-              </div>
-              {editing.features.map((f,i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'8px', padding:'8px 12px', marginBottom:'6px' }}>
-                  <span style={{ color:'#7C3AED', fontSize:'10px' }}>◆</span>
-                  <span style={{ flex:1, fontSize:'13px', color:'rgba(255,255,255,0.75)' }}>{f}</span>
-                  <button onClick={()=>removeFeature(i)} style={{ background:'none', border:'none', color:'rgba(239,68,68,0.6)', cursor:'pointer', fontSize:'16px', lineHeight:1, padding:'0 4px' }}>×</button>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display:'flex', gap:'10px' }}>
-              <button onClick={handleSave} disabled={saving} style={{ padding:'12px 28px', background:saving?'rgba(255,255,255,0.05)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'10px', color:saving?'rgba(255,255,255,0.3)':'#F5D060', fontWeight:700, fontSize:'14px', cursor:saving?'not-allowed':'pointer', fontFamily:'Georgia,serif' }}>
-                {saving ? 'Saving...' : isNew ? '✅ Create Product' : '✅ Save Changes'}
+              <button onClick={handleLogin} disabled={busy || attempts >= 5}
+                className="w-full py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all disabled:opacity-40"
+                style={{ background:'linear-gradient(135deg, #D4AF37, #F59E0B)', color:'#1a0a2e' }}>
+                {busy ? 'Verifying...' : 'Enter →'}
               </button>
-              <button onClick={cancelEdit} style={{ padding:'12px 20px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px', color:'rgba(255,255,255,0.5)', fontSize:'14px', cursor:'pointer', fontFamily:'Georgia,serif' }}>Cancel</button>
             </div>
           </div>
         )}
 
-        {/* Products table */}
-        <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', overflow:'hidden' }}>
-          <div style={{ padding:'18px 22px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <h3 style={{ margin:0, fontSize:'16px', fontWeight:700, color:'#fff' }}>All Products ({products.length})</h3>
-          </div>
-
-          {products.length===0 ? (
-            <div style={{ padding:'48px', textAlign:'center', color:'rgba(196,181,253,0.4)' }}>
-              No products yet. Click "Add Product" to create the first one.
+        {/* ── PHASE: PASSPHRASE ── */}
+        {phase === 'passphrase' && (
+          <div className="rounded-2xl p-8 shadow-2xl border border-yellow-400/30"
+            style={{ background:'rgba(255,255,255,0.05)', backdropFilter:'blur(20px)' }}>
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-3">🔑</div>
+              <h2 className="text-white font-bold text-lg">One More Step</h2>
+              <p className="text-gray-500 text-xs mt-1">Enter the command passphrase</p>
             </div>
-          ) : (
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-                  {['Product','Category','Price','Status','Actions'].map(h => (
-                    <th key={h} style={{ padding:'12px 18px', textAlign:'left', fontSize:'11px', fontWeight:700, color:'rgba(212,175,55,0.6)', letterSpacing:'1px', textTransform:'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p,idx) => (
-                  <tr key={p.id} style={{ borderBottom:idx<products.length-1?'1px solid rgba(255,255,255,0.05)':'none', background:idx%2===0?'transparent':'rgba(255,255,255,0.01)' }}>
-                    <td style={{ padding:'14px 18px' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-                        <div style={{ width:'36px', height:'36px', borderRadius:'10px', background:`${p.color}18`, border:`1px solid ${p.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>{p.icon}</div>
-                        <div>
-                          <div style={{ fontSize:'14px', fontWeight:700, color:'#fff' }}>{p.name}</div>
-                          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>/marketplace/{p.slug}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <span style={{ fontSize:'12px', background:`${p.color}15`, border:`1px solid ${p.color}30`, borderRadius:'8px', padding:'3px 10px', color:p.color, fontWeight:700 }}>{p.category}</span>
-                    </td>
-                    <td style={{ padding:'14px 18px', fontSize:'14px', color:'#D4AF37', fontWeight:700 }}>
-                      {p.price_monthly ? `R${p.price_monthly}/mo` : p.price_once ? `R${p.price_once}` : '—'}
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <button onClick={()=>toggleActive(p)} style={{ padding:'5px 12px', borderRadius:'20px', border:`1px solid ${p.is_active?'rgba(16,185,129,0.35)':'rgba(239,68,68,0.28)'}`, cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'11px', fontWeight:700, background:p.is_active?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.1)', color:p.is_active?'#6EE7B7':'#FCA5A5' }}>
-                        {p.is_active ? '● Active' : '○ Inactive'}
-                      </button>
-                      {p.is_coming_soon && <span style={{ marginLeft:'6px', fontSize:'11px', color:'rgba(212,175,55,0.6)' }}>Soon</span>}
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <div style={{ display:'flex', gap:'6px' }}>
-                        <button onClick={()=>startEdit(p)} style={{ padding:'6px 14px', background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.28)', borderRadius:'7px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>Edit</button>
-                        <button onClick={()=>deleteProduct(p.id!)} style={{ padding:'6px 12px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'7px', color:'#FCA5A5', fontSize:'12px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>Del</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+
+            <div className="space-y-4">
+              <input
+                type="password" value={phrase} onChange={e => setPhrase(e.target.value)}
+                onKeyDown={e => e.key==='Enter' && handlePassphrase()}
+                placeholder="••••••••••••"
+                className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-all text-center tracking-widest"
+                autoComplete="off"
+                autoFocus
+              />
+
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+                  {error}
+                </div>
+              )}
+
+              <button onClick={handlePassphrase}
+                className="w-full py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all"
+                style={{ background:'linear-gradient(135deg, #7C3AED, #4C1D95)', color:'white' }}>
+                Unlock Command Centre →
+              </button>
+
+              <button onClick={async () => { await supabase.auth.signOut(); setPhase('login'); setPhrase(''); setError('') }}
+                className="w-full text-center text-gray-600 text-xs hover:text-gray-400 transition-all">
+                ← Sign out
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Footer — no hints */}
+        <p className="text-center text-gray-800 text-xs mt-6">
+          Unauthorized access is prohibited.
+        </p>
       </div>
     </div>
   )
