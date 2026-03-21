@@ -6429,23 +6429,11 @@ function MonthCheckQuiz({ firstName }: { firstName: string }) {
 function WorkshopInner() {
   const searchParams = useSearchParams();
   // ── Email gate — set on first visit, persists in localStorage ──
-  const [workshopEmail, setWorkshopEmail] = useState<string | null>(() => {
-    try {
-      // Check localStorage email first
-      const stored = localStorage.getItem("z2b_workshop_email");
-      if (stored) return stored;
-      // Also check if there is a Supabase session in localStorage
-      // This prevents the gate flashing for logged-in users before async loads
-      const keys = Object.keys(localStorage);
-      const sessionKey = keys.find(k => k.includes('supabase') && k.includes('auth'));
-      if (sessionKey) {
-        const session = JSON.parse(localStorage.getItem(sessionKey) || '{}');
-        const email = session?.user?.email || session?.access_token ? 'session_active' : null;
-        if (email) return email;
-      }
-      return null;
-    } catch { return null; }
-  });
+  const [workshopEmail, setWorkshopEmail] = useState<string | null>(null);
+  // NOTE: workshopEmail is now ONLY set by:
+  // 1. WorkshopEmailGate (new registration or sign in)
+  // 2. The loadProgress useEffect below (active Supabase session bypass)
+  // localStorage alone is NOT used — user must have an active session to bypass gate
   const [view, setView]                     = useState<ViewType>("home");
   const [morningSession, setMorningSession] = useState<MorningSession | null>(null);
   const [showMorningAudio, setShowMorningAudio] = useState(false);
