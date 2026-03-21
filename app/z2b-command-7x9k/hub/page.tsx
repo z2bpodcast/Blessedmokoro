@@ -318,6 +318,26 @@ export default function AdminHubPage() {
         {/* ── TAB: HUB ── */}
         {activeTab === 'hub' && (
           <div>
+            {/* Pending payments alert */}
+            {stats.pending > 0 && (
+              <a href="/admin/payments"
+                className="flex items-center gap-4 rounded-2xl p-5 mb-6 border-2 border-amber-400 hover:shadow-lg transition-all"
+                style={{ background:'linear-gradient(135deg,#FEF3C7,#FDE68A)' }}>
+                <div className="text-4xl animate-bounce">⏳</div>
+                <div className="flex-1">
+                  <p className="font-black text-amber-900 text-lg">
+                    {stats.pending} Pending Payment{stats.pending > 1 ? 's' : ''} Awaiting Approval
+                  </p>
+                  <p className="text-amber-700 text-sm mt-0.5">
+                    Members have submitted EFT or ATM cash deposits — verify and approve to activate their tiers
+                  </p>
+                </div>
+                <div className="bg-amber-500 text-white font-black px-5 py-2 rounded-xl text-sm whitespace-nowrap">
+                  Review Now →
+                </div>
+              </a>
+            )}
+
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
               {[
