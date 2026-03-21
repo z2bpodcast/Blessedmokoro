@@ -656,6 +656,16 @@ function DashboardInner() {
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-blue-300 bg-blue-50 text-blue-800 font-bold text-center text-sm hover:scale-105 transition-transform">
               <span className="text-2xl">💬</span>Feed
             </Link>
+            <Link href="/type-as-you-feel"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#064E3B,#065F46)', borderColor: '#D4AF37', color: '#D4AF37' }}>
+              <span className="text-2xl">✍️</span>Type As You Feel
+            </Link>
+            <Link href="/marketplace"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
+              <span className="text-2xl">🏪</span>Marketplace
+            </Link>
           </div>
         </div>
 

@@ -146,6 +146,9 @@ export default function Home() {
                   <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     🏪 Marketplace
                   </Link>
+                  <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    ✍️ Type As You Feel
+                  </Link>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
                   </Link>
@@ -184,6 +187,9 @@ export default function Home() {
                   </Link>
                   <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     🏪 Marketplace
+                  </Link>
+                  <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    ✍️ Type As You Feel
                   </Link>
                   <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Sign In
