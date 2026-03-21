@@ -291,30 +291,73 @@ function DashboardInner() {
         </div>
       )}
 
-      {/* ── START HERE BANNER — always visible ── */}
-      <div style={{ background: 'linear-gradient(135deg,#7C0000,#DC2626,#7C0000)' }}
-        className="border-b-4 border-yellow-400 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-4 flex-wrap">
+      {/* ── START HERE BANNER — futuristic AI-age design ── */}
+      <div className="border-b border-white/10 px-4 py-3 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg,#0f0a1e 0%,#1a0a2e 40%,#0f0a1e 100%)' }}>
+
+        {/* Subtle animated background particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <div key={i}
+              className="absolute rounded-full opacity-20"
+              style={{
+                width: `${[80,60,100,50,70,90][i]}px`,
+                height: `${[80,60,100,50,70,90][i]}px`,
+                background: `radial-gradient(circle, ${['#DC2626','#9333EA','#DC2626','#7C3AED','#B91C1C','#6D28D9'][i]}, transparent)`,
+                left: `${[5,20,45,65,80,92][i]}%`,
+                top: `${[10,60,20,70,30,50][i]}%`,
+                transform: 'translate(-50%,-50%)',
+                filter: 'blur(20px)',
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="max-w-7xl mx-auto flex items-center gap-4 flex-wrap relative z-10">
           <div className="flex items-center gap-3 flex-1">
-            <span className="text-2xl animate-pulse">❤️</span>
+            {/* Pulsing heart with glow */}
+            <div className="relative flex-shrink-0">
+              <div className="absolute inset-0 rounded-full animate-ping"
+                style={{ background: 'rgba(220,38,38,0.3)', animationDuration: '2s' }}/>
+              <span className="relative text-2xl">❤️</span>
+            </div>
             <div>
-              <p className="font-black text-white text-sm">Welcome to Abundance</p>
-              <p className="text-red-200 text-xs">New here? Start with your orientation guide. Already a builder? Come back anytime you need direction.</p>
+              <div className="flex items-center gap-2">
+                <p className="font-black text-white text-sm tracking-wide">Welcome to Abundance</p>
+                {/* AI chip */}
+                <span className="text-xs px-2 py-0.5 rounded-full font-black tracking-widest border"
+                  style={{ background: 'rgba(220,38,38,0.15)', color: '#F87171', borderColor: 'rgba(220,38,38,0.3)', fontSize: '9px' }}>
+                  LIVE
+                </span>
+              </div>
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                Your orientation guide — always here when you need direction
+              </p>
             </div>
           </div>
-          {/* 3D-style arrow + button */}
+
+          {/* Futuristic arrow indicators */}
           <div className="flex items-center gap-3">
-            <div className="flex gap-1 items-center">
-              {[1,0.7,0.4].map((op, i) => (
-                <svg key={i} width="12" height="20" viewBox="0 0 12 20" style={{ opacity: op }}>
-                  <path d="M1 1 L6 18 L11 1" stroke="#D4AF37" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            <div className="flex items-center gap-1 opacity-60">
+              {[0.3, 0.6, 1].map((op, i) => (
+                <svg key={i} width="8" height="14" viewBox="0 0 8 14" style={{ opacity: op }}>
+                  <path d="M1 1L4 12L7 1" stroke="#DC2626" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               ))}
             </div>
             <a href="/start-here"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm whitespace-nowrap hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#fbbf24,#D4AF37)', color: '#7C0000' }}>
-              ❤️ Start Here
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs whitespace-nowrap hover:scale-105 transition-all border"
+              style={{
+                background: 'linear-gradient(135deg,rgba(220,38,38,0.2),rgba(185,28,28,0.1))',
+                borderColor: 'rgba(220,38,38,0.4)',
+                color: '#FCA5A5',
+                backdropFilter: 'blur(10px)',
+              }}>
+              <span className="animate-pulse">❤️</span>
+              Start Here
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6h8M6 2l4 4-4 4" stroke="#FCA5A5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </a>
           </div>
         </div>
@@ -418,19 +461,19 @@ function DashboardInner() {
               </a>
               {isSuperAdmin && (
                 <>
-                  <a href="/admin/members"
+                  <a href="/z2b-command-7x9k/members"
                     className="bg-white/10 border border-white/30 text-white font-bold py-3 px-4 rounded-xl text-center text-sm hover:bg-white/20">
                     👥 Members
                   </a>
-                  <a href="/admin/payments"
+                  <a href="/z2b-command-7x9k/payments"
                     className="bg-white/10 border border-white/30 text-white font-bold py-3 px-4 rounded-xl text-center text-sm hover:bg-white/20">
                     💳 Payments
                   </a>
-                  <a href="/admin/compensation"
+                  <a href="/z2b-command-7x9k/compensation"
                     className="bg-white/10 border border-white/30 text-white font-bold py-3 px-4 rounded-xl text-center text-sm hover:bg-white/20">
                     💎 Compensation
                   </a>
-                  <a href="/admin/earnings"
+                  <a href="/z2b-command-7x9k/earnings"
                     className="bg-white/10 border border-white/30 text-white font-bold py-3 px-4 rounded-xl text-center text-sm hover:bg-white/20">
                     📊 Earnings
                   </a>

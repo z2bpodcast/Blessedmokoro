@@ -143,6 +143,9 @@ export default function Home() {
                   <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Pricing
                   </Link>
+                  <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🏪 Marketplace
+                  </Link>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
                   </Link>
@@ -178,6 +181,9 @@ export default function Home() {
                   </Link>
                   <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Pricing
+                  </Link>
+                  <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🏪 Marketplace
                   </Link>
                   <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Sign In
