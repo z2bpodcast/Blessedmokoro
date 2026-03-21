@@ -6430,7 +6430,21 @@ function WorkshopInner() {
   const searchParams = useSearchParams();
   // ── Email gate — set on first visit, persists in localStorage ──
   const [workshopEmail, setWorkshopEmail] = useState<string | null>(() => {
-    try { return localStorage.getItem("z2b_workshop_email") || null; } catch { return null; }
+    try {
+      // Check localStorage email first
+      const stored = localStorage.getItem("z2b_workshop_email");
+      if (stored) return stored;
+      // Also check if there is a Supabase session in localStorage
+      // This prevents the gate flashing for logged-in users before async loads
+      const keys = Object.keys(localStorage);
+      const sessionKey = keys.find(k => k.includes('supabase') && k.includes('auth'));
+      if (sessionKey) {
+        const session = JSON.parse(localStorage.getItem(sessionKey) || '{}');
+        const email = session?.user?.email || session?.access_token ? 'session_active' : null;
+        if (email) return email;
+      }
+      return null;
+    } catch { return null; }
   });
   const [view, setView]                     = useState<ViewType>("home");
   const [morningSession, setMorningSession] = useState<MorningSession | null>(null);
@@ -6515,6 +6529,12 @@ function WorkshopInner() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return; // guest — use in-memory progress only
         setUserId(user.id);
+        // ── Bypass email gate for logged-in users ──
+        // If they have a Supabase session, they are already registered
+        if (user.email) {
+          setWorkshopEmail(user.email);
+          try { localStorage.setItem("z2b_workshop_email", user.email); } catch(e) {}
+        }
 
         // Fetch builder's referral code for share links
         const { data: profileData } = await supabase
@@ -6934,18 +6954,20 @@ What you are about to read is not theory. It is a mirror. It describes the life 
   };
 
   // ============================================================
-  // ── Email gate — show before anything else ──
+  // ── Email gate — only show for guests with no session ──
+  // Logged-in users bypass this entirely via the useEffect bypass above.
+  // We also check a short loading window to avoid flash of gate for logged-in users.
   if (!workshopEmail) {
     return (
       <WorkshopEmailGate
         onEnter={(email) => {
           setWorkshopEmail(email);
-          // Also pre-fill manlawMemberName from localStorage if available
           const savedName = typeof window !== "undefined"
             ? localStorage.getItem("z2b_workshop_first_name") || ""
             : "";
           if (savedName) setManlawMemberName(savedName);
         }}
+        showLoginOption={true}
       />
     );
   }
