@@ -230,7 +230,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
     borderRadius: '10px', padding: '10px 13px',
     color: '#F5F3FF', fontSize: '13px',
     fontFamily: 'Georgia,serif', outline: 'none',
-    boxSizing: 'border-box' as const,
+    boxSizing: 'border-box',
   }
 
   return (
@@ -271,7 +271,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
 
           {/* Language */}
           <div>
-            <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: 'rgba(212,175,55,0.7)', letterSpacing: '1px', textTransform: 'uppercase' as const, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: 'rgba(212,175,55,0.7)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
               🌍 Your Language
             </label>
             <select value={language} onChange={e => setLanguage(e.target.value)} style={{ ...inp, cursor: 'pointer' }}>
@@ -281,10 +281,10 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
 
           {/* Tone */}
           <div>
-            <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: 'rgba(212,175,55,0.7)', letterSpacing: '1px', textTransform: 'uppercase' as const, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: 'rgba(212,175,55,0.7)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
               🎭 Tone
             </label>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {TONES.map(t => (
                 <button key={t.id} onClick={() => setTone(t.id)} title={t.desc} style={{ padding: '7px 12px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontFamily: 'Georgia,serif', fontSize: '12px', fontWeight: 700, transition: 'all 0.15s', background: tone === t.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)', color: tone === t.id ? '#D4AF37' : 'rgba(255,255,255,0.45)', outline: tone === t.id ? '1.5px solid #D4AF37' : '1px solid rgba(255,255,255,0.08)' }}>
                   {t.emoji} {t.label}
@@ -303,7 +303,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                 + Add Phrase
               </button>
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const, marginBottom: showSettings ? '16px' : '0' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: showSettings ? '16px' : '0' }}>
               {phrases.map(p => (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <button onClick={() => insertPhrase(p.text)} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px', color: '#F5F3FF', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Georgia,serif', transition: 'all 0.15s' }}>
@@ -326,7 +326,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                   <input value={newPhraseText} onChange={e => setNewPhraseText(e.target.value)} placeholder="e.g. app.z2blegacybuilders.co.za/workshop?ref=..." style={inp} />
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={savePhrase} style={{ padding: '10px 16px', background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', border: '1px solid #D4AF37', borderRadius: '8px', color: '#F5D060', fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia,serif', whiteSpace: 'nowrap' as const }}>
+                  <button onClick={savePhrase} style={{ padding: '10px 16px', background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', border: '1px solid #D4AF37', borderRadius: '8px', color: '#F5D060', fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia,serif', whiteSpace: 'nowrap' }}>
                     {editingPhrase ? 'Save' : '+ Add'}
                   </button>
                   <button onClick={() => { setShowSettings(false); setEditingPhrase(null); setNewPhraseLabel(''); setNewPhraseText('') }} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'rgba(255,255,255,0.4)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>✕</button>
@@ -342,7 +342,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
           {/* LEFT — You write */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' as const }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                 ✍️ Write as you feel
               </label>
               <span style={{ fontSize: '11px', color: charCount > 0 ? 'rgba(212,175,55,0.6)' : 'rgba(255,255,255,0.2)' }}>
@@ -361,8 +361,8 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                 borderRadius: '14px', padding: '16px',
                 color: '#F5F3FF', fontSize: '15px',
                 fontFamily: 'Georgia,serif', lineHeight: 1.8,
-                resize: 'vertical' as const, outline: 'none',
-                boxSizing: 'border-box' as const,
+                resize: 'vertical', outline: 'none',
+                boxSizing: 'border-box',
                 transition: 'border-color 0.2s',
               }}
               onFocus={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)' }}
@@ -373,7 +373,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
           {/* RIGHT — AI fixes */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(212,175,55,0.8)', letterSpacing: '1px', textTransform: 'uppercase' as const }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(212,175,55,0.8)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                 ✨ AI Fixed — Ready to copy
               </label>
               {fixing && (
@@ -396,8 +396,8 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                 borderRadius: '14px', padding: '16px',
                 color: fixedText ? '#F5F3FF' : 'rgba(255,255,255,0.25)',
                 fontSize: '15px', fontFamily: 'Georgia,serif',
-                lineHeight: 1.8, resize: 'vertical' as const,
-                outline: 'none', boxSizing: 'border-box' as const,
+                lineHeight: 1.8, resize: 'vertical',
+                outline: 'none', boxSizing: 'border-box',
                 transition: 'all 0.3s',
               }}
             />
@@ -405,7 +405,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
         </div>
 
         {/* ── Action buttons ── */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}>
           <button
             onClick={handleCopy}
             disabled={!fixedText && !rawText}
@@ -440,7 +440,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
         </div>
 
         {/* ── Instruction strip ── */}
-        <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: '12px', padding: '14px 18px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' as const }}>
+        <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: '12px', padding: '14px 18px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {[
             { step: '1', text: 'Write on the left — any language, any spelling' },
             { step: '2', text: 'AI fixes it on the right in real time' },
@@ -463,9 +463,9 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
               )}
             </div>
             {history.length === 0 ? (
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', textAlign: 'center' as const, padding: '20px' }}>No history yet. Start writing to save your fixed texts here.</p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '20px' }}>No history yet. Start writing to save your fixed texts here.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {history.map((item, i) => (
                   <div key={item.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '12px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
                     onClick={() => loadHistory(item)}>
@@ -475,7 +475,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                       </span>
                       <span style={{ fontSize: '10px', color: 'rgba(124,58,237,0.6)' }}>tap to load</span>
                     </div>
-                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, margin: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                       {item.fixed}
                     </p>
                   </div>
@@ -486,7 +486,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
         )}
 
         {/* ── Footer ── */}
-        <div style={{ textAlign: 'center' as const, paddingTop: '16px', borderTop: '1px solid rgba(212,175,55,0.1)' }}>
+        <div style={{ textAlign: 'center', paddingTop: '16px', borderTop: '1px solid rgba(212,175,55,0.1)' }}>
           <p style={{ fontSize: '12px', color: 'rgba(212,175,55,0.4)', fontStyle: 'italic', margin: 0 }}>
             "Never be shy to post your beautiful thoughts." — Z2B Legacy Builders
           </p>
