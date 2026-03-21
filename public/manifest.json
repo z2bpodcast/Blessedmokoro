@@ -1,53 +1,65 @@
 {
   "name": "Z2B Table Banquet",
-  "short_name": "Z2B Banquet",
-  "description": "Premium learning platform with exclusive video lessons, audio insights, and resources",
+  "short_name": "Z2B",
+  "description": "Zero2Billionaires — The Entrepreneurial Consumer Platform. Free 18-session workshop, Content Studio, Type As You Feel and more.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#6b21a8",
+  "background_color": "#0D0A1E",
+  "theme_color": "#D4AF37",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-ZA",
+  "categories": ["education", "business", "productivity"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/logo.jpg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
       "src": "/logo.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "label": "Z2B Table Banquet Home"
     }
   ],
   "shortcuts": [
     {
-      "name": "Library",
-      "short_name": "Library",
-      "description": "Browse all content",
-      "url": "/library",
+      "name": "Free Workshop",
+      "short_name": "Workshop",
+      "description": "Start the 18-session Entrepreneurial Consumer Workshop",
+      "url": "/workshop",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Type As You Feel",
+      "short_name": "Write",
+      "description": "Write in any African language — AI fixes it instantly",
+      "url": "/type-as-you-feel",
       "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
     },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
-      "description": "View your referrals",
+      "description": "Your Z2B Builder Dashboard",
       "url": "/dashboard",
       "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
-    }
-  ],
-  "categories": ["education", "entertainment", "lifestyle"],
-  "screenshots": [
+    },
     {
-      "src": "/hero-banquet.png",
-      "sizes": "1280x720",
-      "type": "image/png"
+      "name": "Marketplace",
+      "short_name": "Marketplace",
+      "description": "Z2B Apps, Tools and Services",
+      "url": "/marketplace",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
     }
   ]
 }
