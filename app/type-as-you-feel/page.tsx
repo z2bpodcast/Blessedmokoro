@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-22 10:57 — duplicate style fixed
+// v2026-03-22 11:31 — voice fix
 'use client'
 
 // FILE LOCATION: app/type-as-you-feel/page.tsx
@@ -430,53 +430,90 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
 
   const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SpeechRecognition) return
+    if (!SpeechRecognition) {
+      setError('Voice input is not supported on this browser. Please use Chrome.')
+      return
+    }
 
     const recognition = new SpeechRecognition()
     recognitionRef.current = recognition
 
-    // Map our language codes to BCP-47 codes for the Web Speech API
+    // IMPORTANT: Web Speech API only reliably supports a few languages.
+    // For unsupported African languages — use en-ZA so Chrome still captures
+    // the speech. The AI will then translate it correctly from the spoken words.
+    // Supported: en-ZA, af-ZA, zu-ZA. Others fall back to en-ZA.
     const langMap: Record<string, string> = {
       auto:        'en-ZA',
       english:     'en-ZA',
-      setswana:    'tn-ZA',
-      zulu:        'zu-ZA',
-      xhosa:       'xh-ZA',
-      sotho:       'st-ZA',
-      afrikaans:   'af-ZA',
-      tsonga:      'ts-ZA',
-      venda:       've-ZA',
-      pedi:        'nso-ZA',
-      swati:       'ss-ZA',
-      ndebele:     'nr-ZA',
-      swahili:     'sw-KE',
-      french:      'fr-FR',
-      portuguese:  'pt-PT',
-      arabic:      'ar-SA',
-      yoruba:      'yo-NG',
-      hausa:       'ha-NG',
-      amharic:     'am-ET',
-      shona:       'sn-ZW',
+      setswana:    'en-ZA',  // speak naturally — AI translates
+      zulu:        'zu-ZA',  // supported
+      xhosa:       'en-ZA',  // speak naturally — AI translates
+      sotho:       'en-ZA',
+      afrikaans:   'af-ZA',  // supported
+      tsonga:      'en-ZA',
+      venda:       'en-ZA',
+      pedi:        'en-ZA',
+      swati:       'en-ZA',
+      ndebele:     'en-ZA',
+      swahili:     'en-ZA',
+      french:      'fr-FR',  // supported
+      portuguese:  'pt-PT',  // supported
+      arabic:      'ar-SA',  // supported
+      yoruba:      'en-ZA',
+      hausa:       'en-ZA',
+      amharic:     'en-ZA',
+      shona:       'en-ZA',
     }
 
-    recognition.lang          = langMap[language] || 'en-ZA'
-    recognition.continuous    = true
-    recognition.interimResults = true
+    // Use en-ZA as universal fallback — works best for African English accents
+    recognition.lang           = langMap[language] || 'en-ZA'
+    recognition.continuous     = false   // stop after one utterance — more reliable
+    recognition.interimResults = false   // only final results — prevents overwriting
 
-    recognition.onstart = () => setListening(true)
-    recognition.onend   = () => setListening(false)
-    recognition.onerror = () => setListening(false)
+    recognition.onstart = () => {
+      setListening(true)
+      setError('')
+    }
+
+    recognition.onend = () => {
+      setListening(false)
+    }
+
+    recognition.onerror = (event: any) => {
+      setListening(false)
+      if (event.error === 'no-speech') {
+        setError('No speech detected. Please speak clearly and try again.')
+      } else if (event.error === 'not-allowed') {
+        setError('Microphone access denied. Please allow microphone in your browser settings.')
+      } else if (event.error === 'network') {
+        setError('Network error. Voice input requires an internet connection.')
+      } else {
+        setError(`Voice error: ${event.error}. Please try again.`)
+      }
+    }
 
     recognition.onresult = (event: any) => {
+      // Get only the final transcript from this utterance
       let transcript = ''
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript + ' '
+        }
       }
-      setRawText(transcript)
-      setCharCount(transcript.length)
-      // Debounce fix after speech pauses
-      if (event.results[event.results.length - 1].isFinal) {
-        handleRawChange(transcript)
+      transcript = transcript.trim()
+      if (!transcript) return
+
+      // APPEND to existing text — do not overwrite
+      const updated = rawText
+        ? rawText + (rawText.endsWith(' ') ? '' : ' ') + transcript
+        : transcript
+      setRawText(updated)
+      setCharCount(updated.length)
+      handleRawChange(updated)
+
+      // Auto-restart for continuous capture
+      if (recognitionRef.current) {
+        try { recognitionRef.current.start() } catch(e) {}
       }
     }
 
@@ -729,9 +766,14 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
               }}
             />
             {listening && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', padding: '8px 12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', animation: 'micPulse 1s ease-in-out infinite' }} />
-                <span style={{ fontSize: '12px', color: '#FCA5A5', fontWeight: 700 }}>Listening... speak now in {LANGUAGES.find(l => l.code === language)?.label || 'your language'}</span>
+              <div style={{ marginTop: '8px', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', animation: 'micPulse 1s ease-in-out infinite', flexShrink: 0 }} />
+                  <span style={{ fontSize: '12px', color: '#FCA5A5', fontWeight: 700 }}>🎙️ Listening — speak clearly now</span>
+                </div>
+                <p style={{ fontSize: '11px', color: 'rgba(252,165,165,0.65)', margin: 0, lineHeight: 1.5 }}>
+                  Speak in any language. Chrome listens in English — the AI will translate your words into {TARGET_LANGUAGES.find(l => l.code === translateTo)?.label || 'your chosen language'} automatically.
+                </p>
               </div>
             )}
           </div>
