@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-22 10:49 — + Voice to text
+// v2026-03-22 10:57 — duplicate style fixed
 'use client'
 
 // FILE LOCATION: app/type-as-you-feel/page.tsx
@@ -714,20 +714,11 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
               readOnly={listening}
               placeholder={`Write anything here in any language...\n\nSpelling wrong? Grammar off? \nMixing languages? \n\nDo not worry. Just write what you feel.\nThe AI fixes it on the right side.\n\n— Never be shy to post your beautiful thoughts`}
               rows={16}
+              onFocus={e => { e.currentTarget.style.borderColor = listening ? 'rgba(239,68,68,0.5)' : 'rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,175,55,0.08)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = listening ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.1)'; e.currentTarget.style.boxShadow = 'none' }}
               style={{
-                width: '100%', background: 'rgba(255,255,255,0.04)',
-                border: '1.5px solid rgba(255,255,255,0.1)',
-                borderRadius: '14px', padding: '16px',
-                color: '#F5F3FF', fontSize: '15px',
-                fontFamily: 'Georgia,serif', lineHeight: 1.8,
-                resize: 'vertical', outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,175,55,0.08)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.boxShadow = 'none' }}
-              style={{
-                width: '100%', background: listening ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.04)',
+                width: '100%',
+                background: listening ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.04)',
                 border: listening ? '1.5px solid rgba(239,68,68,0.35)' : '1.5px solid rgba(255,255,255,0.1)',
                 borderRadius: '14px', padding: '16px',
                 color: '#F5F3FF', fontSize: '15px',
