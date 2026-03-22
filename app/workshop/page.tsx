@@ -1,4 +1,6 @@
 "use client";
+// v2026-03-22 09:58
+;
 
 // ── ADDITION 1: Supabase import ──
 import { supabase } from "@/lib/supabase";
@@ -4801,6 +4803,12 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
             padding: "10px 18px", borderRadius: "10px", color: "#6EE7B7",
             fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
           }}>🎯 My Funnel</a>
+          <a href="/type-as-you-feel" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.3)",
+            padding: "10px 18px", borderRadius: "10px", color: "#D4AF37",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>✍️ Type As You Feel</a>
         </div>
 
         {/* ── T.E.E.E pills ── */}
