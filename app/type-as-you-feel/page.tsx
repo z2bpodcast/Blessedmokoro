@@ -39,6 +39,29 @@ const TONES = [
   { id: 'tiktok',      label: 'TikTok',       desc: 'Punchy and scroll-stopping', emoji: '🎵' },
 ]
 
+// Target output languages — translate INTO these
+const TARGET_LANGUAGES = [
+  { code: 'english',    label: 'English',    flag: '🇬🇧' },
+  { code: 'setswana',   label: 'Setswana',   flag: '🇧🇼' },
+  { code: 'zulu',       label: 'isiZulu',    flag: '🇿🇦' },
+  { code: 'xhosa',      label: 'isiXhosa',   flag: '🇿🇦' },
+  { code: 'sotho',      label: 'Sesotho',    flag: '🇱🇸' },
+  { code: 'afrikaans',  label: 'Afrikaans',  flag: '🇿🇦' },
+  { code: 'tsonga',     label: 'Xitsonga',   flag: '🇿🇦' },
+  { code: 'venda',      label: 'Tshivenda',  flag: '🇿🇦' },
+  { code: 'pedi',       label: 'Sepedi',     flag: '🇿🇦' },
+  { code: 'swati',      label: 'siSwati',    flag: '🇸🇿' },
+  { code: 'ndebele',    label: 'isiNdebele', flag: '🇿🇦' },
+  { code: 'shona',      label: 'Shona',      flag: '🇿🇼' },
+  { code: 'swahili',    label: 'Kiswahili',  flag: '🇰🇪' },
+  { code: 'french',     label: 'French',     flag: '🇫🇷' },
+  { code: 'portuguese', label: 'Portuguese', flag: '🇵🇹' },
+  { code: 'arabic',     label: 'Arabic',     flag: '🇸🇦' },
+  { code: 'yoruba',     label: 'Yoruba',     flag: '🇳🇬' },
+  { code: 'hausa',      label: 'Hausa',      flag: '🇳🇬' },
+  { code: 'amharic',    label: 'Amharic',    flag: '🇪🇹' },
+]
+
 type HistoryItem = {
   id: string
   raw: string
@@ -66,6 +89,7 @@ export default function TypeAsYouFeelPage() {
   const [fixedText, setFixedText]       = useState('')
   const [tone, setTone]                 = useState('natural')
   const [language, setLanguage]         = useState('auto')
+  const [translateTo, setTranslateTo]   = useState('english')
   const [fixing, setFixing]             = useState(false)
   const [copied, setCopied]             = useState(false)
   const [history, setHistory]           = useState<HistoryItem[]>([])
@@ -125,23 +149,27 @@ export default function TypeAsYouFeelPage() {
     const langLabel = LANGUAGES.find(l => l.code === language)?.label || 'auto-detected African language'
     const toneLabel = TONES.find(t => t.id === tone)?.label || 'natural'
 
+    const targetLabel = TARGET_LANGUAGES.find(l => l.code === translateTo)?.label || 'English'
+
     const systemPrompt = `You are a writing assistant for Z2B Legacy Builders, created by Rev Mokoro Manana.
 
-YOUR ONLY JOB:
-Fix spelling, grammar and clarity of the text the user gives you.
-Translate from ${langLabel} to English if needed.
-Apply a ${toneLabel} tone.
+YOUR JOB:
+1. Fix ALL spelling and grammar errors
+2. Translate from ${langLabel} into ${targetLabel}
+3. Apply a ${toneLabel} tone
+4. Fix improper capitalisation — text written in ALL CAPS must be converted to normal sentence case
 
 CRITICAL RULES:
 1. PRESERVE the user's meaning EXACTLY — never change what they are saying
-2. PRESERVE their voice and personality — only fix errors, not style
-3. If they write in an African language or mix languages — translate naturally to English
-4. Keep it the same length as the original — do not add extra sentences
-5. Do NOT add hashtags, links or emojis unless they were already there
-6. Return ONLY the fixed text — no explanation, no preamble, nothing else
-7. The user's name is ${firstName} — if they refer to themselves, keep it personal
+2. Fix ALL CAPS — convert to normal sentence case unless it is an acronym or proper noun
+3. Fix all spelling mistakes, grammar errors and punctuation
+4. Translate naturally into ${targetLabel} — preserve the African voice and soul
+5. Keep roughly the same length — do not add extra sentences
+6. Do NOT add hashtags, links or emojis unless they were already in the original
+7. Return ONLY the fixed and translated text — no explanation, no preamble, nothing else
+8. The user's name is ${firstName} — keep it personal
 
-The user thinks and feels in their mother tongue. Your job is to make their English beautiful without losing their African soul.`
+The user thinks and feels in their mother tongue. Make their writing beautiful in ${targetLabel} without losing their African soul.`
 
     try {
       const response = await fetch('/api/coach-manlaw', {
@@ -160,12 +188,12 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
     } finally {
       setFixing(false)
     }
-  }, [tone, language, profile])
+  }, [tone, language, translateTo, profile])
 
   // Re-fix when tone changes
   useEffect(() => {
     if (rawText.trim().length > 3) fixText(rawText)
-  }, [tone, language])
+  }, [tone, language, translateTo])
 
   const handleCopy = () => {
     const textToCopy = fixedText || rawText
@@ -234,10 +262,17 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#0A0818 0%,#0D0A1E 50%,#0A0818 100%)', fontFamily: 'Georgia,serif', color: '#F5F3FF' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#0A0818 0%,#0D0A1E 50%,#0A0818 100%)', fontFamily: 'Georgia,serif', color: '#F5F3FF', position: 'relative', overflow: 'hidden' }}>
+
+      {/* ── Ambient background orbs ── */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '10%', left: '15%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)', animation: 'orb1 8s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: '50%', right: '10%', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)', animation: 'orb2 10s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', bottom: '15%', left: '30%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)', animation: 'orb3 12s ease-in-out infinite' }} />
+      </div>
 
       {/* ── Header ── */}
-      <div style={{ background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <div style={{ background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 50, animation: 'fadeSlideDown 0.5s ease forwards' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -264,10 +299,10 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
         </div>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 20px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 20px', position: 'relative', zIndex: 1 }}>
 
         {/* ── Language + Tone selectors ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
 
           {/* Language */}
           <div>
@@ -276,6 +311,16 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
             </label>
             <select value={language} onChange={e => setLanguage(e.target.value)} style={{ ...inp, cursor: 'pointer' }}>
               {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
+            </select>
+          </div>
+
+          {/* Translate To */}
+          <div>
+            <label style={{ display: 'block', fontSize: '10px', fontWeight: 700, color: 'rgba(16,185,129,0.8)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+              🌐 Translate To
+            </label>
+            <select value={translateTo} onChange={e => setTranslateTo(e.target.value)} style={{ ...inp, cursor: 'pointer', borderColor: 'rgba(16,185,129,0.25)' }}>
+              {TARGET_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
             </select>
           </div>
 
@@ -365,8 +410,8 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
                 boxSizing: 'border-box',
                 transition: 'border-color 0.2s',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,175,55,0.08)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.boxShadow = 'none' }}
             />
           </div>
 
@@ -378,7 +423,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
               </label>
               {fixing && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '14px', height: '14px', border: '2px solid rgba(212,175,55,0.2)', borderTop: '2px solid #D4AF37', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                  <div style={{ width: '14px', height: '14px', border: '2px solid rgba(212,175,55,0.2)', borderTop: '2px solid #D4AF37', borderRadius: '50%', animation: 'spin 0.6s linear infinite', boxShadow: '0 0 8px rgba(212,175,55,0.3)' }} />
                   <span style={{ fontSize: '11px', color: 'rgba(212,175,55,0.6)' }}>Fixing...</span>
                 </div>
               )}
@@ -391,7 +436,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
               rows={16}
               style={{
                 width: '100%',
-                background: fixedText ? 'rgba(212,175,55,0.05)' : 'rgba(255,255,255,0.02)',
+                background: fixedText ? 'rgba(212,175,55,0.05)' : 'rgba(255,255,255,0.02)', animation: fixedText ? 'panelReveal 0.4s ease forwards' : 'none',
                 border: fixedText ? '1.5px solid rgba(212,175,55,0.3)' : '1.5px solid rgba(255,255,255,0.07)',
                 borderRadius: '14px', padding: '16px',
                 color: fixedText ? '#F5F3FF' : 'rgba(255,255,255,0.25)',
@@ -411,7 +456,7 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
             disabled={!fixedText && !rawText}
             style={{
               flex: 2, padding: '16px',
-              background: copied ? 'rgba(16,185,129,0.15)' : 'linear-gradient(135deg,#B8860B,#D4AF37)',
+              background: copied ? 'rgba(16,185,129,0.15)' : 'linear-gradient(135deg,#B8860B,#D4AF37)', animation: fixedText && !copied ? 'btnPulse 2s ease-in-out infinite' : 'none',
               border: copied ? '1.5px solid rgba(16,185,129,0.5)' : 'none',
               borderRadius: '12px',
               color: copied ? '#6EE7B7' : '#000',
@@ -496,7 +541,54 @@ The user thinks and feels in their mother tongue. Your job is to make their Engl
         </div>
       </div>
 
-      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes orb1 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+          33%       { transform: translate(30px, -20px) scale(1.1); opacity: 0.9; }
+          66%       { transform: translate(-20px, 30px) scale(0.95); opacity: 0.7; }
+        }
+        @keyframes orb2 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          40%       { transform: translate(-40px, 20px) scale(1.15); opacity: 0.8; }
+          70%       { transform: translate(25px, -30px) scale(0.9); opacity: 0.6; }
+        }
+        @keyframes orb3 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+          50%       { transform: translate(20px, -40px) scale(1.2); opacity: 0.7; }
+        }
+        @keyframes fadeSlideDown {
+          from { opacity: 0; transform: translateY(-12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes panelReveal {
+          from { opacity: 0.5; transform: scale(0.99); }
+          to   { opacity: 1;   transform: scale(1); }
+        }
+        @keyframes btnPulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(212,175,55,0.25); }
+          50%       { box-shadow: 0 4px 32px rgba(212,175,55,0.5); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .tayf-card {
+          animation: fadeIn 0.4s ease forwards;
+        }
+        .tayf-card:nth-child(2) { animation-delay: 0.1s; }
+        .tayf-card:nth-child(3) { animation-delay: 0.2s; }
+        select:focus, input:focus {
+          outline: none;
+          border-color: rgba(212,175,55,0.4) !important;
+          box-shadow: 0 0 0 3px rgba(212,175,55,0.06);
+        }
+        button:active { transform: scale(0.97); }
+        textarea { transition: border-color 0.2s, box-shadow 0.2s; }
+      `}</style>
     </div>
   )
 }
