@@ -1,3 +1,5 @@
+"use client"
+// v2026-03-22 10:27 — Bonfire effect + Translate To + ALL CAPS fix
 'use client'
 
 // FILE LOCATION: app/type-as-you-feel/page.tsx
@@ -81,6 +83,230 @@ const DEFAULT_PHRASES: QuickPhrase[] = [
   { id: '2', label: 'Hashtags',      text: '#Reka_Obesa_Okatuka #Entrepreneurial_Consumer' },
   { id: '3', label: 'Tagline',       text: 'Never be shy to post your beautiful thoughts. — Z2B' },
 ]
+
+
+// ── Bonfire Effect ────────────────────────────────────────────
+// Gentle rising flames from a small pile of branches
+// Symbolic of #Reka_Obesa_Okatuka — we build the fire together
+function BonfireEffect() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animId: number
+    let W = window.innerWidth
+    let H = window.innerHeight
+    canvas.width  = W
+    canvas.height = H
+
+    const resize = () => {
+      W = window.innerWidth
+      H = window.innerHeight
+      canvas.width  = W
+      canvas.height = H
+    }
+    window.addEventListener('resize', resize)
+
+    // ── Branches ─────────────────────────────────────────
+    const CX = W / 2   // center X of bonfire
+    const BY = H - 40  // base Y (bottom of screen)
+
+    type Branch = { x1:number; y1:number; x2:number; y2:number; w:number; color:string }
+    const branches: Branch[] = []
+
+    // Build a small pile of criss-crossed branches
+    const branchColors = ['#5C3A1E','#6B4423','#7A4E2B','#4A2E14','#8B5E35']
+    const spread = Math.min(W * 0.12, 90) // how wide the pile is
+
+    for (let i = 0; i < 18; i++) {
+      const angle  = (Math.random() - 0.5) * Math.PI * 0.7
+      const len    = 40 + Math.random() * 50
+      const startX = CX + (Math.random() - 0.5) * spread * 2
+      const startY = BY - Math.random() * 14
+      branches.push({
+        x1: startX,
+        y1: startY,
+        x2: startX + Math.cos(angle) * len,
+        y2: startY + Math.sin(angle) * len - 6,
+        w: 2 + Math.random() * 3,
+        color: branchColors[Math.floor(Math.random() * branchColors.length)],
+      })
+    }
+
+    // ── Embers ────────────────────────────────────────────
+    type Ember = { x:number; y:number; r:number; life:number; maxLife:number; vx:number; vy:number }
+    const embers: Ember[] = []
+
+    const spawnEmber = () => {
+      const x = CX + (Math.random() - 0.5) * spread * 1.4
+      embers.push({
+        x,
+        y: BY - 18 - Math.random() * 10,
+        r: 0.8 + Math.random() * 1.4,
+        life: 0,
+        maxLife: 60 + Math.random() * 80,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(1.2 + Math.random() * 1.8),
+      })
+    }
+
+    // ── Flame particles ───────────────────────────────────
+    type Flame = {
+      x: number; y: number
+      vx: number; vy: number
+      life: number; maxLife: number
+      size: number; layer: number
+    }
+    const flames: Flame[] = []
+
+    const spawnFlame = (layer: number) => {
+      const jitter  = spread * (layer === 0 ? 0.9 : layer === 1 ? 0.6 : 0.3)
+      const x       = CX + (Math.random() - 0.5) * jitter * 2
+      const maxLife = layer === 0 ? 55 + Math.random()*35
+                    : layer === 1 ? 70 + Math.random()*50
+                    :               90 + Math.random()*70
+      flames.push({
+        x,
+        y: BY - 16 - Math.random() * 8,
+        vx: (Math.random() - 0.5) * (layer === 0 ? 1.0 : layer === 1 ? 0.7 : 0.4),
+        vy: -(layer === 0 ? 1.4 : layer === 1 ? 1.0 : 0.7) - Math.random() * 0.8,
+        life: 0,
+        maxLife,
+        size: layer === 0 ? 10 + Math.random()*8
+            : layer === 1 ?  7 + Math.random()*6
+            :                4 + Math.random()*4,
+        layer,
+      })
+    }
+
+    let tick = 0
+
+    const draw = () => {
+      // Clear only the bottom portion — save performance
+      ctx.clearRect(0, 0, W, H)
+
+      // ── Spawn ──
+      tick++
+      if (tick % 2  === 0) spawnFlame(0) // outer orange base
+      if (tick % 3  === 0) spawnFlame(1) // mid yellow
+      if (tick % 5  === 0) spawnFlame(2) // inner white-gold core
+      if (tick % 7  === 0) spawnEmber()
+
+      // ── Ground glow ──
+      const glow = ctx.createRadialGradient(CX, BY, 0, CX, BY, spread * 2.5)
+      glow.addColorStop(0,   'rgba(212,120,20,0.12)')
+      glow.addColorStop(0.5, 'rgba(212,80,10,0.05)')
+      glow.addColorStop(1,   'transparent')
+      ctx.fillStyle = glow
+      ctx.beginPath()
+      ctx.ellipse(CX, BY, spread * 2.5, 28, 0, 0, Math.PI * 2)
+      ctx.fill()
+
+      // ── Draw branches ──
+      branches.forEach(b => {
+        ctx.beginPath()
+        ctx.moveTo(b.x1, b.y1)
+        ctx.lineTo(b.x2, b.y2)
+        ctx.strokeStyle = b.color
+        ctx.lineWidth   = b.w
+        ctx.lineCap     = 'round'
+        ctx.globalAlpha = 0.85
+        ctx.stroke()
+        ctx.globalAlpha = 1
+      })
+
+      // ── Draw flames (back to front) ──
+      for (let i = flames.length - 1; i >= 0; i--) {
+        const f = flames[i]
+        f.life++
+        f.x  += f.vx + Math.sin(f.life * 0.18 + i) * 0.35
+        f.y  += f.vy
+        f.vy *= 0.995  // slight deceleration
+
+        if (f.life >= f.maxLife) { flames.splice(i, 1); continue }
+
+        const progress = f.life / f.maxLife
+        const alpha    = progress < 0.15
+          ? progress / 0.15
+          : progress > 0.7
+            ? (1 - progress) / 0.3
+            : 1
+        const size = f.size * (1 - progress * 0.4)
+
+        // Color by layer
+        const gradient = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, size)
+        if (f.layer === 0) {
+          // Outer — deep orange/red base
+          gradient.addColorStop(0,   `rgba(255,160,30,${alpha * 0.9})`)
+          gradient.addColorStop(0.4, `rgba(220,80,10,${alpha * 0.7})`)
+          gradient.addColorStop(1,   `rgba(180,30,0,0)`)
+        } else if (f.layer === 1) {
+          // Mid — bright yellow/orange
+          gradient.addColorStop(0,   `rgba(255,220,60,${alpha * 0.85})`)
+          gradient.addColorStop(0.4, `rgba(255,160,20,${alpha * 0.6})`)
+          gradient.addColorStop(1,   `rgba(220,80,10,0)`)
+        } else {
+          // Core — white gold
+          gradient.addColorStop(0,   `rgba(255,255,200,${alpha * 0.9})`)
+          gradient.addColorStop(0.3, `rgba(255,230,100,${alpha * 0.7})`)
+          gradient.addColorStop(1,   `rgba(255,180,30,0)`)
+        }
+
+        ctx.beginPath()
+        ctx.arc(f.x, f.y, size, 0, Math.PI * 2)
+        ctx.fillStyle = gradient
+        ctx.fill()
+      }
+
+      // ── Draw embers ──
+      for (let i = embers.length - 1; i >= 0; i--) {
+        const e = embers[i]
+        e.life++
+        e.x  += e.vx + Math.sin(e.life * 0.25) * 0.3
+        e.y  += e.vy
+        e.vy *= 0.992
+
+        if (e.life >= e.maxLife) { embers.splice(i, 1); continue }
+
+        const progress = e.life / e.maxLife
+        const alpha    = progress < 0.2 ? progress / 0.2 : (1 - progress) / 0.8
+
+        ctx.beginPath()
+        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255,200,80,${alpha * 0.9})`
+        ctx.fill()
+      }
+
+      animId = requestAnimationFrame(draw)
+    }
+
+    draw()
+
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.75,
+      }}
+    />
+  )
+}
 
 export default function TypeAsYouFeelPage() {
   const [profile, setProfile]           = useState<any>(null)
@@ -264,12 +490,8 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#0A0818 0%,#0D0A1E 50%,#0A0818 100%)', fontFamily: 'Georgia,serif', color: '#F5F3FF', position: 'relative', overflow: 'hidden' }}>
 
-      {/* ── Ambient background orbs ── */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '10%', left: '15%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)', animation: 'orb1 8s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', top: '50%', right: '10%', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)', animation: 'orb2 10s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', bottom: '15%', left: '30%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)', animation: 'orb3 12s ease-in-out infinite' }} />
-      </div>
+      {/* ── Bonfire Canvas ── */}
+      <BonfireEffect />
 
       {/* ── Header ── */}
       <div style={{ background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 50, animation: 'fadeSlideDown 0.5s ease forwards' }}>
@@ -546,20 +768,7 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-        @keyframes orb1 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
-          33%       { transform: translate(30px, -20px) scale(1.1); opacity: 0.9; }
-          66%       { transform: translate(-20px, 30px) scale(0.95); opacity: 0.7; }
-        }
-        @keyframes orb2 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-          40%       { transform: translate(-40px, 20px) scale(1.15); opacity: 0.8; }
-          70%       { transform: translate(25px, -30px) scale(0.9); opacity: 0.6; }
-        }
-        @keyframes orb3 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-          50%       { transform: translate(20px, -40px) scale(1.2); opacity: 0.7; }
-        }
+
         @keyframes fadeSlideDown {
           from { opacity: 0; transform: translateY(-12px); }
           to   { opacity: 1; transform: translateY(0); }
