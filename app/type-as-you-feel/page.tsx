@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-22 10:27 — Bonfire effect + Translate To + ALL CAPS fix
+// v2026-03-22 10:49 — + Voice to text
 'use client'
 
 // FILE LOCATION: app/type-as-you-feel/page.tsx
@@ -318,6 +318,9 @@ export default function TypeAsYouFeelPage() {
   const [translateTo, setTranslateTo]   = useState('english')
   const [fixing, setFixing]             = useState(false)
   const [copied, setCopied]             = useState(false)
+  const [listening, setListening]       = useState(false)
+  const [voiceSupported, setVoiceSupported] = useState(false)
+  const recognitionRef = useRef<any>(null)
   const [history, setHistory]           = useState<HistoryItem[]>([])
   const [phrases, setPhrases]           = useState<QuickPhrase[]>(DEFAULT_PHRASES)
   const [showHistory, setShowHistory]   = useState(false)
@@ -349,6 +352,10 @@ export default function TypeAsYouFeelPage() {
           }
         })
     })
+    // Check voice/speech recognition support
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) setVoiceSupported(true)
+
     // Load history from localStorage
     try {
       const saved = localStorage.getItem('tayf_history')
@@ -420,6 +427,69 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
   useEffect(() => {
     if (rawText.trim().length > 3) fixText(rawText)
   }, [tone, language, translateTo])
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) return
+
+    const recognition = new SpeechRecognition()
+    recognitionRef.current = recognition
+
+    // Map our language codes to BCP-47 codes for the Web Speech API
+    const langMap: Record<string, string> = {
+      auto:        'en-ZA',
+      english:     'en-ZA',
+      setswana:    'tn-ZA',
+      zulu:        'zu-ZA',
+      xhosa:       'xh-ZA',
+      sotho:       'st-ZA',
+      afrikaans:   'af-ZA',
+      tsonga:      'ts-ZA',
+      venda:       've-ZA',
+      pedi:        'nso-ZA',
+      swati:       'ss-ZA',
+      ndebele:     'nr-ZA',
+      swahili:     'sw-KE',
+      french:      'fr-FR',
+      portuguese:  'pt-PT',
+      arabic:      'ar-SA',
+      yoruba:      'yo-NG',
+      hausa:       'ha-NG',
+      amharic:     'am-ET',
+      shona:       'sn-ZW',
+    }
+
+    recognition.lang          = langMap[language] || 'en-ZA'
+    recognition.continuous    = true
+    recognition.interimResults = true
+
+    recognition.onstart = () => setListening(true)
+    recognition.onend   = () => setListening(false)
+    recognition.onerror = () => setListening(false)
+
+    recognition.onresult = (event: any) => {
+      let transcript = ''
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript
+      }
+      setRawText(transcript)
+      setCharCount(transcript.length)
+      // Debounce fix after speech pauses
+      if (event.results[event.results.length - 1].isFinal) {
+        handleRawChange(transcript)
+      }
+    }
+
+    recognition.start()
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
+    setListening(false)
+  }
 
   const handleCopy = () => {
     const textToCopy = fixedText || rawText
@@ -612,14 +682,36 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
               <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                 ✍️ Write as you feel
               </label>
-              <span style={{ fontSize: '11px', color: charCount > 0 ? 'rgba(212,175,55,0.6)' : 'rgba(255,255,255,0.2)' }}>
-                {charCount} chars
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {voiceSupported && (
+                  <button
+                    onClick={listening ? stopListening : startListening}
+                    title={listening ? 'Stop recording' : 'Speak — voice to text'}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '5px',
+                      padding: '5px 12px', borderRadius: '20px', border: 'none',
+                      cursor: 'pointer', fontFamily: 'Georgia,serif',
+                      fontSize: '11px', fontWeight: 700, transition: 'all 0.2s',
+                      background: listening ? 'rgba(239,68,68,0.2)' : 'rgba(212,175,55,0.1)',
+                      color: listening ? '#FCA5A5' : 'rgba(212,175,55,0.8)',
+                      outline: listening ? '1.5px solid rgba(239,68,68,0.5)' : '1px solid rgba(212,175,55,0.25)',
+                      animation: listening ? 'micPulse 1.2s ease-in-out infinite' : 'none',
+                    }}
+                  >
+                    <span style={{ fontSize: '13px' }}>{listening ? '⏹' : '🎙️'}</span>
+                    {listening ? 'Stop' : 'Speak'}
+                  </button>
+                )}
+                <span style={{ fontSize: '11px', color: charCount > 0 ? 'rgba(212,175,55,0.6)' : 'rgba(255,255,255,0.2)' }}>
+                  {charCount} chars
+                </span>
+              </div>
             </div>
             <textarea
               ref={rawRef}
               value={rawText}
               onChange={e => handleRawChange(e.target.value)}
+              readOnly={listening}
               placeholder={`Write anything here in any language...\n\nSpelling wrong? Grammar off? \nMixing languages? \n\nDo not worry. Just write what you feel.\nThe AI fixes it on the right side.\n\n— Never be shy to post your beautiful thoughts`}
               rows={16}
               style={{
@@ -634,7 +726,23 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
               }}
               onFocus={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,175,55,0.08)' }}
               onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.boxShadow = 'none' }}
+              style={{
+                width: '100%', background: listening ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.04)',
+                border: listening ? '1.5px solid rgba(239,68,68,0.35)' : '1.5px solid rgba(255,255,255,0.1)',
+                borderRadius: '14px', padding: '16px',
+                color: '#F5F3FF', fontSize: '15px',
+                fontFamily: 'Georgia,serif', lineHeight: 1.8,
+                resize: 'vertical', outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+              }}
             />
+            {listening && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', padding: '8px 12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', animation: 'micPulse 1s ease-in-out infinite' }} />
+                <span style={{ fontSize: '12px', color: '#FCA5A5', fontWeight: 700 }}>Listening... speak now in {LANGUAGES.find(l => l.code === language)?.label || 'your language'}</span>
+              </div>
+            )}
           </div>
 
           {/* RIGHT — AI fixes */}
@@ -796,6 +904,10 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
           box-shadow: 0 0 0 3px rgba(212,175,55,0.06);
         }
         button:active { transform: scale(0.97); }
+        @keyframes micPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+          50%       { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+        }
         textarea { transition: border-color 0.2s, box-shadow 0.2s; }
       `}</style>
     </div>
