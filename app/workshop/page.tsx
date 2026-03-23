@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-23 07:56 — Full nav
+// v2026-03-23 10:34 — Search import fixed
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect, useCallback, CSSProperties } from "
 import { useSearchParams } from "next/navigation";
 import WorkshopEmailGate from "@/components/WorkshopEmailGate";
 import ECPosterStudio from "@/components/ECPosterStudio";
+import WorkshopSearch from "@/components/WorkshopSearch";
 // ── PurpleCowShareTool — inlined ─────────────────────────────
 // ============================================================
 // FILE LOCATION: components/PurpleCowShareTool.tsx
@@ -4639,6 +4640,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
   void freeCompleted;
 
   const progressPct = Math.round((completedCount / 99) * 100);
+  const freePct     = Math.round((Math.min(completedCount, 9) / 9) * 100);
 
   return (
     <div style={{
@@ -4775,6 +4777,17 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
           >
             🎁 Start Free (9 Sessions)
           </button>
+        </div>
+
+        {/* ── Workshop Search + Bookmarks ── */}
+        <div style={{ width: "100%", maxWidth: "700px", margin: "0 auto 8px", padding: "0 20px" }}>
+          <WorkshopSearch
+            sessions={SECTIONS.map(s => ({ number: s.id, title: s.title, excerpt: s.content?.substring(0, 100) || "" }))}
+            onSelectSession={(num) => {
+              const sec = SECTIONS.find(s => s.id === num);
+              if (sec) openSection(sec.id);
+            }}
+          />
         </div>
 
         {/* ── Secondary nav buttons ── */}
@@ -6629,6 +6642,25 @@ function WorkshopInner() {
     window.scrollTo(0, 0);
   };
 
+  // ---- call progress API when session completed ----
+  const recordProgress = async (sessionNumber: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: prof } = await supabase.from('profiles').select('full_name,paid_tier').eq('id', user.id).single();
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id:        user.id,
+          session_number: sessionNumber,
+          tier:           prof?.paid_tier || 'fam',
+          name:           prof?.full_name || 'Builder',
+        }),
+      });
+    } catch(e) { console.error('Progress record error:', e); }
+  };
+
   const openMorningSession = (id: number) => {
     const ms = MORNING_SESSIONS.find(s => s.id === id);
     if (!ms) return;
@@ -6687,7 +6719,8 @@ function WorkshopInner() {
 
         // ── GroundBreaker milestone hooks ──────────────────────────
         // Upsert prospect milestone row on Session 1
-        if (currentSection === 1) {
+        recordProgress(currentSection);
+      if (currentSection === 1) {
           const ref = localStorage.getItem("z2b_ref") || null;
           await supabase.from("prospect_milestones").upsert(
             { user_id: userId, referred_by: ref, session_1_started_at: new Date().toISOString() },
