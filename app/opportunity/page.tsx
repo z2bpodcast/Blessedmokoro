@@ -1,7 +1,7 @@
 'use client'
 // FILE: app/opportunity/page.tsx
-// Z2B Table Banquet — The Opportunity Page
-// Full prospect presentation — replaces everything at /opportunity
+// Z2B Table Banquet — Digital Presentation
+// Full prospect presentation at /opportunity
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'

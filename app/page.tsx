@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-23 18:35 — opportunity nav
+// v2026-03-23 19:53 — full nav
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -134,11 +134,11 @@ export default function Home() {
                   >
                     🎓 Workshop
                   </Link>
-                  <a href="#business-opportunity"
+                  <Link href="/opportunity"
                     className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
                     style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
-                    💼 Opportunity
-                  </a>
+                    💼 Digital Presentation
+                  </Link>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -156,6 +156,15 @@ export default function Home() {
                   </Link>
                   <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     🏛️ Founders Wall
+                  </Link>
+                  <Link href="/open-table/schedule" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🍽️ Open Table
+                  </Link>
+                  <Link href="/builders-table" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    👥 Builders Table
+                  </Link>
+                  <Link href="/leaderboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🏆 Leaderboard
                   </Link>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
@@ -182,11 +191,11 @@ export default function Home() {
                   >
                     🎁 Free Workshop
                   </Link>
-                  <a href="#business-opportunity"
+                  <Link href="/opportunity"
                     className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
                     style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
-                    💼 Opportunity
-                  </a>
+                    💼 Digital Presentation
+                  </Link>
                   <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     About
                   </Link>
@@ -200,10 +209,19 @@ export default function Home() {
                     ✍️ Type As You Feel
                   </Link>
                   <Link href="/opportunity" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    💰 The Opportunity
+                    💼 Digital Presentation
                   </Link>
                   <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     🏛️ Founders Wall
+                  </Link>
+                  <Link href="/open-table/schedule" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🍽️ Open Table
+                  </Link>
+                  <Link href="/echo-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    📣 Echo Wall
+                  </Link>
+                  <Link href="/type-as-you-feel/landing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    ✍️ Type As You Feel
                   </Link>
                   <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Sign In
