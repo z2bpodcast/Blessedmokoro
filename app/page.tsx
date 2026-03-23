@@ -1,3 +1,5 @@
+"use client"
+// v2026-03-23 18:35 — opportunity nav
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -149,6 +151,12 @@ export default function Home() {
                   <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     ✍️ Type As You Feel
                   </Link>
+                  <Link href="/legacy-vault" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🔐 Legacy Vault
+                  </Link>
+                  <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🏛️ Founders Wall
+                  </Link>
                   <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Dashboard
                   </Link>
@@ -190,6 +198,12 @@ export default function Home() {
                   </Link>
                   <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     ✍️ Type As You Feel
+                  </Link>
+                  <Link href="/opportunity" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    💰 The Opportunity
+                  </Link>
+                  <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                    🏛️ Founders Wall
                   </Link>
                   <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
                     Sign In
