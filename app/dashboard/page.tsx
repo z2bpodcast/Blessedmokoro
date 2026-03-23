@@ -74,6 +74,9 @@ function DashboardInner() {
   const [copied,            setCopied]            = useState(false)
   const [notifications,     setNotifications]     = useState<ProspectNotification[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showStartHere, setShowStartHere]         = useState(() => {
+    try { return !localStorage.getItem('z2b_start_here_dismissed') } catch { return true }
+  })
   const [unreadCount,       setUnreadCount]       = useState(0)
   const [teamCount,         setTeamCount]         = useState(0)
   const [totalEarned,       setTotalEarned]       = useState(0)
@@ -364,18 +367,29 @@ function DashboardInner() {
       </div>
 
       {/* ── START HERE FLOATING BUTTON ── */}
-      <div className="relative">
-        <a href="/start-here"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-black text-white text-sm border-2 border-yellow-400 hover:scale-105 transition-all"
+      {showStartHere && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-black text-white text-sm border-2 border-yellow-400 transition-all"
           style={{ background: 'linear-gradient(135deg,#1e1b4b,#4c1d95)' }}>
-          {/* Animated 3D arrow */}
-          <span className="text-2xl animate-bounce">👆</span>
-          <span>
-            <span className="block text-yellow-400 text-xs font-bold">New? Lost? Need direction?</span>
-            <span className="block text-white text-base">❤️ Start Here</span>
-          </span>
-        </a>
-      </div>
+          <a href="/start-here" className="flex items-center gap-3 no-underline text-white">
+            <span className="text-2xl animate-bounce">👆</span>
+            <span>
+              <span className="block text-yellow-400 text-xs font-bold">New? Lost? Need direction?</span>
+              <span className="block text-white text-base">❤️ Start Here</span>
+            </span>
+          </a>
+          <button
+            onClick={() => {
+              setShowStartHere(false)
+              try { localStorage.setItem('z2b_start_here_dismissed', '1') } catch(e) {}
+            }}
+            className="ml-2 flex items-center justify-center w-6 h-6 rounded-full text-xs font-black hover:bg-white/20 transition-all"
+            style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)', flexShrink: 0 }}
+            title="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Pending payment banner — shows from URL param OR live from profile */}
       {(isPending || profile?.payment_status === 'pending') && (
