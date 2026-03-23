@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+// FILE: app/api/yoco/route.ts
+// Yoco payment webhook + charge creation
+// Yoco supports: card payments, instant EFT, QR payments
+
+const getSupabase = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const YOCO_SECRET_KEY = process.env.YOCO_SECRET_KEY || ''
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
+
+const AMOUNT_TO_TIER: Record<number, string> = {
+  480:   'bronze',
+  1200:  'copper',
+  2500:  'silver',
+  5000:  'gold',
+  12000: 'platinum',
+}
+
+// CREATE CHARGE — called from pay page
+export async function POST(req: NextRequest) {
+  const supabase = getSupabase()
+  try {
+    const body = await req.json()
+
+    // Webhook from Yoco
+    if (body.type === 'payment.succeeded') {
+      const payment   = body.payload
+      const metadata  = payment.metadata || {}
+      const userId    = metadata.user_id
+      const refCode   = metadata.ref_code
+      const amountRands = Math.round(payment.amount / 100) // Yoco sends cents
+      const newTier   = AMOUNT_TO_TIER[amountRands] || 'bronze'
+
+      if (!userId) return new NextResponse('Missing user_id', { status: 400 })
+
+      // Update profile tier
+      await supabase.from('profiles').update({
+        paid_tier:      newTier,
+        payment_status: 'paid',
+        upgraded_at:    new Date().toISOString(),
+      }).eq('id', userId)
+
+      // Record transaction
+      await supabase.from('transactions').insert({
+        user_id:        userId,
+        amount:         amountRands,
+        tier:           newTier,
+        pf_payment_id:  payment.id,
+        payment_method: 'yoco',
+        status:         'confirmed',
+        referred_by:    refCode || null,
+      })
+
+      // ISP commission for sponsor
+      if (refCode) {
+        const { data: sponsor } = await supabase.from('profiles')
+          .select('id,paid_tier,full_name').eq('referral_code', refCode).single()
+        if (sponsor) {
+          const ispRates: Record<string,number> = {
+            fam:0.10, bronze:0.18, copper:0.22, silver:0.25, gold:0.28, platinum:0.30
+          }
+          const ispAmount = amountRands * (ispRates[sponsor.paid_tier] || 0.10)
+          await supabase.from('comp_earnings').insert({
+            user_id:       sponsor.id,
+            builder_name:  sponsor.full_name,
+            earning_type:  'ISP',
+            amount:        ispAmount,
+            source_user_id: userId,
+            status:        'confirmed',
+            notes:         `ISP on R${amountRands} ${newTier} upgrade`,
+          })
+        }
+      }
+
+      // Award badge + init records
+      await supabase.from('builder_badges').upsert({
+        user_id: userId, badge_id:'bronze_legacy', badge_name:'Bronze Legacy',
+        awarded_at: new Date().toISOString(),
+      }, { onConflict:'user_id,badge_id' })
+      await supabase.from('builder_unlocks').upsert({ user_id:userId }, { onConflict:'user_id' })
+      await supabase.from('torch_streaks').upsert({ user_id:userId }, { onConflict:'user_id' })
+
+      // Send payment confirmation email
+      fetch(`${APP_URL}/api/email`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ type:'payment', user_id:userId, data:{ tier:newTier, amount:amountRands } })
+      }).catch(()=>{})
+
+      return new NextResponse('OK', { status:200 })
+    }
+
+    // CREATE CHECKOUT — called from pay page to get Yoco checkout URL
+    if (body.action === 'create_checkout') {
+      const { user_id, ref_code, tier } = body
+      const tierAmounts: Record<string,number> = {
+        bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000
+      }
+      const amountRands = tierAmounts[tier] || 480
+      const amountCents = amountRands * 100
+
+      const response = await fetch('https://payments.yoco.com/api/checkouts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${YOCO_SECRET_KEY}`,
+        },
+        body: JSON.stringify({
+          amount:      amountCents,
+          currency:    'ZAR',
+          cancelUrl:   `${APP_URL}/pricing`,
+          successUrl:  `${APP_URL}/pay/success?tier=${tier}`,
+          failureUrl:  `${APP_URL}/pricing?error=payment_failed`,
+          metadata: {
+            user_id,
+            ref_code: ref_code || '',
+            tier,
+          },
+          lineItems: [{
+            displayName: `Z2B Table Banquet — ${tier.charAt(0).toUpperCase()+tier.slice(1)} Membership`,
+            quantity: 1,
+            pricingDetails: { price: amountCents }
+          }]
+        })
+      })
+
+      const checkout = await response.json()
+      if (!response.ok) throw new Error(checkout.message || 'Yoco checkout failed')
+
+      return NextResponse.json({ checkoutUrl: checkout.redirectUrl, checkoutId: checkout.id })
+    }
+
+    return NextResponse.json({ error:'Unknown action' }, { status:400 })
+  } catch(e: any) {
+    console.error('Yoco error:', e)
+    return NextResponse.json({ error: e.message }, { status:500 })
+  }
+}

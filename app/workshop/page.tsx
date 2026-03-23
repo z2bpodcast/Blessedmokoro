@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-23 10:57 — openSection prop fix
+// v2026-03-23 11:53 — Notes + Highlight
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -10,6 +10,8 @@ import { useSearchParams } from "next/navigation";
 import WorkshopEmailGate from "@/components/WorkshopEmailGate";
 import ECPosterStudio from "@/components/ECPosterStudio";
 import WorkshopSearch from "@/components/WorkshopSearch";
+import SessionNotes from "@/components/SessionNotes";
+import SessionHighlight from "@/components/SessionHighlight";
 // ── PurpleCowShareTool — inlined ─────────────────────────────
 // ============================================================
 // FILE LOCATION: components/PurpleCowShareTool.tsx
@@ -7516,9 +7518,26 @@ What you are about to read is not theory. It is a mirror. It describes the life 
 
       <div style={S.contentCard} ref={contentRef} onScroll={handleScroll}>
         <div>{renderContent(section.content)}</div>
+        {/* ── Session Highlight — mark sentences as remarkable ── */}
+        <div style={{ marginTop: "12px", padding: "10px 0", borderTop: "1px solid rgba(212,175,55,0.1)", display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>Found something remarkable?</span>
+          <SessionHighlight
+            sessionId={section.id}
+            text={section.content.substring(0, 200)}
+            userId={builderRef.current}
+          />
+        </div>
         {!scrolledToBottom && (
           <div style={S.scrollHint}>↓ Read to the bottom to unlock the questions</div>
         )}
+      </div>
+
+      {/* ── Session Notes ── */}
+      <div style={{ maxWidth: "760px", margin: "0 auto 16px", padding: "0 20px" }}>
+        <SessionNotes
+          sessionId={section.id}
+          userId={builderRef.current}
+        />
       </div>
 
       {scrolledToBottom && (

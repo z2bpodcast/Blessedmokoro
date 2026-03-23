@@ -99,6 +99,7 @@ const NAV_SECTIONS = [
   { href:'/z2b-command-7x9k/hub',     icon:'🔗', label:'Referral Tree',        desc:'View sponsor chains and referral analytics',             color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin','support'] },
   { href:'/z2b-command-7x9k/hub',       icon:'📝', label:'Content Manager',      desc:'Create and manage workshop sessions',                    color:'#4F46E5', bg:'#EEF2FF', roles:['ceo','superadmin','content_admin'] },
   { href:'/z2b-command-7x9k/earnings',      icon:'💰', label:'Earnings Report',      desc:'ISP commissions, QPB, tier revenue breakdown',           color:'#16A34A', bg:'#DCFCE7', roles:['ceo','superadmin','admin'] },
+  { href:'/z2b-command-7x9k/email-blast',   icon:'📧', label:'Email Blast',         desc:'Send message to all builders or specific tier', color:'#0EA5E9', bg:'#E0F2FE', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/ceo-letters',  icon:'📜', label:'CEO Letters',         desc:'Write and publish weekly CEO letters to builders',       color:'#D4AF37', bg:'#FEF9C3', roles:['ceo','superadmin'] },
   { href:'/z2b-command-7x9k/open-table',   icon:'🍽️', label:'Open Table',          desc:'Schedule Sunday sessions · Go live as Rev',              color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin'] },
   { href:'/z2b-command-7x9k/marketplace',  icon:'🏪', label:'Marketplace',         desc:'Manage marketplace products · Upload apps and tools',    color:'#7C3AED', bg:'#EDE9FE', roles:['ceo','superadmin','admin'] },

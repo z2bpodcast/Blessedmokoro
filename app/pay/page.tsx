@@ -1,29 +1,27 @@
 'use client'
 // FILE: app/pay/page.tsx
-// PayFast payment page — generates secure payment form
-// Redirects to PayFast, returns to /pay/success
+// Yoco payment page — creates checkout and redirects
 
 import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-const TIER_PRICES: Record<string, { amount: number; label: string; color: string; emoji: string; features: string[] }> = {
-  bronze:   { amount: 480,   label: 'Bronze',   color: '#CD7F32', emoji: '🥉', features: ['All 99 sessions', 'ISP 18%', 'QPB bonus', 'Sales Funnel', 'Team commissions'] },
-  copper:   { amount: 1200,  label: 'Copper',   color: '#B87333', emoji: '🪙', features: ['All 99 sessions', 'ISP 22%', 'QPB bonus', 'Sales Funnel', 'Team commissions'] },
-  silver:   { amount: 2500,  label: 'Silver',   color: '#C0C0C0', emoji: '🥈', features: ['All 99 sessions', 'ISP 25%', 'QPB bonus', 'Sales Funnel', 'Team commissions'] },
-  gold:     { amount: 5000,  label: 'Gold',     color: '#D4AF37', emoji: '🥇', features: ['All 99 sessions', 'ISP 28%', 'QPB bonus', 'Sales Funnel', 'Marketplace access'] },
-  platinum: { amount: 12000, label: 'Platinum', color: '#E5E4E2', emoji: '💎', features: ['All 99 sessions', 'ISP 30%', 'QPB bonus', 'All features', 'Priority support'] },
+
+const TIER_CONFIG: Record<string, { amount:number; label:string; color:string; emoji:string; features:string[] }> = {
+  bronze:   { amount:480,   label:'Bronze',   color:'#CD7F32', emoji:'🥉', features:['All 99 sessions','ISP 18%','QPB bonus','Sales Funnel','Team commissions'] },
+  copper:   { amount:1200,  label:'Copper',   color:'#B87333', emoji:'🪙', features:['All 99 sessions','ISP 22%','QPB bonus','Sales Funnel','Team commissions'] },
+  silver:   { amount:2500,  label:'Silver',   color:'#C0C0C0', emoji:'🥈', features:['All 99 sessions','ISP 25%','QPB bonus','Sales Funnel','Team commissions'] },
+  gold:     { amount:5000,  label:'Gold',     color:'#D4AF37', emoji:'🥇', features:['All 99 sessions','ISP 28%','QPB bonus','Sales Funnel','Marketplace access'] },
+  platinum: { amount:12000, label:'Platinum', color:'#E5E4E2', emoji:'💎', features:['All 99 sessions','ISP 30%','QPB bonus','All features','Priority support'] },
 }
 
-const PAYFAST_URL = process.env.NEXT_PUBLIC_PAYFAST_SANDBOX === 'true'
-  ? 'https://sandbox.payfast.co.za/eng/process'
-  : 'https://www.payfast.co.za/eng/process'
-
 function PayPageInner() {
-  const [profile, setProfile]   = useState<any>(null)
-  const [loading, setLoading]   = useState(true)
-  const [tier, setTier]         = useState('bronze')
-  const searchParams            = useSearchParams()
+  const [profile,  setProfile]  = useState<any>(null)
+  const [loading,  setLoading]  = useState(true)
+  const [paying,   setPaying]   = useState(false)
+  const [error,    setError]    = useState('')
+  const [tier,     setTier]     = useState('bronze')
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const t = searchParams.get('tier') || 'bronze'
@@ -35,59 +33,35 @@ function PayPageInner() {
     })
   }, [searchParams])
 
-  const tierData = TIER_PRICES[tier] || TIER_PRICES.bronze
+  const tierData = TIER_CONFIG[tier] || TIER_CONFIG.bronze
 
-  const buildPayFastForm = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || !profile) return
+  const handleYocoPay = async () => {
+    if (!profile) return
+    setPaying(true); setError('')
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setError('Please sign in first'); setPaying(false); return }
 
-    const merchantId  = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID || '10000100'
-    const merchantKey = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_KEY || '46f0cd694581a'
-    const passphrase  = process.env.NEXT_PUBLIC_PAYFAST_PASSPHRASE || ''
-    const baseUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
-
-    const params: Record<string, string> = {
-      merchant_id:  merchantId,
-      merchant_key: merchantKey,
-      return_url:   `${baseUrl}/pay/success?tier=${tier}`,
-      cancel_url:   `${baseUrl}/pricing`,
-      notify_url:   `${baseUrl}/api/payfast`,
-      name_first:   profile.full_name?.split(' ')[0] || 'Builder',
-      name_last:    profile.full_name?.split(' ').slice(1).join(' ') || 'Z2B',
-      email_address: profile.email || user.email || '',
-      m_payment_id: `${user.id}-${Date.now()}`,
-      amount:       tierData.amount.toFixed(2),
-      item_name:    `Z2B Table Banquet ${tierData.label} Membership`,
-      item_description: `Z2B ${tierData.label} — Entrepreneurial Consumer Workshop`,
-      custom_str1:  user.id,
-      custom_str2:  profile.referral_code || '',
+      const res = await fetch('/api/yoco', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action:   'create_checkout',
+          user_id:  user.id,
+          ref_code: profile.referral_code || '',
+          tier,
+        })
+      })
+      const data = await res.json()
+      if (!res.ok || !data.checkoutUrl) {
+        throw new Error(data.error || 'Payment failed to initialize')
+      }
+      // Redirect to Yoco checkout
+      window.location.href = data.checkoutUrl
+    } catch(e: any) {
+      setError(e.message || 'Payment failed. Please try again.')
+      setPaying(false)
     }
-
-    // Build signature
-    const paramString = Object.keys(params)
-      .filter(k => params[k] !== '')
-      .map(k => `${k}=${encodeURIComponent(params[k]).replace(/%20/g, '+')}`)
-      .join('&')
-
-    const stringToHash = passphrase
-      ? `${paramString}&passphrase=${encodeURIComponent(passphrase)}`
-      : paramString
-
-    // Note: MD5 hash must be done server-side in production
-    // This is a simplified client-side version for demonstration
-    params.signature = ''
-
-    // Create and submit form
-    const form = document.createElement('form')
-    form.method = 'POST'
-    form.action = PAYFAST_URL
-    Object.entries(params).forEach(([k, v]) => {
-      const input = document.createElement('input')
-      input.type = 'hidden'; input.name = k; input.value = v
-      form.appendChild(input)
-    })
-    document.body.appendChild(form)
-    form.submit()
   }
 
   if (loading) return (
@@ -110,7 +84,7 @@ function PayPageInner() {
         <div style={{ textAlign:'center', marginBottom:'28px' }}>
           <Link href="/pricing" style={{ fontSize:'13px', color:'rgba(196,181,253,0.6)', textDecoration:'none' }}>← Back to Pricing</Link>
           <h1 style={{ fontSize:'28px', fontWeight:700, color:'#fff', margin:'16px 0 6px' }}>Complete Your Upgrade</h1>
-          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>Secure payment via PayFast</p>
+          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>Secure payment via Yoco</p>
         </div>
 
         {/* Order summary */}
@@ -129,7 +103,7 @@ function PayPageInner() {
           <div style={{ borderTop:`1px solid ${tierData.color}22`, paddingTop:'12px' }}>
             {tierData.features.map(f => (
               <div key={f} style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'6px' }}>
-                <span style={{ color:tierData.color, fontSize:'14px' }}>✓</span>
+                <span style={{ color:tierData.color }}>✓</span>
                 <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.65)' }}>{f}</span>
               </div>
             ))}
@@ -143,18 +117,24 @@ function PayPageInner() {
           <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>{profile.email}</div>
         </div>
 
+        {error && (
+          <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'10px', padding:'12px 16px', color:'#FCA5A5', fontSize:'13px', marginBottom:'16px' }}>
+            ⚠️ {error}
+          </div>
+        )}
+
         {/* Pay button */}
-        <button onClick={buildPayFastForm} style={{ width:'100%', padding:'18px', background:`linear-gradient(135deg,${tierData.color}cc,${tierData.color})`, border:'none', borderRadius:'14px', color: tierData.label === 'Silver' || tierData.label === 'Platinum' ? '#000' : '#fff', fontWeight:700, fontSize:'18px', cursor:'pointer', fontFamily:'Georgia,serif', marginBottom:'12px' }}>
-          💳 Pay R{tierData.amount.toLocaleString()} via PayFast
+        <button onClick={handleYocoPay} disabled={paying} style={{ width:'100%', padding:'18px', background: paying?'rgba(255,255,255,0.05)':`linear-gradient(135deg,${tierData.color}cc,${tierData.color})`, border:'none', borderRadius:'14px', color: paying?'rgba(255,255,255,0.3)':'#fff', fontWeight:700, fontSize:'18px', cursor: paying?'not-allowed':'pointer', fontFamily:'Georgia,serif', marginBottom:'12px', transition:'all 0.2s' }}>
+          {paying ? '⚡ Creating checkout...' : `💳 Pay R${tierData.amount.toLocaleString()} via Yoco`}
         </button>
 
         <p style={{ textAlign:'center', fontSize:'11px', color:'rgba(255,255,255,0.25)', lineHeight:1.6 }}>
-          You will be redirected to PayFast — South Africa's trusted payment gateway.<br />
-          EFT · Credit card · Instant EFT · Ozow supported.
+          You will be redirected to Yoco — South Africa's trusted payment platform.<br />
+          Visa · Mastercard · Instant EFT · QR code supported.
         </p>
 
         <div style={{ marginTop:'16px', textAlign:'center', display:'flex', gap:'12px', justifyContent:'center', opacity:0.4 }}>
-          {['EFT', 'Visa', 'Mastercard', 'Ozow'].map(p => (
+          {['Visa','Mastercard','Instant EFT','QR'].map(p => (
             <span key={p} style={{ fontSize:'10px', padding:'3px 10px', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'6px', color:'rgba(255,255,255,0.5)' }}>{p}</span>
           ))}
         </div>

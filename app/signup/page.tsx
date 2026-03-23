@@ -71,7 +71,13 @@ function QuickGate({ referralCode, sponsorName, onSwitchFull }: {
             .eq('id', user.id)
         }
         setDone(true)
-        setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
+        // Send welcome email
+      fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'welcome', user_id: data.user?.id })
+      }).catch(() => {}) // Non-blocking
+      setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
         return
       }
       if (signUpError) throw signUpError
@@ -545,6 +551,17 @@ function SignUpPage() {
   const searchParams  = useSearchParams()
   const referralCode  = searchParams.get('ref')
   const mode          = searchParams.get('mode')
+
+  // Auto-track referral click when signup page loads with a ref code
+  useEffect(() => {
+    if (referralCode) {
+      fetch('/api/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref_code: referralCode })
+      }).catch(() => {})
+    }
+  }, [referralCode])
   const [sponsorName, setSponsorName] = useState('')
   const [showFull, setShowFull]       = useState(false)
 
