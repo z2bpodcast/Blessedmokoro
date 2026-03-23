@@ -745,6 +745,16 @@ function DashboardInner() {
               style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
               <span className="text-2xl">🏛️</span>Founders Wall
             </Link>
+            <Link href="/legacy-vault"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0D0A1E,#1E1B4B)', borderColor: '#D4AF37', color: '#F5D060' }}>
+              <span className="text-2xl">🔐</span>Legacy Vault
+            </Link>
+            <Link href="/legacy-vault"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C1A0A,#292207)', borderColor: '#D4AF37', color: '#FDE68A' }}>
+              <span className="text-2xl">🔐</span>Legacy Vault
+            </Link>
           </div>
         </div>
 
