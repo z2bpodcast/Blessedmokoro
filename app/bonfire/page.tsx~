@@ -1,0 +1,295 @@
+'use client'
+// FILE: app/bonfire/page.tsx
+// Bonfire Circle — Private: your 4 · Public: flame size
+
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
+
+type CircleMember = {
+  id: string
+  member_name: string
+  sessions_done: number
+  last_active: string | null
+  status: string
+  invited_at: string
+}
+
+export default function BonfirePage() {
+  const [profile, setProfile]       = useState<any>(null)
+  const [circle, setCircle]         = useState<CircleMember[]>([])
+  const [unlocks, setUnlocks]       = useState<any>(null)
+  const [streak, setStreak]         = useState<any>(null)
+  const [loading, setLoading]       = useState(true)
+  const [addName, setAddName]       = useState('')
+  const [addEmail, setAddEmail]     = useState('')
+  const [adding, setAdding]         = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const tableSize = unlocks?.invites_session1_complete || 0
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); return }
+
+      const [p, c, u, s] = await Promise.all([
+        supabase.from('profiles').select('full_name,referral_code,paid_tier').eq('id', user.id).single(),
+        supabase.from('bonfire_circle').select('*').eq('builder_id', user.id).order('invited_at'),
+        supabase.from('builder_unlocks').select('*').eq('user_id', user.id).single(),
+        supabase.from('torch_streaks').select('*').eq('user_id', user.id).single(),
+      ])
+      setProfile(p.data); setCircle(c.data || [])
+      setUnlocks(u.data); setStreak(s.data)
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  useEffect(() => {
+    if (!loading) drawFlame()
+  }, [circle, tableSize, loading])
+
+  const drawFlame = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const W = 200, H = 200
+    canvas.width = W; canvas.height = H
+    ctx.clearRect(0, 0, W, H)
+
+    const activeCount = circle.filter(m => m.sessions_done > 0).length
+    const intensity   = Math.min(activeCount / 4, 1)
+    const baseH       = 40 + intensity * 80
+
+    // Ground glow
+    const glow = ctx.createRadialGradient(W/2, H-20, 0, W/2, H-20, 70)
+    glow.addColorStop(0,   `rgba(255,120,20,${0.15 + intensity * 0.2})`)
+    glow.addColorStop(1,   'transparent')
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H)
+
+    // Branches
+    const branchColors = ['#5C3A1E','#7A4E2B','#4A2E14']
+    for (let i = 0; i < 10; i++) {
+      const angle = (Math.random() - 0.5) * Math.PI * 0.7
+      const len   = 20 + Math.random() * 30
+      const sx    = W/2 + (Math.random()-0.5)*40
+      const sy    = H - 20 - Math.random()*8
+      ctx.beginPath()
+      ctx.moveTo(sx, sy)
+      ctx.lineTo(sx + Math.cos(angle)*len, sy + Math.sin(angle)*len - 4)
+      ctx.strokeStyle = branchColors[i % 3]
+      ctx.lineWidth   = 1.5 + Math.random()*2
+      ctx.lineCap     = 'round'
+      ctx.globalAlpha = 0.8
+      ctx.stroke()
+      ctx.globalAlpha = 1
+    }
+
+    if (activeCount === 0) return
+
+    // Draw flames
+    for (let i = 0; i < 3; i++) {
+      const x = W/2 + (Math.random()-0.5)*20
+      const h = baseH * (0.6 + Math.random()*0.4)
+      const g = ctx.createRadialGradient(x, H-20, 0, x, H-20-h/2, h)
+      if (i === 0) {
+        g.addColorStop(0, `rgba(255,200,50,${0.6+intensity*0.3})`)
+        g.addColorStop(0.5, `rgba(255,100,10,${0.4+intensity*0.3})`)
+        g.addColorStop(1, 'transparent')
+      } else if (i === 1) {
+        g.addColorStop(0, `rgba(255,220,100,${0.5+intensity*0.3})`)
+        g.addColorStop(0.5, `rgba(255,120,20,${0.3+intensity*0.2})`)
+        g.addColorStop(1, 'transparent')
+      } else {
+        g.addColorStop(0, `rgba(255,255,200,${0.7})`)
+        g.addColorStop(0.3, `rgba(255,200,50,${0.5})`)
+        g.addColorStop(1, 'transparent')
+      }
+      ctx.beginPath()
+      ctx.ellipse(x, H - 20 - h/3, 12 + intensity*8, h/2, 0, 0, Math.PI*2)
+      ctx.fillStyle = g
+      ctx.fill()
+    }
+  }
+
+  const handleAddMember = async () => {
+    if (!addName.trim() || circle.length >= 4) return
+    setAdding(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      await supabase.from('bonfire_circle').insert({
+        builder_id:  user.id,
+        member_name: addName.trim(),
+        member_email: addEmail.trim() || null,
+        status:      'invited',
+      })
+      const { data } = await supabase.from('bonfire_circle').select('*').eq('builder_id', user.id).order('invited_at')
+      if (data) setCircle(data)
+      setAddName(''); setAddEmail('')
+    } catch(e) {}
+    setAdding(false)
+  }
+
+  const getStatusColor = (m: CircleMember) => {
+    if (m.sessions_done >= 1) return '#6EE7B7'
+    if (m.status === 'invited') return '#D4AF37'
+    return 'rgba(255,255,255,0.3)'
+  }
+
+  const getStatusLabel = (m: CircleMember) => {
+    if (m.sessions_done >= 9) return '🔥 Active Builder'
+    if (m.sessions_done >= 1) return `📚 Session ${m.sessions_done}`
+    return '📩 Invited'
+  }
+
+  const inp: React.CSSProperties = { background:'rgba(255,255,255,0.06)', border:'1.5px solid rgba(255,255,255,0.1)', borderRadius:'10px', padding:'10px 14px', color:'#F5F3FF', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' }
+
+  return (
+    <div style={{ minHeight:'100vh', background:'linear-gradient(160deg,#0A0818,#0D0A1E,#0A0818)', fontFamily:'Georgia,serif', color:'#F5F3FF' }}>
+
+      {/* Header */}
+      <div style={{ background:'rgba(0,0,0,0.4)', borderBottom:'1px solid rgba(251,146,60,0.2)', backdropFilter:'blur(10px)', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
+        <Link href="/dashboard" style={{ textDecoration:'none', fontSize:'13px', color:'rgba(196,181,253,0.6)' }}>← Dashboard</Link>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <span style={{ fontSize:'20px' }}>🔥</span>
+          <span style={{ fontSize:'16px', fontWeight:700, color:'#FB923C' }}>My Bonfire Circle</span>
+        </div>
+        {profile && <div style={{ fontSize:'12px', color:'#D4AF37', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'20px', padding:'4px 14px' }}>{profile.full_name?.split(' ')[0]}</div>}
+      </div>
+
+      <div style={{ maxWidth:'900px', margin:'0 auto', padding:'28px 20px' }}>
+
+        {/* Top stats */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'14px', marginBottom:'28px' }}>
+          {[
+            { label:'Table Size',      value: tableSize,                                        color:'#FB923C', icon:'🔥' },
+            { label:'Torch Streak',    value: `${streak?.current_streak || 0} days`,            color:'#D4AF37', icon:'⚡' },
+            { label:'Torch Bearer',    value: unlocks?.torch_bearer_active ? 'Active 🏅':'Earn it', color: unlocks?.torch_bearer_active?'#6EE7B7':'rgba(255,255,255,0.4)', icon:'🏅' },
+          ].map(s => (
+            <div key={s.label} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${s.color}22`, borderRadius:'14px', padding:'18px', textAlign:'center' }}>
+              <div style={{ fontSize:'22px', marginBottom:'4px' }}>{s.icon}</div>
+              <div style={{ fontSize:'22px', fontWeight:700, color:s.color }}>{s.value}</div>
+              <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', marginTop:'3px' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'24px' }}>
+
+          {/* Left — Bonfire visual + circle */}
+          <div>
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(251,146,60,0.15)', borderRadius:'20px', padding:'24px', marginBottom:'20px', textAlign:'center' }}>
+              <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(251,146,60,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'16px' }}>Your Bonfire</div>
+              <canvas ref={canvasRef} style={{ width:'160px', height:'160px', margin:'0 auto', display:'block' }} />
+              <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.5)', lineHeight:1.6 }}>
+                {circle.filter(m=>m.sessions_done>0).length === 0
+                  ? 'Your fire needs its first sticks — invite your circle'
+                  : circle.filter(m=>m.sessions_done>0).length === 4
+                    ? '🔥 Your bonfire is burning strong — all 4 are active!'
+                    : `${circle.filter(m=>m.sessions_done>0).length} of 4 sticks are burning`}
+              </div>
+            </div>
+
+            {/* Public flame size */}
+            <div style={{ background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'16px', padding:'18px', textAlign:'center' }}>
+              <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(212,175,55,0.6)', letterSpacing:'1px', marginBottom:'8px' }}>PUBLIC FLAME SIZE</div>
+              <div style={{ fontSize:'36px', fontWeight:700, color:'#D4AF37' }}>{tableSize}</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'4px' }}>active builders across your entire table</div>
+              <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.5)', marginTop:'8px', fontStyle:'italic' }}>
+                This number is visible on your public profile. Names are private.
+              </div>
+            </div>
+          </div>
+
+          {/* Right — Circle members */}
+          <div>
+            <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(251,146,60,0.8)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'14px' }}>
+              Your Inner 4 — Private Circle
+            </div>
+
+            {/* Slots */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'20px' }}>
+              {[0,1,2,3].map(i => {
+                const m = circle[i]
+                return (
+                  <div key={i} style={{ background: m?'rgba(255,255,255,0.05)':'rgba(255,255,255,0.02)', border: m?`1px solid ${getStatusColor(m)}33`:'1px dashed rgba(255,255,255,0.08)', borderRadius:'12px', padding:'14px 16px', display:'flex', alignItems:'center', gap:'12px' }}>
+                    <div style={{ width:'38px', height:'38px', borderRadius:'50%', background: m?`rgba(251,146,60,0.15)`:'rgba(255,255,255,0.04)', border: m?'1.5px solid rgba(251,146,60,0.3)':'1px dashed rgba(255,255,255,0.12)', display:'flex', alignItems:'center', justifyContent:'center', fontSize: m?'16px':'18px', flexShrink:0, color: m?'#FB923C':'rgba(255,255,255,0.2)' }}>
+                      {m ? m.member_name.charAt(0).toUpperCase() : '+'}
+                    </div>
+                    {m ? (
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:'14px', fontWeight:700, color:'#fff' }}>{m.member_name}</div>
+                        <div style={{ fontSize:'11px', color:getStatusColor(m), marginTop:'2px' }}>{getStatusLabel(m)}</div>
+                      </div>
+                    ) : (
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.25)', fontStyle:'italic' }}>Seat {i+1} — empty</div>
+                        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.15)', marginTop:'2px' }}>Invite someone to fill this seat</div>
+                      </div>
+                    )}
+                    {m && m.sessions_done >= 1 && (
+                      <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#6EE7B7', flexShrink:0 }} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Add member form */}
+            {circle.length < 4 && (
+              <div style={{ background:'rgba(251,146,60,0.06)', border:'1px solid rgba(251,146,60,0.2)', borderRadius:'14px', padding:'16px' }}>
+                <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(251,146,60,0.7)', letterSpacing:'1px', marginBottom:'10px' }}>ADD TO YOUR CIRCLE</div>
+                <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'10px' }}>
+                  <input value={addName} onChange={e => setAddName(e.target.value)} placeholder="Their name *" style={{ ...inp, width:'100%' }} />
+                  <input value={addEmail} onChange={e => setAddEmail(e.target.value)} placeholder="Email (optional)" style={{ ...inp, width:'100%' }} />
+                </div>
+                <div style={{ display:'flex', gap:'8px' }}>
+                  <button onClick={handleAddMember} disabled={adding || !addName.trim()} style={{ flex:1, padding:'10px', background: addName.trim()?'linear-gradient(135deg,#7C2D12,#C2410C)':'rgba(255,255,255,0.05)', border:'none', borderRadius:'10px', color: addName.trim()?'#FED7AA':'rgba(255,255,255,0.25)', fontWeight:700, fontSize:'13px', cursor: addName.trim()?'pointer':'not-allowed', fontFamily:'Georgia,serif' }}>
+                    {adding ? 'Adding...' : '🔥 Add to Circle'}
+                  </button>
+                  <Link href="/invite" style={{ flex:1, padding:'10px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    🎴 Send Card
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Unlock status */}
+            <div style={{ marginTop:'16px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'14px' }}>
+              <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'1px', marginBottom:'10px' }}>UNLOCK PROGRESS</div>
+              {[
+                { label:'Coach Manlaw', need:1, have: unlocks?.invites_registered||0, icon:'🤖' },
+                { label:'Social Features', need:4, have: unlocks?.invites_session1_complete||0, icon:'🌐' },
+              ].map(u => (
+                <div key={u.label} style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px' }}>
+                  <span style={{ fontSize:'14px' }}>{u.icon}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
+                      <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>{u.label}</span>
+                      <span style={{ fontSize:'11px', color: u.have >= u.need?'#6EE7B7':'rgba(255,255,255,0.3)' }}>{u.have}/{u.need}</span>
+                    </div>
+                    <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'2px', overflow:'hidden' }}>
+                      <div style={{ height:'100%', width:`${Math.min(u.have/u.need*100,100)}%`, background: u.have>=u.need?'#6EE7B7':'linear-gradient(90deg,#D4AF37,#F5D060)', borderRadius:'2px', transition:'width 0.4s' }} />
+                    </div>
+                  </div>
+                  {u.have >= u.need && <span style={{ fontSize:'14px' }}>✅</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Philosophy footer */}
+        <div style={{ marginTop:'32px', textAlign:'center', padding:'20px', borderTop:'1px solid rgba(212,175,55,0.1)' }}>
+          <p style={{ fontSize:'13px', color:'rgba(212,175,55,0.5)', fontStyle:'italic', margin:0 }}>
+            "We put up sticks and leaves together and build a Bonfire."
+          </p>
+          <p style={{ fontSize:'11px', color:'rgba(255,255,255,0.2)', margin:'4px 0 0' }}>#Reka_Obesa_Okatuka</p>
+        </div>
+      </div>
+    </div>
+  )
+}
