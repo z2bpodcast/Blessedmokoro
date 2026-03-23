@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-23 10:34 — Search import fixed
+// v2026-03-23 10:57 — openSection prop fix
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -1500,6 +1500,7 @@ interface HomeViewProps {
   setView: (v: ViewType) => void;
   completedCount: number;
   freeCompleted: number;
+  openSection: (id: number) => void;
 }
 
 interface PaywallViewProps {
@@ -4636,7 +4637,7 @@ const WO: Record<string, CSSProperties> = {
 // ============================================================
 // HOME VIEW
 // ============================================================
-function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
+function HomeView({ setView, completedCount, freeCompleted, openSection }: HomeViewProps) {
   void freeCompleted;
 
   const progressPct = Math.round((completedCount / 99) * 100);
@@ -7053,7 +7054,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
   if (view === "home") return (
     <>
       {welcomeOverlay}
-      <HomeView setView={setView} completedCount={completedCount} freeCompleted={freeCompleted} />
+      <HomeView setView={setView} completedCount={completedCount} freeCompleted={freeCompleted} openSection={openSection} />
     </>
   );
   if (view === "paywall") return <PaywallView setView={setView} />;
