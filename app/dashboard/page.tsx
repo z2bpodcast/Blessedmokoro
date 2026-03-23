@@ -666,6 +666,16 @@ function DashboardInner() {
               style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
               <span className="text-2xl">🏪</span>Marketplace
             </Link>
+            <Link href="/invite"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C0500,#7C2D12)', borderColor: '#FB923C', color: '#FED7AA' }}>
+              <span className="text-2xl">🎴</span>Invite
+            </Link>
+            <Link href="/bonfire"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C0500,#92400E)', borderColor: '#F97316', color: '#FED7AA' }}>
+              <span className="text-2xl">🔥</span>My Bonfire
+            </Link>
           </div>
         </div>
 
