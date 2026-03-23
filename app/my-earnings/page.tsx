@@ -54,7 +54,7 @@ interface TeamMember {
 
 const STREAM_INFO: Record<string, { label: string; emoji: string; color: string; bg: string; desc: string }> = {
   ISP:       { label:'Individual Sales Profit', emoji:'💰', color:'#059669', bg:'#D1FAE5', desc:'Your personal sales commission' },
-  QPB:       { label:'Quick Pathfinder Bonus',  emoji:'⚡', color:'#D97706', bg:'#FEF3C7', desc:'Bonus for recruiting 4+ builders/month' },
+  QPB:       { label:'Quick Pathfinder Bonus',  emoji:'⚡', color:'#D97706', bg:'#FEF3C7', desc:'Bonus for recruiting 4+ builders/month in first 90 days' },
   TSC:       { label:'Team Sales Commission',   emoji:'🌳', color:'#1D4ED8', bg:'#DBEAFE', desc:'Commission from your team\'s sales' },
   MKT:       { label:'Marketplace Sales',       emoji:'🛍️', color:'#0369A1', bg:'#E0F2FE', desc:'Your marketplace product sales' },
   CEO_AWARD: { label:'CEO Award',               emoji:'🎖️', color:'#DC2626', bg:'#FEE2E2', desc:'Special CEO recognition award' },
@@ -64,6 +64,8 @@ const STREAM_INFO: Record<string, { label: string; emoji: string; color: string;
 export default function MyEarningsPage() {
   const [profile,    setProfile]    = useState<Profile | null>(null)
   const [earnings,   setEarnings]   = useState<Earning[]>([])
+  const [torchBearer, setTorchBearer] = useState(false)
+  const [torchMonth,  setTorchMonth]  = useState('')
   const [team,       setTeam]       = useState<TeamMember[]>([])
   const [loading,    setLoading]    = useState(true)
   const [activeTab,  setActiveTab]  = useState<'overview'|'history'|'team'|'plan'>('overview')
@@ -79,6 +81,17 @@ export default function MyEarningsPage() {
       .eq('id', user.id).single()
     if (!prof) { router.push('/dashboard'); return }
     setProfile(prof as Profile)
+
+    // Load torch bearer status
+    const { data: unlockData } = await supabase
+      .from('builder_unlocks')
+      .select('torch_bearer_active, torch_bearer_month')
+      .eq('user_id', user.id)
+      .single()
+    if (unlockData) {
+      setTorchBearer(unlockData.torch_bearer_active || false)
+      setTorchMonth(unlockData.torch_bearer_month || '')
+    }
 
     // Load earnings from comp_earnings
     const { data: earningsData } = await supabase
@@ -155,6 +168,12 @@ export default function MyEarningsPage() {
                   {tier.toUpperCase()}
                 </span>
                 <span className="ml-2 text-yellow-300 font-bold">{ispRate}% ISP</span>
+                {torchBearer && (
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-black"
+                    style={{ background:'rgba(212,175,55,0.2)', color:'#D4AF37', border:'1px solid rgba(212,175,55,0.4)' }}>
+                    🏅 TORCH BEARER — QPB ACTIVE
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex gap-3">

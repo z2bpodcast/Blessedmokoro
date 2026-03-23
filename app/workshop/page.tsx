@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-22 09:58
+// v2026-03-23 07:56 — Full nav
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -4809,6 +4809,42 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
             padding: "10px 18px", borderRadius: "10px", color: "#D4AF37",
             fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
           }}>✍️ Type As You Feel</a>
+          <a href="/invite" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(194,65,12,0.08)", border: "1px solid rgba(194,65,12,0.3)",
+            padding: "10px 18px", borderRadius: "10px", color: "#FED7AA",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>🎴 Invite</a>
+          <a href="/bonfire" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(124,45,12,0.1)", border: "1px solid rgba(249,115,22,0.3)",
+            padding: "10px 18px", borderRadius: "10px", color: "#FB923C",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>🔥 My Bonfire</a>
+          <a href="/daily-spark" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(120,53,15,0.1)", border: "1px solid rgba(212,175,55,0.25)",
+            padding: "10px 18px", borderRadius: "10px", color: "#FDE68A",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>⚡ Daily Spark</a>
+          <a href="/builders-table" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(6,78,59,0.1)", border: "1px solid rgba(16,185,129,0.25)",
+            padding: "10px 18px", borderRadius: "10px", color: "#6EE7B7",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>🍽️ Builders Table</a>
+          <a href="/leaderboard" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(120,53,15,0.08)", border: "1px solid rgba(212,175,55,0.2)",
+            padding: "10px 18px", borderRadius: "10px", color: "#D4AF37",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>🏆 Leaderboard</a>
+          <a href="/legacy-vault" style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: "rgba(13,10,30,0.3)", border: "1px solid rgba(212,175,55,0.3)",
+            padding: "10px 18px", borderRadius: "10px", color: "#F5D060",
+            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
+          }}>🔐 Legacy Vault</a>
         </div>
 
         {/* ── T.E.E.E pills ── */}

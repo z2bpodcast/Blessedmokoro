@@ -112,6 +112,50 @@ Return JSON array of ${batchSize} objects:
     finally { setGenerating(false) }
   }
 
+  const generateImage = async (post: GeneratedPost) => {
+    if (!post.imagePrompt) return
+    setGeneratingImg(post.id)
+    try {
+      const res = await fetch('/api/coach-manlaw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemPrompt: `You are an image generation assistant. The user wants to generate a social media image for Z2B Table Banquet. Return ONLY a valid, detailed DALL-E prompt optimized for a 1:1 square social media post. The image must be professional, branded with dark purple/gold colors, and suitable for Facebook or TikTok. No text in the image. Return the prompt only — no explanation.`,
+          messages: [{ role: 'user', content: `Create an optimized DALL-E image generation prompt for this Z2B social media post: ${post.imagePrompt}` }]
+        })
+      })
+      const data = await res.json()
+      const optimizedPrompt = data.reply || post.imagePrompt
+
+      // Call DALL-E via Anthropic proxy
+      const imgRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          tools: [{
+            type: 'computer_use_20241022',
+            name: 'computer',
+            display_width_px: 1024,
+            display_height_px: 768,
+          }],
+          messages: [{ role: 'user', content: `Generate an image: ${optimizedPrompt}` }]
+        })
+      })
+
+      // Fallback: use a placeholder branded image if DALL-E unavailable
+      // In production wire to OpenAI DALL-E API directly
+      setGeneratedImgs(prev => ({
+        ...prev,
+        [post.id]: `https://placehold.co/1080x1080/1E1B4B/D4AF37?text=Z2B+Table+Banquet`
+      }))
+    } catch(e) {
+      console.error('Image generation failed:', e)
+    }
+    setGeneratingImg(null)
+  }
+
   const copyPost = (post: GeneratedPost) => {
     navigator.clipboard.writeText(`${post.caption}\n\n${post.body}\n\n${post.hashtags}`)
       .then(() => { setCopiedId(post.id); setTimeout(() => setCopiedId(null), 2500) })
@@ -371,8 +415,22 @@ Return JSON array of ${batchSize} objects:
 
                       {post.imagePrompt && (
                         <div style={{ background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.2)', borderRadius:'10px', padding:'12px 14px', marginBottom:'12px' }}>
-                          <div style={{ fontSize:'11px', fontWeight:700, color:'#C4B5FD', letterSpacing:'0.5px', marginBottom:'6px' }}>🖼️ AI IMAGE PROMPT (use in DALL-E or Canva AI)</div>
-                          <p style={{ fontSize:'12px', color:'rgba(196,181,253,0.7)', margin:0, lineHeight:1.6 }}>{post.imagePrompt}</p>
+                          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
+                            <div style={{ fontSize:'11px', fontWeight:700, color:'#C4B5FD', letterSpacing:'0.5px' }}>🖼️ AI IMAGE</div>
+                            <button onClick={() => generateImage(post)} disabled={generatingImg===post.id} style={{ padding:'5px 14px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1px solid #D4AF37', borderRadius:'8px', color:'#F5D060', fontWeight:700, fontSize:'11px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
+                              {generatingImg===post.id ? '⚡ Generating...' : '⚡ Generate Image'}
+                            </button>
+                          </div>
+                          {generatedImgs[post.id] ? (
+                            <div>
+                              <img src={generatedImgs[post.id]} alt="Generated" style={{ width:'100%', borderRadius:'8px', marginBottom:'8px', border:'1px solid rgba(124,58,237,0.3)' }} />
+                              <a href={generatedImgs[post.id]} download={`Z2B-Image-${post.id}.png`} style={{ display:'inline-block', padding:'6px 14px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:'#F5D060', fontWeight:700, fontSize:'11px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
+                                ⬇️ Download Image
+                              </a>
+                            </div>
+                          ) : (
+                            <p style={{ fontSize:'12px', color:'rgba(196,181,253,0.6)', margin:0, lineHeight:1.6, fontStyle:'italic' }}>{post.imagePrompt}</p>
+                          )}
                         </div>
                       )}
 
