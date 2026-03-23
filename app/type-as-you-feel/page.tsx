@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-22 11:31 — voice fix
+// v2026-03-23 04:47 — setError fix
 'use client'
 
 // FILE LOCATION: app/type-as-you-feel/page.tsx
@@ -331,6 +331,7 @@ export default function TypeAsYouFeelPage() {
   const [newPhraseText, setNewPhraseText]   = useState('')
   const [charCount, setCharCount]       = useState(0)
   const [typingTimer, setTypingTimer]   = useState<any>(null)
+  const [error, setError]               = useState('')
   const fixedRef = useRef<HTMLTextAreaElement>(null)
   const rawRef   = useRef<HTMLTextAreaElement>(null)
 
@@ -813,6 +814,12 @@ The user thinks and feels in their mother tongue. Make their writing beautiful i
         </div>
 
         {/* ── Action buttons ── */}
+        {error && (
+          <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px 14px', color:'#FCA5A5', fontSize:'13px', marginBottom:'12px', display:'flex', alignItems:'center', gap:'8px' }}>
+            <span>⚠️</span> {error}
+            <button onClick={() => setError('')} style={{ marginLeft:'auto', background:'none', border:'none', color:'rgba(252,165,165,0.6)', cursor:'pointer', fontSize:'16px', lineHeight:1 }}>×</button>
+          </div>
+        )}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}>
           <button
             onClick={handleCopy}
