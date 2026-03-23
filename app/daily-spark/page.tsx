@@ -1,13 +1,11 @@
 'use client'
 // FILE: app/daily-spark/page.tsx
-import PushSubscribe from '@/components/PushSubscribe'
 // Daily Spark — 6am daily insight + Badge Wall + Torch Challenge progress
 
+import PushSubscribe from '@/components/PushSubscribe'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import PushSubscribe from '@/components/PushSubscribe'
 import Link from 'next/link'
-import PushSubscribe from '@/components/PushSubscribe'
 
 // ── Badge definitions ─────────────────────────────────────────
 const BADGES = [
