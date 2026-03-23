@@ -3,12 +3,10 @@
 // PayFast payment page — generates secure payment form
 // Redirects to PayFast, returns to /pay/success
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import crypto from 'crypto'
-
 const TIER_PRICES: Record<string, { amount: number; label: string; color: string; emoji: string; features: string[] }> = {
   bronze:   { amount: 480,   label: 'Bronze',   color: '#CD7F32', emoji: '🥉', features: ['All 99 sessions', 'ISP 18%', 'QPB bonus', 'Sales Funnel', 'Team commissions'] },
   copper:   { amount: 1200,  label: 'Copper',   color: '#B87333', emoji: '🪙', features: ['All 99 sessions', 'ISP 22%', 'QPB bonus', 'Sales Funnel', 'Team commissions'] },
@@ -21,7 +19,7 @@ const PAYFAST_URL = process.env.NEXT_PUBLIC_PAYFAST_SANDBOX === 'true'
   ? 'https://sandbox.payfast.co.za/eng/process'
   : 'https://www.payfast.co.za/eng/process'
 
-export default function PayPage() {
+function PayPageInner() {
   const [profile, setProfile]   = useState<any>(null)
   const [loading, setLoading]   = useState(true)
   const [tier, setTier]         = useState('bronze')
@@ -162,5 +160,17 @@ export default function PayPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PayPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight:'100vh', background:'#0A0818', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>
+        Loading...
+      </div>
+    }>
+      <PayPageInner />
+    </Suspense>
   )
 }

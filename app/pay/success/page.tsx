@@ -2,12 +2,12 @@
 // FILE: app/pay/success/page.tsx
 // PayFast payment success page
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function PaySuccessPage() {
+function PaySuccessInner() {
   const [profile, setProfile] = useState<any>(null)
   const searchParams = useSearchParams()
   const tier = searchParams.get('tier') || 'bronze'
@@ -63,5 +63,17 @@ export default function PaySuccessPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function PaySuccessPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight:'100vh', background:'#0A0818', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>
+        Loading...
+      </div>
+    }>
+      <PaySuccessInner />
+    </Suspense>
   )
 }
