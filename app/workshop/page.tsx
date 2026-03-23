@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-23 11:53 — Notes + Highlight
+// v2026-03-23 12:31 — builderRef fix
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -7524,7 +7524,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
           <SessionHighlight
             sessionId={section.id}
             text={section.content.substring(0, 200)}
-            userId={builderRef.current}
+            userId={builderRef}
           />
         </div>
         {!scrolledToBottom && (
@@ -7536,7 +7536,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
       <div style={{ maxWidth: "760px", margin: "0 auto 16px", padding: "0 20px" }}>
         <SessionNotes
           sessionId={section.id}
-          userId={builderRef.current}
+          userId={builderRef}
         />
       </div>
 
