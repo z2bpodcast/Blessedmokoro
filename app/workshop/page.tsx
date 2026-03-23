@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-23 19:54 — full nav
+// v2026-03-23 12:31 — builderRef fix
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -12,7 +12,6 @@ import ECPosterStudio from "@/components/ECPosterStudio";
 import WorkshopSearch from "@/components/WorkshopSearch";
 import SessionNotes from "@/components/SessionNotes";
 import SessionHighlight from "@/components/SessionHighlight";
-import CoachManlawVoice from "@/components/CoachManlawVoice";
 // ── PurpleCowShareTool — inlined ─────────────────────────────
 // ============================================================
 // FILE LOCATION: components/PurpleCowShareTool.tsx
@@ -4862,48 +4861,6 @@ function HomeView({ setView, completedCount, freeCompleted, openSection }: HomeV
             padding: "10px 18px", borderRadius: "10px", color: "#F5D060",
             fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
           }}>🔐 Legacy Vault</a>
-          <a href="/opportunity" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.4)",
-            padding: "10px 18px", borderRadius: "10px", color: "#D4AF37",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>💼 Digital Presentation</a>
-          <a href="/my-funnel" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)",
-            padding: "10px 18px", borderRadius: "10px", color: "#6EE7B7",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>🎯 My Funnel</a>
-          <a href="/open-table" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.25)",
-            padding: "10px 18px", borderRadius: "10px", color: "#C4B5FD",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>🍽️ Open Table</a>
-          <a href="/echo-wall" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-            padding: "10px 18px", borderRadius: "10px", color: "rgba(255,255,255,0.6)",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>📣 Echo Wall</a>
-          <a href="/ceo-letters" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.2)",
-            padding: "10px 18px", borderRadius: "10px", color: "rgba(212,175,55,0.8)",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>📜 CEO Letters</a>
-          <a href="/my-journey" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.2)",
-            padding: "10px 18px", borderRadius: "10px", color: "#C4B5FD",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>⏳ My Journey</a>
-          <a href="/profile" style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-            padding: "10px 18px", borderRadius: "10px", color: "rgba(255,255,255,0.6)",
-            fontWeight: "bold", fontSize: "13px", textDecoration: "none", fontFamily: "Georgia, serif",
-          }}>👤 My Profile</a>
         </div>
 
         {/* ── T.E.E.E pills ── */}
@@ -7484,15 +7441,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
         </button>
       </div>
 
-      {showMorningAudio && (
-        <div style={{ maxWidth:"760px", margin:"0 auto 16px", padding:"0 20px" }}>
-          <CoachManlawVoice
-            text={morningSession.content}
-            sessionTitle={morningSession.title}
-            sessionId={morningSession.id}
-          />
-        </div>
-      )}
+      {showMorningAudio && <AudioPlayer text={morningSession.content} sectionTitle={morningSession.title} />}
 
       {/* Content — read only, no scroll lock, no questions */}
       <div style={{ ...S.contentCard, maxHeight: "none", overflow: "visible" }}>
@@ -7565,15 +7514,7 @@ What you are about to read is not theory. It is a mirror. It describes the life 
         </button>
       </div>
 
-      {showAudio && (
-        <div style={{ maxWidth:"760px", margin:"0 auto 16px", padding:"0 20px" }}>
-          <CoachManlawVoice
-            text={section.content}
-            sessionTitle={section.title}
-            sessionId={section.id}
-          />
-        </div>
-      )}
+      {showAudio && <AudioPlayer text={section.content} sectionTitle={section.title} />}
 
       <div style={S.contentCard} ref={contentRef} onScroll={handleScroll}>
         <div>{renderContent(section.content)}</div>
