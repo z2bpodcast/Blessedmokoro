@@ -1,10 +1,13 @@
 'use client'
 // FILE: app/daily-spark/page.tsx
+import PushSubscribe from '@/components/PushSubscribe'
 // Daily Spark — 6am daily insight + Badge Wall + Torch Challenge progress
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import PushSubscribe from '@/components/PushSubscribe'
 import Link from 'next/link'
+import PushSubscribe from '@/components/PushSubscribe'
 
 // ── Badge definitions ─────────────────────────────────────────
 const BADGES = [
@@ -130,6 +133,11 @@ export default function DailySparkPage() {
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 20px' }}>
 
+        {/* Push Notifications */}
+        <div style={{ marginBottom:'20px' }}>
+          <PushSubscribe />
+        </div>
+
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '4px', marginBottom: '28px', flexWrap: 'wrap' }}>
           {(['spark', 'badges', 'torch'] as const).map(t => (
@@ -139,9 +147,19 @@ export default function DailySparkPage() {
           ))}
         </div>
 
+        {/* ── Push Notifications ── */}
+        <div style={{ marginBottom:'20px' }}>
+          <PushSubscribe />
+        </div>
+
         {/* ── SPARK TAB ── */}
         {tab === 'spark' && (
           <div>
+            {/* Push notification subscribe */}
+            <div style={{ marginBottom:'16px' }}>
+              <PushSubscribe />
+            </div>
+
             {/* Today's spark */}
             <div style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(212,175,55,0.04))', border: '1.5px solid rgba(212,175,55,0.3)', borderRadius: '20px', padding: '40px 36px', marginBottom: '24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: '20px', left: '24px', fontSize: '80px', color: 'rgba(212,175,55,0.06)', lineHeight: 1, fontFamily: 'Georgia,serif' }}>"</div>

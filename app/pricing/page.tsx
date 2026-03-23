@@ -80,15 +80,14 @@ export default function PricingPage() {
     const tier = MEMBERSHIP_TIERS[tierKey as keyof typeof MEMBERSHIP_TIERS]
     if (tier.price === 0) { router.push('/workshop'); return }
 
-    // Must be logged in to upgrade — send to login with return URL
+    // Must be logged in to upgrade
     if (!user) {
-      router.push(`/login?redirect=/pricing&upgrade=${tierKey}`)
+      router.push(`/login?redirect=/pay?tier=${tierKey}`)
       return
     }
 
-    setSelectedTier(tierKey)
-    setPaymentMethod(null)
-    setShowModal(true)
+    // Route directly to PayFast payment page
+    router.push(`/pay?tier=${tierKey}`)
   }
 
   const closeModal = () => {
@@ -101,6 +100,17 @@ export default function PricingPage() {
     navigator.clipboard.writeText(text)
     setCopied(field)
     setTimeout(() => setCopied(null), 2000)
+  }
+
+  // ── PayFast — redirect to /pay ──
+  const payByPayFast = () => {
+    if (!selectedTier) return
+    if (!user) {
+      router.push(`/login?redirect=/pay?tier=${selectedTier}`)
+      return
+    }
+    // Route directly to PayFast payment page
+    router.push(`/pay?tier=${selectedTier}`)
   }
 
   // ── CARD: Yoco popup → on success → /register/complete ──

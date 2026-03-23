@@ -93,7 +93,9 @@ const PERMISSIONS: { key: string; label: string; icon: string; roles: string[] }
 const NAV_SECTIONS = [
   { href:'/z2b-command-7x9k/payments',      icon:'💳', label:'Payments & Grants',    desc:'Approve EFT · Commission upgrades · CEO grants',        color:'#D97706', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/members',       icon:'👥', label:'Manage Members',       desc:'View, edit, suspend or delete members',                  color:'#0369A1', bg:'#E0F2FE', roles:['ceo','superadmin','admin','support'] },
+  { href:'/z2b-command-7x9k/leaderboard-admin', icon:'🏆', label:'Leaderboard Admin', desc:'Award bonus points · Override scores · Weekly management', color:'#D4AF37', bg:'#FEF9C3', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/compensation',  icon:'💎', label:'Compensation Dashboard', desc:'QPB · Torch Bearer reset · Monthly payout summary · ISP · TSC', color:'#7C3AED', bg:'#EDE9FE', roles:['ceo','superadmin','admin'] },
+  { href:'/z2b-command-7x9k/leaderboard-admin', icon:'🏆', label:'Leaderboard Manager', desc:'Award bonus points · Override scores · View weekly board', color:'#D4AF37', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/hub',     icon:'🔗', label:'Referral Tree',        desc:'View sponsor chains and referral analytics',             color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin','support'] },
   { href:'/z2b-command-7x9k/hub',       icon:'📝', label:'Content Manager',      desc:'Create and manage workshop sessions',                    color:'#4F46E5', bg:'#EEF2FF', roles:['ceo','superadmin','content_admin'] },
   { href:'/z2b-command-7x9k/earnings',      icon:'💰', label:'Earnings Report',      desc:'ISP commissions, QPB, tier revenue breakdown',           color:'#16A34A', bg:'#DCFCE7', roles:['ceo','superadmin','admin'] },

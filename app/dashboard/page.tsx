@@ -5,6 +5,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import WorkshopProgressBar from '@/components/WorkshopProgressBar'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   User, Users, TrendingUp, LogOut, Crown,
@@ -641,6 +642,10 @@ function DashboardInner() {
 
         {/* ── QUICK ACTIONS ── */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-sm p-6">
+          {/* Workshop Progress Bar */}
+          <div style={{ marginBottom:'16px' }}>
+            <WorkshopProgressBar />
+          </div>
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
             <Link href="/start-here"
@@ -754,6 +759,16 @@ function DashboardInner() {
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#0A1A0E,#1E1B4B)', borderColor: '#6B7280', color: '#D1D5DB' }}>
               <span className="text-2xl">👤</span>My Profile
+            </Link>
+            <Link href="/my-funnel"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A1A14,#064E3B)', borderColor: '#059669', color: '#6EE7B7' }}>
+              <span className="text-2xl">🎯</span>My Funnel
+            </Link>
+            <Link href="/referral-leaderboard"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C0500,#7C2D12)', borderColor: '#FB923C', color: '#FED7AA' }}>
+              <span className="text-2xl">🎴</span>Referral Board
             </Link>
             <Link href="/legacy-vault"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
