@@ -72,12 +72,12 @@ function QuickGate({ referralCode, sponsorName, onSwitchFull }: {
         }
         setDone(true)
         // Send welcome email
-      fetch('/api/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'welcome', user_id: data.user?.id })
-      }).catch(() => {}) // Non-blocking
-      setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
+        fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'welcome', user_id: user?.id })
+        }).catch(() => {}) // Non-blocking
+        setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
         return
       }
       if (signUpError) throw signUpError
