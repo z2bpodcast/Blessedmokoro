@@ -5,12 +5,13 @@ import { createClient } from '@supabase/supabase-js'
 // Records referral link clicks in Supabase
 // Called when anyone opens a referral link
 
-const supabase = createClient(
+const getSupabase = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase()
   const ref      = req.nextUrl.searchParams.get('ref')
   const redirect = req.nextUrl.searchParams.get('to') || '/workshop'
 
@@ -41,6 +42,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase()
   try {
     const { ref_code } = await req.json()
     if (!ref_code) return NextResponse.json({ error: 'ref_code required' }, { status: 400 })

@@ -6,7 +6,8 @@ import { createClient } from '@supabase/supabase-js'
 // Called by a cron job at 6am SA time (4am UTC)
 // Can also be called manually from admin
 
-const supabase = createClient(
+// Client created inside handlers — not at module level (avoids build-time env errors)
+const getSupabase = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -29,6 +30,7 @@ const SPARKS = [
 ]
 
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase()
   // Verify cron secret
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -94,6 +96,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase()
   // Returns today's spark — used by the daily-spark page
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)
   const spark = SPARKS[dayOfYear % SPARKS.length]
