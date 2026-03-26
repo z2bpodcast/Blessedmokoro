@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-26 22:27 — progress unblock
+// v2026-03-26 22:45 — catch fix
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -6673,12 +6673,14 @@ function WorkshopInner() {
       setScrolledToBottom(true);
       // Save read=true to Supabase immediately when user scrolls to bottom
       if (userId && currentSection) {
-        supabase.from("workshop_progress").upsert({
-          user_id:    userId,
-          section_id: currentSection,
-          read:       true,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id,section_id" }).catch(() => {});
+        try {
+          await supabase.from("workshop_progress").upsert({
+            user_id:    userId,
+            section_id: currentSection,
+            read:       true,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id,section_id" });
+        } catch(_e) {}
       }
     }
   };
