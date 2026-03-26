@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-26 22:48 — async scroll
+// v2026-03-26 23:25 — X buttons
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -407,42 +407,43 @@ function PurpleCowShareTool({ builderRef, builderName }: PurpleCowShareToolProps
     : "https://app.z2blegacybuilders.co.za/signup";
 
   // Floating Purple Cow button
-  const FloatingButton = (
-    <button
-      onClick={() => setIsOpen(true)}
-      style={{
-        position: "fixed",
-        bottom: "100px",
-        right: "24px",
-        zIndex: 9000,
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "14px 22px",
-        background: `linear-gradient(135deg, ${ROYAL_PURPLE}, #7C3AED)`,
-        border: `1.5px solid ${GOLD}`,
-        borderRadius: "50px",
-        color: GOLD,
-        fontWeight: 700,
-        fontSize: "14px",
-        cursor: "pointer",
-        letterSpacing: "0.5px",
-        boxShadow: `0 4px 24px rgba(76,29,149,0.5), 0 0 0 1px rgba(212,175,55,0.2)`,
-        fontFamily: "Georgia, serif",
-        transition: "all 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
-        (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 32px rgba(76,29,149,0.7), 0 0 0 2px rgba(212,175,55,0.4)`;
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-        (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 24px rgba(76,29,149,0.5), 0 0 0 1px rgba(212,175,55,0.2)`;
-      }}
-    >
-      <span style={{ fontSize: "18px" }}>🐄</span>
-      Share Remarkable
-    </button>
+  const [hidden, setHidden] = useState(false);
+
+  const FloatingButton = hidden ? null : (
+    <div style={{ position: "fixed", bottom: "100px", right: "24px", zIndex: 9000, display: "flex", alignItems: "center", gap: "4px" }}>
+      <button
+        onClick={() => setIsOpen(true)}
+        style={{
+          display: "flex", alignItems: "center", gap: "10px",
+          padding: "12px 18px",
+          background: `linear-gradient(135deg, ${ROYAL_PURPLE}, #7C3AED)`,
+          border: `1.5px solid ${GOLD}`,
+          borderRadius: "50px 0 0 50px",
+          color: GOLD, fontWeight: 700, fontSize: "13px",
+          cursor: "pointer", letterSpacing: "0.5px",
+          boxShadow: `0 4px 24px rgba(76,29,149,0.5)`,
+          fontFamily: "Georgia, serif",
+        }}
+      >
+        <span style={{ fontSize: "16px" }}>🐄</span>
+        Share Remarkable
+      </button>
+      <button
+        onClick={() => setHidden(true)}
+        title="Hide button"
+        style={{
+          width: "32px", height: "42px",
+          background: "rgba(0,0,0,0.6)",
+          border: `1.5px solid rgba(212,175,55,0.4)`,
+          borderLeft: "none",
+          borderRadius: "0 50px 50px 0",
+          color: "rgba(255,255,255,0.6)",
+          fontSize: "16px", fontWeight: 700,
+          cursor: "pointer", display: "flex",
+          alignItems: "center", justifyContent: "center",
+        }}
+      >×</button>
+    </div>
   );
 
   if (!isOpen) return FloatingButton;

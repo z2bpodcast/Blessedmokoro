@@ -1,3 +1,4 @@
+// v2026-03-26 23:26 — X button
 "use client";
 // FILE LOCATION: components/ECPosterStudio.tsx
 // USAGE: <ECPosterStudio builderRef={builderRef} builderName={manlawMemberName} />
@@ -450,7 +451,8 @@ const CSS: Record<string, CSSProperties> = {
 
 // ── Main Component ────────────────────────────────────────────
 export default function ECPosterStudio({ builderRef, builderName }: ECPosterStudioProps) {
-  const [isOpen, setIsOpen]               = useState(false);
+  const [isOpen,  setIsOpen]  = useState(false);
+  const [hidden,  setHidden]  = useState(false);
   const [step, setStep]                   = useState<"pick" | "edit" | "share">("pick");
   const [selected, setSelected]           = useState("royal");
   const [quoteText, setQuoteText]         = useState("");
@@ -501,10 +503,19 @@ export default function ECPosterStudio({ builderRef, builderName }: ECPosterStud
 
   const close = () => { setIsOpen(false); setStep("pick"); };
 
+  if (hidden) return null;
+
   const FloatingBtn = (
-    <button style={CSS.fab} onClick={() => setIsOpen(true)}>
-      <span style={{ fontSize: "16px" }}>🎨</span> Make Poster
-    </button>
+    <div style={{ position:"fixed", bottom:"170px", right:"24px", zIndex:9000, display:"flex", alignItems:"center", gap:"0" }}>
+      <button style={{ ...CSS.fab, position:"relative", bottom:"auto", right:"auto", borderRadius:"50px 0 0 50px", zIndex:"auto" as any }} onClick={() => setIsOpen(true)}>
+        <span style={{ fontSize: "16px" }}>🎨</span> Make Poster
+      </button>
+      <button
+        onClick={() => setHidden(true)}
+        title="Hide"
+        style={{ height:"42px", width:"28px", background:"rgba(0,0,0,0.55)", border:"1.5px solid rgba(212,175,55,0.4)", borderLeft:"none", borderRadius:"0 50px 50px 0", color:"rgba(255,255,255,0.65)", fontSize:"16px", fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}
+      >×</button>
+    </div>
   );
 
   if (!isOpen) return FloatingBtn;
