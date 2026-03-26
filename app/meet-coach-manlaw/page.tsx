@@ -18,7 +18,7 @@ const RANKS = [
   { id:7,  name:'Community Builder',     tier:'leadership', color:'#7C3AED', emoji:'👥', requirement:'16 second-gen upgrades' },
   { id:8,  name:'Network Leader',        tier:'leadership', color:'#0EA5E9', emoji:'🌐', requirement:'64 third-gen upgrades' },
   { id:9,  name:'Legacy Builder',        tier:'leadership', color:'#EF4444', emoji:'👑', requirement:'256 fourth-gen upgrades' },
-  { id:10, name:'Global Architect',      tier:'elite',      color:'#D4AF37', emoji:'🏛️', requirement:'4 Rank 9 builders in team' },
+  { id:10, name:'Global Architect',      tier:'elite',      color:'#D4AF37', emoji:'🏛️', requirement:'4 Legacy Builders in your direct team' },
 ]
 
 const MODES = [
