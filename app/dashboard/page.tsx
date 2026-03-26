@@ -371,11 +371,12 @@ function DashboardInner() {
       {showStartHere && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-black text-white text-sm border-2 border-yellow-400 transition-all"
           style={{ background: 'linear-gradient(135deg,#1e1b4b,#4c1d95)' }}>
-          <a href="/start-here" className="flex items-center gap-3 no-underline text-white">
-            <span className="text-2xl animate-bounce">👆</span>
+          <a href="/meet-coach-manlaw" className="flex items-center gap-3 no-underline text-white">
+            <span className="text-2xl animate-bounce">🎯</span>
             <span>
-              <span className="block text-yellow-400 text-xs font-bold">New? Lost? Need direction?</span>
-              <span className="block text-white text-base">❤️ Start Here</span>
+              <span className="block text-yellow-400 text-xs font-bold">New? Coach Manlaw will guide you.</span>
+              <span className="block text-white text-base">🎯 Meet Coach Manlaw</span>
+              <span className="block text-xs font-normal mt-1" style={{ color:'rgba(255,255,255,0.55)' }}>Daily missions · Rank tracking · Action</span>
             </span>
           </a>
           <button
@@ -647,133 +648,172 @@ function DashboardInner() {
             <WorkshopProgressBar />
           </div>
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+
+          {/* ── ROW 1: COACH MANLAW — THE STAR ── */}
+          <Link href="/meet-coach-manlaw"
+            className="flex items-center gap-3 p-4 rounded-xl border-2 font-bold text-sm hover:scale-105 transition-transform mb-3 col-span-2 md:col-span-6"
+            style={{ background: 'linear-gradient(135deg,#1E0A3C,#4C1D95)', borderColor: '#D4AF37', color: '#F5D060', textDecoration:'none' }}>
+            <span className="text-3xl">🎯</span>
+            <div>
+              <div className="text-base font-black" style={{ fontFamily:'Cinzel,serif', color:'#D4AF37' }}>Coach Manlaw — Your AI Execution Coach</div>
+              <div className="text-xs font-normal mt-1" style={{ color:'rgba(245,208,96,0.65)' }}>Daily missions · Rank tracking · Business modes · Drive action every day</div>
+            </div>
+            <span className="ml-auto text-xl">→</span>
+          </Link>
+
+          {/* ── ROW 2: CORE ACTIONS ── */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-3">
+
             <Link href="/start-here"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-red-300 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#FFF5F5,#FFE4E4)', color: '#DC2626' }}>
-              <span className="text-2xl">❤️</span>Start Here
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#FFF5F5,#FFE4E4)', borderColor:'#DC2626', color:'#DC2626' }}>
+              <span className="text-2xl">❤️</span>
+              <span>Start Here</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(220,38,38,0.65)' }}>New? Begin here</span>
             </Link>
+
             <Link href="/workshop"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-yellow-300 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)', color: '#78350f' }}>
-              <span className="text-2xl">🎓</span>Workshop
-            </Link>
-            <Link href="/my-funnel"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor: '#7C3AED', color: '#fff' }}>
-              <span className="text-2xl">🎯</span>My Sales Funnel
+              style={{ background: 'linear-gradient(135deg,#fde68a,#fbbf24)', borderColor:'#D97706', color:'#78350f' }}>
+              <span className="text-2xl">🎓</span>
+              <span>Workshop</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(120,53,15,0.65)' }}>99 sessions</span>
             </Link>
-            <Link href="/my-earnings"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-green-300 bg-green-50 text-green-800 font-bold text-center text-sm hover:scale-105 transition-transform">
-              <span className="text-2xl">💰</span>My Earnings
-            </Link>
-            <Link href="/pricing"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-purple-300 bg-purple-50 text-purple-800 font-bold text-center text-sm hover:scale-105 transition-transform">
-              <span className="text-2xl">⬆️</span>Upgrade Tier
-            </Link>
-            <Link href="/feed"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-blue-300 bg-blue-50 text-blue-800 font-bold text-center text-sm hover:scale-105 transition-transform">
-              <span className="text-2xl">💬</span>Feed
-            </Link>
-            <Link href="/type-as-you-feel"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#064E3B,#065F46)', borderColor: '#D4AF37', color: '#D4AF37' }}>
-              <span className="text-2xl">✍️</span>Type As You Feel
-            </Link>
-            <Link href="/marketplace"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
-              <span className="text-2xl">🏪</span>Marketplace
-            </Link>
+
             <Link href="/invite"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C0500,#7C2D12)', borderColor: '#FB923C', color: '#FED7AA' }}>
-              <span className="text-2xl">🎴</span>Invite
+              style={{ background: 'linear-gradient(135deg,#1C0500,#7C2D12)', borderColor:'#FB923C', color:'#FED7AA' }}>
+              <span className="text-2xl">🎴</span>
+              <span>Invite</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(254,215,170,0.65)' }}>Send cards</span>
             </Link>
-            <Link href="/bonfire"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C0500,#92400E)', borderColor: '#F97316', color: '#FED7AA' }}>
-              <span className="text-2xl">🔥</span>My Bonfire
-            </Link>
-            <Link href="/daily-spark"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor: '#D4AF37', color: '#FDE68A' }}>
-              <span className="text-2xl">⚡</span>Daily Spark
-            </Link>
-            <Link href="/my-journey"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
-              <span className="text-2xl">⏳</span>My Journey
-            </Link>
-            <Link href="/builders-table"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor: '#D4AF37', color: '#FDE68A' }}>
-              <span className="text-2xl">🍽️</span>Builders Table
-            </Link>
-            <Link href="/echo-wall"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#312E81)', borderColor: '#6366F1', color: '#C7D2FE' }}>
-              <span className="text-2xl">📣</span>Echo Wall
-            </Link>
-            <Link href="/leaderboard"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor: '#F59E0B', color: '#FDE68A' }}>
-              <span className="text-2xl">🏆</span>Leaderboard
-            </Link>
-            <Link href="/builders-table"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A1A0E,#064E3B)', borderColor: '#059669', color: '#6EE7B7' }}>
-              <span className="text-2xl">🍽️</span>Builders Table
-            </Link>
-            <Link href="/echo-wall"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1C1A2E)', borderColor: '#6B7280', color: '#D1D5DB' }}>
-              <span className="text-2xl">📣</span>Echo Wall
-            </Link>
-            <Link href="/leaderboard"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#451A00)', borderColor: '#D4AF37', color: '#FDE68A' }}>
-              <span className="text-2xl">🏆</span>Leaderboard
-            </Link>
-            <Link href="/open-table"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A1A14,#064E3B)', borderColor: '#10B981', color: '#6EE7B7' }}>
-              <span className="text-2xl">🍽️</span>Open Table
-            </Link>
-            <Link href="/ceo-letters"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor: '#D4AF37', color: '#FDE68A' }}>
-              <span className="text-2xl">📜</span>CEO Letters
-            </Link>
-            <Link href="/founders-wall"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor: '#7C3AED', color: '#C4B5FD' }}>
-              <span className="text-2xl">🏛️</span>Founders Wall
-            </Link>
-            <Link href="/legacy-vault"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0D0A1E,#1E1B4B)', borderColor: '#D4AF37', color: '#F5D060' }}>
-              <span className="text-2xl">🔐</span>Legacy Vault
-            </Link>
-            <Link href="/profile"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A1A0E,#1E1B4B)', borderColor: '#6B7280', color: '#D1D5DB' }}>
-              <span className="text-2xl">👤</span>My Profile
-            </Link>
+
             <Link href="/my-funnel"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A1A14,#064E3B)', borderColor: '#059669', color: '#6EE7B7' }}>
-              <span className="text-2xl">🎯</span>My Funnel
+              style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor:'#7C3AED', color:'#fff' }}>
+              <span className="text-2xl">🎯</span>
+              <span>My Funnel</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(255,255,255,0.55)' }}>Track prospects</span>
             </Link>
-            <Link href="/referral-leaderboard"
+
+            <Link href="/my-earnings"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C0500,#7C2D12)', borderColor: '#FB923C', color: '#FED7AA' }}>
-              <span className="text-2xl">🎴</span>Referral Board
+              style={{ background: 'linear-gradient(135deg,#052E16,#065F46)', borderColor:'#059669', color:'#6EE7B7' }}>
+              <span className="text-2xl">💰</span>
+              <span>Earnings</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(110,231,183,0.65)' }}>Commissions</span>
             </Link>
+
+            <Link href="/pricing"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
+              <span className="text-2xl">💎</span>
+              <span>Upgrade</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.55)' }}>Higher tier</span>
+            </Link>
+          </div>
+
+          {/* ── ROW 3: COMMUNITY + TOOLS ── */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-3">
+
+            <Link href="/daily-spark"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor:'#D4AF37', color:'#FDE68A' }}>
+              <span className="text-2xl">⚡</span>
+              <span>Daily Spark</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Today's insight</span>
+            </Link>
+
+            <Link href="/builders-table"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#D4AF37', color:'#FDE68A' }}>
+              <span className="text-2xl">🍽️</span>
+              <span>Builders Table</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Community feed</span>
+            </Link>
+
+            <Link href="/leaderboard"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C1A0A,#451A00)', borderColor:'#D4AF37', color:'#FDE68A' }}>
+              <span className="text-2xl">🏆</span>
+              <span>Leaderboard</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Top builders</span>
+            </Link>
+
+            <Link href="/bonfire"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C0500,#92400E)', borderColor:'#F97316', color:'#FED7AA' }}>
+              <span className="text-2xl">🔥</span>
+              <span>My Bonfire</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(254,215,170,0.6)' }}>Inner circle</span>
+            </Link>
+
+            <Link href="/open-table"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A1A14,#064E3B)', borderColor:'#10B981', color:'#6EE7B7' }}>
+              <span className="text-2xl">🍽️</span>
+              <span>Open Table</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(110,231,183,0.6)' }}>Live sessions</span>
+            </Link>
+
+            <Link href="/type-as-you-feel"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#064E3B,#065F46)', borderColor:'#D4AF37', color:'#D4AF37' }}>
+              <span className="text-2xl">✍️</span>
+              <span>Type As You Feel</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(212,175,55,0.6)' }}>Any language</span>
+            </Link>
+          </div>
+
+          {/* ── ROW 4: LEGACY + RECOGNITION ── */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+
+            <Link href="/my-journey"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
+              <span className="text-2xl">⏳</span>
+              <span>My Journey</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.6)' }}>Progress map</span>
+            </Link>
+
+            <Link href="/echo-wall"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A0818,#312E81)', borderColor:'#6366F1', color:'#C7D2FE' }}>
+              <span className="text-2xl">📣</span>
+              <span>Echo Wall</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(199,210,254,0.6)' }}>Highlights</span>
+            </Link>
+
+            <Link href="/ceo-letters"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor:'#D4AF37', color:'#FDE68A' }}>
+              <span className="text-2xl">📜</span>
+              <span>CEO Letters</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>From Rev</span>
+            </Link>
+
             <Link href="/legacy-vault"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#292207)', borderColor: '#D4AF37', color: '#FDE68A' }}>
-              <span className="text-2xl">🔐</span>Legacy Vault
+              style={{ background: 'linear-gradient(135deg,#0D0A1E,#1E1B4B)', borderColor:'#D4AF37', color:'#F5D060' }}>
+              <span className="text-2xl">🔐</span>
+              <span>Legacy Vault</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(245,208,96,0.6)' }}>Resources</span>
+            </Link>
+
+            <Link href="/founders-wall"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
+              <span className="text-2xl">🏛️</span>
+              <span>Founders Wall</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.6)' }}>Hall of fame</span>
+            </Link>
+
+            <Link href="/profile"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#111827,#1F2937)', borderColor:'#6B7280', color:'#D1D5DB' }}>
+              <span className="text-2xl">👤</span>
+              <span>My Profile</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(209,213,219,0.6)' }}>Settings</span>
             </Link>
           </div>
         </div>
