@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-26 19:55 — clean nav
+// v2026-03-26 20:06 — JSX fix
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -225,26 +225,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ── HIDDEN: keep old nav vars referenced to avoid TS errors ── */}
-            <div style={{ display:'none' }}>
-              {user && profile && <span>{profile.full_name}</span>}
-            </div>
-
-            {/* ── DEAD CODE PLACEHOLDER — original nav removed ── */}
-            {false && user ? (
-              <>
-                <Link href="/library" className="btn-primary">
-                    My Library
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/signup" className="btn-primary">
-                    Join Now
-                  </Link>
-                </>
-              )}
-            </div>
           </div>
         </nav>
       </header>
