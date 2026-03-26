@@ -1,5 +1,5 @@
 "use client";
-// v2026-03-26 22:45 — catch fix
+// v2026-03-26 22:48 — async scroll
 ;
 
 // ── ADDITION 1: Supabase import ──
@@ -6666,7 +6666,7 @@ function WorkshopInner() {
   }, []);
 
   // ---- scroll detection — mark section as read when user scrolls to bottom ----
-  const handleScroll = () => {
+  const handleScroll = async () => {
     if (!contentRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
     if (scrollTop + clientHeight >= scrollHeight - 40) {
