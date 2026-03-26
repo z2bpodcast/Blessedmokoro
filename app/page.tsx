@@ -1,5 +1,5 @@
 "use client"
-// v2026-03-23 19:53 — full nav
+// v2026-03-26 19:55 — clean nav
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -30,9 +30,17 @@ type Profile = {
 export default function Home() {
   const [publicContent, setPublicContent] = useState<Content[]>([])
   const [loading, setLoading] = useState(true)
+  const [menuOpen, setMenuOpen]   = useState(false)
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [activeArticle, setActiveArticle] = useState<string | null>(null)
+
+  // Close menu on outside click or route change
+  useEffect(() => {
+    const close = () => setMenuOpen(false)
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
+    return () => document.removeEventListener('keydown', close)
+  }, [])
 
   useEffect(() => {
     checkUser()
@@ -109,123 +117,128 @@ export default function Home() {
                 <p className="text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              {user && profile && (
-                <div className="text-right mr-2">
-                  <p className="text-sm text-white font-semibold">{profile.full_name || 'Legacy Builder'}</p>
-                  <p className="text-xs text-gold-300">{getRoleBadge(profile.user_role || '')} • {profile.referral_code}</p>
-                </div>
-              )}
-              {user ? (
+            {/* ── CLEAN NAV: 3 buttons + hamburger ── */}
+            <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+
+              {user && profile ? (
+                /* ── LOGGED IN: Dashboard + Workshop + Menu ── */
                 <>
-                  {/* Z2B BLUEPRINT — logged in */}
-                  <Link
-                    href="/blueprint"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
-                  >
-                    📐 Z2B Blueprint
-                  </Link>
-                  {/* WORKSHOP — logged in */}
-                  <Link
-                    href="/workshop"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
-                  >
-                    🎓 Workshop
-                  </Link>
-                  <Link href="/opportunity"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
-                    💼 Digital Presentation
-                  </Link>
-                  <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    About
-                  </Link>
-                  <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    Pricing
-                  </Link>
-                  <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🏪 Marketplace
-                  </Link>
-                  <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    ✍️ Type As You Feel
-                  </Link>
-                  <Link href="/legacy-vault" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🔐 Legacy Vault
-                  </Link>
-                  <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🏛️ Founders Wall
-                  </Link>
-                  <Link href="/open-table/schedule" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🍽️ Open Table
-                  </Link>
-                  <Link href="/builders-table" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    👥 Builders Table
-                  </Link>
-                  <Link href="/leaderboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🏆 Leaderboard
-                  </Link>
-                  <Link href="/dashboard" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
+                  <Link href="/dashboard"
+                    style={{ padding:'9px 18px', background:'rgba(255,255,255,0.12)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     Dashboard
                   </Link>
-                  <Link href="/library" className="btn-primary">
+                  <Link href="/meet-coach-manlaw"
+                    style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
+                    🎯 Coach Manlaw
+                  </Link>
+                  <Link href="/workshop"
+                    style={{ padding:'9px 18px', background:'linear-gradient(135deg,#B8860B,#D4AF37)', border:'none', borderRadius:'10px', color:'#000', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
+                    🎓 Workshop
+                  </Link>
+                </>
+              ) : (
+                /* ── LOGGED OUT: 3 clean buttons ── */
+                <>
+                  <Link href="/login"
+                    style={{ padding:'9px 18px', background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
+                    Sign In
+                  </Link>
+                  <Link href="/workshop"
+                    style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid rgba(212,175,55,0.5)', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
+                    🎁 Free Workshop
+                  </Link>
+                  <Link href="/signup"
+                    style={{ padding:'9px 18px', background:'linear-gradient(135deg,#B8860B,#D4AF37)', border:'none', borderRadius:'10px', color:'#000', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,serif' }}>
+                    🔥 Join Free
+                  </Link>
+                </>
+              )}
+
+              {/* ── HAMBURGER MENU ── */}
+              <div style={{ position:'relative' }}>
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  style={{ width:'42px', height:'42px', background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.25)', borderRadius:'10px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'5px', cursor:'pointer', padding:'0' }}
+                  aria-label="Menu"
+                >
+                  {[0,1,2].map(i => (
+                    <div key={i} style={{ width:'18px', height:'2px', background:'#fff', borderRadius:'1px', transition:'all 0.2s', transform: menuOpen && i===0?'rotate(45deg) translate(5px,5px)':menuOpen && i===1?'scaleX(0)':menuOpen && i===2?'rotate(-45deg) translate(5px,-5px)':'none' }} />
+                  ))}
+                </button>
+
+                {menuOpen && (
+                  <>
+                    {/* Backdrop */}
+                    <div onClick={() => setMenuOpen(false)} style={{ position:'fixed', inset:0, zIndex:40 }} />
+                    {/* Dropdown */}
+                    <div style={{ position:'absolute', top:'48px', right:0, width:'260px', background:'linear-gradient(160deg,#0D0A1E,#1E1B4B)', border:'1.5px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'8px', zIndex:50, boxShadow:'0 20px 60px rgba(0,0,0,0.6)' }}>
+
+                      {/* Section: Explore */}
+                      <div style={{ padding:'6px 12px 4px', fontSize:'9px', fontWeight:700, color:'rgba(212,175,55,0.5)', letterSpacing:'2px' }}>EXPLORE</div>
+                      {[
+                        { href:'/opportunity',          icon:'💼', label:'Digital Presentation' },
+                        { href:'/pricing',              icon:'💎', label:'Membership & Pricing' },
+                        { href:'/open-table/schedule',  icon:'🍽️', label:'Open Table' },
+                        { href:'/type-as-you-feel',     icon:'✍️', label:'Type As You Feel' },
+                        { href:'/marketplace',          icon:'🏪', label:'Marketplace' },
+                        { href:'/founders-wall',        icon:'🏛️', label:'Founders Wall' },
+                        { href:'/echo-wall',            icon:'📣', label:'Echo Wall' },
+                        { href:'/blueprint',            icon:'📐', label:'Z2B Blueprint' },
+                      ].map(item => (
+                        <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                          style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'10px', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:'13px', fontFamily:'Georgia,serif', transition:'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background='rgba(212,175,55,0.08)')}
+                          onMouseLeave={e => (e.currentTarget.style.background='transparent')}
+                        >
+                          <span style={{ fontSize:'16px' }}>{item.icon}</span>
+                          {item.label}
+                        </Link>
+                      ))}
+
+                      {user && (
+                        <>
+                          <div style={{ borderTop:'1px solid rgba(255,255,255,0.08)', margin:'6px 0', padding:'6px 12px 4px', fontSize:'9px', fontWeight:700, color:'rgba(196,181,253,0.5)', letterSpacing:'2px' }}>MY ACCOUNT</div>
+                          {[
+                            { href:'/meet-coach-manlaw', icon:'🎯', label:'Coach Manlaw' },
+                            { href:'/dashboard',         icon:'📊', label:'Dashboard' },
+                            { href:'/my-funnel',         icon:'🎯', label:'My Funnel' },
+                            { href:'/my-journey',        icon:'⏳', label:'My Journey' },
+                            { href:'/leaderboard',       icon:'🏆', label:'Leaderboard' },
+                            { href:'/builders-table',    icon:'👥', label:'Builders Table' },
+                            { href:'/legacy-vault',      icon:'🔐', label:'Legacy Vault' },
+                            { href:'/ceo-letters',       icon:'📜', label:'CEO Letters' },
+                          ].map(item => (
+                            <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                              style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'10px', color:'rgba(255,255,255,0.75)', textDecoration:'none', fontSize:'13px', fontFamily:'Georgia,serif', transition:'background 0.15s' }}
+                              onMouseEnter={e => (e.currentTarget.style.background='rgba(124,58,237,0.1)')}
+                              onMouseLeave={e => (e.currentTarget.style.background='transparent')}
+                            >
+                              <span style={{ fontSize:'16px' }}>{item.icon}</span>
+                              {item.label}
+                            </Link>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ── HIDDEN: keep old nav vars referenced to avoid TS errors ── */}
+            <div style={{ display:'none' }}>
+              {user && profile && <span>{profile.full_name}</span>}
+            </div>
+
+            {/* ── DEAD CODE PLACEHOLDER — original nav removed ── */}
+            {false && user ? (
+              <>
+                <Link href="/library" className="btn-primary">
                     My Library
                   </Link>
                 </>
               ) : (
                 <>
-                  {/* Z2B BLUEPRINT — logged out */}
-                  <Link
-                    href="/blueprint"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
-                  >
-                    📐 Z2B Blueprint
-                  </Link>
-                  {/* WORKSHOP — logged out */}
-                  <Link
-                    href="/workshop"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
-                  >
-                    🎁 Free Workshop
-                  </Link>
-                  <Link href="/opportunity"
-                    className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg,#D4AF37,#92400E)', borderColor: '#D4AF37' }}>
-                    💼 Digital Presentation
-                  </Link>
-                  <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    About
-                  </Link>
-                  <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    Pricing
-                  </Link>
-                  <Link href="/marketplace" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🏪 Marketplace
-                  </Link>
-                  <Link href="/type-as-you-feel" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    ✍️ Type As You Feel
-                  </Link>
-                  <Link href="/opportunity" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    💼 Digital Presentation
-                  </Link>
-                  <Link href="/founders-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🏛️ Founders Wall
-                  </Link>
-                  <Link href="/open-table/schedule" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    🍽️ Open Table
-                  </Link>
-                  <Link href="/echo-wall" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    📣 Echo Wall
-                  </Link>
-                  <Link href="/type-as-you-feel/landing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    ✍️ Type As You Feel
-                  </Link>
-                  <Link href="/login" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400">
-                    Sign In
-                  </Link>
                   <Link href="/signup" className="btn-primary">
                     Join Now
                   </Link>

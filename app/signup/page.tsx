@@ -77,7 +77,7 @@ function QuickGate({ referralCode, sponsorName, onSwitchFull }: {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'welcome', user_id: user?.id })
         }).catch(() => {}) // Non-blocking
-        setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
+        setTimeout(() => router.push('/meet-coach-manlaw'), 1400)
         return
       }
       if (signUpError) throw signUpError
@@ -111,7 +111,7 @@ function QuickGate({ referralCode, sponsorName, onSwitchFull }: {
         }
       }
       setDone(true)
-      setTimeout(() => router.push(referralCode ? `/welcome?ref=${referralCode}` : '/welcome'), 1400)
+      setTimeout(() => router.push('/meet-coach-manlaw'), 1400)
     } catch (err: any) {
       setError(err?.message || 'Could not create your account. Please try again.')
     } finally { setLoading(false) }
