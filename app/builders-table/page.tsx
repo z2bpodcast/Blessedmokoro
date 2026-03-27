@@ -57,15 +57,11 @@ const MAX_FILE_MB = 50
 // Extract YouTube video ID from any YouTube URL format
 function getYoutubeId(url: string): string | null {
   if (!url) return null
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&
-?#]+)/,
-    /^([a-zA-Z0-9_-]{11})$/, // Raw video ID
-  ]
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match) return match[1]
-  }
+  // Match youtube.com/watch?v=ID or youtu.be/ID or embed/ID
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/|\/v\/)([a-zA-Z0-9_-]{11})/)
+  if (m) return m[1]
+  // Raw 11-char video ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url
   return null
 }
 
