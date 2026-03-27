@@ -32,6 +32,7 @@ interface Post {
   live_at: string | null
   live_active: boolean
   youtube_url: string | null
+  avatar_url: string | null
   created_at: string
 }
 
@@ -44,6 +45,7 @@ const POST_TYPES = [
   { id:'pdf',          label:'PDF Doc',       icon:'📄', color:'#0EA5E9', desc:'Share a PDF or presentation' },
   { id:'live',         label:'Live Session',  icon:'📡', color:'#FB923C', desc:'Start or schedule a live session' },
   { id:'announcement', label:'Announcement',  icon:'📣', color:'#F59E0B', desc:'Important message to all builders' },
+  { id:'image',        label:'Photo / Image',  icon:'🖼️', color:'#EC4899', desc:'Share a photo or image with the table' },
   { id:'youtube',      label:'YouTube Replay', icon:'▶️', color:'#FF0000', desc:'Share a session replay from YouTube' },
 ]
 
@@ -211,7 +213,7 @@ export default function BuildersTablePage() {
   const loadPosts = async (userId: string) => {
     setLoading(true)
     let q = supabase.from('builders_table_posts')
-      .select('*, profiles(full_name, paid_tier)')
+      .select('*, profiles(full_name, paid_tier, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(30)
     if (filter !== 'all') q = q.eq('post_type', filter)
@@ -223,6 +225,7 @@ export default function BuildersTablePage() {
         author_tier: p.profiles?.paid_tier || 'fam',
         user_liked:  false,
         youtube_url: p.youtube_url || null,
+        avatar_url:  p.profiles?.avatar_url || null,
       })))
     }
     setLoading(false)
@@ -341,6 +344,30 @@ export default function BuildersTablePage() {
 
         {/* Push Subscribe */}
         <PushSubscribe />
+
+        {/* EXPLAINER */}
+        <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'16px', padding:'16px 20px', marginBottom:'16px' }}>
+          <div style={{ fontFamily:'Cinzel,serif', fontSize:'11px', color:'rgba(212,175,55,0.6)', letterSpacing:'2px', marginBottom:'8px' }}>WHAT IS THE BUILDERS TABLE?</div>
+          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.75, margin:'0 0 12px' }}>
+            The Builders Table is your community feed — a space where every builder shares wins, insights, voice notes, videos, photos, PDFs and live sessions. Think of it as a private WhatsApp group combined with a community newsfeed, but built specifically for Z2B Legacy Builders.
+          </p>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:'8px' }}>
+            {[
+              { icon:'💡', text:'Share session insights' },
+              { icon:'🏆', text:'Celebrate your wins' },
+              { icon:'🎙️', text:'Post voice notes' },
+              { icon:'🎬', text:'Share video clips' },
+              { icon:'🖼️', text:'Post photos' },
+              { icon:'📄', text:'Share PDFs & presentations' },
+              { icon:'📡', text:'Host live sessions' },
+              { icon:'▶️', text:'Post YouTube replays' },
+            ].map(item => (
+              <div key={item.icon} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'12px', color:'rgba(255,255,255,0.5)' }}>
+                <span>{item.icon}</span> {item.text}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* COMPOSE */}
         {showCompose && (
@@ -582,8 +609,12 @@ export default function BuildersTablePage() {
                   <div style={{ padding:'16px' }}>
                     {/* Author row */}
                     <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
-                      <div style={{ width:'38px', height:'38px', borderRadius:'50%', background:`${tc}18`, border:`1.5px solid ${tc}44`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', fontWeight:700, color:tc, flexShrink:0 }}>
-                        {post.author_name.charAt(0).toUpperCase()}
+                      <div style={{ width:'38px', height:'38px', borderRadius:'50%', background:`${tc}18`, border:`1.5px solid ${tc}44`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', fontWeight:700, color:tc, flexShrink:0, overflow:'hidden' }}>
+                        {post.avatar_url ? (
+                          <img src={post.avatar_url} alt={post.author_name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                        ) : (
+                          post.author_name.charAt(0).toUpperCase()
+                        )}
                       </div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{post.author_name}</div>
@@ -606,6 +637,12 @@ export default function BuildersTablePage() {
                     {/* Voice player */}
                     {post.media_type === 'voice' && post.media_url && (
                       <VoicePlayer url={post.media_url} duration={post.media_duration} />
+                    )}
+
+                    {/* Image display */}
+                    {post.media_type === 'image' && post.media_url && (
+                      <img src={post.media_url} alt="Post image" style={{ width:'100%', borderRadius:'10px', maxHeight:'400px', objectFit:'cover', marginTop:'8px', cursor:'pointer' }}
+                        onClick={() => window.open(post.media_url!, '_blank')} />
                     )}
 
                     {/* Video player */}

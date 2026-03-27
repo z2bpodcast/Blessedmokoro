@@ -1,3 +1,4 @@
+// v2026-03-27 11:06 — profile photo
 'use client'
 // FILE: app/profile/page.tsx
 // Builder Profile — badges, bonfire size, tier, transformation arc
@@ -42,6 +43,9 @@ export default function ProfilePage() {
   const [loading, setLoading]     = useState(true)
   const [copied, setCopied]       = useState(false)
   const [tab, setTab]             = useState<'overview'|'badges'|'journey'>('overview')
+  const [avatarUrl,   setAvatarUrl]   = useState<string|null>(null)
+  const [uploading,   setUploading]   = useState(false)
+  const fileInputRef = typeof window !== 'undefined' ? null : null
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -54,6 +58,7 @@ export default function ProfilePage() {
         supabase.from('transformation_entries').select('*').eq('user_id', user.id).order('created_at').limit(5),
       ]).then(([p, u, s, b, j]) => {
         setProfile(p.data); setUnlocks(u.data); setStreak(s.data)
+        if (p.data?.avatar_url) setAvatarUrl(p.data.avatar_url)
         setBadges(b.data || []); setJourney(j.data || [])
         setLoading(false)
       })
@@ -69,6 +74,39 @@ export default function ProfilePage() {
   const tierCfg = TIER_CONFIG[tier] || TIER_CONFIG.fam
   const tableSize = unlocks?.invites_session1_complete || 0
   const refLink = `app.z2blegacybuilders.co.za/signup?ref=${profile?.referral_code || ''}`
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { alert('Photo must be under 5MB'); return }
+
+    setUploading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const ext  = file.name.split('.').pop()
+      const path = `avatars/${user.id}.${ext}`
+
+      // Upload to Supabase Storage
+      const { error: upErr } = await supabase.storage
+        .from('profile-photos')
+        .upload(path, file, { upsert: true, cacheControl: '3600' })
+
+      if (upErr) throw upErr
+
+      // Get public URL
+      const { data: urlData } = supabase.storage.from('profile-photos').getPublicUrl(path)
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`
+
+      // Save to profile
+      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id)
+      setAvatarUrl(publicUrl)
+    } catch(e: any) {
+      alert(`Upload failed: ${e.message}`)
+    }
+    setUploading(false)
+  }
 
   if (loading) return (
     <div style={{ minHeight:'100vh', background:'#0A0818', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -90,9 +128,31 @@ export default function ProfilePage() {
       {/* Profile hero */}
       <div style={{ background:'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(124,58,237,0.06))', borderBottom:'1px solid rgba(212,175,55,0.12)', padding:'32px 24px' }}>
         <div style={{ maxWidth:'700px', margin:'0 auto', display:'flex', alignItems:'center', gap:'24px', flexWrap:'wrap' }}>
-          {/* Avatar */}
-          <div style={{ width:'80px', height:'80px', borderRadius:'50%', background:`${tierCfg.color}20`, border:`3px solid ${tierCfg.color}66`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'32px', fontWeight:700, color:tierCfg.color, flexShrink:0 }}>
-            {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+          {/* Avatar with photo upload */}
+          <div style={{ position:'relative', flexShrink:0 }}>
+            <div style={{ width:'90px', height:'90px', borderRadius:'50%', background:`${tierCfg.color}20`, border:`3px solid ${tierCfg.color}66`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'34px', fontWeight:700, color:tierCfg.color, overflow:'hidden', position:'relative' }}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+              ) : (
+                profile?.full_name?.charAt(0)?.toUpperCase() || '?'
+              )}
+              {uploading && (
+                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50%' }}>
+                  <div style={{ width:'20px', height:'20px', border:'2px solid rgba(255,255,255,0.2)', borderTop:'2px solid #fff', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+                </div>
+              )}
+            </div>
+            {/* Upload button */}
+            <label htmlFor="avatar-upload" style={{ position:'absolute', bottom:'0', right:'0', width:'28px', height:'28px', borderRadius:'50%', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'2px solid #0A0818', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:'14px' }}>
+              📷
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display:'none' }}
+                onChange={handleAvatarUpload}
+              />
+            </label>
           </div>
           {/* Info */}
           <div style={{ flex:1 }}>
