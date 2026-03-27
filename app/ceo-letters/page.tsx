@@ -1,12 +1,13 @@
+// v2026-03-27 09:07 — PushSubscribe
 'use client'
 // FILE: app/ceo-letters/page.tsx
 // CEO Letters — weekly personal letter from Rev Mokoro Manana
-// Faith + Personal + Business · Unlocks at Table of 16
+// Faith + Personal + Business · Open to ALL registered users
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import UnlockGate from '@/components/UnlockGate'
+import PushSubscribe from '@/components/PushSubscribe'
 
 type Letter = {
   id: string
@@ -72,7 +73,10 @@ export default function CEOLettersPage() {
         {profile && <div style={{ fontSize:'12px', color:'#D4AF37', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'20px', padding:'4px 14px' }}>{profile.full_name?.split(' ')[0]}</div>}
       </div>
 
-      <UnlockGate level="table16" featureName="CEO Letters" featureIcon="📜">
+      {/* CEO Letters — open to all registered users */}
+      <div style={{ maxWidth:'700px', margin:'0 auto', padding:'0 20px 16px' }}>
+        <PushSubscribe />
+      </div>
         <div style={{ maxWidth:'800px', margin:'0 auto', padding:'28px 20px' }}>
 
           {!selected ? (
@@ -166,7 +170,7 @@ export default function CEOLettersPage() {
             </div>
           )}
         </div>
-      </UnlockGate>
+
     </div>
   )
 }
