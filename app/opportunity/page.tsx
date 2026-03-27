@@ -241,13 +241,13 @@ export default function OpportunityPage() {
           {/* COMPARISON TABLE */}
           <span style={s.tag}>THE POWER OF REFERRAL MARKETING</span>
           <h2 style={{ ...s.h2, fontSize:'clamp(20px,3vw,32px)' }}>What happens when<br/><span style={s.gold}>your table duplicates.</span></h2>
-          <p style={{ ...s.lead, fontSize:'14px' }}>Every builder brings 4 people. Each of those 4 brings 4 more. Product price = R480. See what Bronze earns versus Silver when the table fills:</p>
+          <p style={{ ...s.lead, fontSize:'14px' }}>Every builder generates 4 sales. Each of those 4 builders generates 4 more sales. Product price = R480. See what Bronze earns versus Silver when the table fills:</p>
 
           <div style={{ background:'rgba(0,0,0,0.3)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'20px', overflow:'hidden', marginTop:'24px' }}>
 
             {/* Structure row */}
             <div style={{ padding:'20px 28px', background:'rgba(212,175,55,0.05)', borderBottom:'1px solid rgba(212,175,55,0.12)' }}>
-              <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'1px', marginBottom:'12px' }}>DUPLICATION STRUCTURE — EACH PERSON BRINGS 4</div>
+              <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'1px', marginBottom:'12px' }}>DUPLICATION STRUCTURE — EACH BUILDER GENERATES 4 SALES</div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'6px', textAlign:'center' }}>
                 {['Gen 1','Gen 2','Gen 3','Gen 4','Gen 5','Gen 6','Total'].map((g, i) => (
                   <div key={i}>
@@ -279,12 +279,12 @@ export default function OpportunityPage() {
 
             {/* Generation rows */}
             {[
-              { gen:'Gen 1 — 4 people', sale:'4 × R480 = R1,920',    bronze:'18% = R345.60',   silver:'25% = R480.00',    blocked:false },
-              { gen:'Gen 2 — 16 people', sale:'16 × R480 = R7,680',  bronze:'10% = R768.00',   silver:'10% = R768.00',    blocked:false },
-              { gen:'Gen 3 — 64 people', sale:'64 × R480 = R30,720', bronze:'5% = R1,536.00',  silver:'5% = R1,536.00',   blocked:false },
-              { gen:'Gen 4 — 256 people', sale:'256 × R480 = R122,880', bronze:'❌ Blocked',   silver:'3% = R3,686.40',   blocked:true },
-              { gen:'Gen 5 — 1,024 people', sale:'1,024 × R480 = R491,520', bronze:'❌ Blocked', silver:'2% = R9,830.40', blocked:true },
-              { gen:'Gen 6 — 4,096 people', sale:'4,096 × R480 = R1,966,080', bronze:'❌ Blocked', silver:'1% = R19,660.80', blocked:true },
+              { gen:'Gen 1 — 4 sales', sale:'4 × R480 = R1,920',    bronze:'18% = R345.60',   silver:'25% = R480.00',    blocked:false },
+              { gen:'Gen 2 — 16 sales', sale:'16 × R480 = R7,680',  bronze:'10% = R768.00',   silver:'10% = R768.00',    blocked:false },
+              { gen:'Gen 3 — 64 sales', sale:'64 × R480 = R30,720', bronze:'5% = R1,536.00',  silver:'5% = R1,536.00',   blocked:false },
+              { gen:'Gen 4 — 256 sales', sale:'256 × R480 = R122,880', bronze:'❌ Blocked',   silver:'3% = R3,686.40',   blocked:true },
+              { gen:'Gen 5 — 1,024 sales', sale:'1,024 × R480 = R491,520', bronze:'❌ Blocked', silver:'2% = R9,830.40', blocked:true },
+              { gen:'Gen 6 — 4,096 sales', sale:'4,096 × R480 = R1,966,080', bronze:'❌ Blocked', silver:'1% = R19,660.80', blocked:true },
             ].map((row, i) => (
               <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', borderTop:'1px solid rgba(255,255,255,0.05)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
                 <div style={{ padding:'12px 20px', borderRight:'1px solid rgba(255,255,255,0.05)' }}>
