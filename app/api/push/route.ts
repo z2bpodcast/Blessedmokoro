@@ -77,14 +77,16 @@ export async function POST(req: NextRequest) {
       if (channels[type] === false) continue // User opted out of this channel
 
       // Log notification (even without VAPID — for in-app notification bell)
-      await supabase.from('notification_log').insert({
-        user_id:           sub.user_id,
-        notification_type: type,
-        title:             notification.title,
-        body:              notification.body,
-        url:               notification.url,
-        sent_at:           new Date().toISOString(),
-      }).catch(() => {})
+      try {
+        await supabase.from('notification_log').insert({
+          user_id:           sub.user_id,
+          notification_type: type,
+          title:             notification.title,
+          body:              notification.body,
+          url:               notification.url,
+          sent_at:           new Date().toISOString(),
+        })
+      } catch(_e) {}
 
       // Send web push if subscription endpoint exists and VAPID is configured
       if (sub.subscription && process.env.VAPID_PRIVATE_KEY && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
