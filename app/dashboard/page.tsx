@@ -1,4 +1,4 @@
-// v2026-03-28 02:09 — content engine link
+// v2026-03-28 02:42 — CE credits on dashboard
 'use client'
 
 // app/dashboard/page.tsx
@@ -71,6 +71,8 @@ function DashboardInner() {
 
   const [user,              setUser]              = useState<any>(null)
   const [profile,           setProfile]           = useState<Profile | null>(null)
+  const [ceCredits,         setCeCredits]         = useState(0)
+  const [cePlanActive,      setCePlanActive]      = useState(false)
   const [loading,           setLoading]           = useState(true)
   const [error,             setError]             = useState('')
   const [copied,            setCopied]            = useState(false)
@@ -127,6 +129,17 @@ function DashboardInner() {
 
       if (!prof) { setError('Profile could not be loaded.'); setLoading(false); return }
       setProfile(prof as Profile)
+
+      // Load Content Engine credits
+      const isAdminRole = ['ceo','superadmin','admin'].includes(prof?.user_role || '')
+      if (isAdminRole) {
+        setCePlanActive(true)
+      } else {
+        supabase.from('ce_credits').select('credits,plan_active').eq('user_id', userData.id).single()
+          .then(({ data: ce }) => {
+            if (ce) { setCeCredits(ce.credits || 0); setCePlanActive(ce.plan_active || false) }
+          })
+      }
 
       // Check if profile needs completing
       const incomplete = !prof.whatsapp_number || !prof.city
@@ -751,10 +764,17 @@ function DashboardInner() {
 
             <Link href="/content-studio-plus"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1E0A3C,#4C1D95)', borderColor:'#D4AF37', color:'#F5D060' }}>
+              style={{ background: 'linear-gradient(135deg,#1E0A3C,#4C1D95)', borderColor:'#D4AF37', color:'#F5D060', position:'relative' }}>
+              {ceCredits > 0 && (
+                <span style={{ position:'absolute', top:'-8px', right:'-8px', background:'#10B981', color:'#fff', borderRadius:'50%', width:'22px', height:'22px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:700, border:'2px solid #0A0818' }}>
+                  {ceCredits}
+                </span>
+              )}
               <span className="text-2xl">📱</span>
               <span>Content Engine</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(245,208,96,0.6)' }}>7-day content pack</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(245,208,96,0.6)' }}>
+                {ceCredits > 0 ? `${ceCredits} credit${ceCredits > 1 ? 's' : ''} ready` : cePlanActive ? 'Unlimited' : '7-day pack'}
+              </span>
             </Link>
 
             <Link href="/open-table"
