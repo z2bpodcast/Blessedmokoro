@@ -1,3 +1,4 @@
+// v2026-03-28 02:09 — content engine link
 'use client'
 
 // app/dashboard/page.tsx
@@ -746,6 +747,14 @@ function DashboardInner() {
               <span className="text-2xl">🔥</span>
               <span>My Bonfire</span>
               <span className="text-xs font-normal" style={{ color:'rgba(254,215,170,0.6)' }}>Inner circle</span>
+            </Link>
+
+            <Link href="/content-studio-plus"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
+              style={{ background: 'linear-gradient(135deg,#1E0A3C,#4C1D95)', borderColor:'#D4AF37', color:'#F5D060' }}>
+              <span className="text-2xl">📱</span>
+              <span>Content Engine</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(245,208,96,0.6)' }}>7-day content pack</span>
             </Link>
 
             <Link href="/open-table"
