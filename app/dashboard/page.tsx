@@ -135,7 +135,7 @@ function DashboardInner() {
       if (isAdminRole) {
         setCePlanActive(true)
       } else {
-        supabase.from('ce_credits').select('credits,plan_active').eq('user_id', userData.id).single()
+        supabase.from('ce_credits').select('credits,plan_active').eq('user_id', user.id).single()
           .then(({ data: ce }) => {
             if (ce) { setCeCredits(ce.credits || 0); setCePlanActive(ce.plan_active || false) }
           })
