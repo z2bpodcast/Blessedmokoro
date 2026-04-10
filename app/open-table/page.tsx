@@ -94,7 +94,7 @@ export default function OpenTablePage() {
       .on('presence', { event:'sync' }, () => {
         const state = presenceCh.presenceState()
         const names = Object.values(state).flat().map((p: any) => p.name).filter(Boolean)
-        setOnlineUsers([...new Set(names)] as string[])
+        setOnlineUsers(Array.from(new Set(names)) as string[])
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED' && profile) {
