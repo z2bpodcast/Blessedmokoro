@@ -292,7 +292,7 @@ You are warm, wise, and direct. Respond to what was asked or shared. Use short p
           <div>
             {/* Online now */}
             {onlineUsers.length > 0 && (
-              <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'8px 14px', background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', marginBottom:'12px', flexWrap:'wrap', gap:'8px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px', padding:'8px 14px', background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', marginBottom:'12px', flexWrap:'wrap' }}>
                 <div style={{ width:'7px', height:'7px', borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s infinite', flexShrink:0 }} />
                 <span style={{ fontSize:'12px', color:'rgba(110,231,183,0.8)', fontWeight:700 }}>Now at the table:</span>
                 {onlineUsers.map((name, i) => (
