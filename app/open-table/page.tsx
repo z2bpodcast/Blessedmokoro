@@ -70,7 +70,51 @@ export default function OpenTablePage() {
   const [revPresent,   setRevPresent]   = useState(false)
   const [inviting,     setInviting]     = useState(false) // Coach Manlaw invitation mode
   const bottomRef = useRef<HTMLDivElement>(null)
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
+  const [onlineUsers,   setOnlineUsers]   = useState<string[]>([])
+  const [pushEnabled,   setPushEnabled]   = useState(false)
+  const [pushLoading,   setPushLoading]   = useState(false)
+
+  const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
+
+  const enablePush = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Push notifications are not supported on this browser.')
+      return
+    }
+    setPushLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js')
+      const perm = await Notification.requestPermission()
+      if (perm !== 'granted') { setPushLoading(false); return }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: VAPID_PUBLIC,
+      })
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub.toJSON(), user_id: user.id }),
+        })
+        setPushEnabled(true)
+      }
+    } catch (e) {
+      console.error('Push registration error:', e)
+    }
+    setPushLoading(false)
+  }
+
+  // Check if already subscribed on load
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.pushManager.getSubscription().then(sub => {
+          if (sub) setPushEnabled(true)
+        })
+      }).catch(() => {})
+    }
+  }, [])
 
   const pad = (n:number) => String(n).padStart(2,'0')
   const meetConfigured = meetLink.startsWith('https://meet.google.com/')
@@ -224,8 +268,21 @@ You are warm, wise, and direct. Respond to what was asked or shared. Use short p
           <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'15px', fontWeight:700, color:'#D4AF37' }}>🍽️ The Open Table</span>
           {isLive && <div style={{ width:'9px', height:'9px', borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s infinite' }} />}
         </div>
-        <div style={{ fontSize:'12px', color: isLive ? '#6EE7B7' : 'rgba(255,255,255,0.3)', fontWeight: isLive ? 700 : 400 }}>
-          {isLive ? '🟢 LIVE NOW' : 'Every Sunday · 8PM'}
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <div style={{ fontSize:'12px', color: isLive ? '#6EE7B7' : 'rgba(255,255,255,0.3)', fontWeight: isLive ? 700 : 400 }}>
+            {isLive ? '🟢 LIVE NOW' : 'Every Sunday · 8PM'}
+          </div>
+          {profile && !pushEnabled && (
+            <button onClick={enablePush} disabled={pushLoading}
+              style={{ fontSize:'11px', padding:'5px 12px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'20px', color:'#D4AF37', cursor:'pointer', fontWeight:700, whiteSpace:'nowrap' as const }}>
+              {pushLoading ? '...' : '🔔 Enable Notifications'}
+            </button>
+          )}
+          {pushEnabled && (
+            <div style={{ fontSize:'11px', padding:'5px 12px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'20px', color:'#6EE7B7', fontWeight:700 }}>
+              🔔 Notifications On
+            </div>
+          )}
         </div>
       </div>
 

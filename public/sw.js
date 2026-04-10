@@ -1,71 +1,38 @@
-// Z2B Table Banquet — Service Worker
-// Enables offline access and PWA install
+// FILE: public/sw.js
+// Z2B Table Banquet — Service Worker for Push Notifications
 
-const CACHE_NAME = 'z2b-v1'
-const OFFLINE_URL = '/offline'
-
-const PRECACHE = [
-  '/',
-  '/workshop',
-  '/dashboard',
-  '/type-as-you-feel',
-  '/marketplace',
-  '/logo.jpg',
-  '/offline',
-]
-
-// Install — precache key pages
-self.addEventListener('install', (event) => {
+self.addEventListener('push', function(event) {
+  if (!event.data) return
+  const data = event.data.json()
+  const options = {
+    body:    data.body || 'The Open Table awaits you.',
+    icon:    '/logo.jpg',
+    badge:   '/logo.jpg',
+    vibrate: [200, 100, 200],
+    data:    { url: data.url || '/open-table' },
+    actions: [
+      { action: 'open',    title: '🍽️ Enter the Table' },
+      { action: 'dismiss', title: 'Later' },
+    ],
+  }
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE).catch(() => {
-        // Fail silently if some pages not available yet
-      })
+    self.registration.showNotification(data.title || 'Z2B Open Table', options)
+  )
+})
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close()
+  if (event.action === 'dismiss') return
+  const url = event.notification.data?.url || '/open-table'
+  event.waitUntil(
+    clients.matchAll({ type:'window', includeUncontrolled:true }).then(function(clientList) {
+      for (const client of clientList) {
+        if (client.url.includes(url) && 'focus' in client) return client.focus()
+      }
+      if (clients.openWindow) return clients.openWindow(url)
     })
   )
-  self.skipWaiting()
 })
 
-// Activate — clean old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
-  )
-  self.clients.claim()
-})
-
-// Fetch — network first, cache fallback
-self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return
-  // Skip API requests — always go to network
-  if (event.request.url.includes('/api/')) return
-  // Skip Supabase requests
-  if (event.request.url.includes('supabase.co')) return
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache successful responses
-        if (response.ok) {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-        }
-        return response
-      })
-      .catch(() => {
-        // Network failed — try cache
-        return caches.match(event.request).then(cached => {
-          if (cached) return cached
-          // If navigating to a page — show offline page
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE_URL)
-          }
-        })
-      })
-  )
-})
+self.addEventListener('install',  () => self.skipWaiting())
+self.addEventListener('activate', () => self.clients.claim())

@@ -1,0 +1,81 @@
+// FILE: app/api/push/send/route.ts
+// Sends push notification to all subscribed members
+// Called from admin panel only — requires service role
+
+import { NextRequest, NextResponse } from 'next/server'
+
+const VAPID_PUBLIC  = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ''
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY ?? ''
+const VAPID_EMAIL   = 'mailto:admin@z2blegacybuilders.co.za'
+
+export async function POST(req: NextRequest) {
+  try {
+    const { createClient } = await import('@supabase/supabase-js')
+    const webpush = await import('web-push')
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+    )
+
+    const body = await req.json()
+    const { title, message, url, admin_key } = body
+
+    // Simple admin key guard
+    if (admin_key !== process.env.ADMIN_SECRET_KEY) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+      return NextResponse.json({ error: 'VAPID keys not configured' }, { status: 503 })
+    }
+
+    webpush.default.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC, VAPID_PRIVATE)
+
+    // Get all subscriptions
+    const { data: subs, error } = await supabase
+      .from('push_subscriptions')
+      .select('endpoint, p256dh, auth')
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!subs?.length) return NextResponse.json({ sent: 0, message: 'No subscribers yet' })
+
+    const payload = JSON.stringify({
+      title: title || '🍽️ Z2B Open Table',
+      body:  message || 'The table is calling. Come take your seat.',
+      url:   url || '/open-table',
+    })
+
+    let sent = 0; let failed = 0
+    const deadEndpoints: string[] = []
+
+    await Promise.allSettled(
+      subs.map(async (sub) => {
+        try {
+          await webpush.default.sendNotification(
+            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+            payload
+          )
+          sent++
+        } catch (err: any) {
+          failed++
+          // 410 = subscription expired — clean up
+          if (err.statusCode === 410) deadEndpoints.push(sub.endpoint)
+        }
+      })
+    )
+
+    // Remove dead subscriptions
+    if (deadEndpoints.length > 0) {
+      await supabase.from('push_subscriptions')
+        .delete().in('endpoint', deadEndpoints)
+    }
+
+    console.log(`Push sent: ${sent} success, ${failed} failed, ${deadEndpoints.length} cleaned`)
+    return NextResponse.json({ sent, failed, cleaned: deadEndpoints.length })
+
+  } catch (e: any) {
+    console.error('Push send error:', e)
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
+}
