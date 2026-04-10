@@ -36,14 +36,11 @@ function InvitePage() {
 
   useEffect(() => {
     if (!ref || ref === 'REVMOK2B') return
-    supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('referral_code', ref)
-      .single()
-      .then(({ data }) => {
-        if (data?.full_name) setSponsorName(data.full_name)
-      })
+    // Use public API route — profiles table has RLS so anon users cannot query directly
+    fetch(`/api/sponsor?ref=${encodeURIComponent(ref)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.name) setSponsorName(data.name) })
+      .catch(() => {})
   }, [ref])
 
   const tierAmounts: Record<string,number> = {
