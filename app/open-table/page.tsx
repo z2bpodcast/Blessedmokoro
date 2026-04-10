@@ -74,33 +74,66 @@ export default function OpenTablePage() {
   const [pushEnabled,   setPushEnabled]   = useState(false)
   const [pushLoading,   setPushLoading]   = useState(false)
 
-  const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
+  // Convert VAPID public key to Uint8Array for browser PushManager
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+    const rawData = window.atob(base64)
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
+  }
 
   const enablePush = async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert('Push notifications are not supported on this browser.')
+      alert('Push notifications are not supported on this browser.\nTry Chrome on Android or desktop.')
+      return
+    }
+    const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
+    if (!VAPID_PUBLIC) {
+      alert('Push notifications not configured yet. Contact admin.')
       return
     }
     setPushLoading(true)
     try {
+      // Register service worker
       const reg = await navigator.serviceWorker.register('/sw.js')
+      await navigator.serviceWorker.ready
+
+      // Request permission
       const perm = await Notification.requestPermission()
-      if (perm !== 'granted') { setPushLoading(false); return }
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: VAPID_PUBLIC,
-      })
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await fetch('/api/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscription: sub.toJSON(), user_id: user.id }),
-        })
-        setPushEnabled(true)
+      if (perm === 'denied') {
+        alert('Notifications blocked. Please enable them in your browser settings.')
+        setPushLoading(false); return
       }
-    } catch (e) {
+      if (perm !== 'granted') { setPushLoading(false); return }
+
+      // Check if already subscribed
+      let sub = await reg.pushManager.getSubscription()
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly:      true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
+        })
+      }
+
+      // Save to database
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && sub) {
+        const res = await fetch('/api/push/subscribe', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ subscription: sub.toJSON(), user_id: user.id }),
+        })
+        if (res.ok) {
+          setPushEnabled(true)
+        } else {
+          const err = await res.json()
+          console.error('Subscribe save failed:', err)
+          alert('Could not save notification subscription. Please try again.')
+        }
+      }
+    } catch (e: any) {
       console.error('Push registration error:', e)
+      alert('Could not enable notifications: ' + (e?.message || 'Unknown error'))
     }
     setPushLoading(false)
   }
