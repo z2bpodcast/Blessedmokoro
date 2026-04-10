@@ -31,6 +31,21 @@ function InvitePage() {
   const [modalError,   setModalError]  = useState('')
   const [modalLoading, setModalLoading]= useState(false)
 
+  // Sponsor name — fetched from profiles using ref code
+  const [sponsorName, setSponsorName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!ref || ref === 'REVMOK2B') return
+    supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('referral_code', ref)
+      .single()
+      .then(({ data }) => {
+        if (data?.full_name) setSponsorName(data.full_name)
+      })
+  }, [ref])
+
   const tierAmounts: Record<string,number> = {
     bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000
   }
@@ -94,9 +109,19 @@ function InvitePage() {
         }),
       })
 
-      const data = await res.json()
+      // Safe JSON parse — response may be empty on network/server errors
+      let data: any = {}
+      const rawText = await res.text()
+      try {
+        if (rawText) data = JSON.parse(rawText)
+      } catch {
+        setModalError('Payment service returned an unexpected response. Please try again.')
+        setModalLoading(false)
+        return
+      }
+
       if (!res.ok || !data.checkoutUrl) {
-        setModalError(data.error || 'Payment setup failed. Please try again.')
+        setModalError(data.error || `Payment setup failed (${res.status}). Please try again.`)
         setModalLoading(false)
         return
       }
@@ -500,9 +525,19 @@ function InvitePage() {
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', marginTop:'4px' }}>Once-off · No monthly fees · Lifetime access</div>
             </div>
 
-            {/* Ref credit notice */}
-            {ref && ref !== 'REVMOK2B' && (
-              <div style={{ background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'10px', padding:'10px 14px', marginBottom:'20px', fontSize:'13px', color:'#6EE7B7', textAlign:'center' }}>
+            {/* Sponsor assurance — shows name of builder who invited them */}
+            {sponsorName && (
+              <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'12px', padding:'14px 18px', marginBottom:'20px', display:'flex', alignItems:'center', gap:'12px' }}>
+                <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(135deg,#065F46,#10B981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>🏆</div>
+                <div>
+                  <div style={{ fontSize:'12px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'2px' }}>Invited by</div>
+                  <div style={{ fontSize:'15px', fontWeight:700, color:'#6EE7B7' }}>{sponsorName}</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>will be permanently credited when you pay</div>
+                </div>
+              </div>
+            )}
+            {ref && !sponsorName && ref !== 'REVMOK2B' && (
+              <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', padding:'10px 14px', marginBottom:'20px', fontSize:'13px', color:'#6EE7B7', textAlign:'center' }}>
                 ✦ Your sponsor will be permanently credited for this referral
               </div>
             )}
