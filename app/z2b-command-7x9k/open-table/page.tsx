@@ -40,15 +40,13 @@ export default function AdminOpenTablePage() {
   }
 
   const save = async (key: string, value: any) => {
-    // comp_settings.setting_value is JSONB — strings must be JSON-encoded
+    // comp_settings uses UPDATE only — rows must exist (run open-table-sql.sql first)
     const jsonValue = typeof value === 'string' ? JSON.stringify(value) : value
     const { error } = await supabase
       .from('comp_settings')
-      .upsert(
-        { setting_key: key, setting_value: jsonValue },
-        { onConflict: 'setting_key' }
-      )
-    if (error) console.error(`Save failed [${key}]:`, error.message)
+      .update({ setting_value: jsonValue })
+      .eq('setting_key', key)
+    if (error) console.error(`Save failed [${key}]:`, error.message, JSON.stringify(error))
     return !error
   }
 
