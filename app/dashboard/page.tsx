@@ -1,4 +1,4 @@
-// v2026-03-28 02:42 — CE credits on dashboard
+// v2026-04-10 08:59 — refLink → /invite
 'use client'
 
 // app/dashboard/page.tsx
@@ -73,6 +73,7 @@ function DashboardInner() {
   const [profile,           setProfile]           = useState<Profile | null>(null)
   const [ceCredits,         setCeCredits]         = useState(0)
   const [cePlanActive,      setCePlanActive]      = useState(false)
+  const [showAllFeatures,   setShowAllFeatures]   = useState(false)
   const [loading,           setLoading]           = useState(true)
   const [error,             setError]             = useState('')
   const [copied,            setCopied]            = useState(false)
@@ -226,7 +227,7 @@ function DashboardInner() {
 
   const copyReferralLink = () => {
     if (!profile) return
-    const link = `${window.location.origin}/signup?ref=${profile.referral_code}`
+    const link = `${window.location.origin}/invite?ref=${profile.referral_code}`
     navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -627,7 +628,7 @@ function DashboardInner() {
           <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 mb-4">
             <p className="text-xs text-gray-500 mb-1">Share this link to invite new members:</p>
             <code className="text-purple-700 font-mono text-sm break-all">
-              {typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/signup?ref={profile.referral_code}
+              {typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/invite?ref={profile.referral_code}
             </code>
           </div>
           <button onClick={copyReferralLink}
@@ -663,28 +664,20 @@ function DashboardInner() {
           </div>
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
 
-          {/* ── ROW 1: COACH MANLAW — THE STAR ── */}
+          {/* ── COACH MANLAW — STAR CARD ── */}
           <Link href="/meet-coach-manlaw"
-            className="flex items-center gap-3 p-4 rounded-xl border-2 font-bold text-sm hover:scale-105 transition-transform mb-3 col-span-2 md:col-span-6"
+            className="flex items-center gap-3 p-4 rounded-xl border-2 font-bold text-sm hover:scale-105 transition-transform mb-4"
             style={{ background: 'linear-gradient(135deg,#1E0A3C,#4C1D95)', borderColor: '#D4AF37', color: '#F5D060', textDecoration:'none' }}>
             <span className="text-3xl">🎯</span>
             <div>
               <div className="text-base font-black" style={{ fontFamily:'Cinzel,serif', color:'#D4AF37' }}>Coach Manlaw — Your AI Execution Coach</div>
-              <div className="text-xs font-normal mt-1" style={{ color:'rgba(245,208,96,0.65)' }}>Daily missions · Rank tracking · Business modes · Drive action every day</div>
+              <div className="text-xs font-normal mt-1" style={{ color:'rgba(245,208,96,0.65)' }}>Daily missions · Rank tracking · Business modes</div>
             </div>
             <span className="ml-auto text-xl">→</span>
           </Link>
 
-          {/* ── ROW 2: CORE ACTIONS ── */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-3">
-
-            <Link href="/start-here"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#FFF5F5,#FFE4E4)', borderColor:'#DC2626', color:'#DC2626' }}>
-              <span className="text-2xl">❤️</span>
-              <span>Start Here</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(220,38,38,0.65)' }}>New? Begin here</span>
-            </Link>
+          {/* ── 6 CORE QUICK ACTIONS ── */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
 
             <Link href="/workshop"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
@@ -702,64 +695,12 @@ function DashboardInner() {
               <span className="text-xs font-normal" style={{ color:'rgba(254,215,170,0.65)' }}>Send cards</span>
             </Link>
 
-            <Link href="/my-funnel"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor:'#7C3AED', color:'#fff' }}>
-              <span className="text-2xl">🎯</span>
-              <span>My Funnel</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(255,255,255,0.55)' }}>Track prospects</span>
-            </Link>
-
             <Link href="/my-earnings"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#052E16,#065F46)', borderColor:'#059669', color:'#6EE7B7' }}>
               <span className="text-2xl">💰</span>
               <span>Earnings</span>
               <span className="text-xs font-normal" style={{ color:'rgba(110,231,183,0.65)' }}>Commissions</span>
-            </Link>
-
-            <Link href="/pricing"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
-              <span className="text-2xl">💎</span>
-              <span>Upgrade</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.55)' }}>Higher tier</span>
-            </Link>
-          </div>
-
-          {/* ── ROW 3: COMMUNITY + TOOLS ── */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-3">
-
-            <Link href="/daily-spark"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor:'#D4AF37', color:'#FDE68A' }}>
-              <span className="text-2xl">⚡</span>
-              <span>Daily Spark</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Today's insight</span>
-            </Link>
-
-            <Link href="/builders-table"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#D4AF37', color:'#FDE68A' }}>
-              <span className="text-2xl">🍽️</span>
-              <span>Builders Table</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Community feed</span>
-            </Link>
-
-            <Link href="/leaderboard"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C1A0A,#451A00)', borderColor:'#D4AF37', color:'#FDE68A' }}>
-              <span className="text-2xl">🏆</span>
-              <span>Leaderboard</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Top builders</span>
-            </Link>
-
-            <Link href="/bonfire"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#1C0500,#92400E)', borderColor:'#F97316', color:'#FED7AA' }}>
-              <span className="text-2xl">🔥</span>
-              <span>My Bonfire</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(254,215,170,0.6)' }}>Inner circle</span>
             </Link>
 
             <Link href="/content-studio-plus"
@@ -777,74 +718,128 @@ function DashboardInner() {
               </span>
             </Link>
 
-            <Link href="/open-table"
+            <Link href="/my-funnel"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A1A14,#064E3B)', borderColor:'#10B981', color:'#6EE7B7' }}>
-              <span className="text-2xl">🍽️</span>
-              <span>Open Table</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(110,231,183,0.6)' }}>Live sessions</span>
+              style={{ background: 'linear-gradient(135deg,#4C1D95,#7C3AED)', borderColor:'#7C3AED', color:'#fff' }}>
+              <span className="text-2xl">🎯</span>
+              <span>My Funnel</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(255,255,255,0.55)' }}>Prospects</span>
             </Link>
 
-            <Link href="/type-as-you-feel"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#064E3B,#065F46)', borderColor:'#D4AF37', color:'#D4AF37' }}>
-              <span className="text-2xl">✍️</span>
-              <span>Type As You Feel</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(212,175,55,0.6)' }}>Any language</span>
-            </Link>
-          </div>
-
-          {/* ── ROW 4: LEGACY + RECOGNITION ── */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-
-            <Link href="/my-journey"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
-              <span className="text-2xl">⏳</span>
-              <span>My Journey</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.6)' }}>Progress map</span>
-            </Link>
-
-            <Link href="/echo-wall"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#312E81)', borderColor:'#6366F1', color:'#C7D2FE' }}>
-              <span className="text-2xl">📣</span>
-              <span>Echo Wall</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(199,210,254,0.6)' }}>Highlights</span>
-            </Link>
-
-            <Link href="/ceo-letters"
+            <Link href="/daily-spark"
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
               style={{ background: 'linear-gradient(135deg,#1C1A0A,#78350F)', borderColor:'#D4AF37', color:'#FDE68A' }}>
-              <span className="text-2xl">📜</span>
-              <span>CEO Letters</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>From Rev</span>
-            </Link>
-
-            <Link href="/legacy-vault"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0D0A1E,#1E1B4B)', borderColor:'#D4AF37', color:'#F5D060' }}>
-              <span className="text-2xl">🔐</span>
-              <span>Legacy Vault</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(245,208,96,0.6)' }}>Resources</span>
-            </Link>
-
-            <Link href="/founders-wall"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#0A0818,#1E1B4B)', borderColor:'#7C3AED', color:'#C4B5FD' }}>
-              <span className="text-2xl">🏛️</span>
-              <span>Founders Wall</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(196,181,253,0.6)' }}>Hall of fame</span>
-            </Link>
-
-            <Link href="/profile"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 font-bold text-center text-sm hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg,#111827,#1F2937)', borderColor:'#6B7280', color:'#D1D5DB' }}>
-              <span className="text-2xl">👤</span>
-              <span>My Profile</span>
-              <span className="text-xs font-normal" style={{ color:'rgba(209,213,219,0.6)' }}>Settings</span>
+              <span className="text-2xl">⚡</span>
+              <span>Daily Spark</span>
+              <span className="text-xs font-normal" style={{ color:'rgba(253,230,138,0.6)' }}>Today's insight</span>
             </Link>
           </div>
+
+          {/* ── ALL FEATURES MENU ── */}
+          {showAllFeatures && (
+            <>
+              {/* Backdrop */}
+              <div
+                onClick={() => setShowAllFeatures(false)}
+                style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:40, backdropFilter:'blur(4px)' }}
+              />
+              {/* Slide-up drawer */}
+              <div style={{
+                position:'fixed', bottom:0, left:0, right:0, zIndex:50,
+                background:'linear-gradient(180deg,#0D0A1E,#09060F)',
+                border:'1.5px solid rgba(212,175,55,0.25)',
+                borderRadius:'24px 24px 0 0',
+                padding:'24px 20px 40px',
+                maxHeight:'82vh', overflowY:'auto',
+              }}>
+                {/* Handle */}
+                <div style={{ width:'40px', height:'4px', background:'rgba(255,255,255,0.15)', borderRadius:'2px', margin:'0 auto 20px' }} />
+
+                <div style={{ fontFamily:'Cinzel,serif', fontSize:'11px', letterSpacing:'3px', color:'rgba(212,175,55,0.5)', marginBottom:'18px', textAlign:'center' }}>
+                  ALL FEATURES
+                </div>
+
+                {/* Community */}
+                <div style={{ fontSize:'10px', fontFamily:'Cinzel,serif', letterSpacing:'2px', color:'rgba(212,175,55,0.4)', marginBottom:'10px' }}>COMMUNITY</div>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  {[
+                    { href:'/builders-table', icon:'🍽️', label:'Builders Table', sub:'Community feed', bg:'linear-gradient(135deg,#0A0818,#1E1B4B)', bc:'#D4AF37', col:'#FDE68A' },
+                    { href:'/open-table',     icon:'🍽️', label:'Open Table',     sub:'Live sessions',  bg:'linear-gradient(135deg,#0A1A14,#064E3B)', bc:'#10B981', col:'#6EE7B7' },
+                    { href:'/bonfire',        icon:'🔥', label:'My Bonfire',     sub:'Inner circle',   bg:'linear-gradient(135deg,#1C0500,#92400E)', bc:'#F97316', col:'#FED7AA' },
+                    { href:'/leaderboard',    icon:'🏆', label:'Leaderboard',    sub:'Top builders',   bg:'linear-gradient(135deg,#1C1A0A,#451A00)', bc:'#D4AF37', col:'#FDE68A' },
+                    { href:'/echo-wall',      icon:'📣', label:'Echo Wall',      sub:'Highlights',     bg:'linear-gradient(135deg,#0A0818,#312E81)', bc:'#6366F1', col:'#C7D2FE' },
+                    { href:'/type-as-you-feel',icon:'✍️',label:'Type As You Feel',sub:'Any language',  bg:'linear-gradient(135deg,#064E3B,#065F46)', bc:'#D4AF37', col:'#D4AF37' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href}
+                      onClick={() => setShowAllFeatures(false)}
+                      className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 font-bold text-center text-xs hover:scale-105 transition-transform"
+                      style={{ background:item.bg, borderColor:item.bc, color:item.col, textDecoration:'none' }}>
+                      <span className="text-xl">{item.icon}</span>
+                      <span>{item.label}</span>
+                      <span className="font-normal" style={{ fontSize:'10px', opacity:0.6 }}>{item.sub}</span>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Tools */}
+                <div style={{ fontSize:'10px', fontFamily:'Cinzel,serif', letterSpacing:'2px', color:'rgba(212,175,55,0.4)', marginBottom:'10px' }}>TOOLS</div>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  {[
+                    { href:'/visual-studio',  icon:'📸', label:'Visual Studio',  sub:'HD Photos',      bg:'linear-gradient(135deg,#0A1A0A,#065F46)', bc:'#10B981', col:'#6EE7B7' },
+                    { href:'/start-here',     icon:'❤️', label:'Start Here',     sub:'New? Begin',     bg:'linear-gradient(135deg,#FFF5F5,#FFE4E4)', bc:'#DC2626', col:'#DC2626' },
+                    { href:'/pricing',        icon:'💎', label:'Upgrade',        sub:'Higher tier',    bg:'linear-gradient(135deg,#1E1B4B,#312E81)', bc:'#7C3AED', col:'#C4B5FD' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href}
+                      onClick={() => setShowAllFeatures(false)}
+                      className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 font-bold text-center text-xs hover:scale-105 transition-transform"
+                      style={{ background:item.bg, borderColor:item.bc, color:item.col, textDecoration:'none' }}>
+                      <span className="text-xl">{item.icon}</span>
+                      <span>{item.label}</span>
+                      <span className="font-normal" style={{ fontSize:'10px', opacity:0.6 }}>{item.sub}</span>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Legacy */}
+                <div style={{ fontSize:'10px', fontFamily:'Cinzel,serif', letterSpacing:'2px', color:'rgba(212,175,55,0.4)', marginBottom:'10px' }}>LEGACY & PROFILE</div>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { href:'/my-journey',   icon:'⏳', label:'My Journey',   sub:'Progress map', bg:'linear-gradient(135deg,#0A0818,#1E1B4B)', bc:'#7C3AED', col:'#C4B5FD' },
+                    { href:'/legacy-vault', icon:'🔐', label:'Legacy Vault', sub:'Resources',    bg:'linear-gradient(135deg,#0D0A1E,#1E1B4B)', bc:'#D4AF37', col:'#F5D060' },
+                    { href:'/ceo-letters',  icon:'📜', label:'CEO Letters',  sub:'From Rev',     bg:'linear-gradient(135deg,#1C1A0A,#78350F)', bc:'#D4AF37', col:'#FDE68A' },
+                    { href:'/founders-wall',icon:'🏛️', label:'Founders Wall',sub:'Hall of fame', bg:'linear-gradient(135deg,#0A0818,#1E1B4B)', bc:'#7C3AED', col:'#C4B5FD' },
+                    { href:'/profile',      icon:'👤', label:'My Profile',   sub:'Settings',     bg:'linear-gradient(135deg,#111827,#1F2937)', bc:'#6B7280', col:'#D1D5DB' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href}
+                      onClick={() => setShowAllFeatures(false)}
+                      className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 font-bold text-center text-xs hover:scale-105 transition-transform"
+                      style={{ background:item.bg, borderColor:item.bc, color:item.col, textDecoration:'none' }}>
+                      <span className="text-xl">{item.icon}</span>
+                      <span>{item.label}</span>
+                      <span className="font-normal" style={{ fontSize:'10px', opacity:0.6 }}>{item.sub}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── ALL FEATURES BUTTON ── */}
+          <button
+            onClick={() => setShowAllFeatures(true)}
+            style={{
+              width:'100%', padding:'14px', marginTop:'4px',
+              background:'rgba(212,175,55,0.07)',
+              border:'1.5px solid rgba(212,175,55,0.25)',
+              borderRadius:'14px', cursor:'pointer',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:'10px',
+              fontFamily:'Cinzel,serif', fontSize:'13px', fontWeight:700,
+              color:'rgba(212,175,55,0.8)', letterSpacing:'1px',
+            }}>
+            <span style={{ fontSize:'18px' }}>☰</span>
+            All Features
+            <span style={{ fontSize:'12px', opacity:0.5 }}>↑</span>
+          </button>
         </div>
 
       </div>
