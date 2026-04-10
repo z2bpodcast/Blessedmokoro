@@ -28,18 +28,27 @@ export default function AdminOpenTablePage() {
 
     if (data) {
       data.forEach(({ setting_key, setting_value }) => {
-        if (setting_key === 'open_table_meet_link') setMeetLink(setting_value as string || '')
-        if (setting_key === 'open_table_note')      setSessionNote(setting_value as string || '')
-        if (setting_key === 'open_table_active')    setIsActive(setting_value as boolean || false)
+        // JSONB values — strings may come wrapped in quotes, booleans as-is
+        const raw = setting_value
+        const str = typeof raw === 'string' ? raw.replace(/^"|"$/g, '') : String(raw || '')
+        if (setting_key === 'open_table_meet_link') setMeetLink(str)
+        if (setting_key === 'open_table_note')      setSessionNote(str)
+        if (setting_key === 'open_table_active')    setIsActive(raw === true || raw === 'true')
       })
     }
     setLoading(false)
   }
 
   const save = async (key: string, value: any) => {
+    // comp_settings.setting_value is JSONB — strings must be JSON-encoded
+    const jsonValue = typeof value === 'string' ? JSON.stringify(value) : value
     const { error } = await supabase
       .from('comp_settings')
-      .upsert({ setting_key: key, setting_value: value }, { onConflict: 'setting_key' })
+      .upsert(
+        { setting_key: key, setting_value: jsonValue },
+        { onConflict: 'setting_key' }
+      )
+    if (error) console.error(`Save failed [${key}]:`, error.message)
     return !error
   }
 
@@ -57,7 +66,7 @@ export default function AdminOpenTablePage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } else {
-      setError('Save failed. Please try again.')
+      setError('Save failed. Check browser console for details and try again.')
     }
     setSaving(false)
   }
