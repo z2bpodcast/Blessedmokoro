@@ -35,8 +35,8 @@ function InvitePage() {
   const [sponsorName, setSponsorName] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!ref || ref === 'REVMOK2B') return
-    // Use public API route — profiles table has RLS so anon users cannot query directly
+    if (!ref) return
+    // Fetch sponsor name for ALL ref codes including default
     fetch(`/api/sponsor?ref=${encodeURIComponent(ref)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data?.name) setSponsorName(data.name) })
@@ -418,6 +418,19 @@ function InvitePage() {
           {/* ── MEMBERSHIP + CTA ── */}
           <div className="workshop-box">
             <p className="pre">Your Next Step</p>
+
+            {/* Sponsor assurance — visible on page before clicking any tier */}
+            {sponsorName && (
+              <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'14px', padding:'16px 20px', marginBottom:'20px', display:'flex', alignItems:'center', gap:'14px', textAlign:'left' as const }}>
+                <div style={{ width:'44px', height:'44px', borderRadius:'50%', background:'linear-gradient(135deg,#065F46,#10B981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', flexShrink:0 }}>🏆</div>
+                <div>
+                  <div style={{ fontSize:'12px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase' as const, marginBottom:'2px' }}>You were personally invited by</div>
+                  <div style={{ fontSize:'18px', fontWeight:700, color:'#6EE7B7', fontFamily:'Cinzel,Georgia,serif' }}>{sponsorName}</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>When you pay — {sponsorName} is permanently credited as your sponsor. This never changes.</div>
+                </div>
+              </div>
+            )}
+
             <h2>Choose Your Seat at the<br/><span>Billionaire Table</span></h2>
             <p>99 sessions. 4 Legs. Built while you are still employed. The real question is not what it costs — it is what it costs you to stay where you are.</p>
 
@@ -522,20 +535,15 @@ function InvitePage() {
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', marginTop:'4px' }}>Once-off · No monthly fees · Lifetime access</div>
             </div>
 
-            {/* Sponsor assurance — shows name of builder who invited them */}
+            {/* Sponsor assurance inside modal */}
             {sponsorName && (
               <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'12px', padding:'14px 18px', marginBottom:'20px', display:'flex', alignItems:'center', gap:'12px' }}>
                 <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(135deg,#065F46,#10B981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>🏆</div>
                 <div>
-                  <div style={{ fontSize:'12px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'2px' }}>Invited by</div>
-                  <div style={{ fontSize:'15px', fontWeight:700, color:'#6EE7B7' }}>{sponsorName}</div>
-                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>will be permanently credited when you pay</div>
+                  <div style={{ fontSize:'12px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase' as const, marginBottom:'2px' }}>Your sponsor</div>
+                  <div style={{ fontSize:'16px', fontWeight:700, color:'#6EE7B7' }}>{sponsorName}</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>Permanently credited the moment your payment goes through</div>
                 </div>
-              </div>
-            )}
-            {ref && !sponsorName && ref !== 'REVMOK2B' && (
-              <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', padding:'10px 14px', marginBottom:'20px', fontSize:'13px', color:'#6EE7B7', textAlign:'center' }}>
-                ✦ Your sponsor will be permanently credited for this referral
               </div>
             )}
 
