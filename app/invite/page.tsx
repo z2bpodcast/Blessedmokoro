@@ -9,8 +9,9 @@
 //   • Every builder shares: https://app.z2blegacybuilders.co.za/invite?ref=THEIRCODE
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 // ─── Inner component (needs useSearchParams so must be wrapped in Suspense) ───
 function InvitePage() {
@@ -19,6 +20,96 @@ function InvitePage() {
 
   const signupUrl = `/signup?ref=${ref}`
   const appUrl    = `https://app.z2blegacybuilders.co.za/invite?ref=${ref}`
+
+  // ── Payment modal state ──
+  const [modal,        setModal]       = useState(false)
+  const [selTier,      setSelTier]     = useState<{name:string,price:string,amount:number}|null>(null)
+  const [step,         setStep]        = useState<'register'|'paying'|'done'>('register')
+  const [fullName,     setFullName]    = useState('')
+  const [email,        setEmail]       = useState('')
+  const [whatsapp,     setWhatsapp]    = useState('')
+  const [modalError,   setModalError]  = useState('')
+  const [modalLoading, setModalLoading]= useState(false)
+
+  const tierAmounts: Record<string,number> = {
+    bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000
+  }
+
+  const openModal = (name: string, price: string) => {
+    setSelTier({ name, price, amount: tierAmounts[name.toLowerCase()] || 480 })
+    setStep('register')
+    setFullName(''); setEmail(''); setWhatsapp('')
+    setModalError(''); setModalLoading(false)
+    setModal(true)
+  }
+
+  const handlePay = async () => {
+    if (!fullName.trim()) { setModalError('Please enter your full name.'); return }
+    if (!email.trim() || !email.includes('@')) { setModalError('Please enter a valid email address.'); return }
+    if (!whatsapp.trim()) { setModalError('Please enter your WhatsApp number.'); return }
+    if (!selTier) return
+
+    setModalLoading(true); setModalError('')
+
+    try {
+      // Step 1 — Light registration (temp password, full profile done in dashboard)
+      const tempPassword = `Z2B${Math.random().toString(36).slice(2,10).toUpperCase()}!`
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password: tempPassword,
+        options: { data: { full_name: fullName.trim(), whatsapp: whatsapp.trim(), referred_by: ref || null } },
+      })
+
+      let userId = authData?.user?.id
+
+      // If already registered — sign them in
+      if (signUpError?.message?.toLowerCase().includes('already registered') || signUpError?.message?.toLowerCase().includes('already exists')) {
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password: tempPassword,
+        })
+        if (signInErr) {
+          setModalError('This email is already registered. Please sign in to your account first.')
+          setModalLoading(false)
+          return
+        }
+        userId = signInData?.user?.id
+      }
+
+      if (!userId) {
+        setModalError('Registration failed. Please try again.')
+        setModalLoading(false)
+        return
+      }
+
+      // Step 2 — Create Yoco checkout
+      const res = await fetch('/api/yoco', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action:   'create_checkout',
+          user_id:  userId,
+          ref_code: ref || '',
+          tier:     selTier.name.toLowerCase(),
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || !data.checkoutUrl) {
+        setModalError(data.error || 'Payment setup failed. Please try again.')
+        setModalLoading(false)
+        return
+      }
+
+      // Step 3 — Redirect to Yoco
+      setStep('paying')
+      window.location.href = data.checkoutUrl
+
+    } catch (err: any) {
+      setModalError(err.message || 'Something went wrong. Please try again.')
+      setModalLoading(false)
+    }
+  }
 
   return (
     <>
@@ -339,10 +430,16 @@ function InvitePage() {
                 { color:'#D4AF37', border:'rgba(212,175,55,0.35)', bg:'rgba(212,175,55,0.07)', emoji:'💛', name:'Gold', price:'R5000', desc:'All Silver benefits + Two Apps built for you after completing all 99 sessions + Z2B Gold Pool Profit Sharing.' },
                 { color:'#E5E4E2', border:'rgba(229,228,226,0.3)', bg:'rgba(229,228,226,0.06)', emoji:'💎', name:'Platinum', price:'R12000', desc:'All Gold benefits + Four Apps built for you + Z2B Platinum Pool Profit Sharing + White Label License to sell selected Z2B Apps under your own brand. T&Cs apply.' },
               ].map(({ color, border, bg, emoji, name, price, desc }) => (
-                <div key={name} style={{ background:bg, border:`1.5px solid ${border}`, borderRadius:'12px', padding:'16px 18px' }}>
+                <div key={name}
+                  onClick={() => openModal(name, price)}
+                  style={{ background:bg, border:`1.5px solid ${border}`, borderRadius:'12px', padding:'16px 18px', cursor:'pointer', transition:'all 0.15s' }}
+                >
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'6px' }}>
                     <span style={{ fontFamily:'Georgia,serif', fontSize:'15px', fontWeight:700, color }}>{emoji} {name}</span>
-                    <span style={{ fontFamily:'Georgia,serif', fontSize:'16px', fontWeight:900, color }}>{price}</span>
+                    <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                      <span style={{ fontFamily:'Georgia,serif', fontSize:'16px', fontWeight:900, color }}>{price}</span>
+                      <span style={{ background:color, color:'#000', fontSize:'10px', fontWeight:900, padding:'3px 10px', borderRadius:'20px', whiteSpace:'nowrap' as const }}>PAY NOW →</span>
+                    </div>
                   </div>
                   <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', margin:0, lineHeight:'1.65' }}>{desc}</p>
                 </div>
@@ -383,6 +480,100 @@ function InvitePage() {
 
         </div>{/* end .wrap */}
       </div>{/* end .inv-body */}
+    <>
+
+      {/* ══════════════════════════════════════════════
+          PAYMENT MODAL
+      ══════════════════════════════════════════════ */}
+      {modal && selTier && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(8px)' }}>
+          <div style={{ background:'linear-gradient(160deg,#0F0820,#1E1245)', border:'2px solid rgba(212,175,55,0.4)', borderRadius:'20px', padding:'36px 32px', maxWidth:'460px', width:'100%', position:'relative', fontFamily:'Georgia,serif' }}>
+
+            {/* Close */}
+            <button onClick={() => setModal(false)} style={{ position:'absolute', top:'16px', right:'16px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'34px', height:'34px', color:'rgba(255,255,255,0.5)', fontSize:'18px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×</button>
+
+            {/* Header */}
+            <div style={{ textAlign:'center', marginBottom:'24px' }}>
+              <div style={{ fontSize:'11px', letterSpacing:'3px', color:'rgba(212,175,55,0.5)', marginBottom:'8px', textTransform:'uppercase' }}>Securing Your Seat</div>
+              <h2 style={{ fontSize:'22px', fontWeight:900, color:'#fff', margin:'0 0 6px' }}>{selTier.name} Membership</h2>
+              <div style={{ fontSize:'32px', fontWeight:900, color:'#D4AF37' }}>{selTier.price}</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', marginTop:'4px' }}>Once-off · No monthly fees · Lifetime access</div>
+            </div>
+
+            {/* Ref credit notice */}
+            {ref && ref !== 'REVMOK2B' && (
+              <div style={{ background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'10px', padding:'10px 14px', marginBottom:'20px', fontSize:'13px', color:'#6EE7B7', textAlign:'center' }}>
+                ✦ Your sponsor will be permanently credited for this referral
+              </div>
+            )}
+
+            {step === 'register' && (
+              <>
+                {modalError && (
+                  <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px 14px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>
+                    ⚠️ {modalError}
+                  </div>
+                )}
+
+                {/* Form */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'14px', marginBottom:'20px' }}>
+                  <div>
+                    <label style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Full Name *</label>
+                    <input
+                      value={fullName} onChange={e => setFullName(e.target.value)}
+                      placeholder="Your full name"
+                      style={{ width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'10px', color:'#fff', fontSize:'15px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Email Address *</label>
+                    <input
+                      type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      style={{ width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'10px', color:'#fff', fontSize:'15px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>WhatsApp Number *</label>
+                    <input
+                      type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
+                      placeholder="+27 or 0XX XXX XXXX"
+                      style={{ width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'10px', color:'#fff', fontSize:'15px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.3)', marginBottom:'16px', textAlign:'center', lineHeight:'1.6' }}>
+                  Your account is created instantly. Complete your full profile inside your Dashboard after payment.
+                </div>
+
+                {/* Pay button */}
+                <button onClick={handlePay} disabled={modalLoading}
+                  style={{ width:'100%', padding:'16px', background: modalLoading ? 'rgba(212,175,55,0.3)' : 'linear-gradient(135deg,#B8860B,#D4AF37)', border:'none', borderRadius:'12px', color:'#000', fontWeight:900, fontSize:'17px', cursor: modalLoading ? 'not-allowed' : 'pointer', fontFamily:'Cinzel,Georgia,serif', letterSpacing:'1px' }}>
+                  {modalLoading ? 'Setting up payment...' : `Pay ${selTier.price} Now →`}
+                </button>
+
+                {/* Already a member */}
+                <div style={{ textAlign:'center', marginTop:'16px', fontSize:'13px', color:'rgba(255,255,255,0.3)' }}>
+                  Already a member?{' '}
+                  <a href="/login" style={{ color:'rgba(212,175,55,0.6)', textDecoration:'none', fontWeight:700 }}>Sign in →</a>
+                </div>
+              </>
+            )}
+
+            {step === 'paying' && (
+              <div style={{ textAlign:'center', padding:'20px 0' }}>
+                <div style={{ fontSize:'40px', marginBottom:'16px' }}>⏳</div>
+                <p style={{ color:'#D4AF37', fontWeight:700, fontSize:'16px', marginBottom:'8px' }}>Redirecting to payment...</p>
+                <p style={{ color:'rgba(255,255,255,0.45)', fontSize:'13px' }}>You will be taken to Yoco to complete your payment securely.</p>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+    </>
+
     </>
   )
 }
