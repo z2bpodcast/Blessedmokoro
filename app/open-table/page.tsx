@@ -70,6 +70,7 @@ export default function OpenTablePage() {
   const [revPresent,   setRevPresent]   = useState(false)
   const [inviting,     setInviting]     = useState(false) // Coach Manlaw invitation mode
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
 
   const pad = (n:number) => String(n).padStart(2,'0')
   const meetConfigured = meetLink.startsWith('https://meet.google.com/')
@@ -85,6 +86,22 @@ export default function OpenTablePage() {
           setRevPresent(data?.user_role === 'ceo' || data?.user_role === 'superadmin')
         })
     })
+    // Presence tracking — who is online
+    const presenceCh = supabase.channel('open_table_presence', {
+      config: { presence: { key: 'user' } }
+    })
+    presenceCh
+      .on('presence', { event:'sync' }, () => {
+        const state = presenceCh.presenceState()
+        const names = Object.values(state).flat().map((p: any) => p.name).filter(Boolean)
+        setOnlineUsers([...new Set(names)] as string[])
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED' && profile) {
+          await presenceCh.track({ name: profile.full_name })
+        }
+      })
+
     // Load settings
     supabase.from('comp_settings')
       .select('setting_key,setting_value')
@@ -273,6 +290,17 @@ You are warm, wise, and direct. Respond to what was asked or shared. Use short p
         {/* ══════ CHAT TAB ══════ */}
         {tab === 'chat' && (
           <div>
+            {/* Online now */}
+            {onlineUsers.length > 0 && (
+              <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'8px 14px', background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', marginBottom:'12px', flexWrap:'wrap', gap:'8px' }}>
+                <div style={{ width:'7px', height:'7px', borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s infinite', flexShrink:0 }} />
+                <span style={{ fontSize:'12px', color:'rgba(110,231,183,0.8)', fontWeight:700 }}>Now at the table:</span>
+                {onlineUsers.map((name, i) => (
+                  <span key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'20px', padding:'2px 10px' }}>{name}</span>
+                ))}
+              </div>
+            )}
+
             {/* Coach Manlaw invite banner */}
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.25)', borderRadius:'12px', padding:'12px 16px', marginBottom:'16px', flexWrap:'wrap', gap:'10px' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
@@ -381,9 +409,17 @@ You are warm, wise, and direct. Respond to what was asked or shared. Use short p
               <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px', lineHeight:1.7 }}>
                 The Open Table is open to guests. Invite a prospect to observe this Sunday.
               </p>
-              <Link href="/invite" style={{ display:'inline-block', padding:'12px 28px', background:'linear-gradient(135deg,#2D1B69,#4C1D95)', border:'2px solid #D4AF37', borderRadius:'12px', color:'#FDE68A', fontWeight:700, fontSize:'14px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
-                🌟 Share Your Invite Link
-              </Link>
+              <button
+                onClick={() => {
+                  const ref = profile?.referral_code || 'REVMOK2B'
+                  const link = `${window.location.origin}/open-table/schedule?ref=${ref}`
+                  navigator.clipboard.writeText(link)
+                    .then(() => alert('✅ Copied!\n\nSend this link to your prospect:\n' + link))
+                    .catch(() => prompt('Copy this link:', link))
+                }}
+                style={{ display:'inline-block', padding:'12px 28px', background:'linear-gradient(135deg,#2D1B69,#4C1D95)', border:'2px solid #D4AF37', borderRadius:'12px', color:'#FDE68A', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', letterSpacing:'1px' }}>
+                🌟 Copy Open Table Invite Link
+              </button>
             </div>
           </div>
         )}

@@ -1,191 +1,198 @@
 'use client'
-// FILE: app/z2b-command-7x9k/open-table-admin/page.tsx
-// Admin — Open Table Scheduler
-// Rev can schedule sessions + activate "Rev is in the building"
+// FILE: app/z2b-command-7x9k/open-table/page.tsx
+// Admin: Manage Open Table settings — Meet link, session notes, status
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-type Session = {
-  id?: string
-  session_number: number
-  title: string
-  scheduled_at: string
-  facilitator: string
-  rev_present: boolean
-  message_count: number
-}
-
-const EMPTY: Session = {
-  session_number: 1, title: '', scheduled_at: '',
-  facilitator: 'Coach Manlaw', rev_present: false, message_count: 0
-}
-
 export default function AdminOpenTablePage() {
-  const router = useRouter()
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [editing, setEditing]   = useState<Session|null>(null)
-  const [isNew, setIsNew]       = useState(false)
-  const [saving, setSaving]     = useState(false)
-  const [msg, setMsg]           = useState('')
-  const [revLive, setRevLive]   = useState(false)
-  const [activating, setActivating] = useState(false)
+  const [meetLink,   setMeetLink]   = useState('')
+  const [sessionNote,setSessionNote]= useState('')
+  const [isActive,   setIsActive]   = useState(false)
+  const [loading,    setLoading]    = useState(true)
+  const [saving,     setSaving]     = useState(false)
+  const [saved,      setSaved]      = useState(false)
+  const [error,      setError]      = useState('')
 
   useEffect(() => {
-    const session = sessionStorage.getItem('z2b_cmd_auth')
-    if (session !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k/'); return }
-    loadSessions()
-    // Check if Rev is currently live
-    supabase.from('open_table_sessions').select('rev_present').order('scheduled_at', { ascending: false }).limit(1).single()
-      .then(({ data }) => { if (data) setRevLive(data.rev_present) })
+    loadSettings()
   }, [])
 
-  const loadSessions = async () => {
-    const { data } = await supabase.from('open_table_sessions').select('*').order('scheduled_at', { ascending: false }).limit(20)
-    if (data) setSessions(data as Session[])
+  const loadSettings = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('comp_settings')
+      .select('setting_key, setting_value')
+      .in('setting_key', ['open_table_meet_link', 'open_table_note', 'open_table_active'])
+
+    if (data) {
+      data.forEach(({ setting_key, setting_value }) => {
+        if (setting_key === 'open_table_meet_link') setMeetLink(setting_value as string || '')
+        if (setting_key === 'open_table_note')      setSessionNote(setting_value as string || '')
+        if (setting_key === 'open_table_active')    setIsActive(setting_value as boolean || false)
+      })
+    }
+    setLoading(false)
+  }
+
+  const save = async (key: string, value: any) => {
+    const { error } = await supabase
+      .from('comp_settings')
+      .upsert({ setting_key: key, setting_value: value }, { onConflict: 'setting_key' })
+    return !error
   }
 
   const handleSave = async () => {
-    if (!editing) return
-    if (!editing.title || !editing.scheduled_at) { setMsg('Title and date are required.'); return }
-    setSaving(true); setMsg('')
-    try {
-      if (isNew) {
-        await supabase.from('open_table_sessions').insert(editing)
-        setMsg('✅ Session scheduled!')
-      } else {
-        await supabase.from('open_table_sessions').update(editing).eq('id', editing.id)
-        setMsg('✅ Session updated!')
-      }
-      await loadSessions()
-      setEditing(null); setIsNew(false)
-    } catch(err: any) { setMsg(`❌ ${err.message}`) }
+    if (!meetLink.trim()) { setError('Please enter the Google Meet link.'); return }
+    if (!meetLink.startsWith('https://meet.google.com/')) {
+      setError('Link must start with https://meet.google.com/')
+      return
+    }
+    setSaving(true); setError(''); setSaved(false)
+    const ok1 = await save('open_table_meet_link', meetLink.trim())
+    const ok2 = await save('open_table_note',      sessionNote.trim())
+    const ok3 = await save('open_table_active',    isActive)
+    if (ok1 && ok2 && ok3) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } else {
+      setError('Save failed. Please try again.')
+    }
     setSaving(false)
   }
 
-  const toggleRevLive = async () => {
-    setActivating(true)
-    // Get latest session
-    const { data } = await supabase.from('open_table_sessions').select('id').order('scheduled_at', { ascending: false }).limit(1).single()
-    if (data) {
-      await supabase.from('open_table_sessions').update({ rev_present: !revLive }).eq('id', data.id)
-      setRevLive(!revLive)
-      setMsg(!revLive ? '🔥 Rev is now LIVE — builders are notified!' : '✅ Rev has left the session')
-    }
-    setActivating(false)
+  const S = {
+    page:   { minHeight:'100vh', background:'#F8F5FF', fontFamily:'Georgia,serif', padding:'24px' },
+    wrap:   { maxWidth:'680px', margin:'0 auto' },
+    card:   { background:'#fff', border:'1px solid #E5E7EB', borderRadius:'16px', padding:'28px', marginBottom:'20px', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' } as React.CSSProperties,
+    label:  { fontSize:'12px', fontWeight:700, color:'#6B7280', letterSpacing:'1px', textTransform:'uppercase' as const, marginBottom:'6px', display:'block' },
+    input:  { width:'100%', padding:'12px 14px', border:'1.5px solid #E5E7EB', borderRadius:'10px', fontSize:'15px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const, color:'#1E1245' },
+    textarea:{ width:'100%', padding:'12px 14px', border:'1.5px solid #E5E7EB', borderRadius:'10px', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const, color:'#1E1245', minHeight:'90px', resize:'vertical' as const },
+    btn:    { padding:'14px 32px', background:'linear-gradient(135deg,#2D1B69,#4C1D95)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' } as React.CSSProperties,
+    toggle: (on: boolean) => ({ width:'52px', height:'28px', borderRadius:'14px', background: on ? '#10B981' : '#D1D5DB', position:'relative' as const, cursor:'pointer', transition:'all 0.2s', flexShrink:0 }),
+    thumb:  (on: boolean) => ({ position:'absolute' as const, top:'3px', left: on ? '27px' : '3px', width:'22px', height:'22px', borderRadius:'50%', background:'#fff', transition:'all 0.2s', boxShadow:'0 1px 4px rgba(0,0,0,0.2)' }),
   }
 
-  const inp: React.CSSProperties = { width:'100%', background:'rgba(255,255,255,0.06)', border:'1.5px solid rgba(255,255,255,0.1)', borderRadius:'10px', padding:'11px 14px', color:'#F5F3FF', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' }
-  const lbl: React.CSSProperties = { display:'block', fontSize:'10px', fontWeight:700, color:'rgba(212,175,55,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'6px' }
+  if (loading) return (
+    <div style={{ ...S.page, display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ color:'#4C1D95', fontSize:'16px' }}>Loading settings...</div>
+    </div>
+  )
 
   return (
-    <div style={{ minHeight:'100vh', background:'#0A0818', fontFamily:'Georgia,serif', color:'#F5F3FF', paddingBottom:'60px' }}>
-      <div style={{ background:'rgba(0,0,0,0.5)', borderBottom:'1px solid rgba(212,175,55,0.15)', padding:'16px 28px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <Link href="/z2b-command-7x9k/hub" style={{ textDecoration:'none', fontSize:'13px', color:'rgba(196,181,253,0.6)' }}>← Admin Hub</Link>
-        <h1 style={{ margin:0, fontSize:'18px', fontWeight:700, color:'#D4AF37' }}>🍽️ Open Table Scheduler</h1>
-        <button onClick={() => { setEditing({...EMPTY}); setIsNew(true) }} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'9px', color:'#F5D060', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
-          + Schedule Session
-        </button>
-      </div>
+    <div style={S.page}>
+      <div style={S.wrap}>
 
-      <div style={{ maxWidth:'800px', margin:'0 auto', padding:'28px 24px' }}>
-
-        {/* Rev Live Toggle */}
-        <div style={{ background: revLive ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)', border: `2px solid ${revLive ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.1)'}`, borderRadius:'16px', padding:'20px 24px', marginBottom:'24px', display:'flex', alignItems:'center', gap:'16px' }}>
-          <div style={{ fontSize:'32px' }}>{revLive ? '🔥' : '🍽️'}</div>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:'15px', fontWeight:700, color: revLive ? '#D4AF37' : '#fff', marginBottom:'3px' }}>
-              {revLive ? 'REV IS LIVE — Builders are seeing the banner' : 'Rev is not currently live'}
-            </div>
-            <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)' }}>
-              {revLive ? 'A gold banner shows on Open Table: "Rev is in the building 🔥"' : 'Activate when you join an Open Table session live'}
-            </div>
-          </div>
-          <button onClick={toggleRevLive} disabled={activating} style={{ padding:'11px 22px', background: revLive ? 'rgba(239,68,68,0.15)' : 'linear-gradient(135deg,#B8860B,#D4AF37)', border: revLive ? '1px solid rgba(239,68,68,0.35)' : 'none', borderRadius:'12px', color: revLive ? '#FCA5A5' : '#000', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif', whiteSpace:'nowrap' }}>
-            {activating ? 'Updating...' : revLive ? '⏹ Leave Session' : '🔥 Go Live Now'}
-          </button>
+        {/* Header */}
+        <div style={{ marginBottom:'28px' }}>
+          <Link href="/z2b-command-7x9k/hub" style={{ fontSize:'13px', color:'#6B7280', textDecoration:'none' }}>← Admin Hub</Link>
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'26px', fontWeight:900, color:'#1E1245', margin:'10px 0 4px' }}>
+            🍽️ Open Table Manager
+          </h1>
+          <p style={{ fontSize:'14px', color:'#6B7280', margin:0, lineHeight:1.7 }}>
+            Manage the Sunday 8PM gathering. <strong style={{ color:'#4C1D95' }}>Start by pasting your Google Meet link below.</strong> Then set your session note and activate.
+          </p>
         </div>
 
-        {msg && (
-          <div style={{ background:msg.startsWith('✅')||msg.includes('LIVE')?'rgba(16,185,129,0.1)':'rgba(239,68,68,0.1)', border:`1px solid ${msg.startsWith('✅')||msg.includes('LIVE')?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.3)'}`, borderRadius:'10px', padding:'12px 16px', color:msg.startsWith('✅')||msg.includes('LIVE')?'#6EE7B7':'#FCA5A5', fontSize:'13px', marginBottom:'20px' }}>
-            {msg}
+        {/* Meet Link — FIRST and most prominent */}
+        <div style={{ ...S.card, border:'2px solid #D4AF37' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
+            <span style={{ fontSize:'22px' }}>🔗</span>
+            <div>
+              <div style={{ fontSize:'16px', fontWeight:700, color:'#1E1245' }}>Google Meet Link</div>
+              <div style={{ fontSize:'12px', color:'#6B7280' }}>Paste your recurring Sunday meeting link here</div>
+            </div>
+          </div>
+          <label style={S.label}>Google Meet Link *</label>
+          <input
+            value={meetLink}
+            onChange={e => setMeetLink(e.target.value)}
+            placeholder="https://meet.google.com/xxx-xxxx-xxx"
+            style={S.input}
+          />
+          <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'8px', lineHeight:1.6 }}>
+            Create a recurring Google Meet: go to <strong>meet.google.com</strong> → New Meeting → Schedule in Google Calendar → set recurrence to Every Sunday 8PM → copy the meeting link here.
+          </div>
+
+          {/* Preview */}
+          {meetLink.startsWith('https://meet.google.com/') && (
+            <div style={{ marginTop:'14px', padding:'10px 14px', background:'#F0FDF4', border:'1px solid #86EFAC', borderRadius:'10px', fontSize:'13px', color:'#065F46', display:'flex', alignItems:'center', gap:'8px' }}>
+              <span>✅</span>
+              <span>Valid Google Meet link — will be embedded on the Open Table page</span>
+              <a href={meetLink} target="_blank" rel="noopener noreferrer" style={{ marginLeft:'auto', color:'#059669', fontWeight:700, textDecoration:'none', whiteSpace:'nowrap' as const }}>Test link →</a>
+            </div>
+          )}
+        </div>
+
+        {/* This Week's Note */}
+        <div style={S.card}>
+          <label style={S.label}>This Week's Session Note (optional)</label>
+          <textarea
+            value={sessionNote}
+            onChange={e => setSessionNote(e.target.value)}
+            placeholder="e.g. This Sunday we focus on the Systems Leg — bring your smartphone and your questions about AI tools."
+            style={S.textarea}
+          />
+          <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'6px' }}>
+            This message appears on the Open Table page above the agenda. Update it every week to keep it fresh.
+          </div>
+        </div>
+
+        {/* Status Toggle */}
+        <div style={S.card}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div>
+              <div style={{ fontSize:'16px', fontWeight:700, color:'#1E1245', marginBottom:'4px' }}>Activate Open Table</div>
+              <div style={{ fontSize:'13px', color:'#6B7280' }}>
+                {isActive
+                  ? '🟢 ACTIVE — members can see the Join button and the meeting room'
+                  : '⚫ INACTIVE — page shows countdown only, no join button'}
+              </div>
+            </div>
+            <div style={S.toggle(isActive)} onClick={() => setIsActive(!isActive)}>
+              <div style={S.thumb(isActive)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Error / Success */}
+        {error && (
+          <div style={{ padding:'12px 16px', background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', marginBottom:'16px', fontSize:'13px', color:'#991B1B' }}>
+            ⚠️ {error}
+          </div>
+        )}
+        {saved && (
+          <div style={{ padding:'12px 16px', background:'#F0FDF4', border:'1px solid #86EFAC', borderRadius:'10px', marginBottom:'16px', fontSize:'13px', color:'#065F46', fontWeight:700 }}>
+            ✅ Settings saved — Open Table page updated instantly
           </div>
         )}
 
-        {/* Edit / New form */}
-        {editing && (
-          <div style={{ background:'rgba(255,255,255,0.04)', border:'1.5px solid rgba(212,175,55,0.25)', borderRadius:'16px', padding:'24px', marginBottom:'24px' }}>
-            <h3 style={{ margin:'0 0 20px', fontSize:'17px', fontWeight:700, color:'#D4AF37' }}>{isNew ? '+ Schedule New Session' : 'Edit Session'}</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px', marginBottom:'14px' }}>
-              <div>
-                <label style={lbl}>Session Number</label>
-                <input type="number" value={editing.session_number} onChange={e=>setEditing(p=>p?{...p,session_number:Number(e.target.value)}:p)} style={inp} />
-              </div>
-              <div>
-                <label style={lbl}>Facilitator</label>
-                <select value={editing.facilitator} onChange={e=>setEditing(p=>p?{...p,facilitator:e.target.value}:p)} style={{ ...inp, cursor:'pointer' }}>
-                  <option value="Coach Manlaw">Coach Manlaw (AI)</option>
-                  <option value="Rev Mokoro Manana">Rev Mokoro Manana (Live)</option>
-                  <option value="Both">Both — Coach Manlaw + Rev</option>
-                </select>
-              </div>
-              <div style={{ gridColumn:'1/-1' }}>
-                <label style={lbl}>Session Title</label>
-                <input value={editing.title} onChange={e=>setEditing(p=>p?{...p,title:e.target.value}:p)} placeholder="e.g. Platform Funnel Architecture" style={inp} />
-              </div>
-              <div>
-                <label style={lbl}>Date & Time</label>
-                <input type="datetime-local" value={editing.scheduled_at?.slice(0,16)} onChange={e=>setEditing(p=>p?{...p,scheduled_at:new Date(e.target.value).toISOString()}:p)} style={{ ...inp, cursor:'pointer' }} />
-              </div>
-              <div style={{ display:'flex', alignItems:'center', gap:'10px', paddingTop:'22px' }}>
-                <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
-                  <input type="checkbox" checked={editing.rev_present} onChange={e=>setEditing(p=>p?{...p,rev_present:e.target.checked}:p)} style={{ width:'16px', height:'16px', accentColor:'#D4AF37' }} />
-                  Rev will be present live
-                </label>
-              </div>
-            </div>
-            <div style={{ display:'flex', gap:'10px' }}>
-              <button onClick={handleSave} disabled={saving} style={{ padding:'11px 24px', background:saving?'rgba(255,255,255,0.05)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'10px', color:saving?'rgba(255,255,255,0.3)':'#F5D060', fontWeight:700, fontSize:'13px', cursor:saving?'not-allowed':'pointer', fontFamily:'Georgia,serif' }}>
-                {saving?'Saving...':isNew?'✅ Schedule Session':'✅ Save Changes'}
-              </button>
-              <button onClick={()=>{setEditing(null);setIsNew(false)}} style={{ padding:'11px 18px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px', color:'rgba(255,255,255,0.5)', fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>Cancel</button>
-            </div>
-          </div>
-        )}
+        {/* Save Button */}
+        <div style={{ display:'flex', gap:'12px', alignItems:'center' }}>
+          <button onClick={handleSave} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Saving...' : '💾 Save Settings'}
+          </button>
+          <a href="/open-table" target="_blank" style={{ fontSize:'14px', color:'#4C1D95', textDecoration:'none', fontWeight:700 }}>
+            Preview Open Table page →
+          </a>
+        </div>
 
-        {/* Sessions list */}
-        <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'1px', marginBottom:'14px' }}>SCHEDULED SESSIONS ({sessions.length})</div>
-        {sessions.length === 0 ? (
-          <div style={{ textAlign:'center', padding:'48px', color:'rgba(196,181,253,0.4)' }}>No sessions scheduled yet.</div>
-        ) : (
-          <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-            {sessions.map(s => {
-              const isPast = new Date(s.scheduled_at) < new Date()
-              const isUpcoming = !isPast
-              return (
-                <div key={s.id} style={{ background:'rgba(255,255,255,0.03)', border:`1px solid ${isUpcoming?'rgba(212,175,55,0.2)':'rgba(255,255,255,0.06)'}`, borderRadius:'12px', padding:'14px 18px', display:'flex', alignItems:'center', gap:'12px' }}>
-                  <div style={{ textAlign:'center', minWidth:'48px' }}>
-                    <div style={{ fontSize:'18px', fontWeight:700, color: isUpcoming?'#D4AF37':'rgba(255,255,255,0.3)' }}>#{s.session_number}</div>
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:'14px', fontWeight:700, color: isUpcoming?'#fff':'rgba(255,255,255,0.4)', marginBottom:'2px' }}>{s.title}</div>
-                    <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
-                      {new Date(s.scheduled_at).toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
-                      {' · '}{s.facilitator}
-                      {s.rev_present && ' · 👑 Rev present'}
-                    </div>
-                  </div>
-                  <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
-                    {isPast && <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', background:'rgba(255,255,255,0.05)', borderRadius:'8px', padding:'3px 8px' }}>Past</span>}
-                    <button onClick={()=>{setEditing({...s});setIsNew(false)}} style={{ padding:'6px 12px', background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.28)', borderRadius:'7px', color:'#C4B5FD', fontSize:'11px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>Edit</button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+        {/* Info box */}
+        <div style={{ marginTop:'24px', padding:'18px 20px', background:'rgba(76,29,149,0.05)', border:'1px solid rgba(76,29,149,0.15)', borderRadius:'12px' }}>
+          <div style={{ fontSize:'13px', fontWeight:700, color:'#4C1D95', marginBottom:'8px' }}>How to create a recurring Google Meet</div>
+          <ol style={{ fontSize:'13px', color:'#6B7280', lineHeight:1.9, paddingLeft:'18px', margin:0 }}>
+            <li>Go to <strong>calendar.google.com</strong></li>
+            <li>Click <strong>Create</strong> → select <strong>More options</strong></li>
+            <li>Set title: <strong>Z2B Open Table</strong></li>
+            <li>Set time: <strong>Every Sunday · 8:00 PM – 9:00 PM</strong></li>
+            <li>Click <strong>Add Google Meet video conferencing</strong></li>
+            <li>Under recurrence: <strong>Every week on Sunday</strong></li>
+            <li>Save → click the event → copy the <strong>Join with Google Meet</strong> link</li>
+            <li>Paste it above and click Save Settings</li>
+          </ol>
+        </div>
+
       </div>
     </div>
   )
