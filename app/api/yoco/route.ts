@@ -122,14 +122,14 @@ async function processCommissions(
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = getSupabase()
-
   try {
     const rawBody = await req.text()
     const body    = JSON.parse(rawBody)
 
     // ── WEBHOOK from Yoco ──────────────────────────────────────
     if (body.type === 'payment.succeeded') {
+      // Supabase only needed for webhook processing
+      const supabase = getSupabase()
 
       // Verify signature if secret is configured
       if (YOCO_WEBHOOK_SECRET) {
