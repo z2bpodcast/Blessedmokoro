@@ -9,7 +9,7 @@
 //   • Every builder shares: https://app.z2blegacybuilders.co.za/invite?ref=THEIRCODE
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
