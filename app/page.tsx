@@ -250,11 +250,11 @@ export default function Home() {
                   Start Building
                 </Link>
                 <Link
-                  href="/blueprint"
+                  href="/invite"
                   className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
-                  style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.7)' }}
+                  style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
                 >
-                  📐 See The Blueprint
+                  🌟 You are Invited
                 </Link>
               </div>
             )}

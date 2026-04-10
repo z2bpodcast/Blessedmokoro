@@ -344,9 +344,7 @@ function FullSignUpForm({ referralCode }: { referralCode: string | null }) {
         <Link href="/" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">Home</Link>
         <Link href="/about" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">About Us</Link>
         <Link href="/pricing" className="bg-white text-primary-700 hover:bg-gold-50 font-semibold py-2 px-6 rounded-lg transition-colors border-2 border-gold-400 shadow-lg">Pricing</Link>
-        <Link href={referralCode ? `/workshop?ref=${referralCode}` : '/workshop'} className="font-semibold py-2 px-6 rounded-lg transition-all border-2 border-yellow-400 text-yellow-900 hover:scale-105 shadow-lg" style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}>
-          🎁 Free Workshop — Try Before You Join!
-        </Link>
+
       </div>
 
       {/* Workshop teaser banner */}
