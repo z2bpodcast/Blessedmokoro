@@ -147,10 +147,6 @@ export default function Home() {
                     style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid rgba(212,175,55,0.5)', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     🎁 Free Workshop
                   </Link>
-                  <Link href="/signup"
-                    style={{ padding:'9px 18px', background:'linear-gradient(135deg,#B8860B,#D4AF37)', border:'none', borderRadius:'10px', color:'#000', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,serif' }}>
-                    🔥 Join Free
-                  </Link>
                 </>
               )}
 

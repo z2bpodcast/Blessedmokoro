@@ -25,13 +25,13 @@ export default function RoyalHeader({ user, profile, showAdmin = false, onLogout
 
           <div className="flex gap-3 items-center flex-wrap">
 
-            {/* Z2B TABLE BLUEPRINT — visible to all */}
+            {/* INVITE PAGE — visible to all — drives prospects to /invite */}
             <Link
-              href="/blueprint"
+              href="/invite"
               className="font-semibold py-2 px-5 rounded-lg transition-all border-2 text-white hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #1a0a35, #2D1654)', borderColor: 'rgba(167,139,250,0.6)' }}
+              style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
             >
-              📐 Z2B Blueprint
+              🌟 Join Z2B
             </Link>
 
             {user ? (
