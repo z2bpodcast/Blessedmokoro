@@ -273,57 +273,64 @@ export default function AdminWorkshopProgressPage() {
 
   const loadData = async () => {
     setLoading(true)
+    try {
+      // Load profiles — no limit, get all
+      const { data: profiles, error: profErr } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, whatsapp_number, paid_tier, referral_code, is_paid_member')
+        .order('full_name')
+        .limit(1000)
 
-    // Load all profiles
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, email, whatsapp_number, paid_tier, referral_code, is_paid_member')
-      .order('full_name')
+      if (profErr) console.error('Profiles error:', profErr.message)
 
-    // Load all completed workshop progress — exclude null user_ids
-    const { data: progress } = await supabase
-      .from('workshop_progress')
-      .select('user_id, section_id, completed')
-      .eq('completed', true)
-      .not('user_id', 'is', null)
+      // Load all completed progress rows — no limit
+      const { data: progress, error: progErr } = await supabase
+        .from('workshop_progress')
+        .select('user_id, section_id')
+        .eq('completed', true)
+        .not('user_id', 'is', null)
+        .limit(5000)
 
-    const progressRows = progress || []
-    const profileList  = profiles || []
+      if (progErr) console.error('Progress error:', progErr.message)
 
-    // Build a map of user_id → profile for fast lookup
-    const profileMap = new Map(profileList.map(p => [p.id, p]))
+      const profileList  = profiles || []
+      const progressRows = progress || []
 
-    // Collect all unique user_ids from progress (some may not be in profiles yet)
-    const progressUserIds = Array.from(new Set(progressRows.map(r => r.user_id).filter(Boolean)))
+      console.log('Profiles loaded:', profileList.length)
+      console.log('Progress rows loaded:', progressRows.length)
 
-    // Build merged list — start from profiles, add progress-only users
-    const allUserIds = new Set([
-      ...profileList.map(p => p.id),
-      ...progressUserIds,
-    ])
+      // Group progress by user_id
+      const progressByUser: Record<string, number[]> = {}
+      progressRows.forEach(r => {
+        if (!r.user_id || !r.section_id) return
+        if (!progressByUser[r.user_id]) progressByUser[r.user_id] = []
+        progressByUser[r.user_id].push(r.section_id)
+      })
 
-    const merged: MemberProgress[] = Array.from(allUserIds).map(uid => {
-      const profile = profileMap.get(uid)
-      const userProgress = progressRows.filter(r => r.user_id === uid)
-      const sessions = userProgress.map(r => r.section_id).filter(Boolean)
-      const maxSession = sessions.length > 0 ? Math.max(...sessions) : null
-      return {
-        id:                 uid,
-        full_name:          profile?.full_name || 'Unknown Member',
-        email:              profile?.email || '',
-        whatsapp_number:    profile?.whatsapp_number || null,
-        paid_tier:          profile?.paid_tier || 'fam',
-        referral_code:      profile?.referral_code || '',
-        is_paid_member:     profile?.is_paid_member || false,
-        sessions_completed: sessions.length,
-        last_session:       maxSession,
-        is_harvest_ready:   sessions.length >= 9,
-      }
-    })
+      // Build merged list from profiles only (ignore non-system users)
+      const merged: MemberProgress[] = profileList.map(p => {
+        const sessions = progressByUser[p.id] || []
+        const maxSession = sessions.length > 0 ? Math.max(...sessions) : null
+        return {
+          id:                 p.id,
+          full_name:          p.full_name || '—',
+          email:              p.email || '',
+          whatsapp_number:    p.whatsapp_number || null,
+          paid_tier:          p.paid_tier || 'fam',
+          referral_code:      p.referral_code || '',
+          is_paid_member:     p.is_paid_member || false,
+          sessions_completed: sessions.length,
+          last_session:       maxSession,
+          is_harvest_ready:   sessions.length >= 9,
+        }
+      })
 
-    // Sort by sessions completed desc
-    merged.sort((a, b) => b.sessions_completed - a.sessions_completed)
-    setMembers(merged)
+      merged.sort((a, b) => b.sessions_completed - a.sessions_completed)
+      console.log('Merged members:', merged.length)
+      setMembers(merged)
+    } catch (err: any) {
+      console.error('loadData error:', err.message)
+    }
     setLoading(false)
   }
 
