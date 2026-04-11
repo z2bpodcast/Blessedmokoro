@@ -551,7 +551,7 @@ export default function AdminWorkshopProgressPage() {
                   <div style={{ fontSize:'13px', color:'#6B7280', marginBottom:'14px', lineHeight:1.7 }}>
                     Select a session number — all members whose <strong>last completed session</strong> matches will receive the template for that session.
                   </div>
-                  <label style={S.label}>Target Session</label>
+                  <label style={{ fontSize:"11px", fontWeight:700, color:"#6B7280", letterSpacing:"1px", textTransform:"uppercase" as const, marginBottom:"6px", display:"block" }}>Target Session</label>
                   <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'16px' }}>
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => {
                       const count = members.filter(m => m.last_session === n).length
