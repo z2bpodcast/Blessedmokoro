@@ -1,29 +1,27 @@
-// FILE: app/api/admin/workshop-progress/route.ts
-// Returns all members + their workshop progress using service role (bypasses RLS)
-
+// FILE: app/api/admin/workshop-progress/route.ts — fixed 2026-04-11 17:18
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   try {
     const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
-    )
 
-    // Fetch all profiles
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      return NextResponse.json({ error: 'Server not configured' }, { status: 503 })
+    }
+
+    const supabase = createClient(url, key)
+
     const { data: profiles, error: profErr } = await supabase
       .from('profiles')
       .select('id, full_name, email, whatsapp_number, paid_tier, referral_code, is_paid_member')
       .order('full_name')
       .limit(1000)
 
-    if (profErr) {
-      console.error('Profiles error:', profErr.message)
-      return NextResponse.json({ error: profErr.message }, { status: 500 })
-    }
+    if (profErr) return NextResponse.json({ error: profErr.message }, { status: 500 })
 
-    // Fetch all completed progress
     const { data: progress, error: progErr } = await supabase
       .from('workshop_progress')
       .select('user_id, section_id')
@@ -31,12 +29,8 @@ export async function GET(req: NextRequest) {
       .not('user_id', 'is', null)
       .limit(5000)
 
-    if (progErr) {
-      console.error('Progress error:', progErr.message)
-      return NextResponse.json({ error: progErr.message }, { status: 500 })
-    }
+    if (progErr) return NextResponse.json({ error: progErr.message }, { status: 500 })
 
-    // Group progress by user_id
     const progressByUser: Record<string, number[]> = {}
     ;(progress || []).forEach(r => {
       if (!r.user_id || !r.section_id) return
@@ -44,7 +38,6 @@ export async function GET(req: NextRequest) {
       progressByUser[r.user_id].push(r.section_id)
     })
 
-    // Merge
     const merged = (profiles || []).map(p => {
       const sessions = progressByUser[p.id] || []
       const maxSession = sessions.length > 0 ? Math.max(...sessions) : null
@@ -57,11 +50,9 @@ export async function GET(req: NextRequest) {
     })
 
     merged.sort((a, b) => b.sessions_completed - a.sessions_completed)
-
     return NextResponse.json({ members: merged })
 
   } catch (e: any) {
-    console.error('Admin workshop progress error:', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
