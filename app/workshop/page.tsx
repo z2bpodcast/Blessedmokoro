@@ -2991,14 +2991,16 @@ function WorkshopInner() {
       ...prev,
       [currentSection]: { read: true, answers, activityDone: true, completed: true, score },
     }));
-    // Save to Supabase if logged in
-    if (userId) {
-      try {
+    // Save to Supabase — always fetch user fresh to avoid stale userId state
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const uid = currentUser?.id || userId;
+      if (uid) {
         const { error: saveError } = await supabase
           .from("workshop_progress")
           .upsert(
             {
-              user_id:       userId,
+              user_id:       uid,
               section_id:    currentSection,
               read:          true,
               activity_done: true,
@@ -3012,7 +3014,8 @@ function WorkshopInner() {
         if (saveError) {
           console.error("Progress save error:", saveError.message, JSON.stringify(saveError));
         } else {
-          console.log("✅ Session", currentSection, "saved to database");
+          console.log("✅ Session", currentSection, "saved for user", uid);
+          setUserId(uid); // ensure state is also set
         }
 
         // ── GroundBreaker milestone hooks ──────────────────────────
