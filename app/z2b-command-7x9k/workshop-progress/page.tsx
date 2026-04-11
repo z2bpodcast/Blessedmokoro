@@ -612,13 +612,15 @@ export default function AdminWorkshopProgressPage() {
               )}
 
               {/* ── INDIVIDUAL PANEL ── */}
-              {sendMode === 'individual' && !selMember ? (
+              {sendMode === 'individual' && (
+                <>
+                {!selMember ? (
                 <div style={{ textAlign:'center', padding:'32px 16px', color:'#9CA3AF' }}>
                   <div style={{ fontSize:'36px', marginBottom:'12px' }}>💬</div>
                   <div style={{ fontWeight:700, color:'#6B7280', marginBottom:'6px' }}>Select a member</div>
                   <div style={{ fontSize:'13px' }}>Click any member to compose a WhatsApp message for their stage</div>
                 </div>
-              ) : sendMode === 'individual' ? (
+              ) : (
                 <>
                   {/* Selected member */}
                   <div style={{ display:'flex', alignItems:'center', gap:'12px', padding:'12px 16px', background:'rgba(76,29,149,0.05)', border:'1px solid rgba(76,29,149,0.15)', borderRadius:'10px', marginBottom:'16px' }}>
@@ -697,6 +699,8 @@ export default function AdminWorkshopProgressPage() {
                       No WhatsApp number on file for this member
                     </div>
                   )}
+                </>
+              )}
                 </>
               )}
             </div>
