@@ -1,6 +1,6 @@
 'use client'
 // FILE: app/z2b-command-7x9k/workshop-progress/page.tsx
-// Admin Workshop Progress Monitor — v2026-04-11 13:43 — API route — v2026-04-11 13:39
+// Admin Workshop Progress Monitor — v2026-04-11 18:23 — v2026-04-11 13:43 — API route — v2026-04-11 13:39
 // — See all members' session progress
 // — WhatsApp message templates for sessions 1–12
 
@@ -265,8 +265,14 @@ export default function AdminWorkshopProgressPage() {
   const [selSession, setSelSession] = useState<number>(1)
   const [msgType,    setMsgType]    = useState<'personal'|'community'>('personal')
   const [commType,   setCommType]   = useState<'celebrate'|'milestone9'|'upgrade'>('celebrate')
-  const [copied,     setCopied]     = useState(false)
-  const [sortBy,     setSortBy]     = useState<'name'|'sessions'|'tier'>('sessions')
+  const [copied,      setCopied]      = useState(false)
+  const [sortBy,      setSortBy]      = useState<'name'|'sessions'|'tier'>('sessions')
+  const [sendMode,    setSendMode]    = useState<'individual'|'group'>('individual')
+  const [groupSession,setGroupSession]= useState<number>(1)
+  const [groupSent,   setGroupSent]   = useState(0)
+  const [groupTotal,  setGroupTotal]  = useState(0)
+  const [groupSending,setGroupSending]= useState(false)
+  const [emailCopied, setEmailCopied] = useState(false)
 
   useEffect(() => { loadData() }, [])
 
@@ -333,6 +339,58 @@ export default function AdminWorkshopProgressPage() {
     const msg = getMessage()
     const clean = selMember.whatsapp_number.replace(/\s/g, '').replace(/^0/, '27')
     window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
+  const copyEmail = () => {
+    if (!selMember?.email) return
+    // Copy email + message for use in email client
+    const name = selMember.full_name?.split(' ')[0] || 'Builder'
+    const ref  = selMember.referral_code || 'Z2B'
+    const msg  = msgType === 'personal'
+      ? TEMPLATES[selSession]?.message(name, ref) || ''
+      : COMMUNITY_TEMPLATES[commType]?.(name, selSession) || ''
+    const emailBody = encodeURIComponent(msg.replace(/\*/g, ''))
+    const subject   = encodeURIComponent(`Z2B Open Table — Session ${selSession} Update`)
+    window.open(`mailto:${selMember.email}?subject=${subject}&body=${emailBody}`, '_blank')
+    setEmailCopied(true)
+    setTimeout(() => setEmailCopied(false), 2500)
+  }
+
+  // Group send — opens WhatsApp one by one for members at a specific session
+  const sendGroupWhatsApp = async () => {
+    const ref  = 'Z2B'
+    const tpl  = TEMPLATES[groupSession]
+    if (!tpl) return
+    const targets = members.filter(m =>
+      m.last_session === groupSession && m.whatsapp_number
+    )
+    if (targets.length === 0) {
+      alert(`No members with WhatsApp at Session ${groupSession}`)
+      return
+    }
+    setGroupTotal(targets.length); setGroupSent(0); setGroupSending(true)
+    for (let i = 0; i < targets.length; i++) {
+      const m     = targets[i]
+      const name  = m.full_name?.split(' ')[0] || 'Builder'
+      const mRef  = m.referral_code || ref
+      const msg   = tpl.message(name, mRef)
+      const clean = m.whatsapp_number!.replace(/\s/g, '').replace(/^0/, '27')
+      window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank')
+      setGroupSent(i + 1)
+      if (i < targets.length - 1) {
+        await new Promise(r => setTimeout(r, 1500))
+      }
+    }
+    setGroupSending(false)
+  }
+
+  const copyGroupEmails = () => {
+    const targets = members.filter(m => m.last_session === groupSession && m.email)
+    if (targets.length === 0) { alert('No members with email at this session'); return }
+    const emails = targets.map(m => m.email).join(', ')
+    navigator.clipboard.writeText(emails).then(() => {
+      alert(`✅ ${targets.length} email address${targets.length>1?'es':''} copied!\n\nPaste into your email client BCC field.`)
+    })
   }
 
   const tierColor: Record<string, string> = {
@@ -458,9 +516,15 @@ export default function AdminWorkshopProgressPage() {
                             💬 Message
                           </button>
                           {m.whatsapp_number && (
-                            <button onClick={e => { e.stopPropagation(); setSelMember(m); setSelSession(m.last_session || 1); setTimeout(() => openWhatsApp(), 100) }}
+                            <button onClick={e => { e.stopPropagation(); setSelMember(m); setSelSession(m.last_session || 1); setSendMode('individual'); setTimeout(() => openWhatsApp(), 100) }}
                               style={{ padding:'5px 10px', background:'rgba(37,211,102,0.08)', border:'1px solid rgba(37,211,102,0.25)', borderRadius:'7px', color:'#059669', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
                               📱
+                            </button>
+                          )}
+                          {m.email && (
+                            <button onClick={e => { e.stopPropagation(); setSelMember(m); setSelSession(m.last_session || 1); setSendMode('individual'); setTimeout(() => copyEmail(), 100) }}
+                              style={{ padding:'5px 10px', background:'rgba(59,130,246,0.08)', border:'1px solid rgba(59,130,246,0.25)', borderRadius:'7px', color:'#2563EB', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
+                              ✉️
                             </button>
                           )}
                         </div>
@@ -475,13 +539,86 @@ export default function AdminWorkshopProgressPage() {
           {/* ── RIGHT: Message Panel ── */}
           <div style={{ position:'sticky', top:'20px' }}>
             <div style={S.card}>
-              {!selMember ? (
+              {/* ── Send Mode Toggle ── */}
+              <div style={{ display:'flex', gap:'8px', marginBottom:'16px' }}>
+                <button onClick={() => setSendMode('individual')} style={{ ...S.btn(sendMode==='individual'), flex:1, textAlign:'center' as const }}>👤 Individual</button>
+                <button onClick={() => setSendMode('group')} style={{ ...S.btn(sendMode==='group','#059669'), flex:1, textAlign:'center' as const }}>👥 Group Send</button>
+              </div>
+
+              {/* ── GROUP SEND PANEL ── */}
+              {sendMode === 'group' && (
+                <div>
+                  <div style={{ fontSize:'13px', color:'#6B7280', marginBottom:'14px', lineHeight:1.7 }}>
+                    Select a session number — all members whose <strong>last completed session</strong> matches will receive the template for that session.
+                  </div>
+                  <label style={S.label}>Target Session</label>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'16px' }}>
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => {
+                      const count = members.filter(m => m.last_session === n).length
+                      const waCount = members.filter(m => m.last_session === n && m.whatsapp_number).length
+                      const emCount = members.filter(m => m.last_session === n && m.email).length
+                      return (
+                        <button key={n} onClick={() => setGroupSession(n)}
+                          style={{ ...S.btn(groupSession===n), position:'relative' as const, padding:'6px 12px' }}>
+                          S{n}{n===9?'🌾':''}
+                          {count > 0 && <span style={{ marginLeft:'4px', fontSize:'10px', color:'#9CA3AF' }}>({count})</span>}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Group stats */}
+                  {(() => {
+                    const total = members.filter(m => m.last_session === groupSession).length
+                    const waCount = members.filter(m => m.last_session === groupSession && m.whatsapp_number).length
+                    const emCount = members.filter(m => m.last_session === groupSession && m.email).length
+                    return total > 0 ? (
+                      <div style={{ background:'rgba(76,29,149,0.05)', border:'1px solid rgba(76,29,149,0.15)', borderRadius:'10px', padding:'12px 14px', marginBottom:'14px' }}>
+                        <div style={{ fontSize:'13px', fontWeight:700, color:'#4C1D95', marginBottom:'6px' }}>
+                          Session {groupSession} — {total} member{total>1?'s':''}
+                        </div>
+                        <div style={{ display:'flex', gap:'16px', fontSize:'12px', color:'#6B7280' }}>
+                          <span>📱 {waCount} with WhatsApp</span>
+                          <span>✉️ {emCount} with email</span>
+                        </div>
+                        <div style={{ fontSize:'11px', color:'rgba(76,29,149,0.6)', marginTop:'6px', fontStyle:'italic' }}>
+                          Template: {TEMPLATES[groupSession]?.trigger}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ padding:'12px', background:'#F9FAFB', borderRadius:'10px', marginBottom:'14px', fontSize:'13px', color:'#9CA3AF', textAlign:'center' as const }}>
+                        No members at Session {groupSession} yet
+                      </div>
+                    )
+                  })()}
+
+                  {groupSending && (
+                    <div style={{ padding:'10px 14px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'10px', marginBottom:'14px', fontSize:'13px', color:'#059669', fontWeight:700 }}>
+                      📱 Sending {groupSent} of {groupTotal}... Keep browser open
+                    </div>
+                  )}
+
+                  <div style={{ display:'flex', gap:'8px' }}>
+                    <button onClick={sendGroupWhatsApp} disabled={groupSending}
+                      style={{ flex:1, padding:'11px', background:'#25D366', border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', cursor:'pointer', opacity: groupSending ? 0.6 : 1 }}>
+                      {groupSending ? `Sending ${groupSent}/${groupTotal}...` : '📱 WhatsApp Group'}
+                    </button>
+                    <button onClick={copyGroupEmails}
+                      style={{ flex:1, padding:'11px', background:'rgba(59,130,246,0.1)', border:'1.5px solid rgba(59,130,246,0.3)', borderRadius:'10px', color:'#2563EB', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
+                      ✉️ Copy Emails
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── INDIVIDUAL PANEL ── */}
+              {sendMode === 'individual' && !selMember ? (
                 <div style={{ textAlign:'center', padding:'32px 16px', color:'#9CA3AF' }}>
                   <div style={{ fontSize:'36px', marginBottom:'12px' }}>💬</div>
                   <div style={{ fontWeight:700, color:'#6B7280', marginBottom:'6px' }}>Select a member</div>
                   <div style={{ fontSize:'13px' }}>Click any member to compose a WhatsApp message for their stage</div>
                 </div>
-              ) : (
+              ) : sendMode === 'individual' ? (
                 <>
                   {/* Selected member */}
                   <div style={{ display:'flex', alignItems:'center', gap:'12px', padding:'12px 16px', background:'rgba(76,29,149,0.05)', border:'1px solid rgba(76,29,149,0.15)', borderRadius:'10px', marginBottom:'16px' }}>
@@ -536,7 +673,7 @@ export default function AdminWorkshopProgressPage() {
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display:'flex', gap:'10px' }}>
+                  <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
                     <button onClick={copyMessage}
                       style={{ flex:1, padding:'11px', background: copied?'rgba(16,185,129,0.1)':'rgba(76,29,149,0.08)', border:`1.5px solid ${copied?'rgba(16,185,129,0.4)':'rgba(76,29,149,0.25)'}`, borderRadius:'10px', color: copied?'#059669':'#4C1D95', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
                       {copied ? '✅ Copied!' : '📋 Copy'}
@@ -545,6 +682,12 @@ export default function AdminWorkshopProgressPage() {
                       <button onClick={openWhatsApp}
                         style={{ flex:1, padding:'11px', background:'#25D366', border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
                         📱 WhatsApp
+                      </button>
+                    )}
+                    {selMember.email && (
+                      <button onClick={copyEmail}
+                        style={{ flex:1, padding:'11px', background: emailCopied?'rgba(16,185,129,0.1)':'rgba(59,130,246,0.08)', border:`1.5px solid ${emailCopied?'rgba(16,185,129,0.4)':'rgba(59,130,246,0.3)'}`, borderRadius:'10px', color: emailCopied?'#059669':'#2563EB', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
+                        {emailCopied ? '✅ Opening...' : '✉️ Email'}
                       </button>
                     )}
                   </div>
