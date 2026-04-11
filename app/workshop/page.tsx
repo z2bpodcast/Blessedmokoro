@@ -2909,16 +2909,23 @@ function WorkshopInner() {
           .from("workshop_progress")
           .select("*")
           .eq("user_id", user.id);
-        if (error || !data) return;
+        if (error) {
+          console.error("Progress load error:", error.message);
+          return;
+        }
+        if (!data) return;
         setProgress((prev) => {
           const updated = { ...prev };
           data.forEach((row: any) => {
-            updated[row.section_id] = {
-              read:         row.read,
+            // Handle both column names — section_id (new) and session_number (old)
+            const id = row.section_id ?? row.session_number;
+            if (!id) return;
+            updated[id] = {
+              read:         row.read         ?? true,
               answers:      {},
-              activityDone: row.activity_done,
-              completed:    row.completed,
-              score:        row.score,
+              activityDone: row.activity_done ?? true,
+              completed:    row.completed     ?? true,
+              score:        row.score         ?? null,
             };
           });
           return updated;
@@ -2984,21 +2991,42 @@ function WorkshopInner() {
     // Save to Supabase if logged in
     if (userId) {
       try {
-        await supabase
+        const { error: saveError } = await supabase
           .from("workshop_progress")
           .upsert(
             {
-              user_id:       userId,
-              section_id:    currentSection,
-              read:          true,
-              activity_done: true,
-              completed:     true,
-              score:         score,
-              completed_at:  new Date().toISOString(),
-              updated_at:    new Date().toISOString(),
+              user_id:        userId,
+              section_id:     currentSection,
+              session_number: currentSection, // backward compat
+              read:           true,
+              activity_done:  true,
+              completed:      true,
+              score:          score,
+              completed_at:   new Date().toISOString(),
+              updated_at:     new Date().toISOString(),
             },
             { onConflict: "user_id,section_id" }
           );
+        if (saveError) {
+          console.error("Progress save error:", saveError.message, saveError);
+          // Fallback: try with session_number conflict key
+          await supabase
+            .from("workshop_progress")
+            .upsert(
+              {
+                user_id:        userId,
+                section_id:     currentSection,
+                session_number: currentSection,
+                read:           true,
+                activity_done:  true,
+                completed:      true,
+                score:          score,
+                completed_at:   new Date().toISOString(),
+                updated_at:     new Date().toISOString(),
+              },
+              { onConflict: "user_id,session_number" }
+            );
+        }
 
         // ── GroundBreaker milestone hooks ──────────────────────────
         // Upsert prospect milestone row on Session 1
