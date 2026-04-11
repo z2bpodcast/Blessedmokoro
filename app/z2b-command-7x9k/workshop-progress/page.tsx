@@ -273,34 +273,55 @@ export default function AdminWorkshopProgressPage() {
 
   const loadData = async () => {
     setLoading(true)
+
     // Load all profiles
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, full_name, email, whatsapp_number, paid_tier, referral_code, is_paid_member')
       .order('full_name')
 
-    if (!profiles) { setLoading(false); return }
-
-    // Load all workshop progress
+    // Load all completed workshop progress — exclude null user_ids
     const { data: progress } = await supabase
       .from('workshop_progress')
       .select('user_id, section_id, completed')
       .eq('completed', true)
+      .not('user_id', 'is', null)
 
-    // Merge
-    const merged: MemberProgress[] = profiles.map(p => {
-      const userProgress = (progress || []).filter(r => r.user_id === p.id && r.completed)
+    const progressRows = progress || []
+    const profileList  = profiles || []
+
+    // Build a map of user_id → profile for fast lookup
+    const profileMap = new Map(profileList.map(p => [p.id, p]))
+
+    // Collect all unique user_ids from progress (some may not be in profiles yet)
+    const progressUserIds = Array.from(new Set(progressRows.map(r => r.user_id).filter(Boolean)))
+
+    // Build merged list — start from profiles, add progress-only users
+    const allUserIds = new Set([
+      ...profileList.map(p => p.id),
+      ...progressUserIds,
+    ])
+
+    const merged: MemberProgress[] = Array.from(allUserIds).map(uid => {
+      const profile = profileMap.get(uid)
+      const userProgress = progressRows.filter(r => r.user_id === uid)
       const sessions = userProgress.map(r => r.section_id).filter(Boolean)
       const maxSession = sessions.length > 0 ? Math.max(...sessions) : null
       return {
-        ...p,
+        id:                 uid,
+        full_name:          profile?.full_name || 'Unknown Member',
+        email:              profile?.email || '',
+        whatsapp_number:    profile?.whatsapp_number || null,
+        paid_tier:          profile?.paid_tier || 'fam',
+        referral_code:      profile?.referral_code || '',
+        is_paid_member:     profile?.is_paid_member || false,
         sessions_completed: sessions.length,
         last_session:       maxSession,
         is_harvest_ready:   sessions.length >= 9,
       }
     })
 
-    // Sort by sessions completed desc by default
+    // Sort by sessions completed desc
     merged.sort((a, b) => b.sessions_completed - a.sessions_completed)
     setMembers(merged)
     setLoading(false)
@@ -314,7 +335,9 @@ export default function AdminWorkshopProgressPage() {
       return true
     })
     .filter(m => m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-                 m.email?.toLowerCase().includes(search.toLowerCase()))
+                 m.email?.toLowerCase().includes(search.toLowerCase()) ||
+                 m.id?.toLowerCase().includes(search.toLowerCase()) ||
+                 m.whatsapp_number?.includes(search))
     .sort((a, b) => {
       if (sortBy === 'sessions') return b.sessions_completed - a.sessions_completed
       if (sortBy === 'name')     return (a.full_name || '').localeCompare(b.full_name || '')
@@ -405,7 +428,7 @@ export default function AdminWorkshopProgressPage() {
             <div style={{ display:'flex', gap:'10px', marginBottom:'16px', flexWrap:'wrap', alignItems:'center' }}>
               <input
                 value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search member..."
+                placeholder="Search name, email, ID or WhatsApp..."
                 style={{ flex:1, minWidth:'160px', padding:'9px 14px', border:'1.5px solid #E5E7EB', borderRadius:'10px', fontSize:'14px', outline:'none', fontFamily:'Georgia,serif' }}
               />
               <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
@@ -445,6 +468,7 @@ export default function AdminWorkshopProgressPage() {
                       <td style={{ padding:'12px 12px' }}>
                         <div style={{ fontWeight:700, color:'#1E1245' }}>{m.full_name || '—'}</div>
                         <div style={{ fontSize:'11px', color:'#9CA3AF' }}>{m.email}</div>
+                        <div style={{ fontSize:'10px', color:'#D1D5DB', fontFamily:'monospace', marginTop:'1px' }}>{m.id?.slice(0,8)}...</div>
                       </td>
                       <td style={{ padding:'12px' }}>
                         <span style={{ fontSize:'11px', fontWeight:700, padding:'3px 10px', borderRadius:'20px', background:`${tierColor[m.paid_tier]||'#6B7280'}18`, color:tierColor[m.paid_tier]||'#6B7280', textTransform:'capitalize' }}>
