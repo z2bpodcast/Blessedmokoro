@@ -1,11 +1,10 @@
 'use client'
 // FILE: app/z2b-command-7x9k/workshop-progress/page.tsx
-// Admin Workshop Progress Monitor — v2026-04-11 13:39
+// Admin Workshop Progress Monitor — v2026-04-11 13:43 — API route — v2026-04-11 13:39
 // — See all members' session progress
 // — WhatsApp message templates for sessions 1–12
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 // ── WhatsApp templates for sessions 1–12 ─────────────────────────────────────
@@ -274,60 +273,17 @@ export default function AdminWorkshopProgressPage() {
   const loadData = async () => {
     setLoading(true)
     try {
-      // Load profiles — no limit, get all
-      const { data: profiles, error: profErr } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, whatsapp_number, paid_tier, referral_code, is_paid_member')
-        .order('full_name')
-        .limit(1000)
-
-      if (profErr) console.error('Profiles error:', profErr.message)
-
-      // Load all completed progress rows — no limit
-      const { data: progress, error: progErr } = await supabase
-        .from('workshop_progress')
-        .select('user_id, section_id')
-        .eq('completed', true)
-        .not('user_id', 'is', null)
-        .limit(5000)
-
-      if (progErr) console.error('Progress error:', progErr.message)
-
-      const profileList  = profiles || []
-      const progressRows = progress || []
-
-      console.log('Profiles loaded:', profileList.length)
-      console.log('Progress rows loaded:', progressRows.length)
-
-      // Group progress by user_id
-      const progressByUser: Record<string, number[]> = {}
-      progressRows.forEach(r => {
-        if (!r.user_id || !r.section_id) return
-        if (!progressByUser[r.user_id]) progressByUser[r.user_id] = []
-        progressByUser[r.user_id].push(r.section_id)
-      })
-
-      // Build merged list from profiles only (ignore non-system users)
-      const merged: MemberProgress[] = profileList.map(p => {
-        const sessions = progressByUser[p.id] || []
-        const maxSession = sessions.length > 0 ? Math.max(...sessions) : null
-        return {
-          id:                 p.id,
-          full_name:          p.full_name || '—',
-          email:              p.email || '',
-          whatsapp_number:    p.whatsapp_number || null,
-          paid_tier:          p.paid_tier || 'fam',
-          referral_code:      p.referral_code || '',
-          is_paid_member:     p.is_paid_member || false,
-          sessions_completed: sessions.length,
-          last_session:       maxSession,
-          is_harvest_ready:   sessions.length >= 9,
-        }
-      })
-
-      merged.sort((a, b) => b.sessions_completed - a.sessions_completed)
-      console.log('Merged members:', merged.length)
-      setMembers(merged)
+      // Use API route with service role — bypasses RLS to see ALL members
+      const res = await fetch('/api/admin/workshop-progress')
+      if (!res.ok) {
+        const err = await res.json()
+        console.error('Workshop progress API error:', err)
+        setLoading(false)
+        return
+      }
+      const { members: data } = await res.json()
+      console.log('Members loaded via API:', data?.length)
+      setMembers(data || [])
     } catch (err: any) {
       console.error('loadData error:', err.message)
     }
