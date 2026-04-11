@@ -1,6 +1,6 @@
 'use client'
 // FILE: app/z2b-command-7x9k/workshop-progress/page.tsx
-// Admin Workshop Progress Monitor — v2026-04-11 18:23 — v2026-04-11 13:43 — API route — v2026-04-11 13:39
+// Admin Workshop Progress Monitor — rebuilt 2026-04-11 20:20:41 — v2026-04-11 18:23 — v2026-04-11 13:43 — API route — v2026-04-11 13:39
 // — See all members' session progress
 // — WhatsApp message templates for sessions 1–12
 
