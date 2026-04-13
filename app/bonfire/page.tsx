@@ -68,7 +68,7 @@ export default function BonfirePage() {
     })
   }, [])
 
-  const refLink = `https://app.z2blegacybuilders.co.za/signup?ref=${profile?.referral_code || 'Z2BREF'}`
+  const refLink = `https://app.z2blegacybuilders.co.za/invite?ref=${profile?.referral_code || 'REVMOK2B'}`
 
   const copyLink = () => {
     navigator.clipboard.writeText(refLink).then(() => {
@@ -97,16 +97,23 @@ export default function BonfirePage() {
       <div style={{ background:'rgba(0,0,0,0.5)', borderBottom:'1px solid rgba(212,175,55,0.2)', backdropFilter:'blur(12px)', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
         <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(196,181,253,0.6)', textDecoration:'none' }}>← Dashboard</Link>
         <span style={{ fontFamily:'Cinzel,serif', fontSize:'16px', fontWeight:700, color:'#D4AF37' }}>🔥 My Bonfire</span>
-        <Link href="/invite" style={{ fontSize:'12px', padding:'7px 16px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1px solid #D4AF37', borderRadius:'20px', color:'#F5D060', fontWeight:700, textDecoration:'none', fontFamily:'Georgia,serif' }}>
-          + Invite
-        </Link>
+        <button onClick={copyLink} style={{ fontSize:'12px', padding:'7px 16px', background: copied?'rgba(16,185,129,0.15)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:`1px solid ${copied?'rgba(16,185,129,0.5)':'#D4AF37'}`, borderRadius:'20px', color: copied?'#6EE7B7':'#F5D060', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>
+          {copied ? '✅ Link Copied!' : '🔗 Copy Invite Link'}
+        </button>
       </div>
 
       <div style={{ maxWidth:'800px', margin:'0 auto', padding:'28px 20px' }}>
 
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:'32px' }}>
-          <div style={{ fontSize:'48px', marginBottom:'12px', filter:'drop-shadow(0 0 20px rgba(251,146,60,0.4))', animation:'flicker 2s ease-in-out infinite' }}>🔥</div>
+          {/* Dynamic flame — grows with circle size */}
+          <div style={{ marginBottom:'12px', lineHeight:1 }}>
+            {circle.length === 0 && <div style={{ fontSize:'32px', opacity:0.4, filter:'drop-shadow(0 0 10px rgba(251,146,60,0.3))', animation:'flicker 2s ease-in-out infinite' }}>🔥</div>}
+            {circle.length === 1 && <div style={{ fontSize:'48px', filter:'drop-shadow(0 0 20px rgba(251,146,60,0.5))', animation:'flicker 2s ease-in-out infinite' }}>🔥</div>}
+            {circle.length === 2 && <div style={{ fontSize:'56px', filter:'drop-shadow(0 0 28px rgba(251,146,60,0.6))', animation:'flicker 1.5s ease-in-out infinite' }}>🔥🔥</div>}
+            {circle.length === 3 && <div style={{ fontSize:'60px', filter:'drop-shadow(0 0 36px rgba(251,146,60,0.7))', animation:'flicker 1.2s ease-in-out infinite' }}>🔥🔥🔥</div>}
+            {circle.length >= 4 && <div style={{ fontSize:'64px', filter:'drop-shadow(0 0 48px rgba(251,146,60,0.9))', animation:'flicker 0.8s ease-in-out infinite' }}>🔥🔥🔥🔥</div>}
+          </div>
           <h1 style={{ fontFamily:'Cinzel,serif', fontSize:'clamp(22px,4vw,36px)', fontWeight:900, color:'#fff', margin:'0 0 8px' }}>
             {profile?.full_name?.split(' ')[0]}'s Bonfire Circle
           </h1>
@@ -116,19 +123,87 @@ export default function BonfirePage() {
         </div>
 
         {/* Stats strip */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'28px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'16px' }}>
           {[
             { label:'In Circle',    value: circle.length,                                          color:'#FB923C' },
             { label:'Seats Open',   value: Math.max(0, 4 - circle.length),                        color:'#6B7280' },
             { label:'Upgraded',     value: circle.filter(c => c.paid_tier !== 'fam').length,       color:'#D4AF37' },
             { label:'Your Rank',    value: profile?.rank?.split(' ').pop() || 'Prospect',          color:'#7C3AED' },
-          ].map(s => (
-            <div key={s.label} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${s.color}22`, borderRadius:'14px', padding:'14px', textAlign:'center' }}>
-              <div style={{ fontSize:'22px', fontWeight:700, color:s.color }}>{s.value}</div>
-              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', marginTop:'2px' }}>{s.label}</div>
+          ].map(stat => (
+            <div key={stat.label} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${stat.color}22`, borderRadius:'14px', padding:'14px', textAlign:'center' }}>
+              <div style={{ fontSize:'22px', fontWeight:700, color:stat.color }}>{stat.value}</div>
+              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', marginTop:'2px' }}>{stat.label}</div>
             </div>
           ))}
         </div>
+
+        {/* Rank progression bar */}
+        {(() => {
+          const upgraded = circle.filter(c => c.paid_tier !== 'fam').length
+          const ranks = [
+            { label:'Prospect',      min:0,  max:0,  color:'#6B7280',  desc:'Send your first invite' },
+            { label:'Builder',       min:1,  max:1,  color:'#FB923C',  desc:'1 seat filled' },
+            { label:'Star Builder',  min:4,  max:3,  color:'#D4AF37',  desc:'4 seats filled' },
+            { label:'Destiny Helper',min:4,  max:4,  color:'#E5E4E2',  desc:'4 seats upgraded' },
+          ]
+          const filledSeats = circle.length
+          const currentRankIdx = filledSeats === 0 ? 0 : filledSeats < 4 ? 1 : upgraded < 4 ? 2 : 3
+          const nextRankIdx    = Math.min(currentRankIdx + 1, ranks.length - 1)
+          const currentRank    = ranks[currentRankIdx]
+          const nextRank       = ranks[nextRankIdx]
+          const progress       = currentRankIdx === 0 ? (filledSeats > 0 ? 100 : 0)
+                               : currentRankIdx === 1 ? Math.min((filledSeats / 4) * 100, 100)
+                               : currentRankIdx === 2 ? Math.min((upgraded / 4) * 100, 100)
+                               : 100
+          return (
+            <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'14px', padding:'16px 18px', marginBottom:'20px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px' }}>
+                <div>
+                  <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>Current Rank </span>
+                  <span style={{ fontSize:'13px', fontWeight:700, color:currentRank.color }}>🏆 {currentRank.label}</span>
+                </div>
+                {currentRankIdx < ranks.length - 1 && (
+                  <div style={{ textAlign:'right' }}>
+                    <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>Next </span>
+                    <span style={{ fontSize:'13px', fontWeight:700, color:nextRank.color }}>→ {nextRank.label}</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ height:'8px', background:'rgba(255,255,255,0.06)', borderRadius:'4px', overflow:'hidden', marginBottom:'6px' }}>
+                <div style={{ height:'100%', width:`${progress}%`, background:`linear-gradient(90deg,${currentRank.color},${nextRank.color})`, borderRadius:'4px', transition:'width 0.6s ease' }} />
+              </div>
+              <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
+                {progress < 100
+                  ? `Next unlock: ${nextRank.desc} — ${nextRank.label}`
+                  : currentRankIdx === ranks.length - 1
+                  ? '🎯 Maximum rank achieved — TSC commissions active'
+                  : `✅ Rank achieved — keep going!`}
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* Next unlock highlight */}
+        {(() => {
+          const filledSeats = circle.length
+          const upgraded    = circle.filter(c => c.paid_tier !== 'fam').length
+          let nextAction = ''
+          let nextReward = ''
+          if (filledSeats === 0)      { nextAction = 'Copy and send your invite link to ONE person'; nextReward = 'Coach Manlaw activates + Sessions unlock' }
+          else if (filledSeats < 4)   { nextAction = `Fill ${4 - filledSeats} more seat${4-filledSeats>1?'s':''}  in your Bonfire`; nextReward = 'All 18 sessions unlock + Star Builder rank' }
+          else if (upgraded < 4)      { nextAction = `Get ${4 - upgraded} more builder${4-upgraded>1?'s':''} to upgrade to paid`; nextReward = 'Destiny Helper rank + TSC commissions activate' }
+          else                        { nextAction = 'Help your 4 builders fill their own Bonfire'; nextReward = 'Your team grows — generational income activates' }
+          return (
+            <div style={{ background:'rgba(212,175,55,0.08)', border:'1.5px solid rgba(212,175,55,0.3)', borderRadius:'14px', padding:'14px 18px', marginBottom:'24px', display:'flex', alignItems:'flex-start', gap:'12px' }}>
+              <span style={{ fontSize:'20px', flexShrink:0 }}>⚡</span>
+              <div>
+                <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'4px' }}>Your Next Move</div>
+                <div style={{ fontSize:'14px', fontWeight:700, color:'#fff', marginBottom:'3px' }}>{nextAction}</div>
+                <div style={{ fontSize:'12px', color:'rgba(212,175,55,0.7)' }}>🎁 Reward: {nextReward}</div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Bonfire seats */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'16px', marginBottom:'28px' }}>
@@ -147,9 +222,9 @@ export default function BonfirePage() {
                   <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center' }}>
                     <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.25 }}>🪑</div>
                     <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.3)', marginBottom:'12px' }}>Empty Seat</div>
-                    <Link href="/invite" style={{ fontSize:'11px', padding:'6px 16px', background:'rgba(251,146,60,0.1)', border:'1px solid rgba(251,146,60,0.3)', borderRadius:'20px', color:'#FB923C', textDecoration:'none', fontWeight:700, fontFamily:'Georgia,serif' }}>
-                      🎴 Send Invitation
-                    </Link>
+                    <button onClick={copyLink} style={{ fontSize:'11px', padding:'6px 16px', background:'rgba(251,146,60,0.1)', border:'1px solid rgba(251,146,60,0.3)', borderRadius:'20px', color:'#FB923C', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>
+                      {copied ? '✅ Copied!' : '🎴 Copy Invite Link'}
+                    </button>
                   </div>
                 ) : (
                   /* Builder card */
@@ -169,10 +244,10 @@ export default function BonfirePage() {
                       <div>
                         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
                           <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)' }}>Sessions</span>
-                          <span style={{ fontSize:'10px', color:'#7C3AED', fontWeight:700 }}>{builder.sessions_completed}/18</span>
+                          <span style={{ fontSize:'10px', color:'#7C3AED', fontWeight:700 }}>{builder.sessions_completed}/99</span>
                         </div>
                         <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'2px', overflow:'hidden' }}>
-                          <div style={{ height:'100%', width:`${Math.min((builder.sessions_completed/18)*100,100)}%`, background:'linear-gradient(90deg,#7C3AED,#C4B5FD)', borderRadius:'2px' }} />
+                          <div style={{ height:'100%', width:`${Math.min((builder.sessions_completed/99)*100,100)}%`, background:'linear-gradient(90deg,#7C3AED,#C4B5FD)', borderRadius:'2px' }} />
                         </div>
                       </div>
                       <div>
@@ -238,9 +313,9 @@ export default function BonfirePage() {
         </div>
 
         <div style={{ display:'flex', gap:'12px', marginTop:'16px' }}>
-          <Link href="/invite" style={{ flex:1, display:'block', padding:'14px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'12px', color:'#F5D060', fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Georgia,serif' }}>
-            🎴 Send Invitation Cards
-          </Link>
+          <button onClick={copyLink} style={{ flex:1, padding:'14px', background: copied?'rgba(16,185,129,0.1)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:`1.5px solid ${copied?'rgba(16,185,129,0.4)':'#D4AF37'}`, borderRadius:'12px', color: copied?'#6EE7B7':'#F5D060', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
+            {copied ? '✅ Invite Link Copied!' : '🎴 Copy Invite Link'}
+          </button>
           <Link href="/my-funnel" style={{ flex:1, display:'block', padding:'14px', background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'12px', color:'#6EE7B7', fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Georgia,serif' }}>
             🎯 View My Funnel
           </Link>
