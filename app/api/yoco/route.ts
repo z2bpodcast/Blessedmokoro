@@ -232,6 +232,32 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ type:'payment', user_id:userId, data:{ tier:newTier, amount:amountRands } })
       }).catch(()=>{})
 
+      // ── AI Income unlock ───────────────────────────────────────
+      if (newTier === 'ai_income') {
+        const refCode = metadata.ref_code || ''
+        // Unlock for buyer
+        await supabase.from('ai_income_unlocks').upsert(
+          { user_id: userId, referred_by: refCode || null, amount_paid: amountRands },
+          { onConflict: 'user_id' }
+        )
+        // Commission for referrer
+        if (refCode) {
+          const { data: referrer } = await supabase
+            .from('profiles').select('id').eq('referral_code', refCode).single()
+          if (referrer) {
+            await supabase.from('ai_income_commissions').insert({
+              referrer_id: referrer.id,
+              referred_id: userId,
+              amount: 50,
+              status: 'pending',
+            })
+          }
+        }
+        console.log(`✅ AI Income unlocked: ${userId}`)
+        return new NextResponse('OK', { status:200 })
+      }
+      // ─────────────────────────────────────────────────────────
+
       console.log(`✅ Yoco payment: ${userId} → ${newTier} (R${amountRands})`)
       return new NextResponse('OK', { status:200 })
     }
@@ -243,6 +269,8 @@ export async function POST(req: NextRequest) {
         bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000,
         // Content Engine plans
         ce_starter: 400, ce_pro: 900,
+        // AI Income Execution System
+        ai_income: 100,
       }
       const amountRands = tierAmounts[tier] || 480
       const isCECheckout = tier.startsWith('ce_')
@@ -265,7 +293,7 @@ export async function POST(req: NextRequest) {
           amount:     amountCents,
           currency:   'ZAR',
           cancelUrl:  `${APP_URL}/pricing`,
-          successUrl: isCECheckout ? `${APP_URL}/content-studio-plus?activated=true` : `${APP_URL}/pay/success?tier=${tier}`,
+          successUrl: isCECheckout ? `${APP_URL}/content-studio-plus?activated=true` : tier === 'ai_income' ? `${APP_URL}/ai-income?activated=true` : `${APP_URL}/pay/success?tier=${tier}`,
           failureUrl: `${APP_URL}/pricing?error=payment_failed`,
           metadata: {
             user_id,

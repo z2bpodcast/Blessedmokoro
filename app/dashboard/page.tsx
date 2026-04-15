@@ -1,4 +1,4 @@
-// v2026-04-10 08:59 — refLink → /invite
+// v2026-04-15 11:41 — ai income
 'use client'
 
 // app/dashboard/page.tsx
@@ -764,7 +764,7 @@ function DashboardInner() {
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {[
                     { href:'/builders-table', icon:'🍽️', label:'Builders Table', sub:'Community feed', bg:'linear-gradient(135deg,#0A0818,#1E1B4B)', bc:'#D4AF37', col:'#FDE68A' },
-                    { href:'/open-table',     icon:'🍽️', label:'Open Table',     sub:'Live sessions',  bg:'linear-gradient(135deg,#0A1A14,#064E3B)', bc:'#10B981', col:'#6EE7B7' },
+                    { href:'/open-table',     icon:'🍽️', label:'Open Table',     sub:'Sun 8PM · Live', bg:'linear-gradient(135deg,#0A1A14,#064E3B)', bc:'#10B981', col:'#6EE7B7' },
                     { href:'/bonfire',        icon:'🔥', label:'My Bonfire',     sub:'Inner circle',   bg:'linear-gradient(135deg,#1C0500,#92400E)', bc:'#F97316', col:'#FED7AA' },
                     { href:'/leaderboard',    icon:'🏆', label:'Leaderboard',    sub:'Top builders',   bg:'linear-gradient(135deg,#1C1A0A,#451A00)', bc:'#D4AF37', col:'#FDE68A' },
                     { href:'/echo-wall',      icon:'📣', label:'Echo Wall',      sub:'Highlights',     bg:'linear-gradient(135deg,#0A0818,#312E81)', bc:'#6366F1', col:'#C7D2FE' },
@@ -785,6 +785,7 @@ function DashboardInner() {
                 <div style={{ fontSize:'10px', fontFamily:'Cinzel,serif', letterSpacing:'2px', color:'rgba(212,175,55,0.4)', marginBottom:'10px' }}>TOOLS</div>
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {[
+                    { href:'/ai-income',      icon:'🤖', label:'AI Income',      sub:'R100→R300/day',  bg:'linear-gradient(135deg,#0A1A10,#064E3B)', bc:'#059669', col:'#6EE7B7' },
                     { href:'/visual-studio',  icon:'📸', label:'Visual Studio',  sub:'HD Photos',      bg:'linear-gradient(135deg,#0A1A0A,#065F46)', bc:'#10B981', col:'#6EE7B7' },
                     { href:'/start-here',     icon:'❤️', label:'Start Here',     sub:'New? Begin',     bg:'linear-gradient(135deg,#FFF5F5,#FFE4E4)', bc:'#DC2626', col:'#DC2626' },
                     { href:'/pricing',        icon:'💎', label:'Upgrade',        sub:'Higher tier',    bg:'linear-gradient(135deg,#1E1B4B,#312E81)', bc:'#7C3AED', col:'#C4B5FD' },
