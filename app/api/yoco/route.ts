@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
             await supabase.from('ai_income_commissions').insert({
               referrer_id: referrer.id,
               referred_id: userId,
-              amount: 50,
+              amount: 200,
               status: 'pending',
             })
           }
@@ -270,7 +270,7 @@ export async function POST(req: NextRequest) {
         // Content Engine plans
         ce_starter: 400, ce_pro: 900,
         // AI Income Execution System
-        ai_income: 100,
+        ai_income: 500,
       }
       const amountRands = tierAmounts[tier] || 480
       const isCECheckout = tier.startsWith('ce_')

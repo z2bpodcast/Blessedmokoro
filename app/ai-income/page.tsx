@@ -1,7 +1,7 @@
 'use client'
 // FILE: app/ai-income/page.tsx
 // Z2B AI Income Execution System
-// AI-Powered Smartphone Income System: R100 → R300/Day Online Income System
+// AI-Powered Smartphone Income System: R500 · 60-Day AI Income Activation Program Online Income System
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -357,7 +357,7 @@ Natural. Confident. Not pushy. South African context.`)
             AI Income<br/><span style={{ color:GOLD }}>Execution System</span>
           </h1>
           <p style={{ fontSize:'16px', color:'rgba(212,175,55,0.8)', marginBottom:'8px', fontWeight:700 }}>
-            AI-Powered Smartphone Income System: R100 → R300/Day Online Income System
+            AI-Powered Smartphone Income System: R500 · 60-Day AI Income Activation Program Online Income System
           </p>
           <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.55)', maxWidth:'500px', margin:'0 auto', lineHeight:1.8 }}>
             Use AI to generate offers, find customers, create posts and close sales — all from your smartphone.
@@ -366,7 +366,7 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* What you will learn */}
         <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding:'24px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'13px', fontWeight:700, color:GOLD, marginBottom:'16px', letterSpacing:'1px', textTransform:'uppercase' }}>🔓 What You Unlock for R100</div>
+          <div style={{ fontSize:'13px', fontWeight:700, color:GOLD, marginBottom:'16px', letterSpacing:'1px', textTransform:'uppercase' }}>🔓 What You Unlock — 60-Day AI Income Activation</div>
           {[
             ['🧠', 'AI Offer Generator',         'AI creates your personalised sellable offer today'],
             ['📲', 'AI Customer Finder',          'Exactly where to find customers + step-by-step plan'],
@@ -390,7 +390,7 @@ Natural. Confident. Not pushy. South African context.`)
         <div style={{ background:'rgba(16,185,129,0.06)', border:'1.5px solid rgba(16,185,129,0.25)', borderRadius:'16px', padding:'20px', marginBottom:'28px' }}>
           <div style={{ fontSize:'13px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px' }}>📊 Income Potential</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', textAlign:'center' }}>
-            {[['1 client/day','R100–R200/day','Beginner'],['2 clients/day','R200–R400/day','Growing'],['3 clients/day','R300–R600/day','Consistent']].map(([label,amount,stage]) => (
+            {[['1 client/day','R100–R200/day','Beginner'],['2 clients/day','R200–R400/day','Building'],['3+ clients/day','R300–R600/day','R300/day achieved']].map(([label,amount,stage]) => (
               <div key={stage as string} style={{ background:'rgba(255,255,255,0.04)', borderRadius:'10px', padding:'12px' }}>
                 <div style={{ fontSize:'16px', fontWeight:700, color:GREEN, marginBottom:'4px' }}>{amount}</div>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)' }}>{label}</div>
@@ -414,7 +414,7 @@ Natural. Confident. Not pushy. South African context.`)
         {/* CTA */}
         <div style={{ background:'linear-gradient(135deg,rgba(44,27,105,0.5),rgba(76,29,149,0.3))', border:'2px solid rgba(212,175,55,0.4)', borderRadius:'20px', padding:'32px 24px', textAlign:'center' }}>
           <div style={{ fontSize:'32px', fontWeight:900, color:GOLD, marginBottom:'4px' }}>R100</div>
-          <div style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Once-off · No monthly fees · Instant access</div>
+          <div style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>60-Day Access · R500/month after · Cancel anytime</div>
 
           {payError && (
             <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
@@ -422,7 +422,7 @@ Natural. Confident. Not pushy. South African context.`)
 
           <button onClick={handlePay} disabled={paying}
             style={{ ...btn(), opacity: paying ? 0.7 : 1 }}>
-            {paying ? 'Setting up payment...' : '🚀 Unlock for R100 — Start Today'}
+            {paying ? 'Setting up payment...' : '🚀 Start 60-Day Program — R500'}
           </button>
           <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.35)' }}>
             Already unlocked? <Link href="/login?redirect=/ai-income" style={{ color:GOLD, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
@@ -454,7 +454,7 @@ Natural. Confident. Not pushy. South African context.`)
               </div>
               <button onClick={handleRegisterAndPay} disabled={regLoading}
                 style={{ ...btn(), opacity: regLoading ? 0.7 : 1 }}>
-                {regLoading ? 'Processing...' : 'Register & Pay R100 →'}
+                {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
               </button>
             </div>
           </div>
@@ -681,7 +681,7 @@ Natural. Confident. Not pushy. South African context.`)
             </div>
 
             <div style={{ marginTop:'20px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'12px', padding:'16px', fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.8 }}>
-              💡 <strong style={{ color:GOLD }}>The R300 Formula:</strong> Contact 20 people × 15% conversion = 3 clients × R100 average = R300/day. Repeat 5 days = R1,500/week.
+              💡 <strong style={{ color:GOLD }}>The R300/Day Formula:</strong> Contact 20 people × 15% conversion = 3 clients × R100 average = R300/day. Repeat 5 days = R1,500/week.
             </div>
           </div>
         )}
@@ -690,7 +690,7 @@ Natural. Confident. Not pushy. South African context.`)
         {tab === 'referral' && (
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R50 for every person you refer who pays R100.</p>
+            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer who joins the 60-Day Program.</p>
 
             {/* Stats */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', marginBottom:'20px' }}>
@@ -725,7 +725,7 @@ Natural. Confident. Not pushy. South African context.`)
               },
               {
                 label: '💬 Direct Message',
-                msg: `Hi [Name], I know you've been looking for ways to earn extra income.\n\nI found this AI system that helps you make R100-R300/day using your phone — CV writing, cleaning, anything you're good at.\n\nIt's R100 once-off. Here's my link:\n${refLink}\n\nLet me know if you want more info.`,
+                msg: `Hi [Name], I know you've been looking for ways to earn extra income.\n\nI found this AI system that helps you make R100-R300/day using your phone — CV writing, cleaning, anything you're good at.\n\nIt's R500 for 60 days. Here's my link:\n${refLink}\n\nLet me know if you want more info.`,
               },
               {
                 label: '📘 Facebook Post',
