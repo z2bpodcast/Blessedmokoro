@@ -13,42 +13,42 @@ const DIGITAL_PRODUCTS = [
   {
     icon: '💼', name: 'WhatsApp Business Boost Pack',
     target: 'Small business owners, spaza shops, freelancers',
-    problem: 'No customers, no digital presence, silent WhatsApp',
-    price: 'R150–R300',
-    script: 'I help small businesses get more customers using WhatsApp. Your competitors are already doing this. Let me set up your WhatsApp business profile and write 10 messages that attract paying clients — in 24 hours.',
-    delivery: 'WhatsApp profile setup + 10 message templates delivered via WhatsApp',
+    problem: "No customers, no digital presence, silent WhatsApp',
+    price: "R150–R300',
+    script: "I help small businesses get more customers using WhatsApp. Your competitors are already doing this. Let me set up your WhatsApp business profile and write 10 messages that attract paying clients — in 24 hours.',
+    delivery: "WhatsApp profile setup + 10 message templates delivered via WhatsApp',
   },
   {
     icon: '📄', name: 'CV & Job Boost Kit',
     target: 'Job seekers, school leavers, career changers',
-    problem: 'Not getting interviews, weak CV, no cover letter',
-    price: 'R100–R200',
-    script: 'I write professional CVs that get interviews. Most CVs are rejected in 10 seconds. Mine get callbacks. R150 — delivered same day via WhatsApp.',
-    delivery: 'PDF CV + cover letter + LinkedIn tips sent via WhatsApp',
+    problem: "Not getting interviews, weak CV, no cover letter',
+    price: "R100–R200',
+    script: "I write professional CVs that get interviews. Most CVs are rejected in 10 seconds. Mine get callbacks. R150 — delivered same day via WhatsApp.',
+    delivery: "PDF CV + cover letter + LinkedIn tips sent via WhatsApp',
   },
   {
     icon: '📱', name: 'Social Media Content Pack',
     target: 'Small businesses, coaches, beauty industry',
-    problem: 'No time to post, blank page syndrome, inconsistent presence',
-    price: 'R200–R400',
-    script: 'I create 30 days of social media posts for your business. You never run out of content again. R250 — WhatsApp me your business name and I start today.',
-    delivery: '30 posts (text + captions) delivered as PDF or WhatsApp messages',
+    problem: "No time to post, blank page syndrome, inconsistent presence',
+    price: "R200–R400',
+    script: "I create 30 days of social media posts for your business. You never run out of content again. R250 — WhatsApp me your business name and I start today.',
+    delivery: "30 posts (text + captions) delivered as PDF or WhatsApp messages',
   },
   {
     icon: '💬', name: 'Customer Attraction Message Pack',
     target: 'Anyone selling anything — products or services',
-    problem: 'Don't know what to say, messages get ignored',
+    problem: "Don't know what to say, messages get ignored",
     price: 'R100–R200',
-    script: 'I write WhatsApp messages that make people want to buy from you. 10 proven sales messages written for YOUR product. R120 — results guaranteed or I rewrite for free.',
-    delivery: '10 customised sales messages + follow-up scripts via WhatsApp',
+    script: "I write WhatsApp messages that make people want to buy from you. 10 proven sales messages written for YOUR product. R120 — results guaranteed or I rewrite for free.',
+    delivery: "10 customised sales messages + follow-up scripts via WhatsApp',
   },
   {
     icon: '🚀', name: 'Side Hustle Starter Pack',
     target: 'Employed people wanting extra income, beginners',
-    problem: 'Don't know where to start, no idea what to sell',
+    problem: "Don't know where to start, no idea what to sell",
     price: 'R150–R300',
-    script: 'I help people start earning online in 48 hours using their existing skills. No quitting your job needed. R200 for the complete starter system.',
-    delivery: 'Personalised offer + 5 customer scripts + daily action plan via WhatsApp',
+    script: "I help people start earning online in 48 hours using their existing skills. No quitting your job needed. R200 for the complete starter system.',
+    delivery: "Personalised offer + 5 customer scripts + daily action plan via WhatsApp',
   },
 ]
 
@@ -278,9 +278,9 @@ function LandingInner() {
             <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:'20px', padding:'28px', border:'1px solid rgba(255,255,255,0.2)' }}>
               <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.6)', marginBottom:'16px', textTransform:'uppercase', letterSpacing:'1px' }}>Coach Manlaw Says:</div>
               {[
-                { q:'I don't know what to sell', a:'Tell me 3 things you are good at. I will turn one into a R150 offer you can launch today.' },
-                { q:'The customer said it's too expensive', a:'That means you haven't shown value yet. Say this: "What would it be worth if I solved [problem] for you?"' },
-                { q:'I'm scared to message people', a:'Fear is not the problem. Inaction is. Send 5 messages right now. Come back and tell me the responses.' },
+                { q:"I don't know what to sell", a:"Tell me 3 things you are good at. I will turn one into a R150 offer you can launch today." },
+                { q:"The customer said it's too expensive", a:"That means you haven't shown value yet. Say this: 'What would it be worth if I solved [problem] for you?'" },
+                { q:"I'm scared to message people", a:"Fear is not the problem. Inaction is. Send 5 messages right now. Come back and tell me the responses." },
               ].map(({q,a}, i) => (
                 <div key={i} style={{ marginBottom:i<2?'16px':'0', paddingBottom:i<2?'16px':'0', borderBottom:i<2?'1px solid rgba(255,255,255,0.1)':'none' }}>
                   <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'4px' }}>👤 "{q}"</div>
