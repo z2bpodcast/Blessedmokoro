@@ -77,6 +77,7 @@ function DashboardInner() {
   const [loading,           setLoading]           = useState(true)
   const [error,             setError]             = useState('')
   const [copied,            setCopied]            = useState(false)
+  const [copied4M,            setCopied4M]          = useState(false)
   const [notifications,     setNotifications]     = useState<ProspectNotification[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
   const [showStartHere, setShowStartHere]         = useState(() => {
@@ -230,6 +231,15 @@ function DashboardInner() {
     const link = `${window.location.origin}/invite?ref=${profile.referral_code}`
     navigator.clipboard.writeText(link)
     setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+
+  const copy4MLink = () => {
+    if (!profile) return
+    const link = `${window.location.origin}/4m?ref=${profile.referral_code}`
+    navigator.clipboard.writeText(link)
+    setCopied4M(true)
+    setTimeout(() => setCopied4M(false), 2500)
+  }
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -622,20 +632,44 @@ function DashboardInner() {
           </div>
         )}
 
-        {/* ── REFERRAL LINK ── */}
+        {/* ── TWO REFERRAL LINKS ── */}
         <div className="bg-white rounded-2xl border-2 border-yellow-300 shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-black text-gray-800 mb-3">🔗 Your Referral Link</h3>
-          <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 mb-4">
-            <p className="text-xs text-gray-500 mb-1">Share this link to invite new members:</p>
-            <code className="text-purple-700 font-mono text-sm break-all">
+          <h3 className="text-lg font-black text-gray-800 mb-1">🔗 Your Share Links</h3>
+          <p className="text-xs text-gray-500 mb-4">You have two powerful links — share the right one for the right audience</p>
+
+          {/* Link 1 — Z2B Table Banquet */}
+          <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 mb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-base">🍽️</span>
+              <span className="text-xs font-black text-purple-700 uppercase tracking-wider">Z2B Table Banquet Link</span>
+            </div>
+            <p className="text-xs text-gray-500 mb-2">For prospects ready to join the full ecosystem</p>
+            <code className="text-purple-700 font-mono text-xs break-all block mb-3">
               {typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/invite?ref={profile.referral_code}
             </code>
+            <button onClick={copyReferralLink}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-white text-sm transition-all"
+              style={{ background: copied ? 'linear-gradient(135deg,#059669,#047857)' : 'linear-gradient(135deg,#7C3AED,#9333EA)' }}>
+              {copied ? <><CheckCircle className="w-4 h-4"/>Copied!</> : <><Copy className="w-4 h-4"/>Copy Table Banquet Link</>}
+            </button>
           </div>
-          <button onClick={copyReferralLink}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-white transition-all"
-            style={{ background: 'linear-gradient(135deg,#7C3AED,#9333EA)' }}>
-            {copied ? <><CheckCircle className="w-5 h-5"/>Copied!</> : <><Copy className="w-5 h-5"/>Copy Referral Link</>}
-          </button>
+
+          {/* Link 2 — 4M Income Executor */}
+          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-base">🤖</span>
+              <span className="text-xs font-black text-yellow-700 uppercase tracking-wider">Z2B 4M Income Executor Link</span>
+            </div>
+            <p className="text-xs text-gray-500 mb-2">For beginners who need to start earning first — entry product</p>
+            <code className="text-yellow-700 font-mono text-xs break-all block mb-3">
+              {typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/4m?ref={profile.referral_code}
+            </code>
+            <button onClick={copy4MLink}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-white text-sm transition-all"
+              style={{ background: copied4M ? 'linear-gradient(135deg,#059669,#047857)' : 'linear-gradient(135deg,#D97706,#B45309)' }}>
+              {copied4M ? <><CheckCircle className="w-4 h-4"/>Copied!</> : <><Copy className="w-4 h-4"/>Copy 4M Executor Link</>}
+            </button>
+          </div>
         </div>
 
         {/* ── COMPLETE PROFILE PROMPT ── */}

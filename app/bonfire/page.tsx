@@ -23,6 +23,7 @@ export default function BonfirePage() {
   const [unlocks,     setUnlocks]     = useState<any>(null)
   const [loading,     setLoading]     = useState(true)
   const [copied,      setCopied]      = useState(false)
+  const [copied4M,    setCopied4M]    = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -68,11 +69,18 @@ export default function BonfirePage() {
     })
   }, [])
 
-  const refLink = `https://app.z2blegacybuilders.co.za/invite?ref=${profile?.referral_code || 'REVMOK2B'}`
+  const refLink   = `https://app.z2blegacybuilders.co.za/invite?ref=${profile?.referral_code || 'REVMOK2B'}`
+  const ref4MLink = `https://app.z2blegacybuilders.co.za/4m?ref=${profile?.referral_code || 'REVMOK2B'}`
 
   const copyLink = () => {
     navigator.clipboard.writeText(refLink).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
+    })
+  }
+
+  const copy4MLink = () => {
+    navigator.clipboard.writeText(ref4MLink).then(() => {
+      setCopied4M(true); setTimeout(() => setCopied4M(false), 2500)
     })
   }
 
@@ -302,19 +310,36 @@ export default function BonfirePage() {
         </div>
 
         {/* Copy reflink */}
-        <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'14px', padding:'16px 18px', display:'flex', alignItems:'center', gap:'12px' }}>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', marginBottom:'4px' }}>YOUR INVITATION LINK</div>
-            <div style={{ fontSize:'12px', color:'rgba(212,175,55,0.8)', fontFamily:'monospace', wordBreak:'break-all' }}>{refLink}</div>
+        {/* Two share links */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+          {/* Link 1 — Z2B Table Banquet */}
+          <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'14px', padding:'14px 16px', display:'flex', alignItems:'center', gap:'12px' }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:'10px', color:'rgba(212,175,55,0.6)', marginBottom:'2px', letterSpacing:'1px', textTransform:'uppercase' }}>🍽️ Z2B Table Banquet Link</div>
+              <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.7)', fontFamily:'monospace', wordBreak:'break-all' }}>{refLink}</div>
+            </div>
+            <button onClick={copyLink} style={{ padding:'7px 14px', background: copied?'rgba(16,185,129,0.1)':'rgba(212,175,55,0.1)', border:`1px solid ${copied?'rgba(16,185,129,0.3)':'rgba(212,175,55,0.3)'}`, borderRadius:'10px', color: copied?'#6EE7B7':'#F5D060', fontSize:'11px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif', flexShrink:0 }}>
+              {copied ? '✅' : '📋 Copy'}
+            </button>
           </div>
-          <button onClick={copyLink} style={{ padding:'8px 16px', background: copied?'rgba(16,185,129,0.1)':'rgba(212,175,55,0.1)', border:`1px solid ${copied?'rgba(16,185,129,0.3)':'rgba(212,175,55,0.3)'}`, borderRadius:'10px', color: copied?'#6EE7B7':'#F5D060', fontSize:'11px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif', flexShrink:0 }}>
-            {copied?'✅ Copied':'📋 Copy'}
-          </button>
+          {/* Link 2 — 4M Income Executor */}
+          <div style={{ background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.2)', borderRadius:'14px', padding:'14px 16px', display:'flex', alignItems:'center', gap:'12px' }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:'10px', color:'rgba(167,139,250,0.7)', marginBottom:'2px', letterSpacing:'1px', textTransform:'uppercase' }}>🤖 Z2B 4M Income Executor Link</div>
+              <div style={{ fontSize:'11px', color:'rgba(167,139,250,0.8)', fontFamily:'monospace', wordBreak:'break-all' }}>{ref4MLink}</div>
+            </div>
+            <button onClick={copy4MLink} style={{ padding:'7px 14px', background: copied4M?'rgba(16,185,129,0.1)':'rgba(124,58,237,0.1)', border:`1px solid ${copied4M?'rgba(16,185,129,0.3)':'rgba(124,58,237,0.3)'}`, borderRadius:'10px', color: copied4M?'#6EE7B7':'#C4B5FD', fontSize:'11px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif', flexShrink:0 }}>
+              {copied4M ? '✅' : '📋 Copy'}
+            </button>
+          </div>
         </div>
 
         <div style={{ display:'flex', gap:'12px', marginTop:'16px' }}>
-          <button onClick={copyLink} style={{ flex:1, padding:'14px', background: copied?'rgba(16,185,129,0.1)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:`1.5px solid ${copied?'rgba(16,185,129,0.4)':'#D4AF37'}`, borderRadius:'12px', color: copied?'#6EE7B7':'#F5D060', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
-            {copied ? '✅ Invite Link Copied!' : '🎴 Copy Invite Link'}
+          <button onClick={copyLink} style={{ flex:1, padding:'14px', background: copied?'rgba(16,185,129,0.1)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:`1.5px solid ${copied?'rgba(16,185,129,0.4)':'#D4AF37'}`, borderRadius:'12px', color: copied?'#6EE7B7':'#F5D060', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
+            {copied ? '✅ Copied!' : '🍽️ Table Banquet Link'}
+          </button>
+          <button onClick={copy4MLink} style={{ flex:1, padding:'14px', background: copied4M?'rgba(16,185,129,0.1)':'linear-gradient(135deg,#5B21B6,#7C3AED)', border:`1.5px solid ${copied4M?'rgba(16,185,129,0.4)':'rgba(167,139,250,0.5)'}`, borderRadius:'12px', color: copied4M?'#6EE7B7':'#C4B5FD', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
+            {copied4M ? '✅ Copied!' : '🤖 4M Executor Link'}
           </button>
           <Link href="/my-funnel" style={{ flex:1, display:'block', padding:'14px', background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'12px', color:'#6EE7B7', fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Georgia,serif' }}>
             🎯 View My Funnel
