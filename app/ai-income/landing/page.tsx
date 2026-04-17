@@ -1,7 +1,7 @@
 'use client'
 // FILE: app/ai-income/landing/page.tsx
 // Z2B AI Income Execution System — Public Landing Page
-// Bright · Beautiful · AI Era · New Dawn aesthetic
+// Bright · Beautiful · AI Era · New Dawn aesthetic — fixed 2026-04-17 08:25:02
 // Two share links: /ai-income/landing?ref=CODE (AI Income) vs /invite?ref=CODE (Z2B Table)
 
 import { useState, useEffect, Suspense } from 'react'
@@ -239,7 +239,7 @@ function LandingInner() {
                 { icon:'🧠', title:'AI Offer Generator', desc:'Creates your personalised sellable offer from your existing skills', color:'#4F46E5' },
                 { icon:'📲', title:'AI Customer Finder', desc:'Exact strategy to find paying customers on WhatsApp and Facebook', color:'#7C3AED' },
                 { icon:'✍️', title:'AI Post Generator', desc:'WhatsApp statuses, Facebook posts, and direct messages — ready to send', color:'#EC4899' },
-                { icon:'💬', title:'AI Reply System', desc:'Handles "too expensive\', "thinking about it", and every objection", color:'#059669' },
+                { icon:'💬', title:'AI Reply System', desc:'Handles too expensive, thinking about it, and every objection', color:'#059669' },
                 { icon:'💸', title:'AI Closing Assistant', desc:'Scripts to close confidently and collect payment from any customer', color:'#D97706' },
                 { icon:'🔁', title:'Daily R300/Day Engine', desc:'Daily checklist: contact 20 people, post 3 times, close 1-3 clients', color:'#0891B2' },
                 { icon:'🤖', title:'Coach Manlaw — The Executor', desc:'AI coach that pushes you to act, not just think. Execution first always.', color:'#4F46E5' },
