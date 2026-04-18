@@ -540,7 +540,7 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* CTA */}
         <div style={{ background:T.guestCard, border:`2px solid ${T.guestAccent}`, borderRadius:'20px', padding:'32px 24px', textAlign:'center', boxShadow:T.guestShadow }}>
-          <div style={{ fontSize:'11px', color:T.guestViolet, letterSpacing:'1px', textTransform:'uppercase', fontWeight:800, marginBottom:'6px' }}>Launch your R500/day target system</div>
+          <div style={{ fontSize:'11px', color:T.guestViolet, letterSpacing:'1px', textTransform:'uppercase', fontWeight:800, marginBottom:'6px' }}>Launch your R300/day target system</div>
           <div style={{ fontSize:'32px', fontWeight:900, color:T.guestAccent, marginBottom:'4px' }}>R500</div>
           <div style={{ fontSize:'14px', color:T.guestMuted, marginBottom:'10px' }}>60-Day Access · R500/month after · Cancel anytime</div>
           <div style={{ fontSize:'12px', color:'#047857', marginBottom:'20px', fontWeight:700 }}>
@@ -553,7 +553,7 @@ Natural. Confident. Not pushy. South African context.`)
 
           <button onClick={handlePay} disabled={paying}
             style={{ ...btnLight, opacity: paying ? 0.7 : 1 }}>
-            {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start Earning (R500)'}
+            {paying ? 'Setting up payment...' : '⚡ Deploy Yourself — Start Earning (R500)'}
           </button>
           <div style={{ marginTop:'10px', fontSize:'12px', color:T.guestViolet, fontWeight:600, letterSpacing:'0.04em' }}>
             Execute Now · Get Your First Paying Client · Launch Income
@@ -567,7 +567,7 @@ Natural. Confident. Not pushy. South African context.`)
         <div style={{ position:'fixed', left:0, right:0, bottom:0, zIndex:60, padding:'10px 12px calc(10px + env(safe-area-inset-bottom))', background:'rgba(15,23,42,0.94)', borderTop:'1px solid rgba(99,102,241,0.35)', backdropFilter:'blur(10px)' }}>
           <div style={{ maxWidth:'700px', margin:'0 auto', display:'flex', alignItems:'center', gap:'10px' }}>
             <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:'11px', color:'#A5B4FC', fontWeight:800, letterSpacing:'0.04em', textTransform:'uppercase' }}>R500/day target</div>
+              <div style={{ fontSize:'11px', color:'#A5B4FC', fontWeight:800, letterSpacing:'0.04em', textTransform:'uppercase' }}>R300/day target</div>
               <div style={{ fontSize:'12px', color:'rgba(248,250,252,0.85)', whiteSpace:'nowrap' as const, overflow:'hidden', textOverflow:'ellipsis' }}>Start with 4M Pro and execute daily</div>
             </div>
             <button onClick={handlePay} disabled={paying}

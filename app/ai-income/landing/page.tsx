@@ -169,7 +169,9 @@ function LandingInner() {
       <div style={{ position:'relative', zIndex:1 }}>
 
         {/* ── HERO ── */}
-        <section style={{ textAlign:'center', padding:'72px 24px 56px', maxWidth:'760px', margin:'0 auto', animation:'fadeUp 0.8s ease' }}>
+        <section style={{ textAlign:'center', padding:'72px 24px 56px', maxWidth:'760px', margin:'0 auto', animation:'fadeUp 0.8s ease', position:'relative' }}>
+          <div style={{ position:'absolute', top:0, bottom:0, left:0, width:'clamp(4px,1.3vw,12px)', borderRadius:'10px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', opacity:0.95 }} />
+          <div style={{ position:'absolute', top:0, bottom:0, right:0, width:'clamp(4px,1.3vw,12px)', borderRadius:'10px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', opacity:0.95 }} />
 
           {/* Sponsor badge */}
           {sponsorName && (
@@ -185,7 +187,7 @@ function LandingInner() {
             <span style={{ fontSize:'12px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', textTransform:'uppercase' }}>4M · 60-Day AI Income Activation</span>
           </div>
 
-          <p style={{ fontSize:'15px', color:'#64748B', fontStyle:'italic', maxWidth:'540px', margin:'0 auto 20px', lineHeight:1.65, borderLeft:'4px solid #7C3AED', paddingLeft:'16px', textAlign:'left' }}>
+          <p style={{ fontSize:'clamp(16px,2.2vw,19px)', color:'#312E81', fontStyle:'italic', fontWeight:700, maxWidth:'620px', margin:'0 auto 20px', lineHeight:1.7, borderLeft:'clamp(3px,0.9vw,8px) solid #7C3AED', borderRight:'clamp(3px,0.9vw,8px) solid #7C3AED', padding:'4px clamp(10px,2.4vw,18px)', textAlign:'left' }}>
             &ldquo;{FOURM.hookLine}&rdquo;
           </p>
 
@@ -212,7 +214,7 @@ function LandingInner() {
             <button onClick={handlePay} disabled={paying}
               className="glow-btn"
               style={{ padding:'18px 40px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'14px', color:'#fff', fontWeight:700, fontSize:'17px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:'0 8px 32px rgba(79,70,229,0.35)', opacity:paying?0.7:1, transition:'all 0.2s' }}>
-              {paying ? 'Setting up...' : '⚡ Deploy Myself — Start for R500'}
+              {paying ? 'Setting up...' : '⚡ Deploy Yourself — Start for R500'}
             </button>
             <Link href="/invite" style={{ padding:'18px 32px', background:'#fff', border:'2px solid #E2E8F0', borderRadius:'14px', color:'#475569', fontWeight:700, fontSize:'15px', textDecoration:'none', fontFamily:'Georgia,serif', transition:'all 0.2s' }}>
               🍽️ Z2B Table Banquet →
@@ -230,7 +232,7 @@ function LandingInner() {
         <section style={{ maxWidth:'900px', margin:'0 auto', padding:'0 24px 56px' }}>
           <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px' }}>
             {[
-              { icon:'🤖', val:'7', label:'AI Modules', sub:'All included', color:'#4F46E5' },
+              { icon:'🤖', val:'9', label:'AI Modules', sub:'All included', color:'#4F46E5' },
               { icon:'💰', val:'R300', label:'Daily Target', sub:'Achievable in 60 days', color:'#059669' },
               { icon:'🔗', val:'R200', label:'Per Referral', sub:'You earn for sharing', color:'#D97706' },
             ].map(({icon,val,label,sub,color}) => (
@@ -256,6 +258,7 @@ function LandingInner() {
                 { icon:'🧠', title:'AI Offer Generator', desc:'Creates your personalised sellable offer from your existing skills', color:'#4F46E5' },
                 { icon:'📲', title:'AI Customer Finder', desc:'Exact strategy to find paying customers on WhatsApp and Facebook', color:'#7C3AED' },
                 { icon:'✍️', title:'AI Post Generator', desc:'WhatsApp statuses, Facebook posts, and direct messages — ready to send', color:'#EC4899' },
+                { icon:'📦', title:'Create a Digital Product', desc:'Build and package your digital product with AI-powered research and creation prompts', color:'#6366F1' },
                 { icon:'💬', title:'AI Reply System', desc:'Handles too expensive, thinking about it, and every objection', color:'#059669' },
                 { icon:'💸', title:'AI Closing Assistant', desc:'Scripts to close confidently and collect payment from any customer', color:'#D97706' },
                 { icon:'🔁', title:'Daily R300/Day Engine', desc:'Daily checklist: contact 20 people, post 3 times, close 1-3 clients', color:'#0891B2' },
@@ -415,7 +418,7 @@ function LandingInner() {
             {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'10px', padding:'12px', marginBottom:'16px', color:'#FCA5A5', fontSize:'13px' }}>⚠️ {payError}</div>}
             <button onClick={handlePay} disabled={paying} className="glow-btn"
               style={{ padding:'20px 52px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'16px', color:'#fff', fontWeight:700, fontSize:'18px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:'0 12px 48px rgba(79,70,229,0.5)', opacity:paying?0.7:1, transition:'all 0.2s', display:'block', width:'100%', maxWidth:'400px', margin:'0 auto 16px' }}>
-              {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start 60-Day Program (R500)'}
+              {paying ? 'Setting up payment...' : '⚡ Deploy Yourself — Start 60-Day Program (R500)'}
             </button>
             <div style={{ textAlign:'left', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:'12px', padding:'12px 14px', maxWidth:'460px', margin:'0 auto 14px' }}>
               <div style={{ fontSize:'12px', fontWeight:800, color:'#C7D2FE', marginBottom:'6px', textTransform:'uppercase' }}>No Card? Use EFT / ATM</div>
