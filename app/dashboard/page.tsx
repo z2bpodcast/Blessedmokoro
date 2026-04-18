@@ -697,6 +697,29 @@ function DashboardInner() {
           </div>
           <h3 className="text-lg font-black text-gray-800 mb-4">Quick Actions</h3>
 
+          {/* ── 4M — AI MONEY MACHINE (members use app; guests use landing) ── */}
+          <Link href="/ai-income"
+            className="flex items-center gap-3 p-4 rounded-xl border-2 font-bold text-sm hover:scale-105 transition-transform mb-2"
+            style={{ background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderColor: '#A5B4FC', color: '#F5F3FF', textDecoration:'none' }}>
+            <span className="text-3xl">🤖</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-base font-black" style={{ fontFamily:'Cinzel,serif', color:'#FEF3C7' }}>4M – AI Money Machine</div>
+              <div className="text-xs font-semibold mt-0.5" style={{ color:'rgba(254,243,199,0.9)' }}>Deploy Yourself. · Open 4M tools →</div>
+            </div>
+            <span className="ml-auto text-xl shrink-0">→</span>
+          </Link>
+          <p className="text-[11px] text-gray-500 mb-4 leading-relaxed px-0.5">
+            <span className="font-black text-gray-600">Guests:</span>{' '}
+            <Link href="/ai-income/landing" className="text-indigo-600 font-bold underline decoration-indigo-300 hover:text-indigo-800">
+              landing page &amp; sign up
+            </Link>
+            <span className="text-gray-400 mx-1">·</span>
+            <span className="font-black text-gray-600">App sign-in (members):</span>{' '}
+            <a href="https://app.z2blegacybuilders.co.za/login" target="_blank" rel="noopener noreferrer" className="text-violet-700 font-bold underline decoration-violet-300 hover:text-violet-900">
+              app.z2blegacybuilders.co.za
+            </a>
+          </p>
+
           {/* ── COACH MANLAW — STAR CARD ── */}
           <Link href="/meet-coach-manlaw"
             className="flex items-center gap-3 p-4 rounded-xl border-2 font-bold text-sm hover:scale-105 transition-transform mb-4"
@@ -818,7 +841,7 @@ function DashboardInner() {
                 <div style={{ fontSize:'10px', fontFamily:'Cinzel,serif', letterSpacing:'2px', color:'rgba(212,175,55,0.4)', marginBottom:'10px' }}>TOOLS</div>
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {[
-                    { href:'/ai-income',      icon:'🤖', label:'AI Income',      sub:'R100→R300/day',  bg:'linear-gradient(135deg,#0A1A10,#064E3B)', bc:'#059669', col:'#6EE7B7' },
+                    { href:'/ai-income',      icon:'🤖', label:'4M · AI Income', sub:'Deploy Yourself',  bg:'linear-gradient(135deg,#3730A3,#7C3AED)', bc:'#A5B4FC', col:'#EEF2FF' },
                     { href:'/visual-studio',  icon:'📸', label:'Visual Studio',  sub:'HD Photos',      bg:'linear-gradient(135deg,#0A1A0A,#065F46)', bc:'#10B981', col:'#6EE7B7' },
                     { href:'/start-here',     icon:'❤️', label:'Start Here',     sub:'New? Begin',     bg:'linear-gradient(135deg,#FFF5F5,#FFE4E4)', bc:'#DC2626', col:'#DC2626' },
                     { href:'/pricing',        icon:'💎', label:'Upgrade',        sub:'Higher tier',    bg:'linear-gradient(135deg,#1E1B4B,#312E81)', bc:'#7C3AED', col:'#C4B5FD' },
