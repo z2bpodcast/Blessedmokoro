@@ -10,8 +10,8 @@ import Link from 'next/link'
 import { FOURM_BRAND as FOURM, THEME as T } from './fourm-brand'
 
 // ── TYPES ─────────────────────────────────────────────────
-type Tab = 'offer'|'finder'|'post'|'product'|'reply'|'close'|'daily'|'referral'
-const FREE_TABS: readonly Tab[] = ['offer', 'finder', 'post', 'product']
+type Tab = 'guide'|'offer'|'finder'|'post'|'product'|'reply'|'close'|'daily'|'referral'
+const FREE_TABS: readonly Tab[] = ['guide', 'offer', 'finder', 'post', 'product']
 const isPremiumTab = (t: Tab) => !FREE_TABS.includes(t)
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
 
@@ -66,7 +66,7 @@ function AIIncomeInner() {
   const [profile,      setProfile]      = useState<any>(null)
   const [unlocked,     setUnlocked]     = useState(false)
   const [loading,      setLoading]      = useState(true)
-  const [tab,          setTab]          = useState<Tab>('offer')
+  const [tab,          setTab]          = useState<Tab>('guide')
   const [aiLoading,    setAiLoading]    = useState(false)
   const [result,       setResult]       = useState('')
 
@@ -247,15 +247,15 @@ Target audience: "${productAudience || 'Beginners using a smartphone'}"
 Transformation goal: "${productGoal}"
 
 Important:
-- Include a "CHATGPT RESEARCH PROMPT" section with exact prompts they can paste into ChatGPT to research market pain points, objections, desired outcomes, and competitor offers.
-- Include a "PRODUCT CREATION PROMPT" section with exact prompts they can paste into ChatGPT to draft the product content.
+- Include an "AI RESEARCH PROMPT" section with exact prompts they can paste into their AI tool to research market pain points, objections, desired outcomes, and competitor offers.
+- Include an "AI PRODUCT CREATION PROMPT" section with exact prompts they can paste into their AI tool to draft the product content.
 
 Return in this structure:
 1) PRODUCT NAME OPTIONS (3)
 2) PRODUCT POSITIONING (problem solved + who it is for)
 3) DETAILED OUTLINE (modules/pages/sections)
-4) CHATGPT RESEARCH PROMPT (copy-paste ready)
-5) CHATGPT PRODUCT CREATION PROMPT (copy-paste ready)
+4) AI RESEARCH PROMPT (copy-paste ready)
+5) AI PRODUCT CREATION PROMPT (copy-paste ready)
 6) FAST DELIVERY PLAN (how to create in 24 hours using smartphone tools)
 7) SELLING PRICE + OFFER STACK (entry, standard, premium)
 8) ONE-LINE SALES PITCH
@@ -396,29 +396,42 @@ Natural. Confident. Not pushy. South African context.`)
 
   const inpLight = { width:'100%', padding:'12px 14px', background:T.regInputBg, border:`2px solid ${T.regBorder}`, borderRadius:'10px', color:T.regText, fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
   const btnLight = { padding:'14px 28px', background:`linear-gradient(135deg,${T.regAccent},${T.guestViolet})`, border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const }
+  const getScoreTone = (score: number) => (
+    score >= 4 ? { bg:'rgba(16,185,129,0.16)', border:'rgba(16,185,129,0.45)', color:'#6EE7B7' } :
+    score >= 3 ? { bg:'rgba(234,179,8,0.16)', border:'rgba(234,179,8,0.45)', color:'#FCD34D' } :
+    { bg:'rgba(239,68,68,0.16)', border:'rgba(239,68,68,0.45)', color:'#FCA5A5' }
+  )
 
   const renderUpgradeGate = () => (
     <div style={{ textAlign:'center', padding:'40px 20px', background:T.appSurface, borderRadius:'16px', border:`1px solid ${T.appBorder}` }}>
       <div style={{ fontSize:'52px', marginBottom:'12px' }}>🔒</div>
-      <h2 style={{ fontSize:'20px', fontWeight:800, color:T.text, marginBottom:'10px', fontFamily:'Cinzel,Georgia,serif' }}>Upgrade to unlock</h2>
+      <h2 style={{ fontSize:'20px', fontWeight:800, color:T.text, marginBottom:'10px', fontFamily:'Cinzel,Georgia,serif' }}>Unlock the income-closing stack</h2>
       <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'8px' }}>
         <strong style={{ color:GOLD }}>First 4 tools are free:</strong> Offer, Finder, Posts &amp; Product Builder.
       </p>
-      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'22px' }}>
+      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'10px' }}>
         Replies, Closing, Daily Engine &amp; Referral Booster require the full <strong style={{ color:T.indigo }}>60-Day 4M program</strong> (R500).
       </p>
-      <div style={{ margin:'0 auto 18px', maxWidth:'460px', textAlign:'left', background:'rgba(234,179,8,0.08)', border:'1px solid rgba(234,179,8,0.35)', borderRadius:'12px', padding:'12px 14px' }}>
-        <div style={{ fontSize:'12px', fontWeight:800, color:GOLD, textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>Bronze upgrade nudge</div>
+      <p style={{ fontSize:'13px', color:'rgba(248,250,252,0.75)', lineHeight:1.7, marginBottom:'18px' }}>
+        These are the tools that move you from "I posted" to "I got paid."
+      </p>
+      <div style={{ margin:'0 auto 18px', maxWidth:'520px', textAlign:'left', background:'rgba(99,102,241,0.10)', border:'1px solid rgba(99,102,241,0.35)', borderRadius:'12px', padding:'12px 14px' }}>
+        <div style={{ fontSize:'12px', fontWeight:800, color:'#C7D2FE', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>Automation upsell path</div>
         <div style={{ fontSize:'13px', color:'rgba(248,250,252,0.82)', lineHeight:1.65 }}>
-          Upgrade to <strong>Bronze</strong> to unlock premium AI features plus your <strong>PWA App Build support</strong> and API-ready growth stack.
+          Start with <strong>4M (R500)</strong> to get clients and cashflow. Then upgrade to <strong>Bronze (R2,500)</strong> for automation support, PWA app build guidance, and an API-ready growth stack so your system can run faster with less manual work.
         </div>
       </div>
       {payError && (
         <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
       )}
-      <button type="button" onClick={handlePay} disabled={paying} style={{ ...btn(), maxWidth:'340px', margin:'0 auto', opacity: paying ? 0.7 : 1 }}>
-        {paying ? 'Opening checkout…' : '⚡ Upgrade — unlock full system'}
-      </button>
+      <div style={{ display:'flex', flexDirection:'column', gap:'10px', maxWidth:'360px', margin:'0 auto' }}>
+        <button type="button" onClick={handlePay} disabled={paying} style={{ ...btn(), opacity: paying ? 0.7 : 1 }}>
+          {paying ? 'Opening checkout…' : '⚡ Upgrade Now — 4M Pro (R500)'}
+        </button>
+        <Link href="/pricing" style={{ padding:'12px 20px', borderRadius:'12px', border:'1.5px solid rgba(99,102,241,0.45)', color:'#C7D2FE', textDecoration:'none', fontSize:'13px', fontWeight:700, background:'rgba(99,102,241,0.10)' }}>
+          🚀 Scale Faster — Bronze Automation
+        </Link>
+      </div>
     </div>
   )
 
@@ -437,7 +450,7 @@ Natural. Confident. Not pushy. South African context.`)
       <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.guestBorder}`, background:'rgba(255,255,255,0.75)', backdropFilter:'blur(16px)' }}>
         <Link href="/" style={{ textDecoration:'none', display:'flex', flexDirection:'column', gap:'2px', lineHeight:1.15 }}>
           <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:T.guestAccent, letterSpacing:'0.02em' }}>{FOURM.lockupTitle}</span>
-          <span style={{ fontSize:'11px', fontWeight:600, color:T.guestViolet, fontStyle:'italic' }}>{FOURM.lockupTagline}</span>
+          <span style={{ fontSize:'10px', fontWeight:700, color:T.guestViolet }}>AI Powered: Mobile · Money · Making · Machine</span>
         </Link>
         <Link href="/login" style={{ fontSize:'13px', color:T.guestMuted, textDecoration:'none', fontWeight:600 }}>Sign In</Link>
       </div>
@@ -457,7 +470,10 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* Hero — “Deploy Yourself.” conversion layout + hook quote */}
         <div style={{ textAlign:'center', padding:'48px 0 36px' }}>
-          <div style={{ fontSize:'11px', letterSpacing:'3px', color:T.guestViolet, marginBottom:'18px', textTransform:'uppercase', fontWeight:700 }}>4M · AI-Powered Money Machine</div>
+          <div style={{ fontSize:'11px', letterSpacing:'3px', color:T.guestViolet, marginBottom:'10px', textTransform:'uppercase', fontWeight:700 }}>4M · AI-Powered Money Machine</div>
+          <p style={{ fontSize:'13px', color:T.guestSub, maxWidth:'580px', margin:'0 auto 14px', lineHeight:1.7 }}>
+            <strong>4M Framework:</strong> AI Powered <strong>1. Mobile</strong> · <strong>2. Money</strong> · <strong>3. Making</strong> · <strong>4. Machine</strong>
+          </p>
           <p style={{ fontSize:'14px', color:T.guestSub, fontStyle:'italic', maxWidth:'520px', margin:'0 auto 22px', lineHeight:1.65, textAlign:'center', borderLeft:`3px solid ${T.guestAccent}`, borderRight:`3px solid ${T.guestAccent}`, padding:'0 16px' }}>
             &ldquo;{FOURM.hookLine}&rdquo;
           </p>
@@ -499,7 +515,7 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* Income potential */}
         <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'13px', color:'#047857', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px', fontWeight:700 }}>📊 Income Potential</div>
+          <div style={{ fontSize:'13px', color:'#047857', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px', fontWeight:700 }}>📊 Income Potential (Execution Based)</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', textAlign:'center' }}>
             {[['1 client/day','R100–R200/day','Beginner'],['2 clients/day','R200–R400/day','Building'],['3+ clients/day','R300–R600/day','R300/day achieved']].map(([label,amount,stage]) => (
               <div key={stage as string} style={{ background:'rgba(255,255,255,0.85)', borderRadius:'10px', padding:'12px', border:`1px solid ${T.guestBorder}` }}>
@@ -510,7 +526,7 @@ Natural. Confident. Not pushy. South African context.`)
             ))}
           </div>
           <div style={{ marginTop:'14px', fontSize:'12px', color:T.guestMuted, textAlign:'center', fontStyle:'italic' }}>
-            Results depend on consistency. The system works when you work it.
+            Start simple: one offer, one post, 10 messages daily. Consistency creates results.
           </div>
         </div>
 
@@ -524,8 +540,12 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* CTA */}
         <div style={{ background:T.guestCard, border:`2px solid ${T.guestAccent}`, borderRadius:'20px', padding:'32px 24px', textAlign:'center', boxShadow:T.guestShadow }}>
+          <div style={{ fontSize:'11px', color:T.guestViolet, letterSpacing:'1px', textTransform:'uppercase', fontWeight:800, marginBottom:'6px' }}>Launch your R500/day target system</div>
           <div style={{ fontSize:'32px', fontWeight:900, color:T.guestAccent, marginBottom:'4px' }}>R500</div>
-          <div style={{ fontSize:'14px', color:T.guestMuted, marginBottom:'20px' }}>60-Day Access · R500/month after · Cancel anytime</div>
+          <div style={{ fontSize:'14px', color:T.guestMuted, marginBottom:'10px' }}>60-Day Access · R500/month after · Cancel anytime</div>
+          <div style={{ fontSize:'12px', color:'#047857', marginBottom:'20px', fontWeight:700 }}>
+            Includes: Offer + Finder + Posts + Digital Product + Guided execution
+          </div>
 
           {payError && (
             <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>
@@ -533,13 +553,27 @@ Natural. Confident. Not pushy. South African context.`)
 
           <button onClick={handlePay} disabled={paying}
             style={{ ...btnLight, opacity: paying ? 0.7 : 1 }}>
-            {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start for R500'}
+            {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start Earning (R500)'}
           </button>
           <div style={{ marginTop:'10px', fontSize:'12px', color:T.guestViolet, fontWeight:600, letterSpacing:'0.04em' }}>
-            Execute Now · Launch Income · 60-Day Activation
+            Execute Now · Get Your First Paying Client · Launch Income
           </div>
           <div style={{ marginTop:'12px', fontSize:'13px', color:T.guestMuted }}>
             Already have an account? <Link href="/login?redirect=/ai-income" style={{ color:T.guestAccent, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
+          </div>
+        </div>
+
+        {/* Sticky mobile conversion bar */}
+        <div style={{ position:'fixed', left:0, right:0, bottom:0, zIndex:60, padding:'10px 12px calc(10px + env(safe-area-inset-bottom))', background:'rgba(15,23,42,0.94)', borderTop:'1px solid rgba(99,102,241,0.35)', backdropFilter:'blur(10px)' }}>
+          <div style={{ maxWidth:'700px', margin:'0 auto', display:'flex', alignItems:'center', gap:'10px' }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:'11px', color:'#A5B4FC', fontWeight:800, letterSpacing:'0.04em', textTransform:'uppercase' }}>R500/day target</div>
+              <div style={{ fontSize:'12px', color:'rgba(248,250,252,0.85)', whiteSpace:'nowrap' as const, overflow:'hidden', textOverflow:'ellipsis' }}>Start with 4M Pro and execute daily</div>
+            </div>
+            <button onClick={handlePay} disabled={paying}
+              style={{ padding:'11px 14px', border:'none', borderRadius:'10px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'#fff', fontWeight:800, fontSize:'12px', cursor:'pointer', whiteSpace:'nowrap' as const, opacity: paying ? 0.7 : 1 }}>
+              {paying ? 'Opening...' : 'Start (R500)'}
+            </button>
           </div>
         </div>
 
@@ -624,7 +658,7 @@ Natural. Confident. Not pushy. South African context.`)
         <Link href="/dashboard" style={{ fontSize:'13px', color:T.textMuted, textDecoration:'none' }}>← Dashboard</Link>
         <div style={{ textAlign:'center', lineHeight:1.15 }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'13px', fontWeight:700, color:GOLD }}>{FOURM.lockupTitle}</div>
-          <div style={{ fontSize:'10px', fontWeight:600, color:T.goldDim, fontStyle:'italic' }}>{FOURM.lockupTagline}</div>
+          <div style={{ fontSize:'10px', fontWeight:700, color:T.goldDim }}>AI Powered: Mobile · Money · Making · Machine</div>
         </div>
         <div style={{ fontSize:'11px', color: unlocked ? 'rgba(16,185,129,0.95)' : T.indigo, fontWeight:700, textAlign:'right', maxWidth:'100px' }}>
           {unlocked ? '✅ Full' : 'Free · 4'}
@@ -634,7 +668,7 @@ Natural. Confident. Not pushy. South African context.`)
       {!unlocked && (
         <div style={{ margin:'14px 16px 0', padding:'14px 18px', borderRadius:'14px', background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.35)' }}>
           <span style={{ fontSize:'13px', color:T.text, lineHeight:1.55 }}>
-            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder, Posts &amp; Create Digital Product — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
+            <strong style={{ color:GOLD }}>Free tier:</strong> 4M Guide, Offer, Finder, Posts &amp; Create Digital Product — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
           </span>
         </div>
       )}
@@ -654,6 +688,7 @@ Natural. Confident. Not pushy. South African context.`)
 
         {/* Tabs */}
         <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
+          {tabBtn('guide',    '🎯', '4M Guide')}
           {tabBtn('offer',    '🧠', 'Offer')}
           {tabBtn('finder',   '📲', 'Finder')}
           {tabBtn('post',     '✍️', 'Posts')}
@@ -663,6 +698,143 @@ Natural. Confident. Not pushy. South African context.`)
           {tabBtn('daily',    '🔁', 'Daily')}
           {tabBtn('referral', '🔗', 'Referral')}
         </div>
+
+        {/* ── 4M GUIDE ── */}
+        {tab === 'guide' && (
+          <div>
+            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🎯 4M Feature Guide (How To Use Everything)</h2>
+            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.7 }}>
+              This page shows exactly what each 4M feature does, when to use it, and what action to take next so nobody gets stuck after joining.
+            </p>
+            <div style={{ background:'rgba(99,102,241,0.10)', border:'1px solid rgba(99,102,241,0.35)', borderRadius:'14px', padding:'14px 16px', marginBottom:'14px' }}>
+              <h3 style={{ margin:'0 0 8px', fontSize:'13px', color:'#C7D2FE', letterSpacing:'1px', textTransform:'uppercase' }}>What 4M means</h3>
+              <p style={{ margin:0, color:'rgba(255,255,255,0.88)', fontSize:'14px', lineHeight:1.75 }}>
+                <strong>4M Framework:</strong> AI Powered <strong>1. Mobile</strong>, <strong>2. Money</strong>, <strong>3. Making</strong>, <strong>4. Machine</strong>.
+              </p>
+            </div>
+
+            <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.22)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
+              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:GOLD, letterSpacing:'0.02em', textTransform:'uppercase' }}>Best First Flow (Daily)</h3>
+              <p style={{ margin:'0 0 6px', color:'rgba(255,255,255,0.82)', fontSize:'14px' }}>1) Offer → 2) Finder → 3) Posts → 4) Replies → 5) Close → 6) Daily Tracker</p>
+              <p style={{ margin:0, color:'rgba(255,255,255,0.55)', fontSize:'13px' }}>If you are product-based, add: Create Digital Product before Posts.</p>
+            </div>
+
+            <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.14)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
+              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:GOLD, letterSpacing:'0.02em', textTransform:'uppercase' }}>
+                Why 4M Digital Products Wins
+              </h3>
+              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.72)', fontSize:'13px', lineHeight:1.65 }}>
+                Green = strong, Yellow = medium, Red = weak. This compares startup model quality for underpaid and unemployed builders.
+              </p>
+              <div style={{ overflowX:'auto' as const }}>
+                <div style={{ minWidth:'760px' }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'2fr repeat(5,1fr)', gap:'8px', marginBottom:'8px' }}>
+                    {['Model','Startup Cost','Risk','Physical Stock Need','Scalability','Automation'].map(h => (
+                      <div key={h} style={{ padding:'10px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.86)', fontSize:'12px', fontWeight:700 }}>
+                        {h}
+                      </div>
+                    ))}
+                  </div>
+                  {[
+                    ['4M Digital Products (AI Powered)', [5,4,5,5,5], 'Best for low-capital execution and fast scaling.'],
+                    ['Retail Business', [1,2,1,2,2], 'High setup and stock burden; slower expansion.'],
+                    ['Taxi Business', [1,2,1,2,2], 'Asset-heavy with high operating and compliance pressure.'],
+                    ['Forex Trading', [4,1,5,2,2], 'Low setup but high volatility/risk for beginners.'],
+                    ['Online Physical Product Selling', [2,2,2,3,3], 'Possible but inventory/logistics reduce margins and speed.'],
+                  ].map(([name, scores, verdict]) => (
+                    <div key={String(name)} style={{ display:'grid', gridTemplateColumns:'2fr repeat(5,1fr)', gap:'8px', marginBottom:'8px' }}>
+                      <div style={{ padding:'10px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.02)' }}>
+                        <div style={{ color:'#fff', fontSize:'12px', fontWeight:700 }}>{name}</div>
+                        <div style={{ color:'rgba(255,255,255,0.55)', fontSize:'11px', marginTop:'4px', lineHeight:1.5 }}>{verdict}</div>
+                      </div>
+                      {(scores as number[]).map((score, i) => {
+                        const tone = getScoreTone(score)
+                        return (
+                          <div key={`${String(name)}-${i}`} style={{ padding:'10px', borderRadius:'8px', border:`1px solid ${tone.border}`, background:tone.bg, color:tone.color, fontSize:'13px', fontWeight:800, textAlign:'center' }}>
+                            {score}/5
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p style={{ margin:'10px 0 0', color:'rgba(255,255,255,0.62)', fontSize:'12px', lineHeight:1.65 }}>
+                Conclusion: 4M has the strongest mix of low startup barrier, low operational drag, high scalability, and high automation potential.
+              </p>
+            </div>
+
+            <div style={{ background:'rgba(16,185,129,0.10)', border:'1px solid rgba(16,185,129,0.30)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
+              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:'#6EE7B7', letterSpacing:'0.02em', textTransform:'uppercase' }}>
+                Digital Product Growth Projections
+              </h3>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,minmax(0,1fr))', gap:'10px' }}>
+                {[
+                  ['Creator economy', '~$250B today → ~ $480B by 2027', 'Strong demand for knowledge, templates and digital services.'],
+                  ['E-learning / info products', '~14%+ CAGR through decade', 'Courses, guides and playbooks continue to expand globally.'],
+                  ['Digital commerce enablement', 'Double-digit CAGR trend', 'AI tools reduce creation time and increase launch frequency.'],
+                ].map(([title, stat, note]) => (
+                  <div key={String(title)} style={{ border:'1px solid rgba(16,185,129,0.35)', borderRadius:'10px', padding:'10px', background:'rgba(0,0,0,0.12)' }}>
+                    <div style={{ color:'#D1FAE5', fontSize:'12px', fontWeight:700, marginBottom:'6px' }}>{title}</div>
+                    <div style={{ color:'#6EE7B7', fontSize:'13px', fontWeight:800, marginBottom:'6px', lineHeight:1.35 }}>{stat}</div>
+                    <div style={{ color:'rgba(255,255,255,0.65)', fontSize:'11px', lineHeight:1.5 }}>{note}</div>
+                  </div>
+                ))}
+              </div>
+              <p style={{ margin:'10px 0 0', color:'rgba(255,255,255,0.62)', fontSize:'11px', lineHeight:1.6 }}>
+                Figures are rounded industry estimates from widely cited market research and can vary by source/year, but direction is consistent: digital products continue to grow faster than many traditional small-business models.
+              </p>
+            </div>
+
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+              {[
+                ['🧠 Offer Generator', 'Creates a clear sellable offer from your skill, with target customer, pricing and delivery steps.', 'Use when you are not sure what to sell.', 'After generating, copy the one-line pitch and move to Finder.', 'offer'],
+                ['📲 Customer Finder', 'Gives a practical customer-hunting plan (WhatsApp, Facebook and local network).', 'Use when you need real people to message today.', 'Follow the 2-hour action plan and then use Posts.', 'finder'],
+                ['✍️ Post & Message Generator', 'Writes WhatsApp/Facebook/DM content to market your offer quickly.', 'Use every day to stay visible and create incoming leads.', 'Post immediately, track replies, then use Replies/Close.', 'post'],
+                ['📦 Create Digital Product', 'Builds your digital product using AI Technology research + creation prompts, format ideas, outline and launch message.', 'Use when you want to sell downloadable products (PDF, guide, checklist, templates, video outline).', 'Pick one format, build version 1 in 24 hours, then promote with Posts.', 'product'],
+                ['💬 Replies (Premium)', 'Generates smart response scripts for objections and questions.', 'Use when prospects say: expensive, not interested, thinking, or ask for info.', 'Send the script, then move to Close.', 'reply'],
+                ['💸 Close (Premium)', 'Creates closing language to collect payment confidently.', 'Use when prospect is warm and decision-ready.', 'Send closing script and ask for payment confirmation.', 'close'],
+                ['🔁 Daily Engine (Premium)', 'Tracks your income actions and points so you execute consistently.', 'Use at start and end of each day.', 'Finish all checklist items before ending your day.', 'daily'],
+                ['🔗 Referral (Premium)', 'Lets you share your link and track commissions.', 'Use after people see your results and ask what you use.', 'Share link with qualified people and follow up weekly.', 'referral'],
+              ].map(([title, whatItDoes, whenToUse, nextStep, targetTab]) => (
+                <div key={String(title)} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.10)', borderRadius:'12px', padding:'14px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', gap:'10px', alignItems:'center' }}>
+                    <h3 style={{ margin:0, fontSize:'16px', color:'#fff' }}>{title}</h3>
+                    <button onClick={() => setTab(targetTab as Tab)} style={{ padding:'7px 10px', borderRadius:'8px', border:`1px solid ${GOLD}`, background:'rgba(212,175,55,0.08)', color:GOLD, cursor:'pointer', fontSize:'11px', fontWeight:700 }}>
+                      Open
+                    </button>
+                  </div>
+                  <p style={{ margin:'10px 0 6px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>What it does:</strong> {whatItDoes}</p>
+                  <p style={{ margin:'0 0 6px', color:'rgba(255,255,255,0.70)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>When to use:</strong> {whenToUse}</p>
+                  <p style={{ margin:0, color:'rgba(255,255,255,0.70)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>Next step:</strong> {nextStep}</p>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop:'16px', background:'rgba(16,185,129,0.10)', border:'1px solid rgba(16,185,129,0.32)', borderRadius:'12px', padding:'14px' }}>
+              <div style={{ fontSize:'12px', fontWeight:800, color:'#6EE7B7', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>
+                Conversion offers
+              </div>
+              <p style={{ margin:'0 0 10px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}>
+                Offer 1: <strong>4M Pro (R500)</strong> — unlock Replies, Close, Daily Engine and Referral Booster to increase conversion and daily execution.
+              </p>
+              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}>
+                Offer 2: <strong>Bronze Automation Upgrade (R2,500)</strong> — move from manual hustle to automated systems with PWA build support, automation planning and API-ready setup.
+              </p>
+              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.68)', fontSize:'12px', lineHeight:1.6 }}>
+                Positioning script: Start with 4M to prove income manually, then move to Bronze to automate what already works.
+              </p>
+              <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' as const }}>
+                <button type="button" onClick={handlePay} disabled={paying} style={{ padding:'9px 12px', borderRadius:'8px', border:`1px solid ${GREEN}`, background:'rgba(16,185,129,0.15)', color:'#6EE7B7', fontSize:'12px', fontWeight:700, cursor:'pointer', opacity: paying ? 0.7 : 1 }}>
+                  {paying ? 'Opening…' : 'Upgrade Now: 4M Pro'}
+                </button>
+                <Link href="/pricing" style={{ padding:'9px 12px', borderRadius:'8px', border:'1px solid rgba(99,102,241,0.50)', background:'rgba(99,102,241,0.10)', color:'#C7D2FE', fontSize:'12px', fontWeight:700, textDecoration:'none' }}>
+                  See Bronze Automation Plan
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── OFFER GENERATOR ── */}
         {tab === 'offer' && (
@@ -755,7 +927,7 @@ Natural. Confident. Not pushy. South African context.`)
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📦 Create Digital Product</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
-              Create sellable digital products (PDF, worksheet, guide, checklist, template, video training) with ChatGPT-powered research + creation prompts.
+              Create sellable digital products (PDF, worksheet, guide, checklist, template, video training) powered by AI Technology research + creation prompts.
             </p>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'12px' }}>
               {([
