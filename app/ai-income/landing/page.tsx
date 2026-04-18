@@ -8,6 +8,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { FOURM_BRAND as FOURM } from './fourm-brand'
 
 const DIGITAL_PRODUCTS = [
   {
@@ -142,16 +143,17 @@ function LandingInner() {
       {/* ── NAV ── */}
       <nav style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.9)', backdropFilter:'blur(20px)',
         borderBottom:'1px solid rgba(99,102,241,0.1)', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <Link href="/" style={{ fontSize:'15px', fontWeight:700, color:'#4F46E5', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
-          Z2B Table Banquet
+        <Link href="/" style={{ textDecoration:'none', display:'flex', flexDirection:'column', gap:'1px', lineHeight:1.15 }}>
+          <span style={{ fontSize:'14px', fontWeight:800, color:'#4F46E5', fontFamily:'Cinzel,Georgia,serif' }}>{FOURM.lockupTitle}</span>
+          <span style={{ fontSize:'11px', fontWeight:600, color:'#7C3AED', fontStyle:'italic' }}>{FOURM.lockupTagline}</span>
         </Link>
         <div style={{ display:'flex', gap:'10px', alignItems:'center' }}>
           {unlocked
-            ? <Link href="/ai-income" style={{ fontSize:'13px', padding:'8px 18px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'20px', color:'#fff', fontWeight:700, textDecoration:'none' }}>Enter System →</Link>
+            ? <Link href="/ai-income" style={{ fontSize:'13px', padding:'8px 18px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'20px', color:'#fff', fontWeight:700, textDecoration:'none' }}>Enter 4M →</Link>
             : <>
                 <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'#6B7280', textDecoration:'none' }}>Sign In</Link>
                 <button onClick={handlePay} style={{ fontSize:'13px', padding:'8px 18px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'20px', color:'#fff', fontWeight:700, cursor:'pointer' }}>
-                  Start R500 →
+                  Deploy · R500 →
                 </button>
               </>
           }
@@ -172,25 +174,31 @@ function LandingInner() {
           )}
 
           {/* AI badge */}
-          <div style={{ display:'inline-flex', alignItems:'center', gap:'8px', background:'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1))', border:'1px solid rgba(79,70,229,0.2)', borderRadius:'40px', padding:'8px 20px', marginBottom:'24px' }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:'8px', background:'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1))', border:'1px solid rgba(79,70,229,0.2)', borderRadius:'40px', padding:'8px 20px', marginBottom:'20px' }}>
             <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#4F46E5', animation:'pulse 1.5s infinite' }} />
-            <span style={{ fontSize:'12px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', textTransform:'uppercase' }}>60-Day AI Income Activation Program</span>
+            <span style={{ fontSize:'12px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', textTransform:'uppercase' }}>4M · 60-Day AI Income Activation</span>
           </div>
 
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,56px)', fontWeight:900, color:'#0F172A', margin:'0 0 16px', lineHeight:1.1 }}>
-            AI Income<br/>
+          <p style={{ fontSize:'15px', color:'#64748B', fontStyle:'italic', maxWidth:'540px', margin:'0 auto 20px', lineHeight:1.65, borderLeft:'4px solid #7C3AED', paddingLeft:'16px', textAlign:'left' }}>
+            &ldquo;{FOURM.hookLine}&rdquo;
+          </p>
+
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(34px,6vw,56px)', fontWeight:900, margin:'0 0 16px', lineHeight:1.08 }}>
             <span style={{ background:'linear-gradient(135deg,#4F46E5,#7C3AED,#EC4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-              Execution System
+              {FOURM.heroHeadline}
             </span>
           </h1>
 
-          <p style={{ fontSize:'18px', fontWeight:700, color:'#4F46E5', marginBottom:'10px' }}>
-            AI-Powered Smartphone Income System: R500 · 60-Day AI Income Activation Program
+          <p style={{ fontSize:'18px', fontWeight:700, color:'#334155', maxWidth:'580px', margin:'0 auto 12px', lineHeight:1.65 }}>
+            {FOURM.heroSub}
           </p>
 
-          <p style={{ fontSize:'16px', color:'#475569', maxWidth:'560px', margin:'0 auto 36px', lineHeight:1.8 }}>
-            Use AI to generate offers, find customers, write sales messages and close deals —
-            all from your smartphone. Make your first R100 today. Scale to R300/day in 60 days.
+          <p style={{ fontSize:'16px', color:'#4F46E5', maxWidth:'560px', margin:'0 auto 14px', lineHeight:1.75, fontWeight:600 }}>
+            {FOURM.heroSupport}
+          </p>
+
+          <p style={{ fontSize:'14px', color:'#94A3B8', margin:'0 auto 32px' }}>
+            — {FOURM.author} · {FOURM.authorCred}
           </p>
 
           {/* CTA buttons */}
@@ -198,13 +206,16 @@ function LandingInner() {
             <button onClick={handlePay} disabled={paying}
               className="glow-btn"
               style={{ padding:'18px 40px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'14px', color:'#fff', fontWeight:700, fontSize:'17px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:'0 8px 32px rgba(79,70,229,0.35)', opacity:paying?0.7:1, transition:'all 0.2s' }}>
-              {paying ? 'Setting up...' : '🚀 Start for R500 — 60 Days'}
+              {paying ? 'Setting up...' : '⚡ Deploy Myself — Start for R500'}
             </button>
             <Link href="/invite" style={{ padding:'18px 32px', background:'#fff', border:'2px solid #E2E8F0', borderRadius:'14px', color:'#475569', fontWeight:700, fontSize:'15px', textDecoration:'none', fontFamily:'Georgia,serif', transition:'all 0.2s' }}>
               🍽️ Z2B Table Banquet →
             </Link>
           </div>
-          <div style={{ marginTop:'14px', fontSize:'13px', color:'#94A3B8' }}>
+          <div style={{ marginTop:'10px', fontSize:'12px', color:'#7C3AED', fontWeight:600, letterSpacing:'0.03em' }}>
+            Execute Now · Launch Income · Start Making Money
+          </div>
+          <div style={{ marginTop:'8px', fontSize:'13px', color:'#94A3B8' }}>
             60-day access · R500/month to continue · Cancel anytime
           </div>
         </section>
@@ -398,7 +409,7 @@ function LandingInner() {
             {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'10px', padding:'12px', marginBottom:'16px', color:'#FCA5A5', fontSize:'13px' }}>⚠️ {payError}</div>}
             <button onClick={handlePay} disabled={paying} className="glow-btn"
               style={{ padding:'20px 52px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'16px', color:'#fff', fontWeight:700, fontSize:'18px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:'0 12px 48px rgba(79,70,229,0.5)', opacity:paying?0.7:1, transition:'all 0.2s', display:'block', width:'100%', maxWidth:'400px', margin:'0 auto 16px' }}>
-              {paying ? 'Setting up payment...' : '🚀 Start 60-Day Program — R500'}
+              {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start 60-Day Program (R500)'}
             </button>
             <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
               Already a member? <Link href="/login?redirect=/ai-income" style={{ color:'#A5B4FC', textDecoration:'none', fontWeight:700 }}>Sign in →</Link>

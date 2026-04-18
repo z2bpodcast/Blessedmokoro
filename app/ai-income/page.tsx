@@ -7,6 +7,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { FOURM_BRAND as FOURM } from './fourm-brand'
 
 // ── TYPES ─────────────────────────────────────────────────
 type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
@@ -81,6 +82,7 @@ function AIIncomeInner() {
   const [refCopied,    setRefCopied]    = useState(false)
   const [myCommissions,setMyCommissions]= useState<any[]>([])
   const [sponsorName,  setSponsorName]  = useState('')
+  const [showDeployWelcome, setShowDeployWelcome] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
@@ -104,6 +106,18 @@ function AIIncomeInner() {
         .catch(() => {})
     }
   }, [ref])
+
+  useEffect(() => {
+    if (loading || !unlocked || typeof window === 'undefined') return
+    try {
+      if (!localStorage.getItem(FOURM.storageKey)) setShowDeployWelcome(true)
+    } catch { /* ignore */ }
+  }, [loading, unlocked])
+
+  const dismissDeployWelcome = () => {
+    try { localStorage.setItem(FOURM.storageKey, '1') } catch { /* ignore */ }
+    setShowDeployWelcome(false)
+  }
 
   const refLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/ai-income?ref=${profile?.referral_code || ''}`
   const totalEarned = myCommissions.filter(c => c.status === 'paid').reduce((s:number, c:any) => s + c.amount, 0)
@@ -329,9 +343,12 @@ Natural. Confident. Not pushy. South African context.`)
     <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
 
-      {/* Nav */}
+      {/* Nav — 4M brand lockup (Option A: clean & premium) */}
       <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.9)', backdropFilter:'blur(16px)' }}>
-        <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B Table Banquet</Link>
+        <Link href="/" style={{ textDecoration:'none', display:'flex', flexDirection:'column', gap:'2px', lineHeight:1.15 }}>
+          <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD, letterSpacing:'0.02em' }}>{FOURM.lockupTitle}</span>
+          <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(212,175,55,0.88)', fontStyle:'italic' }}>{FOURM.lockupTagline}</span>
+        </Link>
         {user
           ? <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Dashboard →</Link>
           : <Link href="/login" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Sign In</Link>}
@@ -350,17 +367,23 @@ Natural. Confident. Not pushy. South African context.`)
           </div>
         )}
 
-        {/* Hero */}
+        {/* Hero — “Deploy Yourself.” conversion layout + hook quote */}
         <div style={{ textAlign:'center', padding:'48px 0 36px' }}>
-          <div style={{ fontSize:'11px', letterSpacing:'4px', color:'rgba(212,175,55,0.5)', marginBottom:'16px', textTransform:'uppercase' }}>Z2B AI Income Execution System</div>
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,42px)', fontWeight:900, color:'#fff', margin:'0 0 14px', lineHeight:1.1 }}>
-            AI Income<br/><span style={{ color:GOLD }}>Execution System</span>
-          </h1>
-          <p style={{ fontSize:'16px', color:'rgba(212,175,55,0.8)', marginBottom:'8px', fontWeight:700 }}>
-            AI-Powered Smartphone Income System: R500 · 60-Day AI Income Activation Program Online Income System
+          <div style={{ fontSize:'11px', letterSpacing:'3px', color:'rgba(212,175,55,0.45)', marginBottom:'18px', textTransform:'uppercase' }}>4M · AI-Powered Money Machine</div>
+          <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.68)', fontStyle:'italic', maxWidth:'520px', margin:'0 auto 22px', lineHeight:1.65, textAlign:'center', borderLeft:`3px solid ${GOLD}`, borderRight:`3px solid ${GOLD}`, padding:'0 16px' }}>
+            &ldquo;{FOURM.hookLine}&rdquo;
           </p>
-          <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.55)', maxWidth:'500px', margin:'0 auto', lineHeight:1.8 }}>
-            Use AI to generate offers, find customers, create posts and close sales — all from your smartphone.
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,52px)', fontWeight:900, color:'#fff', margin:'0 0 16px', lineHeight:1.05 }}>
+            <span style={{ color:GOLD }}>{FOURM.heroHeadline}</span>
+          </h1>
+          <p style={{ fontSize:'17px', color:'rgba(255,255,255,0.88)', maxWidth:'560px', margin:'0 auto 14px', lineHeight:1.75, fontWeight:600 }}>
+            {FOURM.heroSub}
+          </p>
+          <p style={{ fontSize:'15px', color:'rgba(212,175,55,0.9)', maxWidth:'540px', margin:'0 auto 18px', lineHeight:1.75 }}>
+            {FOURM.heroSupport}
+          </p>
+          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.42)', margin:0 }}>
+            — {FOURM.author} · {FOURM.authorCred}
           </p>
         </div>
 
@@ -422,8 +445,11 @@ Natural. Confident. Not pushy. South African context.`)
 
           <button onClick={handlePay} disabled={paying}
             style={{ ...btn(), opacity: paying ? 0.7 : 1 }}>
-            {paying ? 'Setting up payment...' : '🚀 Start 60-Day Program — R500'}
+            {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start for R500'}
           </button>
+          <div style={{ marginTop:'10px', fontSize:'12px', color:'rgba(212,175,55,0.55)', fontWeight:600, letterSpacing:'0.04em' }}>
+            Execute Now · Launch Income · 60-Day Activation
+          </div>
           <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.35)' }}>
             Already unlocked? <Link href="/login?redirect=/ai-income" style={{ color:GOLD, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
           </div>
@@ -436,8 +462,8 @@ Natural. Confident. Not pushy. South African context.`)
               <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
               <div style={{ textAlign:'center', marginBottom:'20px' }}>
                 <div style={{ fontSize:'24px', marginBottom:'8px' }}>🚀</div>
-                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', margin:'0 0 6px' }}>Create Your Account</h2>
-                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', margin:0 }}>Then proceed to payment</p>
+                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', margin:'0 0 6px' }}>Join 4M — Create Your Account</h2>
+                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', margin:0 }}>Then deploy yourself — proceed to R500 payment</p>
               </div>
               {payError && <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
               <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
@@ -468,10 +494,50 @@ Natural. Confident. Not pushy. South African context.`)
     <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
       <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
 
-      {/* Nav */}
+      {/* First-visit onboarding — “Deploy Yourself.” */}
+      {showDeployWelcome && (
+        <div style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(0,0,0,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
+          role="dialog" aria-modal="true" aria-labelledby="fourm-welcome-title">
+          <div style={{ maxWidth:'440px', width:'100%', background:'linear-gradient(165deg,#12081E,#1E1245)', border:`2px solid ${GOLD}`, borderRadius:'22px', padding:'32px 28px', boxShadow:'0 24px 80px rgba(0,0,0,0.55)' }}>
+            <div style={{ fontSize:'36px', textAlign:'center', marginBottom:'12px' }}>👋</div>
+            <h2 id="fourm-welcome-title" style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:'#fff', textAlign:'center', margin:'0 0 8px', lineHeight:1.25 }}>
+              {FOURM.onboardTitle}
+            </h2>
+            <p style={{ fontSize:'15px', color:'rgba(212,175,55,0.95)', textAlign:'center', margin:'0 0 6px', fontWeight:700 }}>
+              {FOURM.onboardCoach}
+            </p>
+            <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textAlign:'center', margin:'0 0 18px' }}>
+              {FOURM.onboardBefore}
+            </p>
+            <blockquote style={{ margin:'0 0 22px', padding:'14px 16px', background:'rgba(212,175,55,0.08)', borderRadius:'12px', borderLeft:`4px solid ${GOLD}`, fontSize:'15px', fontStyle:'italic', color:'rgba(255,255,255,0.9)', lineHeight:1.65 }}>
+              &ldquo;{FOURM.onboardQuote}&rdquo;
+              <footer style={{ marginTop:'10px', fontSize:'12px', fontStyle:'normal', color:'rgba(212,175,55,0.75)' }}>
+                — {FOURM.author}
+              </footer>
+            </blockquote>
+            <div style={{ fontSize:'12px', fontWeight:800, color:GOLD, letterSpacing:'2px', textTransform:'uppercase', marginBottom:'10px' }}>⚡ System introduction</div>
+            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.75)', margin:'0 0 12px' }}>{FOURM.onboardIntro}</p>
+            <ul style={{ margin:'0 0 24px', paddingLeft:'20px', color:'rgba(255,255,255,0.82)', fontSize:'14px', lineHeight:1.85 }}>
+              {FOURM.onboardSteps.map(s => <li key={s}>{s}</li>)}
+            </ul>
+            <button type="button" onClick={dismissDeployWelcome}
+              style={{ ...btn(), marginBottom:'10px', fontSize:'16px', padding:'16px 24px' }}>
+              👉 {FOURM.startCta}
+            </button>
+            <p style={{ textAlign:'center', fontSize:'11px', color:'rgba(255,255,255,0.35)', margin:0 }}>
+              {`Start Making Money · Send & Earn · ${FOURM.lockupTagline}`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Nav — same 4M lockup inside app */}
       <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.9)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
         <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Dashboard</Link>
-        <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>🤖 AI Income System</div>
+        <div style={{ textAlign:'center', lineHeight:1.15 }}>
+          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'13px', fontWeight:700, color:GOLD }}>{FOURM.lockupTitle}</div>
+          <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(212,175,55,0.8)', fontStyle:'italic' }}>{FOURM.lockupTagline}</div>
+        </div>
         <div style={{ fontSize:'12px', color:'rgba(16,185,129,0.8)', fontWeight:700 }}>✅ Unlocked</div>
       </div>
 
@@ -481,7 +547,7 @@ Natural. Confident. Not pushy. South African context.`)
           <span style={{ fontSize:'24px' }}>🎉</span>
           <div>
             <div style={{ fontSize:'15px', fontWeight:700, color:'#6EE7B7' }}>Payment successful — you are unlocked!</div>
-            <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)' }}>Start with the AI Offer Generator to create your first sellable offer today.</div>
+            <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)' }}>{FOURM.lockupTagline} Start with the AI Offer Generator — Execute Now and launch income today.</div>
           </div>
         </div>
       )}
@@ -515,7 +581,7 @@ Natural. Confident. Not pushy. South African context.`)
               </div>
             </div>
             <button onClick={generateOffer} disabled={aiLoading || !skill.trim()} style={{ ...btn(), marginBottom:'16px', opacity: aiLoading||!skill.trim() ? 0.6:1 }}>
-              {aiLoading ? '🤖 Generating your offer...' : '🧠 Generate My Offer'}
+              {aiLoading ? '🤖 Generating your offer...' : '🧠 Generate My Offer · Execute Now'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
@@ -539,7 +605,7 @@ Natural. Confident. Not pushy. South African context.`)
               <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. I do home cleaning for R200 in Soweto" style={inp} />
             </div>
             <button onClick={generateFinder} disabled={aiLoading||!skill.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!skill.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Finding your customers...' : '📲 Find My Customers'}
+              {aiLoading ? '🤖 Finding your customers...' : '📲 Find My Customers · Execute Now'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
@@ -571,7 +637,7 @@ Natural. Confident. Not pushy. South African context.`)
                 style={{ ...inp, resize:'vertical' as const }} />
             </div>
             <button onClick={generatePost} disabled={aiLoading||!offerDesc.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!offerDesc.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Writing your post...' : '✍️ Generate Post'}
+              {aiLoading ? '🤖 Writing your post...' : '✍️ Generate Post · Send & Earn'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(76,29,149,0.35)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
@@ -612,7 +678,7 @@ Natural. Confident. Not pushy. South African context.`)
               <input value={replyContext} onChange={e => setReplyContext(e.target.value)} placeholder="e.g. I'm selling CV writing at R150" style={inp} />
             </div>
             <button onClick={generateReply} disabled={aiLoading} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading?0.6:1 }}>
-              {aiLoading ? '🤖 Generating reply...' : '💬 Get My Reply'}
+              {aiLoading ? '🤖 Generating reply...' : '💬 Get My Reply · Send & Earn'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
@@ -636,7 +702,7 @@ Natural. Confident. Not pushy. South African context.`)
               <input value={offerDesc} onChange={e => setOfferDesc(e.target.value)} placeholder="e.g. Logo design for R300, delivered in 24 hours" style={inp} />
             </div>
             <button onClick={generateClose} disabled={aiLoading||!offerDesc.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!offerDesc.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Writing closing script...' : '💸 Get Closing Script'}
+              {aiLoading ? '🤖 Writing closing script...' : '💸 Get Closing Script · Launch Income'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
@@ -662,7 +728,7 @@ Natural. Confident. Not pushy. South African context.`)
                 <div style={{ height:'100%', width:`${(totalPoints/120)*100}%`, background:`linear-gradient(90deg,${PURP},${GREEN})`, borderRadius:'4px', transition:'width 0.4s' }} />
               </div>
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'6px' }}>
-                {totalPoints >= 100 ? '🏆 Excellent day! You are on track for R300+' : totalPoints >= 60 ? '💪 Good progress — keep going!' : '⚡ Get started — your R300 day begins now'}
+                {totalPoints >= 100 ? '🏆 Excellent day! Start Making Money — on track for R300+' : totalPoints >= 60 ? '💪 Good progress — Execute Now!' : '⚡ Deploy Yourself — your R300 day begins now'}
               </div>
             </div>
 
