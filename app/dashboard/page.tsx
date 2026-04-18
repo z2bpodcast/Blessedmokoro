@@ -232,6 +232,7 @@ function DashboardInner() {
     navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
+  }
 
   const copy4MLink = () => {
     if (!profile) return
@@ -239,8 +240,6 @@ function DashboardInner() {
     navigator.clipboard.writeText(link)
     setCopied4M(true)
     setTimeout(() => setCopied4M(false), 2500)
-  }
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const saveProfile = async () => {
