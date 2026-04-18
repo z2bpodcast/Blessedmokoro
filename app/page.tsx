@@ -109,29 +109,32 @@ export default function Home() {
       {/* Header */}
       <header className="bg-royal-gradient shadow-xl border-b-4 border-gold-400">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-start sm:items-center gap-3">
             <div className="flex items-center gap-4">
-              <img src="/logo.jpg" alt="Z2B Logo" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
+              <img src="/logo.jpg" alt="Z2B Logo" className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
               <div>
-                <h1 className="text-2xl font-bold text-white">Z2B TABLE BANQUET</h1>
-                <p className="text-sm text-gold-300">Welcome to Abundance</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-white leading-tight">Z2B TABLE BANQUET</h1>
+                <p className="text-xs sm:text-sm text-gold-300">Welcome to Abundance</p>
               </div>
             </div>
             {/* ── CLEAN NAV: 3 buttons + hamburger ── */}
-            <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap', justifyContent:'flex-end' }}>
 
               {user && profile ? (
                 /* ── LOGGED IN: Dashboard + Workshop + Menu ── */
                 <>
                   <Link href="/dashboard"
+                    className="hidden sm:inline-block"
                     style={{ padding:'9px 18px', background:'rgba(255,255,255,0.12)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     Dashboard
                   </Link>
                   <Link href="/meet-coach-manlaw"
+                    className="hidden md:inline-block"
                     style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     🎯 Coach Manlaw
                   </Link>
                   <Link href="/workshop"
+                    className="hidden md:inline-block"
                     style={{ padding:'9px 18px', background:'linear-gradient(135deg,#B8860B,#D4AF37)', border:'none', borderRadius:'10px', color:'#000', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     🎓 Workshop
                   </Link>
@@ -140,10 +143,12 @@ export default function Home() {
                 /* ── LOGGED OUT: 3 clean buttons ── */
                 <>
                   <Link href="/login"
+                    className="hidden sm:inline-block"
                     style={{ padding:'9px 18px', background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     Sign In
                   </Link>
                   <Link href="/workshop"
+                    className="hidden md:inline-block"
                     style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid rgba(212,175,55,0.5)', borderRadius:'10px', color:'#F5D060', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Georgia,serif' }}>
                     🎁 Free Workshop
                   </Link>
@@ -167,13 +172,14 @@ export default function Home() {
                     {/* Backdrop */}
                     <div onClick={() => setMenuOpen(false)} style={{ position:'fixed', inset:0, zIndex:40 }} />
                     {/* Dropdown */}
-                    <div style={{ position:'absolute', top:'48px', right:0, width:'260px', background:'linear-gradient(160deg,#0D0A1E,#1E1B4B)', border:'1.5px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'8px', zIndex:50, boxShadow:'0 20px 60px rgba(0,0,0,0.6)' }}>
+                    <div style={{ position:'absolute', top:'48px', right:0, width:'min(92vw,260px)', background:'linear-gradient(160deg,#0D0A1E,#1E1B4B)', border:'1.5px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'8px', zIndex:50, boxShadow:'0 20px 60px rgba(0,0,0,0.6)' }}>
 
                       {/* Section: Explore */}
                       <div style={{ padding:'6px 12px 4px', fontSize:'9px', fontWeight:700, color:'rgba(212,175,55,0.5)', letterSpacing:'2px' }}>EXPLORE</div>
                       {[
                         { href:'/opportunity',          icon:'💼', label:'Digital Presentation' },
                         { href:'/pricing',              icon:'💎', label:'Membership & Pricing' },
+                        { href: user ? '/ai-income' : '/ai-income/landing', icon:'🤖', label:'4M AI Money Machine' },
                         { href:'/open-table/schedule',  icon:'🍽️', label:'Open Table' },
                         { href:'/type-as-you-feel',     icon:'✍️', label:'Type As You Feel' },
                         { href:'/marketplace',          icon:'🏪', label:'Marketplace' },
@@ -231,17 +237,17 @@ export default function Home() {
         <img 
           src="/hero-banquet.png" 
           alt="Z2B Table Banquet" 
-          className="w-full h-[500px] object-cover"
+          className="w-full h-[320px] sm:h-[420px] md:h-[500px] object-cover"
         />
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className="text-center px-4 bg-black/40 backdrop-blur-sm py-12 rounded-2xl border-4 border-gold-400 max-w-4xl mx-4">
-            <h2 className="text-7xl md:text-8xl font-bold text-white mb-3 drop-shadow-2xl uppercase">
+            <h2 className="text-4xl sm:text-6xl md:text-8xl font-bold text-white mb-3 drop-shadow-2xl uppercase">
               TEEE
             </h2>
             <p className="text-sm md:text-base text-gold-200 mb-8 tracking-widest drop-shadow-lg">
               Transformation · Education · Empowerment · Enrichment
             </p>
-            <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
             {!user && (
