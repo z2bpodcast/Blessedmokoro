@@ -7,10 +7,12 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { FOURM_BRAND as FOURM } from './fourm-brand'
+import { FOURM_BRAND as FOURM, THEME as T } from './fourm-brand'
 
 // ── TYPES ─────────────────────────────────────────────────
 type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
+const FREE_TABS: readonly Tab[] = ['offer', 'finder', 'post']
+const isPremiumTab = (t: Tab) => !FREE_TABS.includes(t)
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
 
 // ── AI API CALL ───────────────────────────────────────────
@@ -108,11 +110,11 @@ function AIIncomeInner() {
   }, [ref])
 
   useEffect(() => {
-    if (loading || !unlocked || typeof window === 'undefined') return
+    if (loading || !user || typeof window === 'undefined') return
     try {
       if (!localStorage.getItem(FOURM.storageKey)) setShowDeployWelcome(true)
     } catch { /* ignore */ }
-  }, [loading, unlocked])
+  }, [loading, user])
 
   const dismissDeployWelcome = () => {
     try { localStorage.setItem(FOURM.storageKey, '1') } catch { /* ignore */ }
@@ -314,23 +316,49 @@ Natural. Confident. Not pushy. South African context.`)
   }
 
   // ── STYLES ─────────────────────────────────────────────
-  const BG    = '#09060F'
-  const GOLD  = '#D4AF37'
-  const PURP  = '#4C1D95'
-  const GREEN = '#10B981'
+  const BG    = T.appBg
+  const GOLD  = T.gold
+  const PURP  = T.violet
+  const GREEN = T.emerald
 
-  const tabBtn = (id: Tab, icon: string, label: string) => (
-    <button key={id} onClick={() => { setTab(id); setResult('') }}
-      style={{ padding:'10px 14px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700, whiteSpace:'nowrap' as const,
-        background: tab===id ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-        border: tab===id ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
-        color: tab===id ? GOLD : 'rgba(255,255,255,0.5)' }}>
-      {icon} {label}
-    </button>
+  const tabBtn = (id: Tab, icon: string, label: string) => {
+    const locked = isPremiumTab(id) && !unlocked
+    const active = tab === id
+    return (
+      <button key={id} type="button" onClick={() => { setTab(id); setResult('') }}
+        style={{ padding:'10px 14px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700, whiteSpace:'nowrap' as const,
+          background: active ? (locked ? 'rgba(148,163,184,0.14)' : 'rgba(234,179,8,0.14)') : 'rgba(255,255,255,0.04)',
+          border: active ? `1.5px solid ${locked ? 'rgba(148,163,184,0.45)' : GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
+          color: active ? (locked ? 'rgba(226,232,240,0.95)' : GOLD) : 'rgba(255,255,255,0.48)' }}>
+        {locked ? '🔒 ' : ''}{icon} {label}
+      </button>
+    )
+  }
+
+  const inp = { width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.07)', border:`1px solid ${T.appBorder}`, borderRadius:'10px', color:'#fff', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
+  const btn = (color=PURP, border=GOLD) => ({ padding:'14px 28px', background:`linear-gradient(135deg,${color},#4C1D95)`, border:`2px solid ${border}`, borderRadius:'12px', color: border===GOLD ? '#FFFBEB':'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const })
+
+  const inpLight = { width:'100%', padding:'12px 14px', background:T.regInputBg, border:`2px solid ${T.regBorder}`, borderRadius:'10px', color:T.regText, fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
+  const btnLight = { padding:'14px 28px', background:`linear-gradient(135deg,${T.regAccent},${T.guestViolet})`, border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const }
+
+  const renderUpgradeGate = () => (
+    <div style={{ textAlign:'center', padding:'40px 20px', background:T.appSurface, borderRadius:'16px', border:`1px solid ${T.appBorder}` }}>
+      <div style={{ fontSize:'52px', marginBottom:'12px' }}>🔒</div>
+      <h2 style={{ fontSize:'20px', fontWeight:800, color:T.text, marginBottom:'10px', fontFamily:'Cinzel,Georgia,serif' }}>Upgrade to unlock</h2>
+      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'8px' }}>
+        <strong style={{ color:GOLD }}>First 3 tools are free:</strong> Offer, Finder &amp; Posts.
+      </p>
+      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'22px' }}>
+        Replies, Closing, Daily Engine &amp; Referral Booster require the full <strong style={{ color:T.indigo }}>60-Day 4M program</strong> (R500).
+      </p>
+      {payError && (
+        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
+      )}
+      <button type="button" onClick={handlePay} disabled={paying} style={{ ...btn(), maxWidth:'340px', margin:'0 auto', opacity: paying ? 0.7 : 1 }}>
+        {paying ? 'Opening checkout…' : '⚡ Upgrade — unlock full system'}
+      </button>
+    </div>
   )
-
-  const inp = { width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'10px', color:'#fff', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
-  const btn = (color=PURP, border=GOLD) => ({ padding:'14px 28px', background:`linear-gradient(135deg,${color},${color}CC)`, border:`2px solid ${border}`, borderRadius:'12px', color: border===GOLD ? '#FDE68A':'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const })
 
   if (loading) return (
     <div style={{ minHeight:'100vh', background:BG, display:'flex', alignItems:'center', justifyContent:'center', color:GOLD, fontFamily:'Georgia,serif' }}>
@@ -338,58 +366,56 @@ Natural. Confident. Not pushy. South African context.`)
     </div>
   )
 
-  // ── LANDING PAGE (not unlocked) ─────────────────────────
-  if (!unlocked) return (
-    <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
+  // ── GUEST MARKETING (not logged in — light funnel; registration modal only here) ──
+  if (!user) return (
+    <div style={{ minHeight:'100vh', background:T.guestBg, color:T.guestText, fontFamily:'Georgia,serif' }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
 
-      {/* Nav — 4M brand lockup (Option A: clean & premium) */}
-      <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.9)', backdropFilter:'blur(16px)' }}>
+      {/* Nav — light premium bar */}
+      <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.guestBorder}`, background:'rgba(255,255,255,0.75)', backdropFilter:'blur(16px)' }}>
         <Link href="/" style={{ textDecoration:'none', display:'flex', flexDirection:'column', gap:'2px', lineHeight:1.15 }}>
-          <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD, letterSpacing:'0.02em' }}>{FOURM.lockupTitle}</span>
-          <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(212,175,55,0.88)', fontStyle:'italic' }}>{FOURM.lockupTagline}</span>
+          <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:T.guestAccent, letterSpacing:'0.02em' }}>{FOURM.lockupTitle}</span>
+          <span style={{ fontSize:'11px', fontWeight:600, color:T.guestViolet, fontStyle:'italic' }}>{FOURM.lockupTagline}</span>
         </Link>
-        {user
-          ? <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Dashboard →</Link>
-          : <Link href="/login" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Sign In</Link>}
+        <Link href="/login" style={{ fontSize:'13px', color:T.guestMuted, textDecoration:'none', fontWeight:600 }}>Sign In</Link>
       </div>
 
       <div style={{ maxWidth:'700px', margin:'0 auto', padding:'0 20px 80px' }}>
 
         {/* Sponsor banner */}
         {sponsorName && (
-          <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'14px', padding:'14px 18px', margin:'24px 0', display:'flex', alignItems:'center', gap:'12px' }}>
+          <div style={{ background:'rgba(16,185,129,0.1)', border:'1.5px solid rgba(16,185,129,0.35)', borderRadius:'14px', padding:'14px 18px', margin:'24px 0', display:'flex', alignItems:'center', gap:'12px' }}>
             <span style={{ fontSize:'20px' }}>🏆</span>
             <div>
-              <div style={{ fontSize:'12px', color:'rgba(110,231,183,0.6)', textTransform:'uppercase', letterSpacing:'1px' }}>Invited by</div>
-              <div style={{ fontSize:'16px', fontWeight:700, color:'#6EE7B7' }}>{sponsorName}</div>
+              <div style={{ fontSize:'12px', color:T.guestMuted, textTransform:'uppercase', letterSpacing:'1px' }}>Invited by</div>
+              <div style={{ fontSize:'16px', fontWeight:700, color:'#059669' }}>{sponsorName}</div>
             </div>
           </div>
         )}
 
         {/* Hero — “Deploy Yourself.” conversion layout + hook quote */}
         <div style={{ textAlign:'center', padding:'48px 0 36px' }}>
-          <div style={{ fontSize:'11px', letterSpacing:'3px', color:'rgba(212,175,55,0.45)', marginBottom:'18px', textTransform:'uppercase' }}>4M · AI-Powered Money Machine</div>
-          <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.68)', fontStyle:'italic', maxWidth:'520px', margin:'0 auto 22px', lineHeight:1.65, textAlign:'center', borderLeft:`3px solid ${GOLD}`, borderRight:`3px solid ${GOLD}`, padding:'0 16px' }}>
+          <div style={{ fontSize:'11px', letterSpacing:'3px', color:T.guestViolet, marginBottom:'18px', textTransform:'uppercase', fontWeight:700 }}>4M · AI-Powered Money Machine</div>
+          <p style={{ fontSize:'14px', color:T.guestSub, fontStyle:'italic', maxWidth:'520px', margin:'0 auto 22px', lineHeight:1.65, textAlign:'center', borderLeft:`3px solid ${T.guestAccent}`, borderRight:`3px solid ${T.guestAccent}`, padding:'0 16px' }}>
             &ldquo;{FOURM.hookLine}&rdquo;
           </p>
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,52px)', fontWeight:900, color:'#fff', margin:'0 0 16px', lineHeight:1.05 }}>
-            <span style={{ color:GOLD }}>{FOURM.heroHeadline}</span>
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,52px)', fontWeight:900, color:T.guestText, margin:'0 0 16px', lineHeight:1.05 }}>
+            <span style={{ color:T.guestAccent }}>{FOURM.heroHeadline}</span>
           </h1>
-          <p style={{ fontSize:'17px', color:'rgba(255,255,255,0.88)', maxWidth:'560px', margin:'0 auto 14px', lineHeight:1.75, fontWeight:600 }}>
+          <p style={{ fontSize:'17px', color:T.guestText, maxWidth:'560px', margin:'0 auto 14px', lineHeight:1.75, fontWeight:600 }}>
             {FOURM.heroSub}
           </p>
-          <p style={{ fontSize:'15px', color:'rgba(212,175,55,0.9)', maxWidth:'540px', margin:'0 auto 18px', lineHeight:1.75 }}>
+          <p style={{ fontSize:'15px', color:T.guestViolet, maxWidth:'540px', margin:'0 auto 18px', lineHeight:1.75, fontWeight:600 }}>
             {FOURM.heroSupport}
           </p>
-          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.42)', margin:0 }}>
+          <p style={{ fontSize:'13px', color:T.guestMuted, margin:0 }}>
             — {FOURM.author} · {FOURM.authorCred}
           </p>
         </div>
 
         {/* What you will learn */}
-        <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding:'24px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'13px', fontWeight:700, color:GOLD, marginBottom:'16px', letterSpacing:'1px', textTransform:'uppercase' }}>🔓 What You Unlock — 60-Day AI Income Activation</div>
+        <div style={{ background:T.guestCard, border:`1px solid ${T.guestBorder}`, borderRadius:'16px', padding:'24px', marginBottom:'28px', boxShadow:T.guestShadow }}>
+          <div style={{ fontSize:'13px', fontWeight:700, color:T.guestAccent, marginBottom:'16px', letterSpacing:'1px', textTransform:'uppercase' }}>🔓 What You Unlock — 60-Day AI Income Activation</div>
           {[
             ['🧠', 'AI Offer Generator',         'AI creates your personalised sellable offer today'],
             ['📲', 'AI Customer Finder',          'Exactly where to find customers + step-by-step plan'],
@@ -402,70 +428,70 @@ Natural. Confident. Not pushy. South African context.`)
             <div key={title as string} style={{ display:'flex', alignItems:'flex-start', gap:'12px', marginBottom:'14px' }}>
               <span style={{ fontSize:'20px', flexShrink:0 }}>{icon}</span>
               <div>
-                <div style={{ fontSize:'14px', fontWeight:700, color:'#fff', marginBottom:'2px' }}>{title}</div>
-                <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)' }}>{desc}</div>
+                <div style={{ fontSize:'14px', fontWeight:700, color:T.guestText, marginBottom:'2px' }}>{title}</div>
+                <div style={{ fontSize:'13px', color:T.guestMuted }}>{desc}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Income potential */}
-        <div style={{ background:'rgba(16,185,129,0.06)', border:'1.5px solid rgba(16,185,129,0.25)', borderRadius:'16px', padding:'20px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'13px', color:'rgba(110,231,183,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px' }}>📊 Income Potential</div>
+        <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'28px' }}>
+          <div style={{ fontSize:'13px', color:'#047857', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px', fontWeight:700 }}>📊 Income Potential</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', textAlign:'center' }}>
             {[['1 client/day','R100–R200/day','Beginner'],['2 clients/day','R200–R400/day','Building'],['3+ clients/day','R300–R600/day','R300/day achieved']].map(([label,amount,stage]) => (
-              <div key={stage as string} style={{ background:'rgba(255,255,255,0.04)', borderRadius:'10px', padding:'12px' }}>
-                <div style={{ fontSize:'16px', fontWeight:700, color:GREEN, marginBottom:'4px' }}>{amount}</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)' }}>{label}</div>
-                <div style={{ fontSize:'10px', color:'rgba(110,231,183,0.5)', marginTop:'2px' }}>{stage}</div>
+              <div key={stage as string} style={{ background:'rgba(255,255,255,0.85)', borderRadius:'10px', padding:'12px', border:`1px solid ${T.guestBorder}` }}>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'#059669', marginBottom:'4px' }}>{amount}</div>
+                <div style={{ fontSize:'11px', color:T.guestMuted }}>{label}</div>
+                <div style={{ fontSize:'10px', color:'#059669', marginTop:'2px', opacity:0.85 }}>{stage}</div>
               </div>
             ))}
           </div>
-          <div style={{ marginTop:'14px', fontSize:'12px', color:'rgba(255,255,255,0.4)', textAlign:'center', fontStyle:'italic' }}>
+          <div style={{ marginTop:'14px', fontSize:'12px', color:T.guestMuted, textAlign:'center', fontStyle:'italic' }}>
             Results depend on consistency. The system works when you work it.
           </div>
         </div>
 
         {/* Upsell path */}
-        <div style={{ background:'rgba(76,29,149,0.08)', border:'1px solid rgba(76,29,149,0.25)', borderRadius:'14px', padding:'16px 20px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'12px', color:'rgba(196,181,253,0.7)', marginBottom:'8px', fontWeight:700 }}>🚀 WHERE THIS LEADS</div>
-          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', margin:0, lineHeight:1.7 }}>
+        <div style={{ background:'rgba(79,70,229,0.06)', border:`1px solid ${T.guestBorder}`, borderRadius:'14px', padding:'16px 20px', marginBottom:'28px' }}>
+          <div style={{ fontSize:'12px', color:T.guestViolet, marginBottom:'8px', fontWeight:700 }}>🚀 WHERE THIS LEADS</div>
+          <p style={{ fontSize:'13px', color:T.guestSub, margin:0, lineHeight:1.7 }}>
             Once you make your first income with this system — you are ready for the full Z2B Table Banquet ecosystem. Bronze membership (R480) unlocks 99 workshop sessions, network marketing income, and business systems that work while you sleep.
           </p>
         </div>
 
         {/* CTA */}
-        <div style={{ background:'linear-gradient(135deg,rgba(44,27,105,0.5),rgba(76,29,149,0.3))', border:'2px solid rgba(212,175,55,0.4)', borderRadius:'20px', padding:'32px 24px', textAlign:'center' }}>
-          <div style={{ fontSize:'32px', fontWeight:900, color:GOLD, marginBottom:'4px' }}>R100</div>
-          <div style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>60-Day Access · R500/month after · Cancel anytime</div>
+        <div style={{ background:T.guestCard, border:`2px solid ${T.guestAccent}`, borderRadius:'20px', padding:'32px 24px', textAlign:'center', boxShadow:T.guestShadow }}>
+          <div style={{ fontSize:'32px', fontWeight:900, color:T.guestAccent, marginBottom:'4px' }}>R500</div>
+          <div style={{ fontSize:'14px', color:T.guestMuted, marginBottom:'20px' }}>60-Day Access · R500/month after · Cancel anytime</div>
 
           {payError && (
-            <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
+            <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>
           )}
 
           <button onClick={handlePay} disabled={paying}
-            style={{ ...btn(), opacity: paying ? 0.7 : 1 }}>
+            style={{ ...btnLight, opacity: paying ? 0.7 : 1 }}>
             {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start for R500'}
           </button>
-          <div style={{ marginTop:'10px', fontSize:'12px', color:'rgba(212,175,55,0.55)', fontWeight:600, letterSpacing:'0.04em' }}>
+          <div style={{ marginTop:'10px', fontSize:'12px', color:T.guestViolet, fontWeight:600, letterSpacing:'0.04em' }}>
             Execute Now · Launch Income · 60-Day Activation
           </div>
-          <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.35)' }}>
-            Already unlocked? <Link href="/login?redirect=/ai-income" style={{ color:GOLD, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
+          <div style={{ marginTop:'12px', fontSize:'13px', color:T.guestMuted }}>
+            Already have an account? <Link href="/login?redirect=/ai-income" style={{ color:T.guestAccent, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
           </div>
         </div>
 
-        {/* Registration modal */}
+        {/* Light registration — new users only (opens from CTA when not logged in) */}
         {showReg && (
-          <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(8px)' }}>
-            <div style={{ background:'linear-gradient(160deg,#0F0820,#1E1245)', border:'2px solid rgba(212,175,55,0.4)', borderRadius:'20px', padding:'32px', maxWidth:'420px', width:'100%', position:'relative' }}>
-              <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(8px)' }}>
+            <div style={{ background:T.regBg, border:`1px solid ${T.guestBorder}`, borderRadius:'20px', padding:'32px', maxWidth:'420px', width:'100%', position:'relative', boxShadow:'0 24px 60px rgba(79,70,229,0.15)' }}>
+              <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'#F1F5F9', border:'none', color:T.guestMuted, fontSize:'20px', cursor:'pointer', width:'32px', height:'32px', borderRadius:'50%' }}>×</button>
               <div style={{ textAlign:'center', marginBottom:'20px' }}>
                 <div style={{ fontSize:'24px', marginBottom:'8px' }}>🚀</div>
-                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', margin:'0 0 6px' }}>Join 4M — Create Your Account</h2>
-                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', margin:0 }}>Then deploy yourself — proceed to R500 payment</p>
+                <h2 style={{ fontSize:'18px', fontWeight:700, color:T.regText, margin:'0 0 6px' }}>Join 4M — Create Your Account</h2>
+                <p style={{ fontSize:'13px', color:T.regMuted, margin:0 }}>Light registration — then proceed to R500 payment</p>
               </div>
-              {payError && <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
+              {payError && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>}
               <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
                 {[
                   { label:'Full Name', val:regName, set:setRegName, ph:'Your full name', type:'text' },
@@ -473,13 +499,13 @@ Natural. Confident. Not pushy. South African context.`)
                   { label:'WhatsApp', val:regWa, set:setRegWa, ph:'+27 or 0XX XXX XXXX', type:'tel' },
                 ].map(({ label, val, set, ph, type }) => (
                   <div key={label}>
-                    <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'5px', letterSpacing:'1px', textTransform:'uppercase' }}>{label} *</label>
-                    <input type={type} value={val} onChange={e => set(e.target.value)} placeholder={ph} style={inp} />
+                    <label style={{ fontSize:'11px', color:T.regMuted, display:'block', marginBottom:'5px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>{label} *</label>
+                    <input type={type} value={val} onChange={e => set(e.target.value)} placeholder={ph} style={inpLight} />
                   </div>
                 ))}
               </div>
               <button onClick={handleRegisterAndPay} disabled={regLoading}
-                style={{ ...btn(), opacity: regLoading ? 0.7 : 1 }}>
+                style={{ ...btnLight, opacity: regLoading ? 0.7 : 1 }}>
                 {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
               </button>
             </div>
@@ -489,16 +515,16 @@ Natural. Confident. Not pushy. South African context.`)
     </div>
   )
 
-  // ── MAIN APP (unlocked) ─────────────────────────────────
+  // ── MAIN APP (logged in — 3 free tools; full unlock optional) ─────────────────
   return (
-    <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
+    <div style={{ minHeight:'100vh', background:BG, color:T.text, fontFamily:'Georgia,serif' }}>
       <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
 
       {/* First-visit onboarding — “Deploy Yourself.” */}
       {showDeployWelcome && (
-        <div style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(0,0,0,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
+        <div style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(15,23,42,0.92)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
           role="dialog" aria-modal="true" aria-labelledby="fourm-welcome-title">
-          <div style={{ maxWidth:'440px', width:'100%', background:'linear-gradient(165deg,#12081E,#1E1245)', border:`2px solid ${GOLD}`, borderRadius:'22px', padding:'32px 28px', boxShadow:'0 24px 80px rgba(0,0,0,0.55)' }}>
+          <div style={{ maxWidth:'440px', width:'100%', background:'linear-gradient(165deg,#1E1B4B,#312E81)', border:`2px solid ${GOLD}`, borderRadius:'22px', padding:'32px 28px', boxShadow:'0 24px 80px rgba(0,0,0,0.45)' }}>
             <div style={{ fontSize:'36px', textAlign:'center', marginBottom:'12px' }}>👋</div>
             <h2 id="fourm-welcome-title" style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:'#fff', textAlign:'center', margin:'0 0 8px', lineHeight:1.25 }}>
               {FOURM.onboardTitle}
@@ -532,14 +558,24 @@ Natural. Confident. Not pushy. South African context.`)
       )}
 
       {/* Nav — same 4M lockup inside app */}
-      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.9)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
-        <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Dashboard</Link>
+      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.appBorder}`, background:T.appNavBg, backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
+        <Link href="/dashboard" style={{ fontSize:'13px', color:T.textMuted, textDecoration:'none' }}>← Dashboard</Link>
         <div style={{ textAlign:'center', lineHeight:1.15 }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'13px', fontWeight:700, color:GOLD }}>{FOURM.lockupTitle}</div>
-          <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(212,175,55,0.8)', fontStyle:'italic' }}>{FOURM.lockupTagline}</div>
+          <div style={{ fontSize:'10px', fontWeight:600, color:T.goldDim, fontStyle:'italic' }}>{FOURM.lockupTagline}</div>
         </div>
-        <div style={{ fontSize:'12px', color:'rgba(16,185,129,0.8)', fontWeight:700 }}>✅ Unlocked</div>
+        <div style={{ fontSize:'11px', color: unlocked ? 'rgba(16,185,129,0.95)' : T.indigo, fontWeight:700, textAlign:'right', maxWidth:'100px' }}>
+          {unlocked ? '✅ Full' : 'Free · 3'}
+        </div>
       </div>
+
+      {!unlocked && (
+        <div style={{ margin:'14px 16px 0', padding:'14px 18px', borderRadius:'14px', background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.35)' }}>
+          <span style={{ fontSize:'13px', color:T.text, lineHeight:1.55 }}>
+            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder &amp; Posts — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
+          </span>
+        </div>
+      )}
 
       {/* Welcome banner on activation */}
       {activated && (
@@ -651,8 +687,8 @@ Natural. Confident. Not pushy. South African context.`)
           </div>
         )}
 
-        {/* ── REPLY HELPER ── */}
-        {tab === 'reply' && (
+        {/* ── REPLY HELPER (premium) ── */}
+        {tab === 'reply' && (unlocked ? (
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💬 AI Sales Reply System</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Customer responded? Select their reaction — get your perfect reply.</p>
@@ -690,10 +726,10 @@ Natural. Confident. Not pushy. South African context.`)
               </div>
             )}
           </div>
-        )}
+        ) : renderUpgradeGate())}
 
-        {/* ── CLOSING ASSISTANT ── */}
-        {tab === 'close' && (
+        {/* ── CLOSING ASSISTANT (premium) ── */}
+        {tab === 'close' && (unlocked ? (
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💸 AI Closing Assistant</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Get the exact words to close the sale and collect payment confidently.</p>
@@ -710,10 +746,10 @@ Natural. Confident. Not pushy. South African context.`)
               </div>
             )}
           </div>
-        )}
+        ) : renderUpgradeGate())}
 
-        {/* ── DAILY ENGINE ── */}
-        {tab === 'daily' && (
+        {/* ── DAILY ENGINE (premium) ── */}
+        {tab === 'daily' && (unlocked ? (
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Daily R300/Day Engine</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>Complete today's checklist. Consistency is the only secret.</p>
@@ -750,10 +786,10 @@ Natural. Confident. Not pushy. South African context.`)
               💡 <strong style={{ color:GOLD }}>The R300/Day Formula:</strong> Contact 20 people × 15% conversion = 3 clients × R100 average = R300/day. Repeat 5 days = R1,500/week.
             </div>
           </div>
-        )}
+        ) : renderUpgradeGate())}
 
-        {/* ── REFERRAL BOOSTER ── */}
-        {tab === 'referral' && (
+        {/* ── REFERRAL BOOSTER (premium) ── */}
+        {tab === 'referral' && (unlocked ? (
           <div>
             <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer who joins the 60-Day Program.</p>
@@ -836,7 +872,7 @@ Natural. Confident. Not pushy. South African context.`)
               </Link>
             </div>
           </div>
-        )}
+        ) : renderUpgradeGate())}
 
       </div>
     </div>
@@ -845,7 +881,7 @@ Natural. Confident. Not pushy. South African context.`)
 
 export default function AIIncomeWrapper() {
   return (
-    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#09060F', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#0F172A', display:'flex', alignItems:'center', justifyContent:'center', color:'#EAB308', fontFamily:'Georgia,serif' }}>Loading...</div>}>
       <AIIncomeInner />
     </Suspense>
   )
