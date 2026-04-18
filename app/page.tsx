@@ -1069,7 +1069,7 @@ export default function Home() {
                         emoji:'🤖', title:'AI Business Systems',
                         tag:'GOLD+', tagColor:'#78350F',
                         short:'Custom AI tools built for your business',
-                        detail:'Custom AI integrations for your business — AI chatbots, automated content generation pipelines, AI-powered CRM systems, voice cloning and video avatar solutions. Built using cutting-edge APIs (OpenAI, Anthropic, ElevenLabs, D-ID) and tailored to your specific workflow. Available from Gold tier.',
+                        detail:'Custom AI integrations for your business — AI chatbots, automated content generation pipelines, AI-powered CRM systems, voice cloning and video avatar solutions. Built on our private enterprise AI stack and tailored to your specific workflow. Available from Gold tier.',
                       },
                       {
                         emoji:'🎨', title:'Brand & Content Systems',
