@@ -36,6 +36,8 @@ interface SectionProgress {
 }
 
 type ProgressMap = Record<number, SectionProgress>;
+const FREE_SESSION_LIMIT = 18;
+const FULL_UNLOCK_TIERS = new Set(["bronze", "copper", "silver", "gold", "platinum"]);
 
 interface HomeViewProps {
   setView: (v: ViewType) => void;
@@ -61,7 +63,7 @@ interface Tier {
 // WORKSHOP DATA — 90 SECTIONS
 // ============================================================
 const SECTIONS: Section[] = [
-  // ---- FREE TIER: SECTIONS 1–9 ----
+  // ---- FREE TIER: SECTIONS 1–18 ----
   {
     id: 1, free: true,
     title: "The Silent Frustration of Employees",
@@ -343,7 +345,7 @@ You are not surrounded by employees and consumers by accident. You are surrounde
     ],
   },
 
-  // ---- PAID TIER: SECTIONS 10–90 ----
+  // ---- STRUCTURED TIER: SECTIONS 10–90 (10–18 free preview, 19+ paid unless tier-unlocked) ----
   ...(Array.from({ length: 81 }, (_, i): Section => {
     const id = i + 10;
     const topics: [string, string][] = [
@@ -432,7 +434,7 @@ You are not surrounded by employees and consumers by accident. You are surrounde
     const [title, subtitle] = topics[i] ?? [`Advanced Builder Training ${id}`, `Deepening Your Economic Architecture`];
     return {
       id,
-      free: false,
+      free: id <= FREE_SESSION_LIMIT,
       title,
       subtitle,
       content: `This section deepens your journey as an Entrepreneurial Consumer. Building on everything you have learned so far, this module focuses on ${title.toLowerCase()} — a critical component of your transition from employee to economic builder.\n\nAs you progress through this level of the workshop, remember the governing doctrine: you are not building a job. You are building a legacy. Every skill, every relationship, every system you develop in this section contributes to the table you are constructing for yourself and for those who will sit at it after you.\n\nApply the T.E.E.E framework to everything you encounter here:\n- Transform how you think about this topic\n- Educate yourself deeply and practically\n- Empower yourself to act with confidence\n- Enrich those around you with what you learn\n\nLegacy is not built in one dramatic moment. It is built in the daily discipline of applying knowledge intentionally, investing in relationships consistently, and trusting the process faithfully.\n\n"Write the vision and make it plain, that he may run who reads it." — Habakkuk 2:2`,
@@ -596,9 +598,9 @@ const S: Record<string, CSSProperties> = {
 // CELEBRATION CAPTIONS
 // ============================================================
 const CAPTIONS = (sectionId: number, sectionTitle: string, score: number) => [
-  `🏆 DAY ${sectionId} DONE! I just completed Session ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 9-day workshop right now:\napp.z2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
-  `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 9 FREE sections this week? 🙌\n👉 app.z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
-  `🎓 Session ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 9 sessions. I dare you to start today.\n\n🔗 app.z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
+  `🏆 DAY ${sectionId} DONE! I just completed Session ${sectionId} of 90 in the Z2B Entrepreneurial Consumer Workshop — scoring ${score}/5 on "${sectionTitle}"!\n\nI'm learning how to turn my monthly expenses into income-generating assets — WITHOUT quitting my job.\n\n🔥 Do you know that your household spending could be building your legacy?\n\n👇 Start YOUR free 18-day workshop right now:\napp.z2blegacybuilders.co.za/workshop\n\n#Z2BTable #EntrepreneurialConsumer #Legacy #Zero2Billionaires #BuildYourTable`,
+  `💜 I just finished Day ${sectionId} of my 90-day transformation journey!\n\nSection: "${sectionTitle}" ✅\nScore: ${score}/5 🎯\n\nRev Mokoro Manana is teaching me that I don't need to quit my job to start building wealth. I just need to consume SMARTER.\n\nChallenge: Can you complete 18 FREE sections this week? 🙌\n👉 app.z2blegacybuilders.co.za/workshop\n\n#Z2BLegacyBuilders #EmployeeToOwner #PullUpYourChair`,
+  `🎓 Session ${sectionId} COMPLETE! "${sectionTitle}" — ${score}/5 score!\n\nHonestly, I didn't know I was already sitting on assets. My salary. My network. My spending habits. All of it can be redirected.\n\nThis workshop is FREE for the first 18 sessions. I dare you to start today.\n\n🔗 app.z2blegacybuilders.co.za/workshop\n\nTag someone who needs to hear this 👇\n\n#Z2BTable #ConsumerToBuilder #LegacyMindset #SouthAfrica`,
 ];
 
 // ============================================================
@@ -1073,7 +1075,7 @@ function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onCl
             <div style={WO.inviteBox}>
               <p style={WO.inviteLabel}>You have been personally invited by</p>
               <p style={WO.builderName}>🏆 {builderName}</p>
-              <p style={WO.inviteSub}>to experience the Z2B Entrepreneurial Consumer Workshop — FREE for your first 9 sessions.</p>
+              <p style={WO.inviteSub}>to experience the Z2B Entrepreneurial Consumer Workshop — FREE for your first 18 sessions.</p>
             </div>
 
             {/* Decorative divider */}
@@ -1142,7 +1144,7 @@ function WelcomeOverlay({ builderName, builderRef, sectionId, sectionTitle, onCl
             </div>
             <p style={{ textAlign: "center", color: "#374151", fontSize: "15px", lineHeight: 1.7, marginBottom: "24px" }}>
               <strong>{builderName.split(" ")[0]}</strong> has been notified and will contact you soon on WhatsApp.<br /><br />
-              In the meantime, enjoy your <strong>FREE 9-section workshop</strong>!
+              In the meantime, enjoy your <strong>FREE 18-section workshop</strong>!
             </p>
             <button style={{ ...WO.btnYes, width: "100%" }} onClick={onClose}>
               🎓 Start My Workshop Now
@@ -1204,7 +1206,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
         </div>
         <div style={S.homeBtnRow}>
           <button style={S.btnGold} onClick={() => setView("workshop")}>🏛️ Enter Workshop</button>
-          <button style={S.btnOutline} onClick={() => setView("workshop")}>🎁 Start Free (9 Sessions)</button>
+          <button style={S.btnOutline} onClick={() => setView("workshop")}>🎁 Start Free (18 Sessions)</button>
         </div>
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginTop: "12px" }}>
           <a
@@ -1242,7 +1244,7 @@ function HomeView({ setView, completedCount, freeCompleted }: HomeViewProps) {
 // ============================================================
 function PaywallView({ setView, builderRef }: PaywallViewProps) {
   const tiers: Tier[] = [
-    { name: "FAM",      price: "R0",         desc: "Free — 9 Sessions only",         color: "#9CA3AF", bg: "#F9FAFB", cta: "Start Free"  },
+    { name: "FAM",      price: "R0",         desc: "Free — 18 Sessions only",        color: "#9CA3AF", bg: "#F9FAFB", cta: "Start Free"  },
     { name: "BUILDER",  price: "R297/mo",    desc: "Sessions 1–30 + Community",      color: "#7C3AED", bg: "#EDE9FE", cta: "Join Builder" },
     { name: "LEADER",   price: "R797/mo",    desc: "Sessions 1–60 + Coaching",       color: "#6B21A8", bg: "#F3E8FF", cta: "Join Leader"  },
     { name: "LEGACY",   price: "R1,497/mo",  desc: "All 99 Sessions + Mentorship",   color: "#D97706", bg: "#FEF3C7", cta: "Join Legacy"  },
@@ -1256,7 +1258,7 @@ function PaywallView({ setView, builderRef }: PaywallViewProps) {
           <button style={S.backBtn} onClick={() => setView("workshop")}>← Workshop</button>
         </div>
         <h1 style={S.paywallTitle}>🔒 Members-Only Content</h1>
-        <p style={S.paywallSub}>Sessions 10–90 require a paid membership. You&apos;ve completed the free preview — now pull up your chair and own your table.</p>
+        <p style={S.paywallSub}>Sessions 19–90 require a paid membership. You&apos;ve completed the free preview — now pull up your chair and own your table.</p>
         <div style={S.tierGrid}>
           {tiers.map((t) => (
             <div key={t.name} style={{ ...S.tierCard, borderColor: t.color, background: t.bg }}>
@@ -1735,7 +1737,7 @@ function CircleOfTwelve({ firstName }: { firstName: string }) {
             borderRadius: "12px", padding: "16px", marginBottom: "16px",
           }}>
             <div style={{ fontSize: "14px", fontWeight: "bold", color: "#FCA5A5", marginBottom: "8px" }}>
-              🔥 {firstName} — You Have Completed All 9 Free Sessions.
+              🔥 {firstName} — You Have Completed All 18 Free Sessions.
             </div>
             <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8 }}>
               You have done what most people never do. You sat down, learned, reflected, and built.
@@ -1789,7 +1791,7 @@ function CircleOfTwelve({ firstName }: { firstName: string }) {
               color: "#fff", borderRadius: "10px", padding: "13px",
               fontWeight: "bold", fontSize: "14px", textDecoration: "none",
             }}>
-              ⚡ Upgrade — Continue to Session 10
+              ⚡ Upgrade — Continue to Session 19
             </a>
           </div>
           <div style={{ marginTop: "16px", fontSize: "12px", color: "rgba(212,175,55,0.5)", fontStyle: "italic" }}>
@@ -2833,6 +2835,7 @@ function WorkshopInner() {
   const [builderRef, setBuilderRef]         = useState<string | null>(null);
   // ── Welcome overlay state ──
   const [showWelcome, setShowWelcome]       = useState(false);
+  const [hasFullWorkshopUnlock, setHasFullWorkshopUnlock] = useState(false);
   const [inviterName, setInviterName]       = useState("");
   const [urlRef, setUrlRef]                 = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -2895,10 +2898,14 @@ function WorkshopInner() {
         // Fetch builder's referral code for share links
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("referral_code, full_name")
+          .select("referral_code, full_name, paid_tier, user_role")
           .eq("id", user.id)
           .single();
         if (profileData?.referral_code) setBuilderRef(profileData.referral_code);
+        const paidTier = String(profileData?.paid_tier || "").toLowerCase();
+        const role = String(profileData?.user_role || "").toLowerCase();
+        const autoUnlock = FULL_UNLOCK_TIERS.has(paidTier) || FULL_UNLOCK_TIERS.has(role);
+        setHasFullWorkshopUnlock(autoUnlock);
 
         // Fetch member first name for Coach Manlaw personalisation
         if (profileData?.full_name) {
@@ -2951,8 +2958,8 @@ function WorkshopInner() {
   const openSection = (id: number) => {
     const sec = SECTIONS.find((s) => s.id === id);
     if (!sec) return;
-    if (!sec.free) { setView("paywall"); return; }
-    if (id > 1 && !progress[id - 1]?.completed) return;
+    if (!sec.free && !hasFullWorkshopUnlock) { setView("paywall"); return; }
+    if (!hasFullWorkshopUnlock && id > 1 && !progress[id - 1]?.completed) return;
     setCurrentSection(id);
     setAnswers({});
     setSubmitted(false);
@@ -2965,7 +2972,9 @@ function WorkshopInner() {
 
   const isSectionUnlocked = (id: number): boolean => {
     const sec = SECTIONS.find((s) => s.id === id);
-    if (!sec || !sec.free) return false;
+    if (!sec) return false;
+    if (hasFullWorkshopUnlock) return true;
+    if (!sec.free) return false;
     if (id === 1) return true;
     return progress[id - 1]?.completed ?? false;
   };
@@ -3360,12 +3369,12 @@ What you are about to read is not theory. It is a mirror. It describes the life 
             <div style={{ fontSize: "16px", fontWeight: "bold", color: "#D4AF37", marginBottom: "8px" }}>
               {currentSection === 3 && "You've completed your first milestone!"}
               {currentSection === 6 && "Your Vision Board is unlocked — now unlock the full journey!"}
-              {currentSection === 9 && "You've finished the FREE preview — your transformation is just beginning!"}
+              {currentSection === 18 && "You've finished the FREE preview — your transformation is just beginning!"}
             </div>
             <div style={{ fontSize: "13px", color: "rgba(196,181,253,0.85)", marginBottom: "16px", lineHeight: 1.6 }}>
               {currentSection === 3 && "Sessions 4–90 are waiting. Every session builds on the last. Upgrade now and keep the momentum going."}
               {currentSection === 6 && "You've seen vision and strategy. Sessions 7–90 cover systems, income streams, and legacy building. Don't stop here."}
-              {currentSection === 9 && "99 sessions. One transformation. Builders who complete all 99 sessions earn lifetime commissions and community access. Pull up your chair."}
+              {currentSection === 18 && "99 sessions. One transformation. Builders who complete all 99 sessions earn lifetime commissions and community access. Pull up your chair."}
             </div>
             <a
               href="/pricing"
@@ -3547,16 +3556,16 @@ What you are about to read is not theory. It is a mirror. It describes the life 
               style={{
                 ...S.sectionCard,
                 ...(done    ? S.cardDone   : {}),
-                ...(!sec.free ? S.cardLocked : {}),
+                ...(!unlocked && !done ? S.cardLocked : {}),
                 ...(isNext  ? S.cardNext   : {}),
                 cursor: (unlocked || done) ? "pointer" : "default",
               }}
               onClick={() => {
-                if (!sec.free) { setView("paywall"); return; }
+                if (!sec.free && !hasFullWorkshopUnlock) { setView("paywall"); return; }
                 if (unlocked || done) openSection(sec.id);
               }}
             >
-              <div style={S.cardNum}>{done ? "✓" : !sec.free ? "🔒" : sec.id}</div>
+              <div style={S.cardNum}>{done ? "✓" : !unlocked ? "🔒" : sec.id}</div>
               <div style={S.cardInfo}>
                 <div style={S.cardTitle}>{sec.title}</div>
                 <div style={S.cardSub}>{sec.subtitle}</div>

@@ -117,6 +117,7 @@ interface StaffMember {
   full_name:    string
   email:        string
   user_role:    string
+  paid_tier?:   string
   referral_code:string
   is_paid_member:boolean
 }
@@ -138,6 +139,9 @@ export default function AdminHubPage() {
   const [editing,       setEditing]       = useState<string|null>(null)
   const [newRole,       setNewRole]       = useState('')
   const [saving,        setSaving]        = useState(false)
+  const [unlockQuery,   setUnlockQuery]   = useState('')
+  const [unlockResults, setUnlockResults] = useState<StaffMember[]>([])
+  const [unlockingId,   setUnlockingId]   = useState<string | null>(null)
 
   // Stats
   const [stats, setStats] = useState({ members:0, paid:0, pending:0, revenue:0, admins:0 })
@@ -212,6 +216,7 @@ export default function AdminHubPage() {
 
   const isCEO = myRole === 'ceo'
   const canGrantRoles = isCEO
+  const canWorkshopUnlock = ['ceo','superadmin','admin'].includes(myRole)
 
   const canAssignRole = (targetRole: string) => {
     if (!canGrantRoles) return false
@@ -258,6 +263,45 @@ export default function AdminHubPage() {
       loadStaff()
     } catch(err:any) { alert('Error: ' + err.message) }
     finally { setSaving(false) }
+  }
+
+  const searchUnlockTargets = async (q: string) => {
+    setUnlockQuery(q)
+    if (q.length < 2) { setUnlockResults([]); return }
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, user_role, paid_tier, referral_code, is_paid_member')
+      .or(`full_name.ilike.%${q}%,email.ilike.%${q}%,referral_code.ilike.%${q}%`)
+      .limit(8)
+    setUnlockResults((data as StaffMember[]) || [])
+  }
+
+  const unlockAllWorkshopSessions = async (member: StaffMember) => {
+    if (!canWorkshopUnlock) return
+    if (!confirm(`Unlock all workshop sessions for ${member.full_name}?`)) return
+    setUnlockingId(member.id)
+    try {
+      const nowIso = new Date().toISOString()
+      const rows = Array.from({ length: 99 }, (_, i) => ({
+        user_id: member.id,
+        section_id: i + 1,
+        read: true,
+        activity_done: true,
+        completed: true,
+        score: 5,
+        completed_at: nowIso,
+        updated_at: nowIso,
+      }))
+      const { error } = await supabase
+        .from('workshop_progress')
+        .upsert(rows, { onConflict: 'user_id,section_id' })
+      if (error) throw error
+      alert(`✅ All workshop sessions unlocked for ${member.full_name}.`)
+    } catch (err: any) {
+      alert(`Unlock failed: ${err?.message || 'Unknown error'}`)
+    } finally {
+      setUnlockingId(null)
+    }
   }
 
   if (loading) return (
@@ -366,6 +410,49 @@ export default function AdminHubPage() {
                 </div>
               ))}
             </div>
+
+            {/* Workshop unlock fallback */}
+            {canWorkshopUnlock && (
+              <div className="bg-white rounded-2xl border-2 border-amber-200 shadow-sm p-6 mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">🔓</span>
+                  <div>
+                    <h3 className="font-black text-gray-800 text-lg">Workshop Unlock Fallback</h3>
+                    <p className="text-sm text-gray-500">Manual override if Bronze-Platinum auto-unlock did not apply</p>
+                  </div>
+                </div>
+                <div className="relative max-w-xl">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
+                  <input
+                    type="text"
+                    value={unlockQuery}
+                    onChange={(e) => searchUnlockTargets(e.target.value)}
+                    placeholder="Search member by name, email or referral code..."
+                    className="w-full pl-9 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+                {unlockResults.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {unlockResults.map(m => (
+                      <div key={m.id} className="flex items-center justify-between bg-gray-50 border-2 border-gray-200 rounded-xl px-4 py-3 gap-3 flex-wrap">
+                        <div>
+                          <div className="font-bold text-gray-800">{m.full_name}</div>
+                          <div className="text-xs text-gray-500">{m.email} · {m.referral_code}</div>
+                          <div className="text-xs text-gray-400 mt-1">Tier: {(m.paid_tier || m.user_role || 'fam').toUpperCase()}</div>
+                        </div>
+                        <button
+                          onClick={() => unlockAllWorkshopSessions(m)}
+                          disabled={unlockingId === m.id}
+                          className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-bold"
+                        >
+                          {unlockingId === m.id ? 'Unlocking...' : 'Unlock All Sessions'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Quick access grid */}
             <h2 className="text-xl font-black text-gray-800 mb-4">Quick Access</h2>
