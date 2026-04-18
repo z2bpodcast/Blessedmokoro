@@ -17,17 +17,32 @@ type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks
 
 // ── AI API CALL ───────────────────────────────────────────
 async function callAI(prompt: string): Promise<string> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-  const data = await res.json()
-  return data.content?.[0]?.text || ''
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 25000)
+
+  try {
+    const res = await fetch('/api/ai-income', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal,
+    })
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      return data?.error || 'AI service is temporarily unavailable. Please try again in a moment.'
+    }
+
+    const data = await res.json()
+    return (data?.text || '').trim() || 'No response generated yet. Please press the button again.'
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return 'Request timed out. Please try again.'
+    }
+    return 'Network error while generating. Please check your internet and try again.'
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 // ── DAILY CHECKLIST ITEMS ─────────────────────────────────
@@ -619,7 +634,7 @@ Natural. Confident. Not pushy. South African context.`)
       {!unlocked && (
         <div style={{ margin:'14px 16px 0', padding:'14px 18px', borderRadius:'14px', background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.35)' }}>
           <span style={{ fontSize:'13px', color:T.text, lineHeight:1.55 }}>
-            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder, Posts &amp; Product Builder — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
+            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder, Posts &amp; Create Digital Product — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
           </span>
         </div>
       )}
@@ -642,7 +657,7 @@ Natural. Confident. Not pushy. South African context.`)
           {tabBtn('offer',    '🧠', 'Offer')}
           {tabBtn('finder',   '📲', 'Finder')}
           {tabBtn('post',     '✍️', 'Posts')}
-          {tabBtn('product',  '📦', 'Product')}
+          {tabBtn('product',  '📦', 'Create Digital Product')}
           {tabBtn('reply',    '💬', 'Replies')}
           {tabBtn('close',    '💸', 'Close')}
           {tabBtn('daily',    '🔁', 'Daily')}
@@ -738,7 +753,7 @@ Natural. Confident. Not pushy. South African context.`)
         {/* ── DIGITAL PRODUCT BUILDER (free) ── */}
         {tab === 'product' && (
           <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📦 Digital Product Builder</h2>
+            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📦 Create Digital Product</h2>
             <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
               Create sellable digital products (PDF, worksheet, guide, checklist, template, video training) with ChatGPT-powered research + creation prompts.
             </p>
@@ -775,7 +790,7 @@ Natural. Confident. Not pushy. South African context.`)
               </div>
             </div>
             <button onClick={generateProduct} disabled={aiLoading || !productNiche.trim() || !productGoal.trim()} style={{ ...btn(), marginBottom:'16px', opacity: aiLoading || !productNiche.trim() || !productGoal.trim() ? 0.6 : 1 }}>
-              {aiLoading ? '🤖 Building your digital product...' : '📦 Build My Digital Product'}
+              {aiLoading ? '🤖 Building your digital product...' : '📦 Create My Digital Product'}
             </button>
             {result && (
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(99,102,241,0.32)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
