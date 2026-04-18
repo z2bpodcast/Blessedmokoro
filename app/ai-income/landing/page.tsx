@@ -8,7 +8,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { FOURM_BRAND as FOURM } from './fourm-brand'
+import { FOURM_BRAND as FOURM } from '../fourm-brand'
 
 const DIGITAL_PRODUCTS = [
   {
