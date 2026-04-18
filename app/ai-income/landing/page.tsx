@@ -265,11 +265,11 @@ function LandingInner() {
                 { icon:'🤖', title:'Coach Manlaw — The Executor', desc:'AI coach that pushes you to act, not just think. Execution first always.', color:'#4F46E5' },
                 { icon:'🔗', title:'Referral Booster System', desc:'Earn R200 per referral. Share your link and turn sharing into income.', color:'#059669' },
               ].map(({icon,title,desc,color}) => (
-                <div key={title} style={{ display:'flex', gap:'14px', padding:'20px', background:'#FAFBFF', borderRadius:'16px', border:'1px solid #F1F5F9', alignItems:'flex-start' }}>
-                  <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:`${color}15`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', flexShrink:0 }}>{icon}</div>
+                <div key={title} style={{ display:'flex', gap:'14px', padding:'22px 20px', background:'linear-gradient(135deg,#FFFFFF,#F8FAFF)', borderRadius:'18px', border:'1.5px solid #E2E8F0', alignItems:'flex-start', boxShadow:'0 8px 24px rgba(15,23,42,0.06)' }}>
+                  <div style={{ width:'46px', height:'46px', borderRadius:'14px', background:`linear-gradient(135deg,${color}22,#FFFFFF)`, border:`1px solid ${color}55`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', flexShrink:0 }}>{icon}</div>
                   <div>
-                    <div style={{ fontSize:'14px', fontWeight:700, color:'#0F172A', marginBottom:'4px' }}>{title}</div>
-                    <div style={{ fontSize:'13px', color:'#64748B', lineHeight:1.6 }}>{desc}</div>
+                    <div style={{ fontSize:'14px', fontWeight:800, color:'#0F172A', marginBottom:'5px', letterSpacing:'0.01em' }}>{title}</div>
+                    <div style={{ fontSize:'13px', color:'#475569', lineHeight:1.65 }}>{desc}</div>
                   </div>
                 </div>
               ))}
@@ -323,34 +323,34 @@ function LandingInner() {
               {DIGITAL_PRODUCTS.map((p, i) => (
                 <div key={i} className="product-card"
                   onClick={() => setActiveProduct(activeProduct===i ? null : i)}
-                  style={{ background:'#fff', borderRadius:'16px', border:`1px solid ${activeProduct===i?'#4F46E5':'#E2E8F0'}`, overflow:'hidden', cursor:'pointer', transition:'all 0.2s', boxShadow:activeProduct===i?'0 8px 32px rgba(79,70,229,0.15)':'0 2px 8px rgba(0,0,0,0.04)' }}>
+                  style={{ background:'linear-gradient(135deg,#FFFFFF,#F8FAFF)', borderRadius:'18px', border:`1.5px solid ${activeProduct===i?'#4F46E5':'#E2E8F0'}`, overflow:'hidden', cursor:'pointer', transition:'all 0.2s', boxShadow:activeProduct===i?'0 14px 38px rgba(79,70,229,0.18)':'0 8px 20px rgba(15,23,42,0.06)' }}>
                   <div style={{ padding:'20px 24px', display:'flex', alignItems:'center', gap:'16px' }}>
-                    <div style={{ width:'48px', height:'48px', borderRadius:'14px', background:'linear-gradient(135deg,#EEF2FF,#F5F3FF)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0 }}>{p.icon}</div>
+                    <div style={{ width:'50px', height:'50px', borderRadius:'14px', background:'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border:'1px solid rgba(99,102,241,0.35)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0 }}>{p.icon}</div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:'15px', fontWeight:700, color:'#0F172A' }}>{p.name}</div>
-                      <div style={{ fontSize:'12px', color:'#64748B', marginTop:'2px' }}>Price: {p.price} · {p.target}</div>
+                      <div style={{ fontSize:'15px', fontWeight:800, color:'#0F172A', letterSpacing:'0.01em' }}>{p.name}</div>
+                      <div style={{ fontSize:'12px', color:'#475569', marginTop:'2px', lineHeight:1.55 }}>Price: {p.price} · {p.target}</div>
                     </div>
-                    <div style={{ fontSize:'20px', color:'#94A3B8', transition:'transform 0.2s', transform:activeProduct===i?'rotate(180deg)':'none' }}>⌄</div>
+                    <div style={{ fontSize:'20px', color:'#6366F1', transition:'transform 0.2s', transform:activeProduct===i?'rotate(180deg)':'none' }}>⌄</div>
                   </div>
                   {activeProduct === i && (
-                    <div style={{ padding:'0 24px 24px', borderTop:'1px solid #F1F5F9' }}>
+                    <div style={{ padding:'0 24px 24px', borderTop:'1px solid #E2E8F0', background:'rgba(255,255,255,0.75)' }}>
                       <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px', marginTop:'16px' }}>
-                        <div style={{ background:'#F8FAFF', borderRadius:'12px', padding:'16px' }}>
+                        <div style={{ background:'linear-gradient(135deg,#F8FAFF,#EEF2FF)', borderRadius:'12px', padding:'16px', border:'1px solid #E0E7FF' }}>
                           <div style={{ fontSize:'11px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', marginBottom:'8px', textTransform:'uppercase' }}>Problem You Solve</div>
                           <div style={{ fontSize:'13px', color:'#475569' }}>{p.problem}</div>
                         </div>
-                        <div style={{ background:'#F0FDF4', borderRadius:'12px', padding:'16px' }}>
+                        <div style={{ background:'linear-gradient(135deg,#F0FDF4,#ECFDF5)', borderRadius:'12px', padding:'16px', border:'1px solid #BBF7D0' }}>
                           <div style={{ fontSize:'11px', fontWeight:700, color:'#059669', letterSpacing:'1px', marginBottom:'8px', textTransform:'uppercase' }}>Delivery</div>
                           <div style={{ fontSize:'13px', color:'#475569' }}>{p.delivery}</div>
                         </div>
                       </div>
-                      <div style={{ marginTop:'16px', background:'#F8FAFF', borderRadius:'12px', padding:'16px', border:'1px solid #E0E7FF' }}>
+                      <div style={{ marginTop:'16px', background:'linear-gradient(135deg,#F8FAFF,#F5F3FF)', borderRadius:'12px', padding:'16px', border:'1px solid #C7D2FE' }}>
                         <div style={{ fontSize:'11px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', marginBottom:'8px', textTransform:'uppercase' }}>📋 Selling Script (Copy & Send)</div>
                         <div style={{ fontSize:'13px', color:'#0F172A', lineHeight:1.8, fontStyle:'italic' }}>"{p.script}"</div>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(p.script) }}
-                        style={{ marginTop:'12px', padding:'10px 20px', background:'#4F46E5', border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
+                        style={{ marginTop:'12px', padding:'10px 20px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 8px 24px rgba(79,70,229,0.25)' }}>
                         📋 Copy Script & Launch
                       </button>
                     </div>
@@ -407,7 +407,7 @@ function LandingInner() {
           <div style={{ maxWidth:'600px', margin:'0 auto' }}>
             <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(165,180,252,0.7)', letterSpacing:'3px', textTransform:'uppercase', marginBottom:'16px' }}>START TODAY</div>
             <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,44px)', fontWeight:900, color:'#fff', margin:'0 0 14px', lineHeight:1.1 }}>
-              Your First R100<br/>
+              Your First R300 Online Business Income<br/>
               <span style={{ background:'linear-gradient(135deg,#A5B4FC,#C084FC)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
                 Starts Today
               </span>
