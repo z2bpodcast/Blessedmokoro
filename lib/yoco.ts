@@ -40,6 +40,7 @@ export const MEMBERSHIP_TIERS = {
       'Access premium content',
       'Priority support',
       'App or Website build included (x1)',
+      'API-ready stack enabled: Lovable AI, Claude, Synthesic, ElevenLabs, Gamma',
       'Bronze badge'
     ],
     salesBenefits: [
@@ -59,6 +60,7 @@ export const MEMBERSHIP_TIERS = {
       'Advanced training modules',
       'Monthly group coaching',
       'App or Website builds included (x2)',
+      'API-ready stack enabled: Lovable AI, Claude, Synthesic, ElevenLabs, Gamma',
       'Copper badge'
     ],
     salesBenefits: [
@@ -78,6 +80,7 @@ export const MEMBERSHIP_TIERS = {
       'Weekly mastermind access',
       'AI business tools',
       'App builds included (x4)',
+      'API-ready stack enabled: Lovable AI, Claude, Synthesic, ElevenLabs, Gamma',
       'Silver badge'
     ],
     salesBenefits: [
@@ -99,6 +102,7 @@ export const MEMBERSHIP_TIERS = {
       'App builds included (x5)',
       'Gold Pool profit sharing',
       '1 weekend boot camp',
+      'API-ready stack enabled: Lovable AI, Claude, Synthesic, ElevenLabs, Gamma',
       'Gold badge'
     ],
     salesBenefits: [
@@ -121,6 +125,7 @@ export const MEMBERSHIP_TIERS = {
       'Platinum Pool profit sharing',
       '1 weekend boot camp',
       '1-on-1 strategic business consultation (monthly x3)',
+      'API-ready stack enabled: Lovable AI, Claude, Synthesic, ElevenLabs, Gamma',
       'White-label opportunities',
       'VIP event access',
       'Platinum badge',

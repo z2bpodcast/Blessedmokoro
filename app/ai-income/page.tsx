@@ -10,8 +10,8 @@ import Link from 'next/link'
 import { FOURM_BRAND as FOURM, THEME as T } from './fourm-brand'
 
 // ── TYPES ─────────────────────────────────────────────────
-type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
-const FREE_TABS: readonly Tab[] = ['offer', 'finder', 'post']
+type Tab = 'offer'|'finder'|'post'|'product'|'reply'|'close'|'daily'|'referral'
+const FREE_TABS: readonly Tab[] = ['offer', 'finder', 'post', 'product']
 const isPremiumTab = (t: Tab) => !FREE_TABS.includes(t)
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
 
@@ -62,6 +62,10 @@ function AIIncomeInner() {
   // Post Generator
   const [offerDesc,    setOfferDesc]    = useState('')
   const [postType,     setPostType]     = useState<'whatsapp'|'facebook'|'dm'>('whatsapp')
+  const [productType,  setProductType]  = useState<'pdf'|'worksheet'|'guide'|'checklist'|'template'|'video'>('pdf')
+  const [productNiche, setProductNiche] = useState('')
+  const [productAudience, setProductAudience] = useState('')
+  const [productGoal,  setProductGoal]  = useState('')
 
   // Reply Helper
   const [replyContext, setReplyContext] = useState('')
@@ -209,6 +213,43 @@ Generate 2 versions so the user can choose. Label them VERSION A and VERSION B.`
     setResult(text); setAiLoading(false)
   }
 
+  const generateProduct = async () => {
+    if (!productNiche.trim() || !productGoal.trim()) return
+    setAiLoading(true); setResult('')
+    const formatMap: Record<string, string> = {
+      pdf: 'PDF eBook',
+      worksheet: 'Worksheet',
+      guide: 'Step-by-step Guide',
+      checklist: 'Checklist',
+      template: 'Template pack',
+      video: 'Video training outline',
+    }
+    const text = await callAI(`You are helping a beginner creator build a sellable digital product in South Africa.
+
+Product format: ${formatMap[productType]}
+Niche/topic: "${productNiche}"
+Target audience: "${productAudience || 'Beginners using a smartphone'}"
+Transformation goal: "${productGoal}"
+
+Important:
+- Include a "CHATGPT RESEARCH PROMPT" section with exact prompts they can paste into ChatGPT to research market pain points, objections, desired outcomes, and competitor offers.
+- Include a "PRODUCT CREATION PROMPT" section with exact prompts they can paste into ChatGPT to draft the product content.
+
+Return in this structure:
+1) PRODUCT NAME OPTIONS (3)
+2) PRODUCT POSITIONING (problem solved + who it is for)
+3) DETAILED OUTLINE (modules/pages/sections)
+4) CHATGPT RESEARCH PROMPT (copy-paste ready)
+5) CHATGPT PRODUCT CREATION PROMPT (copy-paste ready)
+6) FAST DELIVERY PLAN (how to create in 24 hours using smartphone tools)
+7) SELLING PRICE + OFFER STACK (entry, standard, premium)
+8) ONE-LINE SALES PITCH
+9) WHATSAPP LAUNCH MESSAGE
+
+Keep it practical, beginner-friendly, and execution-focused.`)
+    setResult(text); setAiLoading(false)
+  }
+
   const generateReply = async () => {
     setAiLoading(true); setResult('')
     const categories: Record<ReplyCategory, string> = {
@@ -346,11 +387,17 @@ Natural. Confident. Not pushy. South African context.`)
       <div style={{ fontSize:'52px', marginBottom:'12px' }}>🔒</div>
       <h2 style={{ fontSize:'20px', fontWeight:800, color:T.text, marginBottom:'10px', fontFamily:'Cinzel,Georgia,serif' }}>Upgrade to unlock</h2>
       <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'8px' }}>
-        <strong style={{ color:GOLD }}>First 3 tools are free:</strong> Offer, Finder &amp; Posts.
+        <strong style={{ color:GOLD }}>First 4 tools are free:</strong> Offer, Finder, Posts &amp; Product Builder.
       </p>
       <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'22px' }}>
         Replies, Closing, Daily Engine &amp; Referral Booster require the full <strong style={{ color:T.indigo }}>60-Day 4M program</strong> (R500).
       </p>
+      <div style={{ margin:'0 auto 18px', maxWidth:'460px', textAlign:'left', background:'rgba(234,179,8,0.08)', border:'1px solid rgba(234,179,8,0.35)', borderRadius:'12px', padding:'12px 14px' }}>
+        <div style={{ fontSize:'12px', fontWeight:800, color:GOLD, textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>Bronze upgrade nudge</div>
+        <div style={{ fontSize:'13px', color:'rgba(248,250,252,0.82)', lineHeight:1.65 }}>
+          Upgrade to <strong>Bronze</strong> to unlock premium AI features plus your <strong>PWA App Build support</strong> and API-ready growth stack.
+        </div>
+      </div>
       {payError && (
         <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
       )}
@@ -565,14 +612,14 @@ Natural. Confident. Not pushy. South African context.`)
           <div style={{ fontSize:'10px', fontWeight:600, color:T.goldDim, fontStyle:'italic' }}>{FOURM.lockupTagline}</div>
         </div>
         <div style={{ fontSize:'11px', color: unlocked ? 'rgba(16,185,129,0.95)' : T.indigo, fontWeight:700, textAlign:'right', maxWidth:'100px' }}>
-          {unlocked ? '✅ Full' : 'Free · 3'}
+          {unlocked ? '✅ Full' : 'Free · 4'}
         </div>
       </div>
 
       {!unlocked && (
         <div style={{ margin:'14px 16px 0', padding:'14px 18px', borderRadius:'14px', background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.35)' }}>
           <span style={{ fontSize:'13px', color:T.text, lineHeight:1.55 }}>
-            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder &amp; Posts — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
+            <strong style={{ color:GOLD }}>Free tier:</strong> Offer, Finder, Posts &amp; Product Builder — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
           </span>
         </div>
       )}
@@ -595,6 +642,7 @@ Natural. Confident. Not pushy. South African context.`)
           {tabBtn('offer',    '🧠', 'Offer')}
           {tabBtn('finder',   '📲', 'Finder')}
           {tabBtn('post',     '✍️', 'Posts')}
+          {tabBtn('product',  '📦', 'Product')}
           {tabBtn('reply',    '💬', 'Replies')}
           {tabBtn('close',    '💸', 'Close')}
           {tabBtn('daily',    '🔁', 'Daily')}
@@ -681,6 +729,60 @@ Natural. Confident. Not pushy. South African context.`)
                 <button onClick={() => navigator.clipboard.writeText(result)}
                   style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(76,29,149,0.15)', border:'1px solid rgba(76,29,149,0.3)', borderRadius:'8px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
                   📋 Copy Post
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── DIGITAL PRODUCT BUILDER (free) ── */}
+        {tab === 'product' && (
+          <div>
+            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📦 Digital Product Builder</h2>
+            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
+              Create sellable digital products (PDF, worksheet, guide, checklist, template, video training) with ChatGPT-powered research + creation prompts.
+            </p>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'12px' }}>
+              {([
+                ['pdf','📄 PDF'],
+                ['worksheet','🧾 Worksheet'],
+                ['guide','📘 Guide'],
+                ['checklist','✅ Checklist'],
+                ['template','🧩 Template'],
+                ['video','🎬 Video'],
+              ] as [typeof productType,string][]).map(([val,lbl]) => (
+                <button key={val} onClick={() => setProductType(val)}
+                  style={{ padding:'9px 10px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700,
+                    background: productType===val ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: productType===val ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
+                    color: productType===val ? GOLD : 'rgba(255,255,255,0.65)' }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'12px' }}>
+              <div>
+                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Niche / Topic *</label>
+                <input value={productNiche} onChange={e => setProductNiche(e.target.value)} placeholder="e.g. CV writing, weight loss meal prep, WhatsApp sales" style={inp} />
+              </div>
+              <div>
+                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Target Audience</label>
+                <input value={productAudience} onChange={e => setProductAudience(e.target.value)} placeholder="e.g. unemployed graduates in SA, salon owners, freelancers" style={inp} />
+              </div>
+              <div>
+                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Desired Result *</label>
+                <input value={productGoal} onChange={e => setProductGoal(e.target.value)} placeholder="e.g. get interviews in 14 days, close first 5 clients" style={inp} />
+              </div>
+            </div>
+            <button onClick={generateProduct} disabled={aiLoading || !productNiche.trim() || !productGoal.trim()} style={{ ...btn(), marginBottom:'16px', opacity: aiLoading || !productNiche.trim() || !productGoal.trim() ? 0.6 : 1 }}>
+              {aiLoading ? '🤖 Building your digital product...' : '📦 Build My Digital Product'}
+            </button>
+            {result && (
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(99,102,241,0.32)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
+                {result}
+                <button onClick={() => navigator.clipboard.writeText(result)}
+                  style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(99,102,241,0.15)', border:'1px solid rgba(99,102,241,0.3)', borderRadius:'8px', color:'#C7D2FE', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
+                  📋 Copy Product Pack
                 </button>
               </div>
             )}
