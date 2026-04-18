@@ -8,11 +8,11 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const TIER_CONFIG: Record<string, { amount:number; label:string; color:string; emoji:string; features:string[] }> = {
-  bronze:   { amount:480,   label:'Bronze',   color:'#CD7F32', emoji:'🥉', features:['All 99 sessions','ISP 18%','QPB bonus','Sales Funnel','Team commissions'] },
-  copper:   { amount:1200,  label:'Copper',   color:'#B87333', emoji:'🪙', features:['All 99 sessions','ISP 22%','QPB bonus','Sales Funnel','Team commissions'] },
-  silver:   { amount:2500,  label:'Silver',   color:'#C0C0C0', emoji:'🥈', features:['All 99 sessions','ISP 25%','QPB bonus','Sales Funnel','Team commissions'] },
-  gold:     { amount:5000,  label:'Gold',     color:'#D4AF37', emoji:'🥇', features:['All 99 sessions','ISP 28%','QPB bonus','Sales Funnel','Marketplace access'] },
-  platinum: { amount:12000, label:'Platinum', color:'#E5E4E2', emoji:'💎', features:['All 99 sessions','ISP 30%','QPB bonus','All features','Priority support'] },
+  bronze:   { amount:2500,  label:'Bronze',   color:'#CD7F32', emoji:'🥉', features:['All 99 sessions','ISP 18%','QPB bonus','Sales Funnel','Team commissions'] },
+  copper:   { amount:5000,  label:'Copper',   color:'#B87333', emoji:'🪙', features:['All 99 sessions','ISP 22%','QPB bonus','Sales Funnel','Team commissions'] },
+  silver:   { amount:12000, label:'Silver',   color:'#C0C0C0', emoji:'🥈', features:['All 99 sessions','ISP 25%','QPB bonus','Sales Funnel','Team commissions'] },
+  gold:     { amount:24000, label:'Gold',     color:'#D4AF37', emoji:'🥇', features:['All 99 sessions','ISP 28%','QPB bonus','Sales Funnel','Marketplace access'] },
+  platinum: { amount:50000, label:'Platinum', color:'#E5E4E2', emoji:'💎', features:['All 99 sessions','ISP 30%','QPB bonus','All features','Priority support'] },
 }
 
 function PayPageInner() {

@@ -224,19 +224,6 @@ function LandingInner() {
           <div style={{ marginTop:'8px', fontSize:'13px', color:'#94A3B8' }}>
             60-day access · R500/month to continue · Cancel anytime
           </div>
-          <div style={{ marginTop:'14px', textAlign:'left', background:'#fff', border:'1px solid #E2E8F0', borderRadius:'14px', padding:'14px 16px' }}>
-            <div style={{ fontSize:'12px', fontWeight:800, color:'#475569', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'1px' }}>
-              Alternative Payment Methods (No Card Needed)
-            </div>
-            <div style={{ fontSize:'13px', color:'#334155', lineHeight:1.75 }}>
-              <div><strong>🏦 EFT / 💵 ATM Cash Deposit</strong></div>
-              <div><strong>Account:</strong> {paymentHelp.account}</div>
-              <div><strong>Account Name:</strong> {paymentHelp.accountName}</div>
-              <div><strong>Bank:</strong> {paymentHelp.bank}</div>
-              <div><strong>Ref:</strong> Your Name</div>
-              <div><strong>WhatsApp Proof of Payment:</strong> {paymentHelp.proofWhatsApp}</div>
-            </div>
-          </div>
         </section>
 
         {/* ── FLOATING STATS ── */}
