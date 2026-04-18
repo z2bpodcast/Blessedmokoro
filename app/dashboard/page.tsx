@@ -615,11 +615,11 @@ function DashboardInner() {
               </p>
               <p className="text-gray-600 text-sm mt-0.5">
                 You're on <strong style={{ color: tierColor }}>{tier.toUpperCase()}</strong> — {
-                  tier === 'fam'     ? 'upgrade to Bronze (R480) to start earning commissions' :
-                  tier === 'bronze'  ? 'upgrade to Copper (R1,200) for 22% ISP + G4 TSC' :
-                  tier === 'copper'  ? 'upgrade to Silver (R2,500) for 25% ISP + G6 TSC' :
-                  tier === 'silver'  ? 'upgrade to Gold (R5,000) for 28% ISP + Marketplace access' :
-                  tier === 'gold'    ? 'upgrade to Platinum (R12,000) for 30% ISP + G10 TSC' : ''
+                  tier === 'fam'     ? 'upgrade to Bronze (R2,500) for app/website build + higher earning structure' :
+                  tier === 'bronze'  ? 'upgrade to Copper (R5,000) for 2 app/website builds + 22% ISP' :
+                  tier === 'copper'  ? 'upgrade to Silver (R12,000) for 4 app builds + 25% ISP' :
+                  tier === 'silver'  ? 'upgrade to Gold (R24,000) for 5 app builds + Gold Pool sharing' :
+                  tier === 'gold'    ? 'upgrade to Platinum (R50,000) for 7 app builds + strategic consultation' : ''
                 }
               </p>
             </div>

@@ -17,11 +17,12 @@ const YOCO_WEBHOOK_SECRET = process.env.YOCO_WEBHOOK_SECRET || ''
 const APP_URL             = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
 
 const AMOUNT_TO_TIER: Record<number, string> = {
-  480:   'bronze',
-  1200:  'copper',
-  2500:  'silver',
-  5000:  'gold',
-  12000: 'platinum',
+  500:   'fam',
+  2500:  'bronze',
+  5000:  'copper',
+  12000: 'silver',
+  24000: 'gold',
+  50000: 'platinum',
 }
 
 function verifyYocoSignature(rawBody: string, signature: string, secret: string): boolean {
@@ -266,13 +267,13 @@ export async function POST(req: NextRequest) {
     if (body.action === 'create_checkout') {
       const { user_id, ref_code, tier } = body
       const tierAmounts: Record<string,number> = {
-        bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000,
+        fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
         // Content Engine plans
         ce_starter: 400, ce_pro: 900,
         // AI Income Execution System
         ai_income: 500,
       }
-      const amountRands = tierAmounts[tier] || 480
+      const amountRands = tierAmounts[tier] || 500
       const isCECheckout = tier.startsWith('ce_')
       const cePlanName   = isCECheckout ? tier.replace('ce_','') : null
       const amountCents = amountRands * 100

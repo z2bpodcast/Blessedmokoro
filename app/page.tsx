@@ -1364,7 +1364,7 @@ export default function Home() {
                 <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-white/10">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded" style={{ background:'#FDE68A', border:'2px solid #D97706' }}/>
-                    <span className="text-yellow-300 text-xs font-black">BRONZE — R480 once-off · Start here · 18% ISP · QPB active · TSC to G3</span>
+                    <span className="text-yellow-300 text-xs font-black">BRONZE — R2,500 once-off · Start here · 18% ISP · QPB active · TSC to G3</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded" style={{ background:'#BFDBFE', border:'2px solid #3B82F6' }}/>
@@ -1388,7 +1388,7 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(120,53,15,0.15)' }}>
                 <p className="text-purple-200 leading-relaxed mb-6">
-                  Running the 4:4:5:4:15% ratio consistently. All projections based on Bronze sales at R480.
+                  Running the 4:4:5:4:15% ratio consistently. All projections based on Bronze sales at R2,500.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                   {[
@@ -1429,7 +1429,7 @@ export default function Home() {
                   {[
                     { step:'1', emoji:'🎓', title:'Start Free', desc:'Join the free workshop. No credit card. No pressure. 9 sessions free.' },
                     { step:'2', emoji:'🧠', title:'Learn & Grow', desc:'Complete the morning and evening sessions. Find your Purple Cow.' },
-                    { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R480 once-off. Card, EFT or ATM cash. No monthly fees. Ever.' },
+                    { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R2,500 once-off. Card, EFT or ATM cash. No monthly fees. Ever.' },
                     { step:'4', emoji:'🌳', title:'Build Your Table', desc:'Share your referral link. Help your first 4. Watch it multiply.' },
                   ].map((s, i) => (
                     <div key={i} className="rounded-2xl p-5 text-center border border-green-800/40" style={{ background: 'rgba(6,95,70,0.15)' }}>

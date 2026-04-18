@@ -9,17 +9,19 @@ export const YOCO_CONFIG = {
 
 export const MEMBERSHIP_TIERS = {
   fam: {
-    name: 'FAM',
-    fullName: 'Free Affiliate Marketer',
-    price: 0,
+    name: '4M Money Machine',
+    fullName: '4M Money Machine (Entry Digital Product)',
+    price: 500,
     currency: 'ZAR',
     trainingBenefits: [
-      'Basic access to feed',
-      'Create personal channel',
-      'Earn referral commissions',
-      'Access public content'
+      'AI Income execution starter access',
+      'Smartphone-based income activation',
+      'Digital product onboarding',
+      '4M launch support resources'
     ],
     salesBenefits: [
+      'R200 for every 4M Money Machine you sell',
+      'SALES & MARKETING: R200 for every SALES & MARKETING',
       '10% Individual Sales Profit (ISP)',
       'Promote Z2B products & memberships',
       'No Team Performance Bonus (TPB)',
@@ -31,12 +33,13 @@ export const MEMBERSHIP_TIERS = {
   },
   bronze: {
     name: 'Bronze',
-    price: 480,
+    price: 2500,
     currency: 'ZAR',
     trainingBenefits: [
       'All FAM benefits',
       'Access premium content',
       'Priority support',
+      'App or Website build included (x1)',
       'Bronze badge'
     ],
     salesBenefits: [
@@ -49,12 +52,13 @@ export const MEMBERSHIP_TIERS = {
   },
   copper: {
     name: 'Copper',
-    price: 1200,
+    price: 5000,
     currency: 'ZAR',
     trainingBenefits: [
       'All Bronze benefits',
       'Advanced training modules',
       'Monthly group coaching',
+      'App or Website builds included (x2)',
       'Copper badge'
     ],
     salesBenefits: [
@@ -67,13 +71,13 @@ export const MEMBERSHIP_TIERS = {
   },
   silver: {
     name: 'Silver',
-    price: 2500,
+    price: 12000,
     currency: 'ZAR',
     trainingBenefits: [
       'All Copper benefits',
       'Weekly mastermind access',
       'AI business tools',
-      'App brainstorming & building (x1)',
+      'App builds included (x4)',
       'Silver badge'
     ],
     salesBenefits: [
@@ -87,13 +91,14 @@ export const MEMBERSHIP_TIERS = {
   },
   gold: {
     name: 'Gold',
-    price: 5000,
+    price: 24000,
     currency: 'ZAR',
     trainingBenefits: [
       'All Silver benefits',
       'Marketplace seller access',
-      '1-on-1 coaching sessions',
-      'App brainstorming & building (x2)',
+      'App builds included (x5)',
+      'Gold Pool profit sharing',
+      '1 weekend boot camp',
       'Gold badge'
     ],
     salesBenefits: [
@@ -108,13 +113,16 @@ export const MEMBERSHIP_TIERS = {
   },
   platinum: {
     name: 'Platinum',
-    price: 12000,
+    price: 50000,
     currency: 'ZAR',
     trainingBenefits: [
       'All Gold benefits',
+      'App builds included (x7)',
+      'Platinum Pool profit sharing',
+      '1 weekend boot camp',
+      '1-on-1 strategic business consultation (monthly x3)',
       'White-label opportunities',
       'VIP event access',
-      'App brainstorming & building (x4)',
       'Platinum badge',
       'Exclusive CEO mastermind'
     ],

@@ -456,7 +456,7 @@ Natural. Confident. Not pushy. South African context.`)
         <div style={{ background:'rgba(79,70,229,0.06)', border:`1px solid ${T.guestBorder}`, borderRadius:'14px', padding:'16px 20px', marginBottom:'28px' }}>
           <div style={{ fontSize:'12px', color:T.guestViolet, marginBottom:'8px', fontWeight:700 }}>🚀 WHERE THIS LEADS</div>
           <p style={{ fontSize:'13px', color:T.guestSub, margin:0, lineHeight:1.7 }}>
-            Once you make your first income with this system — you are ready for the full Z2B Table Banquet ecosystem. Bronze membership (R480) unlocks 99 workshop sessions, network marketing income, and business systems that work while you sleep.
+            Once you make your first income with this system — you are ready for the full Z2B Table Banquet ecosystem. Bronze membership (R2,500) unlocks 99 workshop sessions, network marketing income, and business systems that work while you sleep.
           </p>
         </div>
 

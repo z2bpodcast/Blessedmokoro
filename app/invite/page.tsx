@@ -44,11 +44,11 @@ function InvitePage() {
   }, [ref])
 
   const tierAmounts: Record<string,number> = {
-    bronze:480, copper:1200, silver:2500, gold:5000, platinum:12000
+    bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
   }
 
   const openModal = (name: string, price: string) => {
-    setSelTier({ name, price, amount: tierAmounts[name.toLowerCase()] || 480 })
+    setSelTier({ name, price, amount: tierAmounts[name.toLowerCase()] || 2500 })
     setStep('register')
     setFullName(''); setEmail(''); setWhatsapp('')
     setModalError(''); setModalLoading(false)

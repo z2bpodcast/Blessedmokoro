@@ -83,6 +83,12 @@ function LandingInner() {
   }, [ref])
 
   const aiIncomeLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/ai-income/landing?ref=${ref}`
+  const paymentHelp = {
+    account: '1318257727',
+    accountName: 'Zero2Billionaires Amavuladlela Pty Ltd',
+    bank: 'Nedbank',
+    proofWhatsApp: '+27 (0)77 490 1639',
+  }
 
   const handlePay = async () => {
     if (!user) { setShowReg(true); return }
@@ -218,11 +224,24 @@ function LandingInner() {
           <div style={{ marginTop:'8px', fontSize:'13px', color:'#94A3B8' }}>
             60-day access · R500/month to continue · Cancel anytime
           </div>
+          <div style={{ marginTop:'14px', textAlign:'left', background:'#fff', border:'1px solid #E2E8F0', borderRadius:'14px', padding:'14px 16px' }}>
+            <div style={{ fontSize:'12px', fontWeight:800, color:'#475569', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'1px' }}>
+              Alternative Payment Methods (No Card Needed)
+            </div>
+            <div style={{ fontSize:'13px', color:'#334155', lineHeight:1.75 }}>
+              <div><strong>🏦 EFT / 💵 ATM Cash Deposit</strong></div>
+              <div><strong>Account:</strong> {paymentHelp.account}</div>
+              <div><strong>Account Name:</strong> {paymentHelp.accountName}</div>
+              <div><strong>Bank:</strong> {paymentHelp.bank}</div>
+              <div><strong>Ref:</strong> Your Name</div>
+              <div><strong>WhatsApp Proof of Payment:</strong> {paymentHelp.proofWhatsApp}</div>
+            </div>
+          </div>
         </section>
 
         {/* ── FLOATING STATS ── */}
         <section style={{ maxWidth:'900px', margin:'0 auto', padding:'0 24px 56px' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px' }}>
             {[
               { icon:'🤖', val:'7', label:'AI Modules', sub:'All included', color:'#4F46E5' },
               { icon:'💰', val:'R300', label:'Daily Target', sub:'Achievable in 60 days', color:'#059669' },
@@ -245,7 +264,7 @@ function LandingInner() {
               <div style={{ fontSize:'11px', fontWeight:700, color:'#4F46E5', letterSpacing:'3px', textTransform:'uppercase', marginBottom:'12px' }}>COMPLETE SYSTEM</div>
               <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,4vw,36px)', fontWeight:900, color:'#0F172A', margin:0 }}>Everything You Need to Earn Today</h2>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'16px' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px' }}>
               {[
                 { icon:'🧠', title:'AI Offer Generator', desc:'Creates your personalised sellable offer from your existing skills', color:'#4F46E5' },
                 { icon:'📲', title:'AI Customer Finder', desc:'Exact strategy to find paying customers on WhatsApp and Facebook', color:'#7C3AED' },
@@ -270,7 +289,7 @@ function LandingInner() {
 
         {/* ── COACH MANLAW SECTION ── */}
         <section style={{ maxWidth:'900px', margin:'0 auto', padding:'64px 24px' }}>
-          <div style={{ background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'24px', padding:'48px 40px', color:'#fff', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'40px', alignItems:'center' }}>
+          <div style={{ background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'24px', padding:'48px 24px', color:'#fff', display:'grid', gridTemplateColumns:'1fr', gap:'24px', alignItems:'start' }}>
             <div>
               <div style={{ fontSize:'11px', fontWeight:700, letterSpacing:'3px', color:'rgba(255,255,255,0.6)', marginBottom:'12px', textTransform:'uppercase' }}>AI COACH</div>
               <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, margin:'0 0 16px', lineHeight:1.2 }}>🤖 Coach Manlaw<br/>The Executor</h2>
@@ -325,7 +344,7 @@ function LandingInner() {
                   </div>
                   {activeProduct === i && (
                     <div style={{ padding:'0 24px 24px', borderTop:'1px solid #F1F5F9' }}>
-                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginTop:'16px' }}>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px', marginTop:'16px' }}>
                         <div style={{ background:'#F8FAFF', borderRadius:'12px', padding:'16px' }}>
                           <div style={{ fontSize:'11px', fontWeight:700, color:'#4F46E5', letterSpacing:'1px', marginBottom:'8px', textTransform:'uppercase' }}>Problem You Solve</div>
                           <div style={{ fontSize:'13px', color:'#475569' }}>{p.problem}</div>
@@ -357,7 +376,7 @@ function LandingInner() {
           <div style={{ textAlign:'center', marginBottom:'40px' }}>
             <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,4vw,36px)', fontWeight:900, color:'#0F172A', margin:0 }}>Price vs Cost</h2>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'24px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'24px' }}>
             <div style={{ background:'linear-gradient(135deg,#F0FDF4,#DCFCE7)', borderRadius:'20px', padding:'32px', border:'2px solid #86EFAC' }}>
               <div style={{ fontSize:'13px', fontWeight:700, color:'#059669', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'16px' }}>💵 THE PRICE</div>
               <div style={{ fontSize:'40px', fontWeight:900, color:'#059669', fontFamily:'Cinzel,Georgia,serif', marginBottom:'8px' }}>R500</div>
@@ -411,6 +430,13 @@ function LandingInner() {
               style={{ padding:'20px 52px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', border:'none', borderRadius:'16px', color:'#fff', fontWeight:700, fontSize:'18px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:'0 12px 48px rgba(79,70,229,0.5)', opacity:paying?0.7:1, transition:'all 0.2s', display:'block', width:'100%', maxWidth:'400px', margin:'0 auto 16px' }}>
               {paying ? 'Setting up payment...' : '⚡ Deploy Myself — Start 60-Day Program (R500)'}
             </button>
+            <div style={{ textAlign:'left', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:'12px', padding:'12px 14px', maxWidth:'460px', margin:'0 auto 14px' }}>
+              <div style={{ fontSize:'12px', fontWeight:800, color:'#C7D2FE', marginBottom:'6px', textTransform:'uppercase' }}>No Card? Use EFT / ATM</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.7 }}>
+                Acc: {paymentHelp.account} · {paymentHelp.accountName} · {paymentHelp.bank}<br/>
+                Ref: Your Name · WhatsApp proof: {paymentHelp.proofWhatsApp}
+              </div>
+            </div>
             <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
               Already a member? <Link href="/login?redirect=/ai-income" style={{ color:'#A5B4FC', textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
             </div>

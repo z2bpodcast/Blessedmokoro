@@ -10,7 +10,7 @@ import { MEMBERSHIP_TIERS, YOCO_CONFIG, formatCurrency } from '@/lib/yoco'
 declare global { interface Window { YocoSDK: any } }
 
 const BANK = {
-  accountName:   'Zero2billionaires Amavulandlela',
+  accountName:   'Zero2Billionaires Amavuladlela Pty Ltd',
   accountNumber: '1318257727',
   bank:          'NEDBANK',
 }
@@ -229,14 +229,14 @@ export default function PricingPage() {
     { label:'TPB Generations',   vals:['None','Gen 3','Gen 4','Gen 6','Gen 8','Gen 10'] },
     { label:'QPB Eligible',      vals:['✗','✓','✓','✓','✓','✓'] },
     { label:'CEO Awards',        vals:['✗','✗','✗','✓','✓','✓'] },
-    { label:'Workshop Sessions', vals:['1–9','1–99','1–99','1–99','1–99','1–99'] },
+  { label:'Workshop Sessions', vals:['4M Core','1–99','1–99','1–99','1–99','1–99'] },
     { label:'Coach Manlaw AI',   vals:['3/sess','∞','∞','∞','∞','∞'] },
     { label:'Vision Board',      vals:['View','Full','Full','Full','Full','Full'] },
     { label:'GroundBreaker',     vals:['✓','✓','✓','✓','✓','✓'] },
     { label:'TableBuilder',      vals:['✗','✓','✓','✓','✓','✓'] },
     { label:'My Sales Funnel',     vals:['✗','✓','✓','✓','✓','✓'] },
     { label:'Marketplace',       vals:['✗','✗','✗','✗','✓','✓'] },
-    { label:'App Building',      vals:['✗','✗','✗','x1','x2','x4'] },
+  { label:'App / Website Build', vals:['✗','x1','x2','x4','x5','x7'] },
     { label:'1-on-1 Coaching',   vals:['✗','✗','✗','✗','✓','✓'] },
     { label:'White-label',       vals:['✗','✗','✗','✗','✗','✓'] },
     { label:'CEO Mastermind',    vals:['✗','✗','✗','✗','✗','✓'] },
@@ -345,9 +345,9 @@ export default function PricingPage() {
                         <li key={i} className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">{b}</span></li>
                       ))}
                       {key==='fam' && <>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎓 Sessions 1–9 free forever</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🤖 Coach Manlaw AI — 3/session</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🌱 GroundBreaker dashboard</span></li>
+                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🤖 4M Money Machine entry digital product</span></li>
+                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">📱 AI-powered smartphone income starter system</span></li>
+                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎯 Sales-ready onboarding + launch support</span></li>
                       </>}
                       {key!=='fam' && <>
                         <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎓 All 99 Sessions — lifetime</span></li>
@@ -412,6 +412,13 @@ export default function PricingPage() {
 
                   <div className="mb-5 bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
                     <h4 className="text-xs font-bold text-purple-700 mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4"/>SALES & MARKETING</h4>
+                    {key === 'fam' && (
+                      <div className="mb-3 rounded-lg border-2 border-yellow-400 bg-yellow-50 p-3 text-center">
+                        <div className="text-xs font-black text-yellow-700 tracking-widest">FLAGSHIP BENEFIT</div>
+                        <div className="text-2xl font-black text-yellow-800 mt-1">R200</div>
+                        <div className="text-sm font-bold text-yellow-700">for every 4M Money Machine you sell</div>
+                      </div>
+                    )}
                     <ul className="space-y-2">
                       {tier.salesBenefits.map((b: string, i: number) => (
                         <li key={i} className="flex items-start gap-2 text-sm"><DollarSign className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">{b}</span></li>
