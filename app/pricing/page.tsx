@@ -1,4 +1,7 @@
 'use client'
+// FILE: app/pricing/page.tsx
+// Z2B Pricing — 4M Machine Power tiers
+// 🚗 Manual Power · ⚙️ Automatic Power · ⚡ Electric Power
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -10,9 +13,142 @@ import { MEMBERSHIP_TIERS, YOCO_CONFIG, formatCurrency } from '@/lib/yoco'
 declare global { interface Window { YocoSDK: any } }
 
 const BANK = {
-  accountName:   'Zero2Billionaires Amavuladlela Pty Ltd',
+  accountName:   'Zero2billionaires Amavulandlela',
   accountNumber: '1318257727',
   bank:          'NEDBANK',
+}
+
+// ── MACHINE POWER GROUPS ─────────────────────────────────────────────────────
+const MACHINE_POWERS = [
+  {
+    id:    'manual',
+    icon:  '🚗',
+    label: 'Manual Power',
+    sub:   'You drive everything yourself',
+    color: '#4C1D95',
+    bg:    '#F3F0FF',
+    border:'#7C3AED',
+    tiers: ['fam','bronze','copper'],
+    truth: 'This is where you build your first income foundation. Slower. Requires effort. Builds real understanding.',
+    cta:   'Start Manual Power',
+  },
+  {
+    id:    'automatic',
+    icon:  '⚙️',
+    label: 'Automatic Power',
+    sub:   'The system starts helping you drive',
+    color: '#0891B2',
+    bg:    '#F0F9FF',
+    border:'#0891B2',
+    tiers: ['silver'],
+    truth: 'From struggle to FLOW. Your 4M Machine starts working WITH you.',
+    cta:   'Activate Automatic Power',
+  },
+  {
+    id:    'electric',
+    icon:  '⚡',
+    label: 'Electric Power',
+    sub:   'The system drives most of the journey',
+    color: '#B8860B',
+    bg:    '#FFFBEB',
+    border:'#D4AF37',
+    tiers: ['gold','platinum'],
+    truth: 'Your income runs daily with minimal effort. Multiple streams. Platform leverage.',
+    cta:   'Scale to Electric Power',
+  },
+]
+
+// ── 4M OFFERS PER TIER (override/extend existing) ────────────────────────────
+const FOUR_M_OFFERS: Record<string, string[]> = {
+  fam: [
+    '🤖 Z2B 4M Machine — Manual Mode (Free Preview)',
+    '🧠 AI Offer Generator — 3 uses',
+    '📲 AI Customer Finder — 3 uses',
+    '🎓 Workshop Sessions 1–9 free forever',
+    '🤖 Coach Manlaw AI — 3/session',
+  ],
+  bronze: [
+    '🚗 Z2B 4M Machine — Manual Power FULL',
+    '🧠 AI Offer Generator — unlimited',
+    '📲 AI Customer Finder — unlimited',
+    '✍️ AI Post Generator — unlimited',
+    '💬 AI Reply System — unlimited',
+    '💸 AI Closing Assistant — unlimited',
+    '🔁 Daily R300/Day Engine — full',
+    '📦 5 Plug-and-Play Digital Products',
+    '🔗 Referral Income — R200/referral',
+    '🎓 All 99 Workshop Sessions',
+    '🤖 Coach Manlaw AI — unlimited',
+    '🏗️ 1 PWA App Built for You',
+  ],
+  copper: [
+    '🚗 Z2B 4M Machine — Manual Power FULL',
+    '🧠 All AI tools — unlimited',
+    '📦 5 Plug-and-Play Digital Products + 10 Bonus Products',
+    '🔗 Referral Income — R200/referral',
+    '🎓 All 99 Workshop Sessions',
+    '🤖 Coach Manlaw AI — unlimited',
+    '🏗️ 2 PWA Apps Built for You',
+    '🏠 Household Expenses Programme',
+    '📊 My Sales Funnel — Full Access',
+  ],
+  silver: [
+    '⚙️ Z2B 4M Machine — Automatic Power FULL',
+    '🧠 All AI tools — unlimited',
+    '🔁 Product Multiplication Engine — 1 idea → 5 products',
+    '🚀 1-Click Launch Pack — WhatsApp + Facebook + DM',
+    '📅 5-Day Follow-Up Sequences — automated',
+    '📦 5 Plug-and-Play Products + 15 Bonus Products',
+    '🔗 Referral Income — R200/referral',
+    '🎓 All 99 Workshop Sessions',
+    '🤖 Coach Manlaw AI — unlimited',
+    '🏗️ 2 PWA Apps Built for You',
+    '📊 Full Sales Funnel System',
+    '📧 9-Day Nurture Engine',
+    '🎬 Content Studio + AI',
+  ],
+  gold: [
+    '⚡ Z2B 4M Machine — Electric Power FULL',
+    '🧠 All AI tools — unlimited',
+    '🔁 Full Automation Blueprints',
+    '🎥 AI Video Avatar for lead generation',
+    '📅 Automated follow-up sequences — daily',
+    '📦 5 Products + 20 Bonus Products',
+    '🔗 Referral Income — R200/referral + Gold Pool',
+    '🎓 All 99 Workshop Sessions',
+    '🤖 Coach Manlaw AI — unlimited + Priority',
+    '🏗️ 5 PWA Apps Built for You',
+    '📊 Full Sales Funnel + Multiple Income Streams',
+    '👤 1-on-1 Coaching',
+    '🎪 1 Weekend Bootcamp',
+    '💰 Gold Pool Profit Sharing',
+  ],
+  platinum: [
+    '⚡ Z2B 4M Machine — Electric Power MAX',
+    '🧠 All AI tools — unlimited',
+    '🔁 Full automation — all systems active',
+    '🎥 AI Video Avatar — full deployment',
+    '📦 5 Products + 25 Bonus Products + White-Label Rights',
+    '🔗 Referral Income — R200/referral + Platinum Pool',
+    '🎓 All 99 Workshop Sessions',
+    '🤖 Coach Manlaw AI — unlimited + CEO Priority',
+    '🏗️ 7 PWA Apps Built for You',
+    '📊 Full platform — multiple income streams',
+    '👤 1-on-1 Coaching — 3 months monthly',
+    '🎪 1 Weekend Bootcamp',
+    '💰 Platinum Pool Profit Sharing',
+    '🏷️ White-Label Platform License',
+    '👑 CEO Mastermind Access',
+  ],
+}
+
+const BONUS_OFFERS: Record<string, string[]> = {
+  fam: [],
+  bronze: ['📊 My Sales Funnel — View only', '🌱 GroundBreaker Dashboard', '🎯 Vision Board — full'],
+  copper: ['🌱 GroundBreaker Dashboard', '🎯 Vision Board — full', '🏛️ TableBuilder Dashboard', '📧 9-Day Nurture Engine'],
+  silver: ['🌱 GroundBreaker Dashboard', '🎯 Vision Board — full', '🏛️ TableBuilder Dashboard', '💬 WhatsApp Launcher', '📅 Content Calendar', '🔔 Prospect Notifications'],
+  gold: ['🌱 GroundBreaker Dashboard', '🏛️ TableBuilder Dashboard', '📅 Content Calendar', '🔔 Prospect Notifications', '📱 Content Studio+', '🏪 Marketplace Access'],
+  platinum: ['🌱 GroundBreaker Dashboard', '🏛️ TableBuilder Dashboard', '📅 Content Calendar', '🔔 Prospect Notifications', '📱 Content Studio+', '🏪 Marketplace Access', '🛡️ CEO Admin Access'],
 }
 
 const TIER_COLORS: Record<string,string> = {
@@ -20,56 +156,52 @@ const TIER_COLORS: Record<string,string> = {
   silver:'#C0C0C0', gold:'#D4AF37', platinum:'#E5E4E2',
 }
 
-const ISP_RATES: Record<string,number> = {
-  fam:0.10, bronze:0.18, copper:0.22, silver:0.25, gold:0.28, platinum:0.30
+const TIER_PRICES: Record<string,number> = {
+  fam:0, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
+}
+
+const TIER_LABELS: Record<string,string> = {
+  fam:'4M Free Preview', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
 }
 
 export default function PricingPage() {
-  const [user,             setUser]             = useState<any>(null)
-  const [currentTier,      setCurrentTier]      = useState<string>('fam')
-  const [loading,          setLoading]          = useState(false)
-  const [selectedTier,     setSelectedTier]     = useState<string|null>(null)
-  const [showModal,        setShowModal]        = useState(false)
-  const [paymentMethod,    setPaymentMethod]    = useState<'card'|'bank'|'atm'|null>(null)
-  const [copied,           setCopied]           = useState<string|null>(null)
-  const [openFaq,          setOpenFaq]          = useState<number|null>(null)
-  const [showCompare,      setShowCompare]      = useState(false)
-  const [refCode,          setRefCode]          = useState('')
-  const [email,            setEmail]            = useState('')
+  const [user,          setUser]          = useState<any>(null)
+  const [currentTier,   setCurrentTier]   = useState<string>('fam')
+  const [loading,       setLoading]       = useState(false)
+  const [selectedTier,  setSelectedTier]  = useState<string|null>(null)
+  const [showModal,     setShowModal]     = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'card'|'bank'|'atm'|null>(null)
+  const [copied,        setCopied]        = useState<string|null>(null)
+  const [openFaq,       setOpenFaq]       = useState<number|null>(null)
+  const [showCompare,   setShowCompare]   = useState(false)
+  const [activePower,   setActivePower]   = useState<string|null>(null)
+  const [refCode,       setRefCode]       = useState('')
+  const [email,         setEmail]         = useState('')
   const router = useRouter()
 
   useEffect(() => {
-    // Load user + referral + email from localStorage
     const savedEmail = localStorage.getItem('z2b_workshop_email') || ''
     const savedRef   = localStorage.getItem('z2b_ref') || ''
     setEmail(savedEmail)
     setRefCode(savedRef)
-
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       if (user) {
         supabase.from('profiles').select('user_role, paid_tier').eq('id', user.id).single()
           .then(({ data }) => { if (data) setCurrentTier(data.paid_tier || data.user_role || 'fam') })
-
-        // Auto-open payment modal if returning from login with ?autoopen=tier
         const params = new URLSearchParams(window.location.search)
         const autoOpen = params.get('autoopen')
-        if (autoOpen && MEMBERSHIP_TIERS[autoOpen as keyof typeof MEMBERSHIP_TIERS]) {
-          setTimeout(() => {
-            setSelectedTier(autoOpen)
-            setPaymentMethod(null)
-            setShowModal(true)
-          }, 600)
-        }
+        if (autoOpen) { setTimeout(() => { setSelectedTier(autoOpen); setShowModal(true) }, 600) }
       }
     })
-
-    // Load Yoco SDK
+    // Check if coming from ?compare=true or ?power=manual|automatic|electric
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('compare') === 'true') setShowCompare(true)
+    const power = params.get('power')
+    if (power) setActivePower(power)
     if (!document.getElementById('yoco-sdk')) {
       const s = document.createElement('script')
-      s.id = 'yoco-sdk'
-      s.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js'
-      s.async = true
+      s.id = 'yoco-sdk'; s.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js'; s.async = true
       document.body.appendChild(s)
     }
   }, [])
@@ -77,369 +209,314 @@ export default function PricingPage() {
   const reference = user?.id?.slice(0,8) || email?.slice(0,8) || 'Z2BMEMBER'
 
   const openPayment = (tierKey: string) => {
-    const tier = MEMBERSHIP_TIERS[tierKey as keyof typeof MEMBERSHIP_TIERS]
-    if (tier.price === 0) { router.push('/workshop'); return }
-
-    // Must be logged in to upgrade
-    if (!user) {
-      router.push(`/login?redirect=/pay?tier=${tierKey}`)
-      return
-    }
-
-    // Route directly to PayFast payment page
-    router.push(`/pay?tier=${tierKey}`)
-  }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setSelectedTier(null)
+    if (TIER_PRICES[tierKey] === 0) { router.push('/workshop'); return }
+    if (!user) { router.push(`/login?redirect=/pricing?autoopen=${tierKey}`); return }
+    setSelectedTier(tierKey)
     setPaymentMethod(null)
+    setShowModal(true)
   }
 
-  const copy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text)
-    setCopied(field)
-    setTimeout(() => setCopied(null), 2000)
-  }
+  const closeModal = () => { setShowModal(false); setSelectedTier(null); setPaymentMethod(null) }
 
-  // ── PayFast — redirect to /pay ──
-  const payByPayFast = () => {
-    if (!selectedTier) return
-    if (!user) {
-      router.push(`/login?redirect=/pay?tier=${selectedTier}`)
-      return
-    }
-    // Route directly to PayFast payment page
-    router.push(`/pay?tier=${selectedTier}`)
-  }
-
-  // ── CARD: Yoco popup → on success → /register/complete ──
   const payByCard = async () => {
     if (!selectedTier) return
-    const tier = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
+    const price = TIER_PRICES[selectedTier]
     setLoading(true)
     try {
-      const yoco = new window.YocoSDK({ publicKey: YOCO_CONFIG.publicKey })
-      yoco.showPopup({
-        amountInCents: tier.price * 100,
-        currency:      'ZAR',
-        name:          `Z2B ${tier.name} — Lifetime Membership`,
-        description:   `Z2B Table Banquet ${tier.name} Tier`,
-        callback: async (result: any) => {
-          if (result.error) {
-            alert('Payment failed. Please try again.')
-            setLoading(false)
-            return
-          }
-
-          // Record payment in Supabase
-          const { data: payRec } = await supabase.from('payments').insert({
-            user_id:          user?.id || null,
-            email:            email || user?.email || null,
-            tier:             selectedTier,
-            amount:           tier.price,
-            currency:         'ZAR',
-            payment_provider: 'yoco',
-            payment_id:       result.id,
-            status:           'completed',
-            payment_type:     'tier_upgrade',
-            metadata:         { referred_by: refCode },
-          }).select().single()
-
-          // If already logged in — update profile immediately
-          if (user) {
-            await supabase.from('profiles').update({
-              paid_tier:      selectedTier,
-              is_paid_member: true,
-              payment_status: 'paid',
-              paid_at:        new Date().toISOString(),
-            }).eq('id', user.id)
-            closeModal()
-            router.push(`/dashboard?upgraded=${selectedTier}`)
-            return
-          }
-
-          // Not logged in → go to membership form
-          closeModal()
-          router.push(`/register/complete?payment_id=${(payRec as any)?.id || result.id}&tier=${selectedTier}`)
-        }
+      const res = await fetch('/api/yoco', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'create_checkout', user_id:user.id, tier:selectedTier }),
       })
-    } catch {
-      alert('Card payment unavailable. Please try EFT or ATM Cash Deposit.')
-      setLoading(false)
-    }
+      const data = await res.json()
+      if (data.checkoutUrl) { window.location.href = data.checkoutUrl }
+      else { alert('Card payment setup failed. Please try EFT.'); setLoading(false) }
+    } catch { alert('Card payment unavailable. Please try EFT.'); setLoading(false) }
   }
 
-  // ── EFT / ATM: record pending payment ──
   const recordManualPayment = async (method: 'bank'|'atm') => {
     if (!selectedTier) return
-    const tier     = MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS]
     const provider = method === 'atm' ? 'atm_deposit' : 'bank_transfer'
-
     const { data: payRec } = await supabase.from('payments').insert({
-      user_id:          user?.id || null,
-      email:            email || user?.email || null,
-      tier:             selectedTier,
-      amount:           tier.price,
-      currency:         'ZAR',
-      payment_provider: provider,
-      payment_id:       `${provider.toUpperCase()}_${reference}_${Date.now()}`,
-      status:           'pending',
-      payment_type:     'tier_upgrade',
-      metadata:         { referred_by: refCode, reference },
+      user_id: user?.id || null, email: email || user?.email || null,
+      tier: selectedTier, amount: TIER_PRICES[selectedTier], currency: 'ZAR',
+      payment_provider: provider, payment_id: `${provider.toUpperCase()}_${reference}_${Date.now()}`,
+      status: 'pending', payment_type: 'tier_upgrade', metadata: { referred_by: refCode, reference },
     }).select().single()
-
     closeModal()
-
     if (user) {
-      // Existing member — update tier to pending, go to dashboard
-      await supabase.from('profiles').update({
-        paid_tier:      selectedTier,
-        payment_status: 'pending',
-      }).eq('id', user.id)
+      await supabase.from('profiles').update({ paid_tier: selectedTier, payment_status: 'pending' }).eq('id', user.id)
       router.push(`/dashboard?upgrade=${selectedTier}&pending=true`)
     } else {
-      // New prospect — light signup then dashboard
       router.push(`/register/complete?payment_id=${(payRec as any)?.id || 'pending'}&tier=${selectedTier}&method=pending`)
     }
   }
 
-  const selTier = selectedTier ? MEMBERSHIP_TIERS[selectedTier as keyof typeof MEMBERSHIP_TIERS] : null
-
-  const getTierIcon = (key: string) => {
-    if (key === 'platinum') return <Crown className="w-8 h-8" />
-    if (key === 'gold')     return <Sparkles className="w-8 h-8" />
-    if (key === 'silver')   return <Zap className="w-8 h-8" />
-    return <Check className="w-8 h-8" />
+  const copy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text); setCopied(field); setTimeout(() => setCopied(null), 2000)
   }
+
+  // ── COMPARISON DATA ───────────────────────────────────────────────────────
+  const COMPARE_ROWS = [
+    { label:'Price',               manual:['Free','R2,500','R5,000'],       auto:['R12,000'],          electric:['R24,000','R50,000'] },
+    { label:'4M Machine Mode',     manual:['Free Preview','Manual Full','Manual Full'], auto:['Automatic Full'], electric:['Electric Full','Electric MAX'] },
+    { label:'AI Tools',            manual:['3 uses','Unlimited','Unlimited'], auto:['Unlimited'],        electric:['Unlimited','Unlimited'] },
+    { label:'Digital Products',    manual:['0','5 Products','5+10 Bonus'],  auto:['5+15 Bonus'],       electric:['5+20 Bonus','5+25 Bonus'] },
+    { label:'Referral Income',     manual:['—','R200','R200'],              auto:['R200'],             electric:['R200 + Gold Pool','R200 + Plat Pool'] },
+    { label:'Workshop Sessions',   manual:['1–9','All 99','All 99'],        auto:['All 99'],           electric:['All 99','All 99'] },
+    { label:'Coach Manlaw',        manual:['3/sess','Unlimited','Unlimited'], auto:['Unlimited'],      electric:['Priority','CEO Priority'] },
+    { label:'PWA Apps Built',      manual:['0','1','2'],                    auto:['2'],                electric:['5','7'] },
+    { label:'Automation',          manual:['—','—','—'],                    auto:['Begins here ⚙️'],   electric:['Full ⚡','Full MAX ⚡'] },
+    { label:'1-on-1 Coaching',     manual:['—','—','—'],                    auto:['—'],                electric:['✓','3 months'] },
+    { label:'Bootcamp',            manual:['—','—','—'],                    auto:['—'],                electric:['1 Weekend','1 Weekend'] },
+    { label:'Profit Sharing',      manual:['—','—','—'],                    auto:['—'],                electric:['Gold Pool','Platinum Pool'] },
+    { label:'White-Label License', manual:['—','—','—'],                    auto:['—'],                electric:['—','✓'] },
+  ]
 
   const FAQS = [
     { q:'Is this really lifetime access?',      a:'Yes. Pay once, access forever. No monthly fees, ever.' },
     { q:'Can I pay via bank transfer?',         a:'Yes. We accept card (instant activation), bank EFT and ATM cash deposit (both activated within 24 hours after verification).' },
     { q:'Can I pay cash at an ATM?',            a:'Yes. Choose ATM Cash Deposit, deposit at any Nedbank ATM using the account number and your reference code. Activates within 24 hours.' },
-    { q:'What are the Builder Rules?',          a:'Our Builder Rules outline commission structure, activity requirements and policies. View the full details via the link on each tier card.' },
+    { q:'What is the 4M Machine?',              a:'The 4M Machine (Mobile · Money · Making · Machine) is our AI-powered income system. Manual Power teaches you to earn. Automatic Power helps your system work with you. Electric Power runs income automatically.' },
     { q:'Is my payment secure?',                a:'100%. Card payments use Yoco, PCI-DSS compliant and trusted by 400,000+ SA businesses. EFT and ATM go directly to our verified Nedbank account.' },
-    { q:'Is this a pyramid scheme?',            a:'No. Z2B is a legal direct sales and education platform under the Consumer Protection Act. Real products, real education, real value.' },
     { q:'Do I need to quit my job?',            a:'Never. Z2B was built for employed people. Build alongside your job in 30-minute daily windows.' },
+    { q:'What are the PWA Apps?',               a:'We build a custom Progressive Web App (PWA) — a smartphone-first digital business — for your specific goals. Bronze includes 1 app, up to 7 apps for Platinum.' },
     { q:'When does my sponsor get credited?',   a:'Your sponsor is credited automatically the moment your payment is confirmed — instantly for card, within 24 hours for EFT and ATM.' },
   ]
 
-  const COMPARE = [
-    { label:'ISP Rate',          vals:['10%','18%','22%','25%','28%','30%'] },
-    { label:'TPB Generations',   vals:['None','Gen 3','Gen 4','Gen 6','Gen 8','Gen 10'] },
-    { label:'QPB Eligible',      vals:['✗','✓','✓','✓','✓','✓'] },
-    { label:'CEO Awards',        vals:['✗','✗','✗','✓','✓','✓'] },
-  { label:'Workshop Sessions', vals:['4M Core','1–99','1–99','1–99','1–99','1–99'] },
-    { label:'Coach Manlaw AI',   vals:['3/sess','∞','∞','∞','∞','∞'] },
-    { label:'Vision Board',      vals:['View','Full','Full','Full','Full','Full'] },
-    { label:'GroundBreaker',     vals:['✓','✓','✓','✓','✓','✓'] },
-    { label:'TableBuilder',      vals:['✗','✓','✓','✓','✓','✓'] },
-    { label:'My Sales Funnel',     vals:['✗','✓','✓','✓','✓','✓'] },
-    { label:'Marketplace',       vals:['✗','✗','✗','✗','✓','✓'] },
-  { label:'App / Website Build', vals:['✗','x1','x2','x4','x5','x7'] },
-    { label:'1-on-1 Coaching',   vals:['✗','✗','✗','✗','✓','✓'] },
-    { label:'White-label',       vals:['✗','✗','✗','✗','✗','✓'] },
-    { label:'CEO Mastermind',    vals:['✗','✗','✗','✗','✗','✓'] },
-  ]
-
-  const tierKeys = Object.keys(MEMBERSHIP_TIERS)
+  // Determine which power a tier belongs to
+  const getTierPower = (tierKey: string) => MACHINE_POWERS.find(p => p.tiers.includes(tierKey))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div style={{ minHeight:'100vh', background:'#F3F0FF', fontFamily:'Georgia,serif', color:'#1E1245' }}>
 
-      {/* Header */}
-      <header className="bg-royal-gradient shadow-xl border-b-4 border-gold-400">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-4">
-            <img src="/logo.jpg" alt="Z2B" className="h-16 w-16 rounded-xl border-2 border-gold-400 shadow-lg" />
+      {/* ── HEADER ── */}
+      <header style={{ background:'linear-gradient(135deg,#1E1245,#4C1D95)', borderBottom:'4px solid #D4AF37', padding:'16px 24px' }}>
+        <div style={{ maxWidth:'1100px', margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'12px' }}>
+          <Link href="/" style={{ display:'flex', alignItems:'center', gap:'12px', textDecoration:'none' }}>
+            <img src="/logo.jpg" alt="Z2B" style={{ height:'52px', width:'52px', borderRadius:'10px', border:'2px solid #D4AF37' }} />
             <div>
-              <h1 className="text-2xl font-bold text-white">Z2B TABLE BANQUET</h1>
-              <p className="text-sm text-gold-300">Lifetime Membership Tiers</p>
+              <div style={{ fontSize:'18px', fontWeight:900, color:'#D4AF37', fontFamily:'Cinzel,Georgia,serif' }}>Z2B TABLE BANQUET</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>4M Machine Power Tiers</div>
             </div>
           </Link>
-          <div className="flex gap-3">
-            <Link href="/"         className="bg-white text-primary-700 font-semibold py-2 px-4 rounded-lg border-2 border-gold-400 hover:bg-gold-50">Home</Link>
-            <Link href="/workshop" className="bg-white text-primary-700 font-semibold py-2 px-4 rounded-lg border-2 border-gold-400 hover:bg-gold-50">Workshop</Link>
+          <div style={{ display:'flex', gap:'10px', alignItems:'center' }}>
+            <Link href="/" style={{ padding:'8px 16px', background:'rgba(255,255,255,0.1)', border:'1px solid rgba(212,175,55,0.4)', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>Home</Link>
+            <Link href="/ai-income/landing" style={{ padding:'8px 16px', background:'rgba(212,175,55,0.2)', border:'1px solid #D4AF37', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>🤖 4M System</Link>
             {user
-              ? <Link href="/dashboard" className="btn-primary">Dashboard</Link>
-              : <Link href="/login"     className="btn-primary">Sign In</Link>
+              ? <Link href="/dashboard" style={{ padding:'8px 16px', background:'#D4AF37', borderRadius:'8px', color:'#1E1245', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>Dashboard</Link>
+              : <Link href="/login"     style={{ padding:'8px 16px', background:'#D4AF37', borderRadius:'8px', color:'#1E1245', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>Sign In</Link>
             }
           </div>
-        </nav>
+        </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 py-20 border-b-8 border-gold-400 text-center">
-        <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">Choose Your Legacy Path</h2>
-          <p className="text-xl text-gold-200 mb-3">One-time payment. Lifetime access. Build your empire forever.</p>
-          <p className="text-lg text-purple-200 mb-8">💳 Card &nbsp;·&nbsp; 🏦 Bank EFT &nbsp;·&nbsp; 💵 ATM Cash Deposit &nbsp;·&nbsp; No monthly fees ever!</p>
-          <button onClick={() => setShowCompare(!showCompare)}
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border-2 border-gold-400 text-gold-300 font-semibold py-2 px-6 rounded-lg transition-colors">
-            {showCompare ? '← Back to Tier Cards' : '📊 Compare All Tiers'}
+      {/* ── HERO ── */}
+      <section style={{ background:'linear-gradient(135deg,#1E1245,#4C1D95,#5B21B6)', padding:'56px 24px 48px', textAlign:'center', borderBottom:'4px solid #D4AF37' }}>
+        <div style={{ maxWidth:'700px', margin:'0 auto' }}>
+          <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(212,175,55,0.7)', letterSpacing:'3px', textTransform:'uppercase', marginBottom:'14px' }}>CHOOSE YOUR 4M MACHINE POWER</div>
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,44px)', fontWeight:900, color:'#fff', margin:'0 0 12px', lineHeight:1.2 }}>
+            Start Manual.<br/>
+            <span style={{ color:'#D4AF37' }}>Scale to Electric.</span>
+          </h1>
+          <p style={{ fontSize:'16px', color:'rgba(255,255,255,0.7)', marginBottom:'8px' }}>One-time payment. Lifetime access. Build your empire forever.</p>
+          <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'28px' }}>💳 Card &nbsp;·&nbsp; 🏦 Bank EFT &nbsp;·&nbsp; 💵 ATM Cash Deposit &nbsp;·&nbsp; No monthly fees</p>
+
+          {/* 3 machine power pills */}
+          <div style={{ display:'flex', gap:'10px', justifyContent:'center', flexWrap:'wrap', marginBottom:'24px' }}>
+            {MACHINE_POWERS.map(p => (
+              <button key={p.id} onClick={() => { setActivePower(activePower===p.id?null:p.id); setShowCompare(false) }}
+                style={{ padding:'10px 20px', borderRadius:'40px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'13px', fontWeight:700,
+                  background: activePower===p.id ? p.color : 'rgba(255,255,255,0.1)',
+                  border: `2px solid ${activePower===p.id ? p.color : 'rgba(255,255,255,0.2)'}`,
+                  color: activePower===p.id ? '#fff' : 'rgba(255,255,255,0.7)' }}>
+                {p.icon} {p.label}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={() => { setShowCompare(!showCompare); setActivePower(null) }}
+            style={{ padding:'10px 24px', background:'rgba(255,255,255,0.1)', border:'2px solid rgba(212,175,55,0.5)', borderRadius:'10px', color:'#D4AF37', fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
+            {showCompare ? '← Back to Tier Cards' : '📊 Compare All Tiers Side by Side'}
           </button>
         </div>
       </section>
 
-      {/* Compare table */}
+      {/* ── COMPARISON TABLE ── */}
       {showCompare && (
-        <section className="max-w-7xl mx-auto px-4 py-16">
-          <div className="overflow-x-auto rounded-2xl border-4 border-primary-200 shadow-xl">
-            <table style={{ width:'100%', borderCollapse:'collapse', minWidth:'700px' }}>
-              <thead>
-                <tr style={{ background:'linear-gradient(135deg,#1A0035,#0D0020)' }}>
-                  <th style={{ padding:'14px 16px', textAlign:'left', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontWeight:'normal', width:'180px' }}>Feature</th>
-                  {tierKeys.map(k => (
-                    <th key={k} style={{ padding:'14px 8px', textAlign:'center' }}>
-                      <div style={{ fontSize:'11px', fontWeight:'bold', color: TIER_COLORS[k] }}>{MEMBERSHIP_TIERS[k as keyof typeof MEMBERSHIP_TIERS].name}</div>
-                      <div style={{ fontSize:'14px', fontWeight:'bold', color:'#fff', marginTop:'2px' }}>{formatCurrency(MEMBERSHIP_TIERS[k as keyof typeof MEMBERSHIP_TIERS].price)}</div>
+        <section style={{ padding:'48px 20px', background:'#fff' }}>
+          <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
+            <div style={{ textAlign:'center', marginBottom:'32px' }}>
+              <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:'#1E1245', margin:'0 0 8px' }}>All Tiers Compared</h2>
+              <p style={{ fontSize:'14px', color:'#6B7280' }}>Three powers. Six tiers. One path.</p>
+            </div>
+            <div style={{ overflowX:'auto', borderRadius:'16px', border:'2px solid #E5E7EB', boxShadow:'0 8px 32px rgba(76,29,149,0.1)' }}>
+              <table style={{ width:'100%', borderCollapse:'collapse', minWidth:'780px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding:'14px 16px', textAlign:'left', background:'#1E1245', color:'rgba(255,255,255,0.4)', fontSize:'11px', width:'160px', fontWeight:700 }}>FEATURE</th>
+                    {/* Manual group */}
+                    <th colSpan={3} style={{ padding:'12px', textAlign:'center', background:'rgba(76,29,149,0.9)', color:'#fff', fontSize:'12px', fontWeight:700, borderLeft:'3px solid #7C3AED' }}>
+                      🚗 MANUAL POWER
                     </th>
+                    {/* Automatic group */}
+                    <th colSpan={1} style={{ padding:'12px', textAlign:'center', background:'rgba(8,145,178,0.9)', color:'#fff', fontSize:'12px', fontWeight:700, borderLeft:'3px solid #0891B2' }}>
+                      ⚙️ AUTOMATIC POWER
+                    </th>
+                    {/* Electric group */}
+                    <th colSpan={2} style={{ padding:'12px', textAlign:'center', background:'rgba(180,134,11,0.9)', color:'#fff', fontSize:'12px', fontWeight:700, borderLeft:'3px solid #D4AF37' }}>
+                      ⚡ ELECTRIC POWER
+                    </th>
+                  </tr>
+                  <tr>
+                    <th style={{ padding:'10px 16px', background:'#1E1245', fontSize:'11px', color:'rgba(255,255,255,0.3)' }}></th>
+                    {['4M Free\nR0','Bronze\nR2,500','Copper\nR5,000'].map(t => (
+                      <th key={t} style={{ padding:'10px 8px', background:'rgba(76,29,149,0.1)', textAlign:'center', fontSize:'11px', fontWeight:700, color:'#4C1D95', borderLeft:'1px solid #E5E7EB', whiteSpace:'pre-line' as const }}>{t}</th>
+                    ))}
+                    {['Silver\nR12,000'].map(t => (
+                      <th key={t} style={{ padding:'10px 8px', background:'rgba(8,145,178,0.08)', textAlign:'center', fontSize:'11px', fontWeight:700, color:'#0891B2', borderLeft:'3px solid #0891B2', whiteSpace:'pre-line' as const }}>{t}</th>
+                    ))}
+                    {['Gold\nR24,000','Platinum\nR50,000'].map(t => (
+                      <th key={t} style={{ padding:'10px 8px', background:'rgba(180,134,11,0.08)', textAlign:'center', fontSize:'11px', fontWeight:700, color:'#B8860B', borderLeft:'1px solid #E5E7EB', whiteSpace:'pre-line' as const }}>{t}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARE_ROWS.map((row, ri) => (
+                    <tr key={ri} style={{ background: ri%2===0 ? '#F9FAFB' : '#fff' }}>
+                      <td style={{ padding:'10px 16px', fontSize:'12px', color:'#374151', fontWeight:700, borderBottom:'1px solid #F3F4F6' }}>{row.label}</td>
+                      {row.manual.map((v, vi) => (
+                        <td key={vi} style={{ padding:'10px 8px', textAlign:'center', fontSize:'12px', borderBottom:'1px solid #F3F4F6', borderLeft:'1px solid #F3F4F6',
+                          color: v==='—'?'#D1D5DB':v.includes('✓')?'#059669':'#4C1D95', fontWeight: v==='—'?400:600 }}>{v}</td>
+                      ))}
+                      {row.auto.map((v, vi) => (
+                        <td key={vi} style={{ padding:'10px 8px', textAlign:'center', fontSize:'12px', borderBottom:'1px solid #F3F4F6', borderLeft:'3px solid rgba(8,145,178,0.2)',
+                          color: v==='—'?'#D1D5DB':v.includes('✓')||v.includes('⚙️')?'#0891B2':'#0891B2', fontWeight: v==='—'?400:700, background:'rgba(8,145,178,0.04)' }}>{v}</td>
+                      ))}
+                      {row.electric.map((v, vi) => (
+                        <td key={vi} style={{ padding:'10px 8px', textAlign:'center', fontSize:'12px', borderBottom:'1px solid #F3F4F6', borderLeft: vi===0?'3px solid rgba(212,175,55,0.3)':'1px solid #F3F4F6',
+                          color: v==='—'?'#D1D5DB':v.includes('✓')||v.includes('⚡')?'#B8860B':'#B8860B', fontWeight: v==='—'?400:700, background:'rgba(180,134,11,0.04)' }}>{v}</td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARE.map((row, ri) => (
-                  <tr key={ri} style={{ background: ri % 2 === 0 ? 'rgba(147,51,234,0.04)' : 'transparent' }}>
-                    <td style={{ padding:'10px 16px', fontSize:'12px', color:'#4B5563', borderBottom:'1px solid #E5E7EB', fontWeight:'600' }}>{row.label}</td>
-                    {row.vals.map((v, vi) => (
-                      <td key={vi} style={{ padding:'10px 8px', textAlign:'center', fontSize:'12px', borderBottom:'1px solid #E5E7EB', color: v==='✓'?'#16A34A':v==='✗'?'#D1D5DB': TIER_COLORS[tierKeys[vi]], fontWeight: v==='✓'||v==='✗'?'bold':'600' }}>
-                        {v}
+                  {/* CTA row */}
+                  <tr style={{ background:'#1E1245' }}>
+                    <td style={{ padding:'16px', fontSize:'12px', color:'rgba(255,255,255,0.5)', fontWeight:700 }}>Get Started</td>
+                    {['fam','bronze','copper'].map(k => (
+                      <td key={k} style={{ padding:'12px 8px', textAlign:'center', borderLeft:'1px solid rgba(255,255,255,0.1)' }}>
+                        <button onClick={() => openPayment(k)} style={{ padding:'8px 14px', background:k==='fam'?'rgba(255,255,255,0.1)':'#7C3AED', border:`1px solid ${k==='fam'?'rgba(255,255,255,0.2)':'#7C3AED'}`, borderRadius:'8px', color:'#fff', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
+                          {k==='fam'?'Free':'Get '+(TIER_LABELS[k])}
+                        </button>
+                      </td>
+                    ))}
+                    <td style={{ padding:'12px 8px', textAlign:'center', borderLeft:'3px solid rgba(8,145,178,0.3)' }}>
+                      <button onClick={() => openPayment('silver')} style={{ padding:'8px 14px', background:'#0891B2', border:'1px solid #0891B2', borderRadius:'8px', color:'#fff', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
+                        Get Silver
+                      </button>
+                    </td>
+                    {['gold','platinum'].map(k => (
+                      <td key={k} style={{ padding:'12px 8px', textAlign:'center', borderLeft: k==='gold'?'3px solid rgba(212,175,55,0.3)':'1px solid rgba(255,255,255,0.1)' }}>
+                        <button onClick={() => openPayment(k)} style={{ padding:'8px 14px', background:'#B8860B', border:'1px solid #D4AF37', borderRadius:'8px', color:'#fff', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
+                          Get {TIER_LABELS[k]}
+                        </button>
                       </td>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Tier cards */}
+      {/* ── MACHINE POWER SECTIONS ── */}
       {!showCompare && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Object.entries(MEMBERSHIP_TIERS).map(([key, tier]) => {
-              const isActive   = currentTier === key || (currentTier==='free_member'&&key==='fam') || (currentTier==='paid_member'&&key!=='fam')
-              const isBest     = key === 'gold'
+        <section style={{ padding:'48px 20px' }}>
+          <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
+            {MACHINE_POWERS.map(power => {
+              const isActive = !activePower || activePower === power.id
               return (
-                <div key={key} className={`card border-4 relative hover:border-gold-400 transition-all ${isBest?'border-gold-500 shadow-2xl scale-105':isActive?'border-green-400':'border-primary-200'}`}>
-                  {isBest  && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span className="bg-gold-gradient text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">⭐ BEST VALUE</span></div>}
-                  {isActive && <div className="absolute -top-4 right-4"><span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">✓ ACTIVE</span></div>}
-
-                  <div className="text-center mb-6">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 text-white shadow-lg bg-gradient-to-br ${
-                      key==='platinum'?'from-purple-500 to-purple-700':key==='gold'?'from-yellow-500 to-yellow-700':
-                      key==='silver'?'from-slate-400 to-slate-600':key==='copper'?'from-amber-600 to-amber-800':
-                      key==='bronze'?'from-orange-600 to-orange-800':'from-gray-400 to-gray-600'}`}>
-                      {getTierIcon(key)}
+                <div key={power.id} style={{ marginBottom:'40px', opacity: isActive ? 1 : 0.4, transition:'opacity 0.3s' }}>
+                  {/* Power group header */}
+                  <div style={{ background:`linear-gradient(135deg,${power.color},${power.border})`, borderRadius:'20px 20px 0 0', padding:'24px 28px', display:'flex', alignItems:'center', gap:'16px', flexWrap:'wrap' }}>
+                    <div style={{ fontSize:'40px' }}>{power.icon}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:'#fff' }}>{power.label}</div>
+                      <div style={{ fontSize:'14px', color:'rgba(255,255,255,0.8)', fontStyle:'italic', margin:'3px 0' }}>{power.sub}</div>
+                      <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.65)', maxWidth:'600px' }}>{power.truth}</div>
                     </div>
-                    <h3 className="text-3xl font-bold text-primary-800 mb-2">{tier.name}</h3>
-                    <div className="text-5xl font-bold text-primary-900">{formatCurrency(tier.price)}</div>
-                    {tier.price > 0 && <p className="text-sm text-gray-500 mt-1">One-time · Lifetime Access</p>}
+                    <button onClick={() => openPayment(power.tiers[0])}
+                      style={{ padding:'12px 24px', background:'rgba(255,255,255,0.2)', border:'2px solid rgba(255,255,255,0.4)', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', flexShrink:0 }}>
+                      {power.cta} →
+                    </button>
                   </div>
 
-                  <div className="mb-5">
-                    <h4 className="text-xs font-bold text-primary-700 mb-3 flex items-center gap-2"><GraduationCap className="w-4 h-4"/>TRAINING & ACCESS</h4>
-                    <ul className="space-y-2">
-                      {tier.trainingBenefits.map((b: string, i: number) => (
-                        <li key={i} className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">{b}</span></li>
-                      ))}
-                      {key==='fam' && <>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🤖 4M Money Machine entry digital product</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">📱 AI-powered smartphone income starter system</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎯 Sales-ready onboarding + launch support</span></li>
-                      </>}
-                      {key!=='fam' && <>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎓 All 99 Sessions — lifetime</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🤖 Coach Manlaw AI — unlimited</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🌱 GroundBreaker dashboard</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🏛️ TableBuilder dashboard</span></li>
-                        <li className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">🎯 Vision Board — full</span></li>
-                      </>}
-                      {key!=='fam' && (<>
-                        <li className="flex items-start gap-2 text-sm mt-1">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700">
-                            <strong className="text-yellow-700">🚀 My Sales Funnel — Full Access</strong>
-                            <span className="block text-xs text-gray-500 mt-0.5">Your complete 6-layer economic architecture — working 24/7 even while you sleep.</span>
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">📊 Pipeline Tracker (Kanban)</strong> — Visual Day 1→9 journey for every prospect. Know exactly who needs a WhatsApp today.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">📧 9-Day Nurture Engine</strong> — Automated email sequence follows up on every prospect for 9 days. No manual chasing required.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">💬 WhatsApp Launcher</strong> — One-tap personalised scripts at Day 6 and Day 9. The right message at the right moment, automatically.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">🎬 Content Studio with AI</strong> — Coach Manlaw writes your TikTok, Facebook, WhatsApp and YouTube scripts in your voice with your referral link embedded.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">📅 Content Calendar</strong> — Plan and schedule 4 posts per day across platforms. Run the 4:4:5:4:15% ratio automatically.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">🔔 Prospect Notifications</strong> — Instant dashboard alerts when a prospect registers, completes sessions, or is ready to upgrade.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"/>
-                          <span className="text-gray-700 text-xs">
-                            <strong className="text-yellow-700">📝 Sign-up Tracker</strong> — Full record of every prospect: name, WhatsApp, email, stage, days since joining, upgrade status.
-                          </span>
-                        </li>
-                      </>)}
-                    </ul>
+                  {/* Tier cards in this power */}
+                  <div style={{ background:power.bg, border:`2px solid ${power.border}30`, borderRadius:'0 0 20px 20px', padding:'24px', display:'grid', gridTemplateColumns:`repeat(${power.tiers.length},1fr)`, gap:'16px' }}>
+                    {power.tiers.map(tierKey => {
+                      const price = TIER_PRICES[tierKey]
+                      const isCurrentTier = currentTier === tierKey
+                      const isBest = tierKey === 'gold'
+                      const tierColor = TIER_COLORS[tierKey]
+                      return (
+                        <div key={tierKey} style={{ background:'#fff', borderRadius:'16px', border:`2px solid ${isBest?tierColor:isCurrentTier?'#059669':tierColor+'40'}`, padding:'24px 20px', position:'relative', boxShadow: isBest?`0 8px 32px ${tierColor}30`:'none' }}>
+                          {isBest && <div style={{ position:'absolute', top:'-12px', left:'50%', transform:'translateX(-50%)', background:`linear-gradient(135deg,#D4AF37,#B8860B)`, borderRadius:'20px', padding:'4px 14px', fontSize:'11px', fontWeight:700, color:'#fff', whiteSpace:'nowrap' as const }}>⭐ BEST VALUE</div>}
+                          {isCurrentTier && <div style={{ position:'absolute', top:'-12px', right:'14px', background:'#059669', borderRadius:'20px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:'#fff' }}>✓ ACTIVE</div>}
+
+                          {/* Tier header */}
+                          <div style={{ textAlign:'center', marginBottom:'16px', paddingBottom:'16px', borderBottom:`2px solid ${tierColor}20` }}>
+                            <div style={{ fontSize:'28px', marginBottom:'6px' }}>
+                              {tierKey==='platinum'?'👑':tierKey==='gold'?'⭐':tierKey==='silver'?'⚡':tierKey==='copper'?'🔶':tierKey==='bronze'?'🥉':'🆓'}
+                            </div>
+                            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[tierKey]}</div>
+                            <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>{price===0?'Free':`R${price.toLocaleString()}`}</div>
+                            {price > 0 && <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Lifetime Access</div>}
+                          </div>
+
+                          {/* 4M Offers — PRIMARY */}
+                          <div style={{ marginBottom:'14px' }}>
+                            <div style={{ fontSize:'10px', fontWeight:700, color:power.color, letterSpacing:'1px', textTransform:'uppercase' as const, marginBottom:'8px', display:'flex', alignItems:'center', gap:'6px' }}>
+                              <span>{power.icon}</span> 4M MACHINE OFFERS
+                            </div>
+                            {FOUR_M_OFFERS[tierKey]?.map((item, i) => (
+                              <div key={i} style={{ display:'flex', gap:'7px', marginBottom:'6px', alignItems:'flex-start' }}>
+                                <span style={{ color:'#059669', fontSize:'12px', flexShrink:0, marginTop:'1px' }}>✓</span>
+                                <span style={{ fontSize:'12px', color:'#374151', lineHeight:1.5 }}>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Bonus Offers */}
+                          {BONUS_OFFERS[tierKey]?.length > 0 && (
+                            <div style={{ marginBottom:'16px', padding:'12px', background:'rgba(76,29,149,0.04)', borderRadius:'10px', border:'1px solid rgba(76,29,149,0.1)' }}>
+                              <div style={{ fontSize:'10px', fontWeight:700, color:'#6B7280', letterSpacing:'1px', textTransform:'uppercase' as const, marginBottom:'8px' }}>🎁 BONUS OFFERS</div>
+                              {BONUS_OFFERS[tierKey].map((item, i) => (
+                                <div key={i} style={{ display:'flex', gap:'7px', marginBottom:'5px', alignItems:'flex-start' }}>
+                                  <span style={{ color:'#9CA3AF', fontSize:'11px', flexShrink:0, marginTop:'1px' }}>+</span>
+                                  <span style={{ fontSize:'11px', color:'#6B7280', lineHeight:1.5 }}>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <button onClick={() => openPayment(tierKey)} disabled={isCurrentTier}
+                            style={{ width:'100%', padding:'13px', background: isCurrentTier?'#F3F4F6':isBest?`linear-gradient(135deg,${tierColor},#B8860B)`:`linear-gradient(135deg,${power.color},${power.border})`,
+                              border:'none', borderRadius:'12px', color: isCurrentTier?'#9CA3AF':'#fff', fontWeight:700, fontSize:'13px', cursor: isCurrentTier?'not-allowed':'pointer',
+                              fontFamily:'Cinzel,Georgia,serif' }}>
+                            {isCurrentTier ? '✓ Current Tier' : price===0 ? 'Start Free' : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
+                          </button>
+                        </div>
+                      )
+                    })}
                   </div>
 
-                  <div className="mb-5 bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
-                    <h4 className="text-xs font-bold text-purple-700 mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4"/>SALES & MARKETING</h4>
-                    {key === 'fam' && (
-                      <div className="mb-3 rounded-lg border-2 border-yellow-400 bg-yellow-50 p-3 text-center">
-                        <div className="text-xs font-black text-yellow-700 tracking-widest">FLAGSHIP BENEFIT</div>
-                        <div className="text-2xl font-black text-yellow-800 mt-1">R200</div>
-                        <div className="text-sm font-bold text-yellow-700">for every 4M Money Machine you sell</div>
-                      </div>
-                    )}
-                    <ul className="space-y-2">
-                      {tier.salesBenefits.map((b: string, i: number) => (
-                        <li key={i} className="flex items-start gap-2 text-sm"><DollarSign className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5"/><span className="text-gray-700">{b}</span></li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mb-5 text-center border-t-2 border-gray-200 pt-4">
-                    <p className="text-xs text-gray-500 mb-1">Terms & Conditions Apply</p>
-                    <Link href="/builder-rules" className="text-sm text-primary-700 font-semibold hover:text-gold-600 flex items-center justify-center gap-1">
-                      <FileText className="w-4 h-4"/>View Builder Rules
-                    </Link>
-                  </div>
-
-                  <button
-                    onClick={() => openPayment(key)}
-                    disabled={isActive}
-                    className={`w-full py-3 px-6 rounded-lg font-bold transition-all ${isActive?'bg-gray-300 text-gray-600 cursor-not-allowed':isBest?'bg-gold-gradient text-white hover:shadow-xl':'bg-royal-gradient text-white hover:shadow-lg'}`}
-                  >
-                    {isActive ? 'Current Tier' : tier.price===0 ? 'Start Free' : `Upgrade to ${tier.name}`}
-                  </button>
+                  {/* Upgrade nudge between powers */}
+                  {power.id !== 'electric' && (
+                    <div style={{ textAlign:'center', padding:'16px', margin:'8px 0' }}>
+                      <span style={{ fontSize:'13px', color:power.id==='manual'?'#0891B2':'#B8860B', fontWeight:700, fontStyle:'italic' }}>
+                        {power.id==='manual' ? '⚙️ Tired of doing everything yourself? Upgrade to Automatic Power →' : '⚡ Ready for the machine to run on its own? Scale to Electric Power →'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -447,154 +524,129 @@ export default function PricingPage() {
         </section>
       )}
 
-      {/* Payment Modal */}
-      {showModal && selTier && selectedTier && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-8 relative shadow-2xl">
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-3xl leading-none">×</button>
+      {/* ── PAYMENT MODAL ── */}
+      {showModal && selectedTier && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, padding:'20px', backdropFilter:'blur(8px)' }}>
+          <div style={{ background:'#fff', borderRadius:'24px', maxWidth:'520px', width:'100%', maxHeight:'90vh', overflowY:'auto', padding:'32px', position:'relative', boxShadow:'0 24px 80px rgba(0,0,0,0.4)' }}>
+            <button onClick={closeModal} style={{ position:'absolute', top:'16px', right:'16px', background:'#F1F5F9', border:'none', borderRadius:'50%', width:'32px', height:'32px', cursor:'pointer', fontSize:'16px', color:'#64748B' }}>×</button>
 
-            {/* Step header */}
-            <div className="text-center mb-6">
-              <div className="text-xs font-bold text-primary-500 tracking-widest mb-1">STEP 1 OF 2 — PAYMENT</div>
-              <h2 className="text-2xl font-bold text-primary-800 mb-1">{selTier.name} Membership</h2>
-              <div className="text-3xl font-bold text-primary-900">{formatCurrency(selTier.price)}</div>
-              <p className="text-xs text-gray-400 mt-1">Once-off · Lifetime · Your membership form comes after payment</p>
-            </div>
+            {/* Tier header */}
+            {(() => {
+              const power = getTierPower(selectedTier)
+              const price = TIER_PRICES[selectedTier]
+              return (
+                <div style={{ textAlign:'center', marginBottom:'24px' }}>
+                  <div style={{ fontSize:'11px', fontWeight:700, color:power?.color, letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'8px' }}>{power?.icon} {power?.label}</div>
+                  <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[selectedTier]} Membership</div>
+                  <div style={{ fontSize:'32px', fontWeight:900, color:TIER_COLORS[selectedTier] }}>R{price.toLocaleString()}</div>
+                  <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Lifetime Access</div>
+                </div>
+              )
+            })()}
 
-            {/* 3 payment options */}
-            <div className="flex flex-col gap-3 mb-4">
-
-              {/* Card */}
+            {/* Payment options */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
               <button onClick={payByCard} disabled={loading}
-                className="flex items-center gap-4 p-4 border-4 border-primary-200 rounded-xl hover:border-gold-400 transition-all text-left w-full">
-                <CreditCard className="w-10 h-10 text-primary-600 flex-shrink-0"/>
-                <div className="flex-1">
-                  <div className="font-bold text-primary-800">Pay by Card</div>
-                  <div className="text-gray-500 text-xs">Credit / debit card via Yoco — instant &amp; secure</div>
+                style={{ display:'flex', alignItems:'center', gap:'14px', padding:'16px', border:'2px solid #E2E8F0', borderRadius:'14px', cursor:'pointer', background:'#fff', textAlign:'left' as const, width:'100%' }}>
+                <span style={{ fontSize:'28px' }}>💳</span>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, color:'#1E1245', fontSize:'15px' }}>Pay by Card</div>
+                  <div style={{ fontSize:'12px', color:'#6B7280' }}>Credit/Debit card via Yoco — instant & secure</div>
                 </div>
-                <div className="bg-green-50 border-2 border-green-400 rounded-lg px-3 py-2 text-center flex-shrink-0">
-                  <div className="text-green-800 font-bold text-xs">✅ INSTANT</div>
-                </div>
+                <div style={{ background:'#D1FAE5', border:'2px solid #6EE7B7', borderRadius:'8px', padding:'4px 10px', fontSize:'11px', fontWeight:700, color:'#065F46', flexShrink:0 }}>✅ INSTANT</div>
               </button>
 
-              {/* EFT */}
-              <button onClick={() => setPaymentMethod(paymentMethod==='bank' ? null : 'bank')}
-                className={`flex items-center gap-4 p-4 border-4 rounded-xl hover:border-gold-400 transition-all text-left w-full ${paymentMethod==='bank'?'border-gold-400 bg-amber-50':'border-primary-200'}`}>
-                <Building2 className="w-10 h-10 text-primary-600 flex-shrink-0"/>
-                <div className="flex-1">
-                  <div className="font-bold text-primary-800">Bank EFT / Transfer</div>
-                  <div className="text-gray-500 text-xs">Internet banking to our Nedbank account</div>
-                </div>
-                <div className="bg-blue-50 border-2 border-blue-400 rounded-lg px-3 py-2 text-center flex-shrink-0">
-                  <div className="text-blue-800 font-bold text-xs">⏳ 24hrs</div>
-                </div>
-              </button>
-
-              {/* ATM */}
-              <button onClick={() => setPaymentMethod(paymentMethod==='atm' ? null : 'atm')}
-                className={`flex items-center gap-4 p-4 border-4 rounded-xl hover:border-gold-400 transition-all text-left w-full ${paymentMethod==='atm'?'border-gold-400 bg-amber-50':'border-primary-200'}`}>
-                <span className="text-4xl flex-shrink-0">💵</span>
-                <div className="flex-1">
-                  <div className="font-bold text-primary-800">ATM Cash Deposit</div>
-                  <div className="text-gray-500 text-xs">Cash at any Nedbank ATM nationwide</div>
-                </div>
-                <div className="bg-orange-50 border-2 border-orange-400 rounded-lg px-3 py-2 text-center flex-shrink-0">
-                  <div className="text-orange-800 font-bold text-xs">⏳ 24hrs</div>
-                </div>
-              </button>
+              {[{m:'bank',icon:'🏦',title:'Bank EFT / Transfer',sub:'Internet banking to our Nedbank account',badge:'⏳ 24hrs',bc:'#BFDBFE',tc:'#1E40AF'},
+                {m:'atm', icon:'💵',title:'ATM Cash Deposit',   sub:'Cash at any Nedbank ATM nationwide',    badge:'⏳ 24hrs',bc:'#FED7AA',tc:'#92400E'}].map(({m,icon,title,sub,badge,bc,tc}) => (
+                <button key={m} onClick={() => setPaymentMethod(paymentMethod===m?null:m as any)}
+                  style={{ display:'flex', alignItems:'center', gap:'14px', padding:'16px', border:`2px solid ${paymentMethod===m?'#D4AF37':'#E2E8F0'}`, borderRadius:'14px', cursor:'pointer', background: paymentMethod===m?'#FFFBEB':'#fff', textAlign:'left' as const, width:'100%' }}>
+                  <span style={{ fontSize:'28px' }}>{icon}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontWeight:700, color:'#1E1245', fontSize:'15px' }}>{title}</div>
+                    <div style={{ fontSize:'12px', color:'#6B7280' }}>{sub}</div>
+                  </div>
+                  <div style={{ background:bc, border:`2px solid ${bc}`, borderRadius:'8px', padding:'4px 10px', fontSize:'11px', fontWeight:700, color:tc, flexShrink:0 }}>{badge}</div>
+                </button>
+              ))}
             </div>
 
-            {/* Bank details panel — shown for EFT or ATM */}
+            {/* Bank details */}
             {(paymentMethod==='bank' || paymentMethod==='atm') && (
-              <div className="bg-primary-50 border-4 border-primary-400 rounded-xl p-5 mb-4">
-                <h3 className="font-bold text-primary-800 mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5"/>
-                  {paymentMethod==='atm' ? 'ATM Cash Deposit Details' : 'Bank Transfer Details'}
+              <div style={{ background:'#F8F5FF', border:'2px solid #4C1D95', borderRadius:'16px', padding:'20px', marginBottom:'14px' }}>
+                <h3 style={{ fontWeight:700, color:'#1E1245', marginBottom:'14px', display:'flex', alignItems:'center', gap:'8px', fontSize:'15px' }}>
+                  🏦 {paymentMethod==='atm' ? 'ATM Cash Deposit Details' : 'Bank Transfer Details'}
                 </h3>
-                <div className="space-y-3">
-                  {[
-                    { label:'Account Name',                   value: BANK.accountName,   field:'name',      hi:false },
-                    { label:'Account Number',                 value: BANK.accountNumber, field:'number',    hi:false },
-                    { label:'Bank',                           value: BANK.bank,           field:'bank',      hi:false },
-                    { label:'Your Reference (IMPORTANT)',     value: reference,           field:'ref',       hi:true  },
-                  ].map(row => (
-                    <div key={row.field} className={`bg-white rounded-lg p-3 border-2 ${row.hi?'border-gold-400':'border-primary-200'}`}>
-                      <p className="text-xs text-gray-500 mb-1">{row.label}</p>
-                      <div className="flex items-center justify-between">
-                        <p className={`font-bold ${row.hi?'text-gold-600 text-lg':'text-primary-900'}`}>{row.value}</p>
-                        <button onClick={() => copy(row.value, row.field)} className="text-primary-400 hover:text-gold-600 ml-2">
-                          {copied===row.field ? <CheckCircle className="w-5 h-5 text-green-500"/> : <Copy className="w-5 h-5"/>}
-                        </button>
-                      </div>
+                {[{l:'Account Name',v:BANK.accountName,f:'name',hi:false},{l:'Account Number',v:BANK.accountNumber,f:'number',hi:false},{l:'Bank',v:BANK.bank,f:'bank',hi:false},{l:'Your Reference (IMPORTANT)',v:reference,f:'ref',hi:true}].map(row => (
+                  <div key={row.f} style={{ background:'#fff', borderRadius:'10px', padding:'12px 14px', marginBottom:'8px', border:`2px solid ${row.hi?'#D4AF37':'#E2E8F0'}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div>
+                      <div style={{ fontSize:'11px', color:'#9CA3AF', marginBottom:'2px' }}>{row.l}</div>
+                      <div style={{ fontWeight:700, color: row.hi?'#B8860B':'#1E1245', fontSize: row.hi?'17px':'14px' }}>{row.v}</div>
                     </div>
-                  ))}
-                  <div className="bg-gold-50 border-2 border-gold-400 rounded-lg p-3">
-                    <p className="text-xs text-gray-500 mb-1">Amount to Deposit</p>
-                    <p className="font-bold text-gold-700 text-2xl">{formatCurrency(selTier.price)}</p>
+                    <button onClick={() => copy(row.v, row.f)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:'18px', color: copied===row.f?'#059669':'#9CA3AF' }}>
+                      {copied===row.f ? '✅' : '📋'}
+                    </button>
                   </div>
+                ))}
+                <div style={{ background:'#FFFBEB', border:'2px solid #D4AF37', borderRadius:'10px', padding:'12px', marginBottom:'12px' }}>
+                  <div style={{ fontSize:'11px', color:'#9CA3AF', marginBottom:'2px' }}>Amount to Deposit</div>
+                  <div style={{ fontSize:'24px', fontWeight:900, color:'#B8860B' }}>R{TIER_PRICES[selectedTier].toLocaleString()}</div>
                 </div>
-                <div className="mt-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg p-3 text-xs text-yellow-800">
-                  <strong>⚠️ Important:</strong> Use YOUR reference code above. We activate your membership within 24 hours after verifying receipt.
+                <div style={{ background:'#FFFBEB', border:'2px solid #FCD34D', borderRadius:'10px', padding:'10px', marginBottom:'12px', fontSize:'12px', color:'#92400E' }}>
+                  ⚠️ Use YOUR reference code above. We activate within 24 hours after verifying receipt.
                 </div>
-                <button
-                  onClick={() => recordManualPayment(paymentMethod)}
-                  className="w-full btn-primary mt-4 py-4 text-base font-bold"
-                >
-                  I&apos;ve Noted the Details — Complete My Registration →
+                <button onClick={() => recordManualPayment(paymentMethod)}
+                  style={{ width:'100%', padding:'14px', background:'linear-gradient(135deg,#1E1245,#4C1D95)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+                  I&apos;ve Noted the Details — Complete Registration →
                 </button>
               </div>
             )}
 
-            <p className="text-center text-xs text-gray-400">🔒 Secure · No monthly fees · Sponsor credited automatically</p>
+            <div style={{ textAlign:'center', fontSize:'12px', color:'#9CA3AF' }}>🔒 Secure · No monthly fees · Sponsor credited automatically</div>
           </div>
         </div>
       )}
 
-      {/* FAQ */}
-      <section className="max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-10">
-          <h3 className="text-4xl font-bold text-primary-800 mb-4">Frequently Asked Questions</h3>
-          <div className="w-32 h-1 bg-gold-gradient mx-auto rounded-full"></div>
-        </div>
-        <div className="space-y-4">
-          {FAQS.map((f,i) => (
+      {/* ── FAQ ── */}
+      <section style={{ maxWidth:'760px', margin:'0 auto', padding:'48px 20px' }}>
+        <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:'#1E1245', textAlign:'center', marginBottom:'32px' }}>Frequently Asked Questions</h2>
+        <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+          {FAQS.map((f, i) => (
             <div key={i} onClick={() => setOpenFaq(openFaq===i?null:i)}
-              className={`card border-4 cursor-pointer transition-all ${openFaq===i?'border-gold-400':'border-primary-200 hover:border-primary-400'}`}>
-              <div className="flex justify-between items-center">
-                <h4 className="text-base font-bold text-primary-800 flex-1 pr-4">{f.q}</h4>
-                <span className="text-2xl text-gold-600 flex-shrink-0">{openFaq===i?'−':'+'}</span>
+              style={{ background:'#fff', border:`2px solid ${openFaq===i?'#4C1D95':'#E5E7EB'}`, borderRadius:'14px', padding:'18px 20px', cursor:'pointer' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:'12px' }}>
+                <div style={{ fontWeight:700, color:'#1E1245', fontSize:'14px', flex:1 }}>{f.q}</div>
+                <span style={{ fontSize:'20px', color:'#D4AF37', flexShrink:0 }}>{openFaq===i?'−':'+'}</span>
               </div>
-              {openFaq===i && <p className="text-gray-700 mt-3 leading-relaxed text-sm">{f.a}</p>}
+              {openFaq===i && <div style={{ marginTop:'10px', fontSize:'13px', color:'#475569', lineHeight:1.7 }}>{f.a}</div>}
             </div>
           ))}
-          <div className="text-center pt-2">
-            <Link href="/builder-rules" className="text-primary-700 font-semibold hover:text-gold-600">View full Builder Rules →</Link>
-          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-royal-gradient py-16 border-t-8 border-gold-400 text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <h3 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Life?</h3>
-          <p className="text-xl text-gold-200 mb-8">Join thousands building their legacy at the Z2B Table Banquet</p>
-          {!user && (
-            <Link href="/signup" className="inline-block bg-white text-primary-700 font-bold px-10 py-4 rounded-lg hover:bg-gold-50 text-lg border-4 border-gold-400 shadow-xl">
-              Start Your Journey
-            </Link>
-          )}
+      {/* ── FOOTER CTA ── */}
+      <section style={{ background:'linear-gradient(135deg,#1E1245,#4C1D95)', padding:'56px 20px', textAlign:'center', borderTop:'4px solid #D4AF37' }}>
+        <div style={{ maxWidth:'600px', margin:'0 auto' }}>
+          <h3 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:'#fff', marginBottom:'10px' }}>Ready to Transform Your Life?</h3>
+          <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.6)', marginBottom:'24px' }}>Start with Manual Power. Scale when you are ready. Your legacy awaits.</p>
+          <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' }}>
+            <button onClick={() => openPayment('bronze')} style={{ padding:'14px 32px', background:'#D4AF37', border:'none', borderRadius:'12px', color:'#1E1245', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+              🚗 Start Manual — Bronze R2,500
+            </button>
+            <button onClick={() => { setShowCompare(true); window.scrollTo({top:0,behavior:'smooth'}) }}
+              style={{ padding:'14px 28px', background:'rgba(255,255,255,0.1)', border:'2px solid rgba(255,255,255,0.3)', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer' }}>
+              📊 Compare All Tiers
+            </button>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-primary-900 text-white py-8 border-t-8 border-gold-400">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/logo.jpg" alt="Z2B" className="h-12 w-12 rounded-lg border-2 border-gold-400"/>
-            <span className="text-2xl font-bold text-gold-300">Z2B TABLE BANQUET</span>
-          </div>
-          <p className="text-gold-200">© 2026 Z2B Table Banquet. All rights reserved.</p>
+      <footer style={{ background:'#0D0820', padding:'28px 20px', textAlign:'center', borderTop:'4px solid #D4AF37' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'12px', marginBottom:'10px' }}>
+          <img src="/logo.jpg" alt="Z2B" style={{ height:'40px', width:'40px', borderRadius:'8px', border:'2px solid #D4AF37' }} />
+          <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#D4AF37' }}>Z2B TABLE BANQUET</span>
         </div>
+        <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', margin:0 }}>© {new Date().getFullYear()} Z2B Table Banquet. All rights reserved.</p>
       </footer>
     </div>
   )

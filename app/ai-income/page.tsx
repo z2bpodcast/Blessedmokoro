@@ -647,7 +647,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
                 <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>💰 Day 3 — Close Your First Sale</div>
                 <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Goal: At least ONE person pays you today</div>
                 {[
-                  { step:1, icon:'🔄', title:"Follow up with yesterday's leads", action:'Anyone who did not reply gets one more message — warm, not pushy', btn:'Write My Follow-Up', prompt:'Write a WhatsApp follow-up message for a South African beginner. The recipient showed interest yesterday but did not respond. Must be warm, short, and create light urgency. Under 40 words. One message only.' },
+                  { step:1, icon:'🔄', title:'Follow up with yesterday's leads', action:'Anyone who did not reply gets one more message — warm, not pushy', btn:'Write My Follow-Up', prompt:'Write a WhatsApp follow-up message for a South African beginner. The recipient showed interest yesterday but did not respond. Must be warm, short, and create light urgency. Under 40 words. One message only.' },
                   { step:2, icon:'💸', title:'Handle the "too expensive" reply', action:'This is the most common objection — handle it right and you close the sale', btn:'Handle Objection', prompt:'Write a reply to a South African customer who said "too expensive" about a R150 digital service. The reply must reframe value, not drop the price. Under 50 words. Ends with a question that reopens the conversation.' },
                   { step:3, icon:'✅', title:'Ask for the sale directly', action:'Most beginners wait to be asked — you must ask. Here is how.', btn:'Write My Closing Message', prompt:'Write a closing WhatsApp message for a South African beginner. The customer is interested but has not committed. The message must ask for the sale directly, make it easy to say yes, and include a simple payment instruction (SnapScan/EFT). Under 60 words.' },
                 ].map(({step, icon, title, action, btn, prompt}) => (
@@ -896,7 +896,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
                   <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.7, margin:'0 0 14px' }}>
                     Upgrade to Silver — your 4M Machine starts working WITH you. Product multiplication, 1-click launch packs, 5-day follow-up sequences, and Buffer auto-posting. From struggle to FLOW.
                   </p>
-                  <Link href="/invite" style={{ display:'inline-block', padding:'11px 26px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+                  <Link href="/pricing?power=automatic" style={{ display:'inline-block', padding:'11px 26px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
                     ⚙️ Upgrade to Automatic Mode (Silver) →
                   </Link>
                 </div>
@@ -1071,7 +1071,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.7, margin:'0 0 14px' }}>
                 Upgrade to Z2B Table Banquet Platinum and own your own white-label platform, 7 apps built for you, and 1-on-1 strategic business consultation for 3 months.
               </p>
-              <Link href="/invite" style={{ display:'inline-block', padding:'10px 24px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'10px', color:'#FDE68A', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+              <Link href="/pricing?power=electric" style={{ display:'inline-block', padding:'10px 24px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'10px', color:'#FDE68A', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
                 🍽️ Explore Z2B Table Banquet →
               </Link>
             </div>

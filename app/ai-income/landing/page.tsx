@@ -185,7 +185,7 @@ function LandingInner() {
           </button>
 
           {/* Upgrade tiers link */}
-          <Link href="/invite" style={{ display:'block', width:'100%', padding:'14px', background:'rgba(255,255,255,0.12)', border:`1.5px solid rgba(255,255,255,0.25)`, borderRadius:'14px', color:WHITE, fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center' as const, boxSizing:'border-box' as const }}>
+          <Link href="/pricing?compare=true" style={{ display:'block', width:'100%', padding:'14px', background:'rgba(255,255,255,0.12)', border:`1.5px solid rgba(255,255,255,0.25)`, borderRadius:'14px', color:WHITE, fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center' as const, boxSizing:'border-box' as const }}>
             🍽️ View All Membership Tiers →
           </Link>
 
@@ -499,7 +499,7 @@ function LandingInner() {
             style={{ display:'block', width:'100%', padding:'20px', background:GOLDL, border:'none', borderRadius:'16px', color:DARK, fontWeight:700, fontSize:'18px', cursor:paying?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 12px 48px ${GOLDL}50`, opacity:paying?0.7:1, marginBottom:'12px' }}>
             {paying ? 'Setting up payment...' : '🚀 Join Z2B 4M Community — R500'}
           </button>
-          <Link href="/invite" style={{ display:'block', width:'100%', padding:'14px', background:'rgba(255,255,255,0.12)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'14px', color:WHITE, fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center' as const, boxSizing:'border-box' as const }}>
+          <Link href="/pricing?compare=true" style={{ display:'block', width:'100%', padding:'14px', background:'rgba(255,255,255,0.12)', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'14px', color:WHITE, fontWeight:700, fontSize:'14px', textDecoration:'none', textAlign:'center' as const, boxSizing:'border-box' as const }}>
             🍽️ View All Membership Tiers & Prices →
           </Link>
           <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'12px' }}>
