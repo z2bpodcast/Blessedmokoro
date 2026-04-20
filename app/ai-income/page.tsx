@@ -127,6 +127,16 @@ function AIIncomeInner() {
   const [v3Price,      setV3Price]      = useState('')
   const [autoRunning,  setAutoRunning]  = useState(false)
 
+  // 72-Hour Onboarding
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboardDay,    setOnboardDay]      = useState(1)
+  const [onboardStep,   setOnboardStep]     = useState(0)
+  const [onboardResult, setOnboardResult]   = useState('')
+  const [onboardLoading,setOnboardLoading]  = useState(false)
+
+  // Income Proof
+  const [proofVisible,  setProofVisible]    = useState(false)
+
   // Coach Manlaw
   const [manlawOpen,   setManlawOpen]   = useState(false)
   const [manlawInput,  setManlawInput]  = useState('')
@@ -527,6 +537,151 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             </div>
           ))}
         </div>
+
+        {/* ── 72-HOUR ONBOARDING PROMPT ── */}
+        {!showOnboarding && (
+          <div style={{ marginBottom:'20px', background:'linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.06))', border:'2px solid rgba(16,185,129,0.3)', borderRadius:'16px', padding:'18px 20px', display:'flex', alignItems:'center', gap:'16px', cursor:'pointer' }}
+            onClick={() => setShowOnboarding(true)}>
+            <div style={{ fontSize:'32px', flexShrink:0, animation:'pulse 2s infinite' }}>🎯</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:'14px', fontWeight:700, color:'#fff', marginBottom:'3px' }}>Start Here — Your First R300 in 72 Hours</div>
+              <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)' }}>3-day guided action plan · No guessing · Just follow the steps</div>
+            </div>
+            <div style={{ fontSize:'20px', color:'#6EE7B7' }}>→</div>
+          </div>
+        )}
+
+        {/* ── 72-HOUR ONBOARDING MODAL ── */}
+        {showOnboarding && (
+          <div style={{ marginBottom:'24px', background:'rgba(9,6,15,0.95)', border:'2px solid rgba(16,185,129,0.4)', borderRadius:'20px', padding:'24px', position:'relative' }}>
+            <button onClick={() => setShowOnboarding(false)} style={{ position:'absolute', top:'14px', right:'16px', background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
+
+            {/* Day tabs */}
+            <div style={{ display:'flex', gap:'8px', marginBottom:'20px' }}>
+              {[{d:1,icon:'🏗️',label:'Day 1 — Build'},{d:2,icon:'📣',label:'Day 2 — Market'},{d:3,icon:'💰',label:'Day 3 — Close'}].map(({d,icon,label}) => (
+                <button key={d} onClick={() => { setOnboardDay(d); setOnboardStep(0); setOnboardResult('') }}
+                  style={{ flex:1, padding:'10px 8px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700, textAlign:'center' as const,
+                    background: onboardDay===d ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: onboardDay===d ? '1.5px solid #10B981' : '1.5px solid rgba(255,255,255,0.08)',
+                    color: onboardDay===d ? '#6EE7B7' : 'rgba(255,255,255,0.5)' }}>
+                  {icon}<br/>{label}
+                </button>
+              ))}
+            </div>
+
+            {/* Day 1 — Setup & Creation */}
+            {onboardDay === 1 && (
+              <div>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>🏗️ Day 1 — Setup & Create Your First Product</div>
+                <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Goal: Have ONE sellable product ready by tonight</div>
+                {[
+                  { step:1, icon:'🧠', title:'Choose what to sell', action:'Tell me 3 things you are good at — I will pick the best one to turn into money', btn:'Generate My Product', prompt:'The user needs to choose their first digital product to sell. Ask them: "Tell me 3 things you are good at or have access to." Then immediately give them ONE specific product they can sell tomorrow, with a price, a one-line pitch, and who to sell it to. Be direct. South African context. Max 4 lines total.' },
+                  { step:2, icon:'💰', title:'Set your price', action:'Pricing made simple: R100 = beginners · R200 = most products · R300 = time-intensive', btn:null, prompt:null },
+                  { step:3, icon:'📋', title:'Write your offer in one sentence', action:'Example: "I write WhatsApp messages that bring you customers — R150, done same day"', btn:'Write My Offer Line', prompt:'Write ONE selling sentence for a beginner South African. Format: "I [do something] that [solves a problem] — R[price], [delivery timeframe]". Give 3 variations they can choose from. Maximum 4 lines total. No preamble.' },
+                ].map(({step, icon, title, action, btn, prompt}) => (
+                  <div key={step} style={{ display:'flex', gap:'12px', marginBottom:'14px', padding:'14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'rgba(16,185,129,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:700, color:'#6EE7B7', flexShrink:0 }}>{step}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'4px' }}>
+                        <span style={{ fontSize:'16px' }}>{icon}</span>
+                        <span style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{title}</span>
+                      </div>
+                      <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom: btn ? '10px' : '0' }}>{action}</div>
+                      {btn && prompt && (
+                        <>
+                          {onboardStep === step && onboardResult && (
+                            <div style={{ background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'10px', padding:'12px', fontSize:'13px', color:'rgba(255,255,255,0.85)', lineHeight:1.8, whiteSpace:'pre-wrap', marginBottom:'8px' }}>
+                              {onboardResult}
+                              <button onClick={() => navigator.clipboard.writeText(onboardResult)} style={{ marginTop:'8px', padding:'6px 14px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'8px', color:'#6EE7B7', fontSize:'11px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy</button>
+                            </div>
+                          )}
+                          <button onClick={async () => { setOnboardStep(step); setOnboardLoading(true); setOnboardResult(''); const r = await callAI(prompt); setOnboardResult(r); setOnboardLoading(false) }} disabled={onboardLoading}
+                            style={{ padding:'8px 16px', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'8px', color:'#6EE7B7', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                            {onboardLoading && onboardStep===step ? '🤖 Generating...' : `✨ ${btn}`}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Day 2 — Marketing */}
+            {onboardDay === 2 && (
+              <div>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>📣 Day 2 — Get Your First Leads</div>
+                <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Goal: 10 people have heard about your offer by tonight</div>
+                {[
+                  { step:1, icon:'📱', title:'Post on WhatsApp Status', action:'Your status is your free billboard — 200+ people see it daily', btn:'Generate My Status Post', prompt:'Write a WhatsApp Status post for a South African beginner selling a digital service. It must create curiosity without revealing the price. Under 100 words. No hashtags. Ends with "Message me to find out more." Give 2 versions: VERSION A and VERSION B.' },
+                  { step:2, icon:'💬', title:'Message 10 people directly', action:'Not random strangers — people who know you. Family, friends, colleagues, neighbours', btn:'Write My DM Script', prompt:'Write a direct WhatsApp message for a South African beginner. To someone they know (friend, family, colleague). Offering a simple digital service. Must feel personal, not salesy. Under 60 words. Give ONE message they can personalise with the name at the start.' },
+                  { step:3, icon:'📘', title:'Post in 2 Facebook Groups', action:'Join local community groups, business groups, or buy-and-sell groups near you', btn:'Write My Facebook Post', prompt:'Write a Facebook Group post for a South African beginner. Offering a simple digital service. Must generate comments and enquiries. Under 120 words. Ends with a clear call to action.' },
+                ].map(({step, icon, title, action, btn, prompt}) => (
+                  <div key={step} style={{ display:'flex', gap:'12px', marginBottom:'14px', padding:'14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'rgba(8,145,178,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:700, color:'#38BDF8', flexShrink:0 }}>{step}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'4px' }}>
+                        <span style={{ fontSize:'16px' }}>{icon}</span>
+                        <span style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{title}</span>
+                      </div>
+                      <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'10px' }}>{action}</div>
+                      {onboardStep === step+10 && onboardResult && (
+                        <div style={{ background:'rgba(8,145,178,0.08)', border:'1px solid rgba(8,145,178,0.2)', borderRadius:'10px', padding:'12px', fontSize:'13px', color:'rgba(255,255,255,0.85)', lineHeight:1.8, whiteSpace:'pre-wrap', marginBottom:'8px' }}>
+                          {onboardResult}
+                          <button onClick={() => navigator.clipboard.writeText(onboardResult)} style={{ marginTop:'8px', padding:'6px 14px', background:'rgba(8,145,178,0.1)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'11px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy</button>
+                        </div>
+                      )}
+                      <button onClick={async () => { setOnboardStep(step+10); setOnboardLoading(true); setOnboardResult(''); const r = await callAI(prompt); setOnboardResult(r); setOnboardLoading(false) }} disabled={onboardLoading}
+                        style={{ padding:'8px 16px', background:'rgba(8,145,178,0.15)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                        {onboardLoading && onboardStep===step+10 ? '🤖 Generating...' : `✨ ${btn}`}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Day 3 — Close */}
+            {onboardDay === 3 && (
+              <div>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>💰 Day 3 — Close Your First Sale</div>
+                <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Goal: At least ONE person pays you today</div>
+                {[
+                  { step:1, icon:'🔄', title:'Follow up with yesterday's leads', action:'Anyone who did not reply gets one more message — warm, not pushy', btn:'Write My Follow-Up', prompt:'Write a WhatsApp follow-up message for a South African beginner. The recipient showed interest yesterday but did not respond. Must be warm, short, and create light urgency. Under 40 words. One message only.' },
+                  { step:2, icon:'💸', title:'Handle the "too expensive" reply', action:'This is the most common objection — handle it right and you close the sale', btn:'Handle Objection', prompt:'Write a reply to a South African customer who said "too expensive" about a R150 digital service. The reply must reframe value, not drop the price. Under 50 words. Ends with a question that reopens the conversation.' },
+                  { step:3, icon:'✅', title:'Ask for the sale directly', action:'Most beginners wait to be asked — you must ask. Here is how.', btn:'Write My Closing Message', prompt:'Write a closing WhatsApp message for a South African beginner. The customer is interested but has not committed. The message must ask for the sale directly, make it easy to say yes, and include a simple payment instruction (SnapScan/EFT). Under 60 words.' },
+                ].map(({step, icon, title, action, btn, prompt}) => (
+                  <div key={step} style={{ display:'flex', gap:'12px', marginBottom:'14px', padding:'14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'rgba(212,175,55,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:700, color:'#D4AF37', flexShrink:0 }}>{step}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'4px' }}>
+                        <span style={{ fontSize:'16px' }}>{icon}</span>
+                        <span style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{title}</span>
+                      </div>
+                      <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'10px' }}>{action}</div>
+                      {onboardStep === step+20 && onboardResult && (
+                        <div style={{ background:'rgba(212,175,55,0.08)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'10px', padding:'12px', fontSize:'13px', color:'rgba(255,255,255,0.85)', lineHeight:1.8, whiteSpace:'pre-wrap', marginBottom:'8px' }}>
+                          {onboardResult}
+                          <button onClick={() => navigator.clipboard.writeText(onboardResult)} style={{ marginTop:'8px', padding:'6px 14px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:'#D4AF37', fontSize:'11px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy</button>
+                        </div>
+                      )}
+                      <button onClick={async () => { setOnboardStep(step+20); setOnboardLoading(true); setOnboardResult(''); const r = await callAI(prompt); setOnboardResult(r); setOnboardLoading(false) }} disabled={onboardLoading}
+                        style={{ padding:'8px 16px', background:'rgba(212,175,55,0.15)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:'#D4AF37', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                        {onboardLoading && onboardStep===step+20 ? '🤖 Generating...' : `✨ ${btn}`}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop:'8px', padding:'14px', background:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.06))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'12px', textAlign:'center' }}>
+                  <div style={{ fontSize:'20px', marginBottom:'4px' }}>🏆</div>
+                  <div style={{ fontSize:'13px', fontWeight:700, color:'#D4AF37' }}>If you followed all 3 days — you earned today.</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginTop:'4px' }}>Repeat tomorrow. The system compounds.</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ══ VEHICLE 1: MANUAL ══ */}
         {vehicle === 'manual' && (
