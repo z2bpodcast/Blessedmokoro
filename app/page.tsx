@@ -245,28 +245,30 @@ export default function Home() {
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
             {!user && (
-              <div className="flex gap-4 justify-center flex-wrap">
-                <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
-                  Start Building
-                </Link>
-                <Link
-                  href="/invite"
-                  className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
-                  style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
-                >
-                  🌟 You are Invited
-                </Link>
-              </div>
-              {/* 4M AI Income Machine CTA — for guests */}
-              <div className="mt-4 flex justify-center">
-                <Link
-                  href="/ai-income/landing"
-                  className="inline-flex items-center gap-2 font-bold px-8 py-3 rounded-full text-sm border-2 hover:opacity-90 shadow-lg"
-                  style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', borderColor: 'rgba(212,175,55,0.5)', color: '#1E1245' }}
-                >
-                  🤖 Start Earning with AI — 4M Money Machine
-                </Link>
-              </div>
+              <>
+                <div className="flex gap-4 justify-center flex-wrap">
+                  <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
+                    Start Building
+                  </Link>
+                  <Link
+                    href="/invite"
+                    className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
+                    style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
+                  >
+                    🌟 You are Invited
+                  </Link>
+                </div>
+                {/* 4M AI Income Machine CTA — for guests */}
+                <div className="mt-4 flex justify-center">
+                  <Link
+                    href="/ai-income/landing"
+                    className="inline-flex items-center gap-2 font-bold px-8 py-3 rounded-full text-sm border-2 hover:opacity-90 shadow-lg"
+                    style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', borderColor: 'rgba(212,175,55,0.5)', color: '#1E1245' }}
+                  >
+                    🤖 Start Earning with AI — 4M Money Machine
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>

@@ -3,8 +3,17 @@ const nextConfig = {
   env: {
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   },
+  turbopack: {
+    // Ensure Turbopack picks this repo as the root (avoids picking up other lockfiles on the machine).
+    root: __dirname,
+  },
   images: {
-    domains: ['res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
   },
   async headers() {
     return [
