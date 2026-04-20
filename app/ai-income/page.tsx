@@ -1,94 +1,137 @@
 'use client'
 // FILE: app/ai-income/page.tsx
-// Z2B AI Income Execution System
-// AI-Powered Smartphone Income System: R500 · 60-Day AI Income Activation Program Online Income System
+// Z2B 4M Income Execution System — Three Vehicles
+// 🚗 Manual (R500) → ⚙️ Automatic (R2,500) → ⚡ Electric (R5,000+)
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { FOURM_BRAND as FOURM, THEME as T } from './fourm-brand'
 
-// ── TYPES ─────────────────────────────────────────────────
-type Tab = 'guide'|'offer'|'finder'|'post'|'product'|'reply'|'close'|'daily'|'referral'
-const FREE_TABS: readonly Tab[] = ['guide', 'offer', 'finder', 'post', 'product']
-const isPremiumTab = (t: Tab) => !FREE_TABS.includes(t)
+type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
+type Vehicle = 'manual'|'automatic'|'electric'
 
-// ── AI API CALL ───────────────────────────────────────────
-async function callAI(prompt: string): Promise<string> {
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 25000)
-
-  try {
-    const res = await fetch('/api/ai-income', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-      signal: controller.signal,
-    })
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      return data?.error || 'AI service is temporarily unavailable. Please try again in a moment.'
-    }
-
-    const data = await res.json()
-    return (data?.text || '').trim() || 'No response generated yet. Please press the button again.'
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return 'Request timed out. Please try again.'
-    }
-    return 'Network error while generating. Please check your internet and try again.'
-  } finally {
-    clearTimeout(timeout)
-  }
+async function callAI(prompt: string, systemPrompt?: string): Promise<string> {
+  const messages: any[] = [{ role: 'user', content: prompt }]
+  const body: any = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages }
+  if (systemPrompt) body.system = systemPrompt
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json()
+  return data.content?.[0]?.text || ''
 }
 
-// ── DAILY CHECKLIST ITEMS ─────────────────────────────────
+const COACH_SYSTEM = `You are Coach Manlaw — The Executor. You are an AI business coach built for ONE purpose: ACTION → INCOME → EXECUTION.
+
+Your personality:
+- Execution-first. Never theory without action.
+- Direct. No fluff. No motivation without a next step.
+- South African context. Understand the market.
+- Push back on excuses. Redirect to action.
+- Sales conversion assistant AND mindset correction engine.
+
+When someone hesitates about R500:
+PRICE: R500 for 60 days of AI-powered income activation.
+COST OF NOT JOINING: Working for someone else for life. No financial freedom. No purpose freedom. Missed opportunities daily.
+REFRAME: "The PRICE is R500. The COST is your future lifestyle, freedom, and missed opportunity."
+
+Always end with ONE specific action the person must take RIGHT NOW.`
+
 const DAILY_TASKS = [
-  { id:'post1',    icon:'📱', text:'Post on WhatsApp Status (morning)',           points:10 },
-  { id:'post2',    icon:'📘', text:'Post in 2 Facebook Groups',                   points:10 },
-  { id:'contact1', icon:'💬', text:'Contact 10 people with your offer',           points:20 },
-  { id:'follow',   icon:'🔄', text:'Follow up with yesterday\'s contacts',        points:15 },
-  { id:'post3',    icon:'📱', text:'Post on WhatsApp Status (evening)',           points:10 },
-  { id:'contact2', icon:'💬', text:'Contact 10 more people (new list)',           points:20 },
-  { id:'close',    icon:'💰', text:'Attempt to close at least 1 client',         points:25 },
-  { id:'refer',    icon:'🔗', text:'Share referral link with 3 people',          points:10 },
+  { id:'post1',    icon:'📱', text:'Post on WhatsApp Status (morning)',        points:10 },
+  { id:'post2',    icon:'📘', text:'Post in 2 Facebook Groups',                points:10 },
+  { id:'contact1', icon:'💬', text:'Contact 10 people with your offer',        points:20 },
+  { id:'follow',   icon:'🔄', text:'Follow up with yesterday\'s contacts',     points:15 },
+  { id:'post3',    icon:'📱', text:'Post on WhatsApp Status (evening)',        points:10 },
+  { id:'contact2', icon:'💬', text:'Contact 10 more people (new list)',        points:20 },
+  { id:'close',    icon:'💰', text:'Attempt to close at least 1 client',      points:25 },
+  { id:'refer',    icon:'🔗', text:'Share 4M referral link with 3 people',    points:10 },
+]
+
+// ── V2: AUTOMATIC — Product Multiplication Engine ─────────────────────────
+const PRODUCT_SEEDS = [
+  { icon:'💼', name:'WhatsApp Business Boost Pack',    price:'R150–R300' },
+  { icon:'📄', name:'CV & Job Boost Kit',              price:'R100–R200' },
+  { icon:'📱', name:'Social Media Content Pack',       price:'R200–R400' },
+  { icon:'💬', name:'Customer Attraction Messages',    price:'R100–R200' },
+  { icon:'🚀', name:'Side Hustle Starter Pack',        price:'R150–R300' },
+]
+
+// ── V3: ELECTRIC — Automation Templates ──────────────────────────────────
+const AUTO_SEQUENCES = [
+  {
+    name: 'New Lead Welcome',
+    trigger: 'Someone messages about your product',
+    steps: [
+      { delay:'0 min',  msg:'Thanks for reaching out! 🙌 I can help you with [product]. Let me send you the details right now.' },
+      { delay:'2 min',  msg:'Here\'s exactly what you get: [product description + price]. Clients love this because it [key benefit].' },
+      { delay:'5 min',  msg:'Quick question — are you available for me to set this up for you today or would tomorrow work better?' },
+    ]
+  },
+  {
+    name: '24-Hour Follow-Up',
+    trigger: 'No response after initial message',
+    steps: [
+      { delay:'24 hrs', msg:'Hey [Name] 👋 Just checking if you saw my message about [product]. Happy to answer any questions!' },
+      { delay:'48 hrs', msg:'[Name], last message from me — I\'m only taking 3 more clients this week. Would hate for you to miss out. Yes or no?' },
+    ]
+  },
+  {
+    name: 'Post-Sale Upsell',
+    trigger: 'Client just paid',
+    steps: [
+      { delay:'0 min',  msg:'🎉 Welcome [Name]! Your [product] is being prepared. You\'ll receive it within [timeframe].' },
+      { delay:'1 day',  msg:'How are you finding [product] so far? Many clients also upgrade to our [next product] — interested?' },
+      { delay:'3 days', msg:'[Name], clients who add [bundle] usually earn R[amount] more per month. Want to see how?' },
+    ]
+  },
 ]
 
 function AIIncomeInner() {
-  const searchParams  = useSearchParams()
-  const ref           = searchParams.get('ref') || ''
-  const activated     = searchParams.get('activated') === 'true'
+  const searchParams = useSearchParams()
+  const ref          = searchParams.get('ref') || ''
+  const activated    = searchParams.get('activated') === 'true'
 
   const [user,         setUser]         = useState<any>(null)
   const [profile,      setProfile]      = useState<any>(null)
   const [unlocked,     setUnlocked]     = useState(false)
+  const [vehicle,      setVehicle]      = useState<Vehicle>('manual')
   const [loading,      setLoading]      = useState(true)
-  const [tab,          setTab]          = useState<Tab>('guide')
+  const [tab,          setTab]          = useState<Tab>('offer')
   const [aiLoading,    setAiLoading]    = useState(false)
   const [result,       setResult]       = useState('')
 
-  // Offer Generator
+  // Manual (V1) states
   const [skill,        setSkill]        = useState('')
   const [location,     setLocation]     = useState('')
-
-  // Post Generator
   const [offerDesc,    setOfferDesc]    = useState('')
   const [postType,     setPostType]     = useState<'whatsapp'|'facebook'|'dm'>('whatsapp')
-  const [productType,  setProductType]  = useState<'pdf'|'worksheet'|'guide'|'checklist'|'template'|'video'>('pdf')
-  const [productNiche, setProductNiche] = useState('')
-  const [productAudience, setProductAudience] = useState('')
-  const [productGoal,  setProductGoal]  = useState('')
-
-  // Reply Helper
   const [replyContext, setReplyContext] = useState('')
   const [replyCategory,setReplyCategory]= useState<ReplyCategory>('expensive')
-
-  // Daily tracker
   const [checked,      setChecked]      = useState<Record<string,boolean>>({})
-  const totalPoints = DAILY_TASKS.reduce((sum, t) => checked[t.id] ? sum + t.points : sum, 0)
+
+  // Automatic (V2) states
+  const [v2Product,    setV2Product]    = useState<number>(0)
+  const [v2Mode,       setV2Mode]       = useState<'multiply'|'launch'|'sequence'>('multiply')
+  const [v2Result,     setV2Result]     = useState('')
+  const [v2Loading,    setV2Loading]    = useState(false)
+
+  // Electric (V3) states
+  const [v3Sequence,   setV3Sequence]   = useState<number>(0)
+  const [v3Result,     setV3Result]     = useState('')
+  const [v3Loading,    setV3Loading]    = useState(false)
+  const [v3ProductName,setV3ProductName]= useState('')
+  const [v3Price,      setV3Price]      = useState('')
+  const [autoRunning,  setAutoRunning]  = useState(false)
+
+  // Coach Manlaw
+  const [manlawOpen,   setManlawOpen]   = useState(false)
+  const [manlawInput,  setManlawInput]  = useState('')
+  const [manlawHist,   setManlawHist]   = useState<{role:string,text:string}[]>([])
+  const [manlawLoading,setManlawLoading]= useState(false)
 
   // Payment
   const [paying,       setPaying]       = useState(false)
@@ -102,15 +145,13 @@ function AIIncomeInner() {
   // Referral
   const [refCopied,    setRefCopied]    = useState(false)
   const [myCommissions,setMyCommissions]= useState<any[]>([])
-  const [sponsorName,  setSponsorName]  = useState('')
-  const [showDeployWelcome, setShowDeployWelcome] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       setUser(u)
       if (u) {
         const [{ data: prof }, { data: unlock }, { data: comms }] = await Promise.all([
-          supabase.from('profiles').select('full_name, referral_code, paid_tier').eq('id', u.id).single(),
+          supabase.from('profiles').select('full_name,referral_code,paid_tier').eq('id', u.id).single(),
           supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).single(),
           supabase.from('ai_income_commissions').select('*').eq('referrer_id', u.id).order('created_at', { ascending: false }),
         ])
@@ -120,1057 +161,839 @@ function AIIncomeInner() {
       }
       setLoading(false)
     })
-    // Get sponsor name if ref present
-    if (ref) {
-      fetch(`/api/sponsor?ref=${encodeURIComponent(ref)}`)
-        .then(r => r.json()).then(d => { if (d?.name) setSponsorName(d.name) })
-        .catch(() => {})
-    }
-  }, [ref])
+  }, [])
 
-  useEffect(() => {
-    if (loading || !user || typeof window === 'undefined') return
-    try {
-      if (!localStorage.getItem(FOURM.storageKey)) setShowDeployWelcome(true)
-    } catch { /* ignore */ }
-  }, [loading, user])
+  const refLink  = `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/4m?ref=${profile?.referral_code || ''}`
+  const totalEarned = myCommissions.filter(c => c.status === 'paid').reduce((s: number, c: any) => s + c.amount, 0)
+  const pending     = myCommissions.filter(c => c.status === 'pending').reduce((s: number, c: any) => s + c.amount, 0)
+  const totalPoints = DAILY_TASKS.reduce((sum, t) => checked[t.id] ? sum + t.points : sum, 0)
 
-  const dismissDeployWelcome = () => {
-    try { localStorage.setItem(FOURM.storageKey, '1') } catch { /* ignore */ }
-    setShowDeployWelcome(false)
+  // ── COACH MANLAW ──────────────────────────────────────
+  const callManlaw = async (msg: string) => {
+    if (!msg.trim()) return
+    setManlawLoading(true)
+    const history = manlawHist.map(h => ({ role: h.role === 'manlaw' ? 'assistant' : 'user', content: h.text }))
+    history.push({ role: 'user', content: msg })
+    const response = await callAI(msg, COACH_SYSTEM + '\n\nConversation so far:\n' + history.slice(-6).map(h => `${h.role}: ${h.content}`).join('\n'))
+    setManlawHist(prev => [...prev, { role:'user', text:msg }, { role:'manlaw', text:response }])
+    setManlawInput('')
+    setManlawLoading(false)
   }
 
-  const refLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/ai-income?ref=${profile?.referral_code || ''}`
-  const totalEarned = myCommissions.filter(c => c.status === 'paid').reduce((s:number, c:any) => s + c.amount, 0)
-  const pending     = myCommissions.filter(c => c.status === 'pending').reduce((s:number, c:any) => s + c.amount, 0)
-
-  // ── AI CALLS ───────────────────────────────────────────
+  // ── V1: MANUAL AI CALLS ───────────────────────────────
   const generateOffer = async () => {
     if (!skill.trim()) return
     setAiLoading(true); setResult('')
-    const text = await callAI(`You are a business coach helping a South African beginner make money using their smartphone.
-
-The person has this skill/resource: "${skill}"
-Their location/context: "${location || 'South Africa'}"
-
-Create a simple sellable offer they can start TODAY. Format your response exactly like this:
-
-🎯 YOUR OFFER:
-[One clear sentence describing what they sell]
-
-👥 TARGET CUSTOMER:
-[Who will pay for this - be specific]
-
-💰 PRICING:
-[Suggested price - between R50 and R500]
-
-📱 HOW TO DELIVER:
-[Simple step-by-step - maximum 3 steps]
-
-⚡ YOUR ONE-LINE PITCH:
-[One sentence they can copy-paste right now]
-
-Keep everything simple. No jargon. Beginner-friendly. South African context.`)
+    const text = await callAI(`South African beginner wants to make money. Their skill: "${skill}". Location: "${location || 'South Africa'}".
+Create a simple sellable offer. Format:
+🎯 YOUR OFFER: [one sentence]
+👥 TARGET CUSTOMER: [specific]
+💰 PRICING: [R50–R500 range]
+📱 HOW TO DELIVER: [3 steps max]
+⚡ YOUR ONE-LINE PITCH: [copy-paste ready]`)
     setResult(text); setAiLoading(false)
   }
 
   const generateFinder = async () => {
     if (!skill.trim()) return
     setAiLoading(true); setResult('')
-    const text = await callAI(`You are helping a South African beginner find their first customers using a smartphone.
-
-Their offer: "${skill}"
-
-Give them an exact customer-finding action plan. Format:
-
+    const text = await callAI(`South African beginner. Offer: "${skill}". Give exact customer-finding plan:
 📍 WHERE TO FIND CUSTOMERS:
-
-1. WhatsApp:
-[Specific action]
-
-2. Facebook Groups:
-[Specific groups to join and what to post]
-
-3. Local Network:
-[Who in their life to contact first]
-
-📋 TODAY'S ACTION PLAN (do this in the next 2 hours):
-[5 specific numbered steps]
-
-⚠️ AVOID:
-[2 common mistakes beginners make]
-
-Keep it actionable. No fluff. South African context.`)
+1. WhatsApp: [specific action]
+2. Facebook Groups: [which groups + what to post]
+3. Local Network: [who to contact first]
+📋 TODAY'S ACTION PLAN (next 2 hours): [5 numbered steps]
+⚠️ AVOID: [2 common mistakes]`)
     setResult(text); setAiLoading(false)
   }
 
   const generatePost = async () => {
     if (!offerDesc.trim()) return
     setAiLoading(true); setResult('')
-    const platforms: Record<string, string> = {
-      whatsapp: 'WhatsApp Status (max 700 characters, casual, emoji-friendly)',
+    const platforms: Record<string,string> = {
+      whatsapp: 'WhatsApp Status (max 700 chars, casual, emoji-friendly)',
       facebook: 'Facebook Group post (slightly longer, includes call to action)',
-      dm:       'Direct message to a specific person (personal, not salesy)',
+      dm: 'Direct message to specific person (personal, not salesy)',
     }
-    const text = await callAI(`Create a ${platforms[postType]} for this offer:
-
-"${offerDesc}"
-
-Rules:
-- Written for a South African audience
-- Simple language — Grade 8 reading level
-- Creates curiosity, not desperation
-- Ends with a clear call to action
-- No hashtag spam
-- Feels human, not robotic
-
-Generate 2 versions so the user can choose. Label them VERSION A and VERSION B.`)
-    setResult(text); setAiLoading(false)
-  }
-
-  const generateProduct = async () => {
-    if (!productNiche.trim() || !productGoal.trim()) return
-    setAiLoading(true); setResult('')
-    const formatMap: Record<string, string> = {
-      pdf: 'PDF eBook',
-      worksheet: 'Worksheet',
-      guide: 'Step-by-step Guide',
-      checklist: 'Checklist',
-      template: 'Template pack',
-      video: 'Video training outline',
-    }
-    const text = await callAI(`You are helping a beginner creator build a sellable digital product in South Africa.
-
-Product format: ${formatMap[productType]}
-Niche/topic: "${productNiche}"
-Target audience: "${productAudience || 'Beginners using a smartphone'}"
-Transformation goal: "${productGoal}"
-
-Important:
-- Include an "AI RESEARCH PROMPT" section with exact prompts they can paste into their AI tool to research market pain points, objections, desired outcomes, and competitor offers.
-- Include an "AI PRODUCT CREATION PROMPT" section with exact prompts they can paste into their AI tool to draft the product content.
-
-Return in this structure:
-1) PRODUCT NAME OPTIONS (3)
-2) PRODUCT POSITIONING (problem solved + who it is for)
-3) DETAILED OUTLINE (modules/pages/sections)
-4) AI RESEARCH PROMPT (copy-paste ready)
-5) AI PRODUCT CREATION PROMPT (copy-paste ready)
-6) FAST DELIVERY PLAN (how to create in 24 hours using smartphone tools)
-7) SELLING PRICE + OFFER STACK (entry, standard, premium)
-8) ONE-LINE SALES PITCH
-9) WHATSAPP LAUNCH MESSAGE
-
-Keep it practical, beginner-friendly, and execution-focused.`)
+    const text = await callAI(`Create a ${platforms[postType]} for: "${offerDesc}". South African audience. Simple language. Creates curiosity. Clear call to action. No hashtag spam. Feels human. Generate VERSION A and VERSION B.`)
     setResult(text); setAiLoading(false)
   }
 
   const generateReply = async () => {
     setAiLoading(true); setResult('')
-    const categories: Record<ReplyCategory, string> = {
-      expensive:      'The customer said it is too expensive or they cannot afford it',
-      moreinfo:       'The customer asked for more information',
-      thinking:       'The customer said they are thinking about it or need time',
-      notinterested:  'The customer said they are not interested',
-      howworks:       'The customer asked how it works or how they will get the product/service',
+    const cats: Record<ReplyCategory,string> = {
+      expensive:'Customer said too expensive',
+      moreinfo:'Customer asked for more info',
+      thinking:'Customer said thinking about it',
+      notinterested:'Customer said not interested',
+      howworks:'Customer asked how it works',
     }
-    const text = await callAI(`You are a sales coach helping a South African beginner respond to a customer.
-
-Situation: ${categories[replyCategory]}
-${replyContext ? `Additional context: "${replyContext}"` : ''}
-
-Provide:
-
-💬 READY-TO-SEND REPLY:
-[Exact message they can copy-paste — natural, friendly, not pushy]
-
-🎯 CLOSING MOVE:
-[One sentence to keep the conversation alive]
-
-🔄 IF THEY DON'T RESPOND IN 24 HOURS:
-[A follow-up message]
-
-Keep it conversational. South African tone. No corporate language.`)
+    const text = await callAI(`Sales coach. South African beginner. Situation: ${cats[replyCategory]}. ${replyContext ? `Context: "${replyContext}"` : ''}
+💬 READY-TO-SEND REPLY: [exact copy-paste — natural, friendly]
+🎯 CLOSING MOVE: [one sentence to keep conversation alive]
+🔄 IF NO RESPONSE IN 24 HOURS: [follow-up message]`)
     setResult(text); setAiLoading(false)
   }
 
   const generateClose = async () => {
     if (!offerDesc.trim()) return
     setAiLoading(true); setResult('')
-    const text = await callAI(`Help a South African beginner close a sale for this offer: "${offerDesc}"
-
-Provide:
-
-💰 CLOSING SCRIPT:
-[Exact words to say when asking for payment]
-
-⏰ URGENCY MESSAGE:
-[A genuine reason to act now — no fake scarcity]
-
-💳 PAYMENT INSTRUCTIONS:
-[How to ask for payment naturally — SnapScan, EFT, cash]
-
-🎉 AFTER THEY SAY YES:
-[Exactly what to say and do next]
-
-Natural. Confident. Not pushy. South African context.`)
+    const text = await callAI(`Help South African beginner close sale for: "${offerDesc}"
+💰 CLOSING SCRIPT: [exact words to ask for payment]
+⏰ URGENCY MESSAGE: [genuine reason to act now]
+💳 PAYMENT INSTRUCTIONS: [how to ask naturally — SnapScan/EFT/cash]
+🎉 AFTER THEY SAY YES: [exactly what to do next]`)
     setResult(text); setAiLoading(false)
   }
 
-  // ── PAYMENT ────────────────────────────────────────────
+  // ── V2: AUTOMATIC AI CALLS ────────────────────────────
+  const v2Multiply = async () => {
+    setV2Loading(true); setV2Result('')
+    const seed = PRODUCT_SEEDS[v2Product]
+    const text = await callAI(`You are a digital product multiplication engine.
+Seed product: "${seed.name}" (${seed.price})
+
+Generate 5 NEW digital products derived from this one. Each must be:
+- Sellable on WhatsApp/Facebook
+- Deliverable digitally
+- Targetted at South Africans
+- Priced between R100–R500
+
+For each product:
+📦 PRODUCT NAME: 
+💰 PRICE: 
+👥 TARGET: 
+📱 DELIVERY: 
+⚡ LAUNCH MESSAGE (ready to send):
+---`)
+    setV2Result(text); setV2Loading(false)
+  }
+
+  const v2Launch = async () => {
+    setV2Loading(true); setV2Result('')
+    const seed = PRODUCT_SEEDS[v2Product]
+    const text = await callAI(`1-Click Product Launch System for: "${seed.name}"
+
+Generate ALL THREE:
+
+📱 1. WHATSAPP STATUS POST:
+[Ready to post — under 700 chars — creates curiosity]
+
+💬 2. DIRECT MESSAGE SCRIPT:
+[Personal message to send to 10 specific people]
+
+📢 3. FACEBOOK GROUP POST:
+[Slightly longer — includes price and call to action]
+
+Then add:
+👉 SEND THIS TO 10 PEOPLE NOW — [exact list of who to contact]
+
+🤖 COACH MANLAW SAYS: "Tell me when you get replies. I will help you close."`)
+    setV2Result(text); setV2Loading(false)
+  }
+
+  const v2Sequence = async () => {
+    setV2Loading(true); setV2Result('')
+    const seed = PRODUCT_SEEDS[v2Product]
+    const text = await callAI(`Create a 5-day WhatsApp follow-up sequence for: "${seed.name}"
+
+Each day: one message, clear purpose, specific timing.
+
+Day 1 — Initial offer
+Day 2 — Value/social proof
+Day 3 — Overcome objection
+Day 4 — Urgency/scarcity
+Day 5 — Final close
+
+Format each as:
+📅 DAY [N] — [Purpose]
+⏰ Send at: [time]
+💬 Message: [exact copy-paste]`)
+    setV2Result(text); setV2Loading(false)
+  }
+
+  // ── V3: ELECTRIC AI CALLS ─────────────────────────────
+  const v3PersonalizeSequence = async () => {
+    if (!v3ProductName.trim()) return
+    setV3Loading(true); setV3Result('')
+    const seq = AUTO_SEQUENCES[v3Sequence]
+    const text = await callAI(`Personalize this automation sequence for my product.
+
+My product: "${v3ProductName}"
+My price: "${v3Price || 'see product'}"
+Sequence type: "${seq.name}"
+Trigger: "${seq.trigger}"
+
+Rewrite each message template with MY specific product details. Keep the timing. Make it feel personal and South African. Add WhatsApp-friendly formatting.
+
+${seq.steps.map((s, i) => `Step ${i+1} (${s.delay}): "${s.msg}"`).join('\n')}`)
+    setV3Result(text); setV3Loading(false)
+  }
+
+  const v3BuildAutomation = async () => {
+    if (!v3ProductName.trim()) return
+    setV3Loading(true); setV3Result('')
+    const text = await callAI(`Build a complete WhatsApp automation blueprint for:
+Product: "${v3ProductName}"
+Price: "${v3Price || 'R100–R300'}"
+
+Create:
+
+⚡ DAILY AUTOMATION SCHEDULE:
+[What runs automatically each day — morning, afternoon, evening]
+
+📊 WEEKLY INCOME TRACKER:
+[Simple system to track leads, conversations, closes, income]
+
+🔁 MULTIPLICATION TRIGGER:
+[When to create the next product and what it should be]
+
+📈 30-DAY INCOME PROJECTION:
+[Conservative estimate based on 10-20 daily contacts]
+
+This is the Electric Mode — the 4M Machine running with minimal effort.`)
+    setV3Result(text); setV3Loading(false)
+  }
+
+  // ── PAYMENT ──────────────────────────────────────────
   const handlePay = async () => {
     if (!user) { setShowReg(true); return }
     setPaying(true); setPayError('')
     try {
       const res = await fetch('/api/yoco', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action:   'create_checkout',
-          user_id:  user.id,
-          ref_code: ref || profile?.referral_code || '',
-          tier:     'ai_income',
-        }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action:'create_checkout', user_id:user.id, ref_code:ref, tier:'ai_income' }),
       })
-      const rawText = await res.text()
-      const data = rawText ? JSON.parse(rawText) : {}
-      if (!res.ok || !data.checkoutUrl) {
-        setPayError(data.error || 'Payment setup failed. Please try again.')
-        setPaying(false); return
-      }
-      window.location.href = data.checkoutUrl
-    } catch (e: any) {
-      setPayError(e.message); setPaying(false)
-    }
+      const data = await res.json()
+      if (data.checkoutUrl) { window.location.href = data.checkoutUrl }
+      else { setPayError(data.error || 'Payment failed'); setPaying(false) }
+    } catch (e: any) { setPayError(e.message); setPaying(false) }
   }
 
-  const handleRegisterAndPay = async () => {
+  const handleRegPay = async () => {
     if (!regName.trim() || !regEmail.trim() || !regWa.trim()) return
     setRegLoading(true)
-    const tempPwd = `Z2B${Math.random().toString(36).slice(2,10).toUpperCase()}!`
+    const pwd = `Z2B${Math.random().toString(36).slice(2,10).toUpperCase()}!`
     const { data: authData, error } = await supabase.auth.signUp({
-      email: regEmail.trim().toLowerCase(),
-      password: tempPwd,
-      options: { data: { full_name: regName.trim(), whatsapp: regWa.trim(), referred_by: ref || null } },
+      email: regEmail.trim().toLowerCase(), password: pwd,
+      options: { data: { full_name: regName.trim(), whatsapp: regWa.trim(), referred_by: ref||null } },
     })
-    if (error && !error.message.toLowerCase().includes('already')) {
-      setPayError(error.message); setRegLoading(false); return
-    }
+    if (error && !error.message.toLowerCase().includes('already')) { setPayError(error.message); setRegLoading(false); return }
     const uid = authData?.user?.id
     if (!uid) { setPayError('Registration failed'); setRegLoading(false); return }
-    setUser(authData.user)
-    setShowReg(false)
-    // Now pay
     const res = await fetch('/api/yoco', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action:'create_checkout', user_id:uid, ref_code:ref||'', tier:'ai_income' }),
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'create_checkout', user_id:uid, ref_code:ref, tier:'ai_income' }),
     })
     const data = await res.json()
     if (data.checkoutUrl) { window.location.href = data.checkoutUrl }
-    else { setPayError(data.error || 'Payment failed'); setRegLoading(false) }
+    else { setPayError(data.error||'Payment failed'); setRegLoading(false) }
   }
 
-  // ── STYLES ─────────────────────────────────────────────
-  const BG    = T.appBg
-  const GOLD  = T.gold
-  const PURP  = T.violet
-  const GREEN = T.emerald
+  // ── STYLES ────────────────────────────────────────────
+  const BG   = '#09060F'
+  const GOLD = '#D4AF37'
+  const PURP = '#4C1D95'
+  const GRN  = '#10B981'
 
-  const tabBtn = (id: Tab, icon: string, label: string) => {
-    const locked = isPremiumTab(id) && !unlocked
-    const active = tab === id
-    return (
-      <button key={id} type="button" onClick={() => { setTab(id); setResult('') }}
-        style={{ padding:'10px 14px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700, whiteSpace:'nowrap' as const,
-          background: active ? (locked ? 'rgba(148,163,184,0.14)' : 'rgba(234,179,8,0.14)') : 'rgba(255,255,255,0.04)',
-          border: active ? `1.5px solid ${locked ? 'rgba(148,163,184,0.45)' : GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
-          color: active ? (locked ? 'rgba(226,232,240,0.95)' : GOLD) : 'rgba(255,255,255,0.48)' }}>
-        {locked ? '🔒 ' : ''}{icon} {label}
-      </button>
-    )
-  }
-
-  const inp = { width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.07)', border:`1px solid ${T.appBorder}`, borderRadius:'10px', color:'#fff', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
-  const btn = (color=PURP, border=GOLD) => ({ padding:'14px 28px', background:`linear-gradient(135deg,${color},#4C1D95)`, border:`2px solid ${border}`, borderRadius:'12px', color: border===GOLD ? '#FFFBEB':'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const })
-
-  const inpLight = { width:'100%', padding:'12px 14px', background:T.regInputBg, border:`2px solid ${T.regBorder}`, borderRadius:'10px', color:T.regText, fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
-  const btnLight = { padding:'14px 28px', background:`linear-gradient(135deg,${T.regAccent},${T.guestViolet})`, border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const }
-  const getScoreTone = (score: number) => (
-    score >= 4 ? { bg:'rgba(16,185,129,0.16)', border:'rgba(16,185,129,0.45)', color:'#6EE7B7' } :
-    score >= 3 ? { bg:'rgba(234,179,8,0.16)', border:'rgba(234,179,8,0.45)', color:'#FCD34D' } :
-    { bg:'rgba(239,68,68,0.16)', border:'rgba(239,68,68,0.45)', color:'#FCA5A5' }
+  const tabBtn = (id: Tab, icon: string, label: string) => (
+    <button key={id} onClick={() => { setTab(id); setResult('') }}
+      style={{ padding:'9px 13px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700, whiteSpace:'nowrap' as const,
+        background: tab===id ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+        border: tab===id ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
+        color: tab===id ? GOLD : 'rgba(255,255,255,0.5)' }}>
+      {icon} {label}
+    </button>
   )
 
-  const renderUpgradeGate = () => (
-    <div style={{ textAlign:'center', padding:'40px 20px', background:T.appSurface, borderRadius:'16px', border:`1px solid ${T.appBorder}` }}>
-      <div style={{ fontSize:'52px', marginBottom:'12px' }}>🔒</div>
-      <h2 style={{ fontSize:'20px', fontWeight:800, color:T.text, marginBottom:'10px', fontFamily:'Cinzel,Georgia,serif' }}>Unlock the income-closing stack</h2>
-      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'8px' }}>
-        <strong style={{ color:GOLD }}>First 4 tools are free:</strong> Offer, Finder, Posts &amp; Product Builder.
-      </p>
-      <p style={{ fontSize:'14px', color:T.textMuted, lineHeight:1.75, marginBottom:'10px' }}>
-        Replies, Closing, Daily Engine &amp; Referral Booster require the full <strong style={{ color:T.indigo }}>60-Day 4M program</strong> (R500).
-      </p>
-      <p style={{ fontSize:'13px', color:'rgba(248,250,252,0.75)', lineHeight:1.7, marginBottom:'18px' }}>
-        These are the tools that move you from "I posted" to "I got paid."
-      </p>
-      <div style={{ margin:'0 auto 18px', maxWidth:'520px', textAlign:'left', background:'rgba(99,102,241,0.10)', border:'1px solid rgba(99,102,241,0.35)', borderRadius:'12px', padding:'12px 14px' }}>
-        <div style={{ fontSize:'12px', fontWeight:800, color:'#C7D2FE', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>Automation upsell path</div>
-        <div style={{ fontSize:'13px', color:'rgba(248,250,252,0.82)', lineHeight:1.65 }}>
-          Start with <strong>4M (R500)</strong> to get clients and cashflow. Then upgrade to <strong>Bronze (R2,500)</strong> for automation support, PWA app build guidance, and an API-ready growth stack so your system can run faster with less manual work.
-        </div>
-      </div>
-      {payError && (
-        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>
-      )}
-      <div style={{ display:'flex', flexDirection:'column', gap:'10px', maxWidth:'360px', margin:'0 auto' }}>
-        <button type="button" onClick={handlePay} disabled={paying} style={{ ...btn(), opacity: paying ? 0.7 : 1 }}>
-          {paying ? 'Opening checkout…' : '⚡ Upgrade Now — 4M Pro (R500)'}
-        </button>
-        <Link href="/pricing" style={{ padding:'12px 20px', borderRadius:'12px', border:'1.5px solid rgba(99,102,241,0.45)', color:'#C7D2FE', textDecoration:'none', fontSize:'13px', fontWeight:700, background:'rgba(99,102,241,0.10)' }}>
-          🚀 Scale Faster — Bronze Automation
-        </Link>
-      </div>
-    </div>
-  )
+  const inp = { width:'100%', padding:'12px 14px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'10px', color:'#fff', fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' as const }
+  const primaryBtn = (loading=false, disabled=false) => ({ padding:'14px 28px', background: loading||disabled ? 'rgba(76,29,149,0.4)' : `linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'12px', color:'#FDE68A', fontWeight:700, fontSize:'15px', cursor: loading||disabled ? 'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%' as const })
 
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:BG, display:'flex', alignItems:'center', justifyContent:'center', color:GOLD, fontFamily:'Georgia,serif' }}>
-      Loading...
+    <div style={{ minHeight:'100vh', background:BG, display:'flex', alignItems:'center', justifyContent:'center', color:GOLD, fontFamily:'Georgia,serif' }}>Loading...</div>
+  )
+
+  // ── LANDING (not unlocked) ────────────────────────────
+  if (!unlocked) return (
+    <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
+      <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+        <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
+        {user ? <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Dashboard →</Link>
+               : <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Sign In</Link>}
+      </div>
+      <div style={{ maxWidth:'680px', margin:'0 auto', padding:'48px 20px 80px', textAlign:'center' }}>
+        <div style={{ fontSize:'11px', letterSpacing:'4px', color:'rgba(212,175,55,0.5)', marginBottom:'16px', textTransform:'uppercase' }}>Z2B 4M Income Execution System</div>
+        <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,40px)', fontWeight:900, color:'#fff', margin:'0 0 12px' }}>
+          Start Manual.<br/><span style={{ color:GOLD }}>Upgrade to Electric.</span>
+        </h1>
+        <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.6)', marginBottom:'32px', lineHeight:1.8 }}>
+          R500 unlocks your 4M Machine. Drive it manually to your first income. Upgrade when you are ready for automation.
+        </p>
+        {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
+        <button onClick={handlePay} disabled={paying} style={primaryBtn(paying)}>
+          {paying ? 'Setting up...' : '🚀 Start 4M Machine — R500'}
+        </button>
+        <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
+          60-day access · R500/month after · <Link href="/4m" style={{ color:GOLD, textDecoration:'none' }}>See full details →</Link>
+        </div>
+      </div>
+
+      {/* Registration modal */}
+      {showReg && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
+          <div style={{ background:'linear-gradient(160deg,#0F0820,#1E1245)', border:'2px solid rgba(212,175,55,0.4)', borderRadius:'20px', padding:'32px', maxWidth:'420px', width:'100%', position:'relative' }}>
+            <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
+            <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', margin:'0 0 20px', textAlign:'center' }}>Create Your Account</h2>
+            {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
+              {[{l:'Full Name',v:regName,s:setRegName,p:'Your full name',t:'text'},{l:'Email',v:regEmail,s:setRegEmail,p:'your@email.com',t:'email'},{l:'WhatsApp',v:regWa,s:setRegWa,p:'+27 or 0XX XXX XXXX',t:'tel'}].map(({l,v,s,p,t}) => (
+                <div key={l}>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'5px', letterSpacing:'1px', textTransform:'uppercase' }}>{l} *</label>
+                  <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p} style={inp} />
+                </div>
+              ))}
+            </div>
+            <button onClick={handleRegPay} disabled={regLoading} style={primaryBtn(regLoading)}>
+              {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 
-  // ── GUEST MARKETING (not logged in — light funnel; registration modal only here) ──
-  if (!user) return (
-    <div style={{ minHeight:'100vh', background:T.guestBg, color:T.guestText, fontFamily:'Georgia,serif' }}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
+  // ── MAIN APP (unlocked) ───────────────────────────────
+  const VEHICLES = [
+    { id:'manual',    icon:'🚗', label:'Manual Mode',    sub:'You drive everything yourself', color:'#7C3AED', tier:'Starter · Bronze · Copper',
+      truth:'This is where you LEARN how to make money. Slower. Requires effort. But builds real understanding.', upgrade:'Tired of doing everything manually? Upgrade to Automatic Mode →' },
+    { id:'automatic', icon:'⚙️', label:'Automatic Mode', sub:'The system starts helping you drive', color:'#0891B2', tier:'Silver ⭐ — MOST IMPORTANT',
+      truth:'From struggle to FLOW. Your 4M Machine starts working WITH you. Faster creation. Assisted messaging. Follow-ups begin.', upgrade:'Ready for the system to run while you sleep? Upgrade to Electric Mode →' },
+    { id:'electric',  icon:'⚡', label:'Electric Mode',  sub:'The system drives most of the journey', color:GOLD, tier:'Gold · Platinum',
+      truth:'Your 4M Machine runs with MINIMAL EFFORT. Multiple income streams. Daily automation. Platform-level leverage.', upgrade:'You have built a self-sustaining income system. Scale with Z2B Table Banquet →' },
+  ]
 
-      {/* Nav — light premium bar */}
-      <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.guestBorder}`, background:'rgba(255,255,255,0.75)', backdropFilter:'blur(16px)' }}>
-        <Link href="/" style={{ textDecoration:'none', display:'flex', flexDirection:'column', gap:'2px', lineHeight:1.15 }}>
-          <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:T.guestAccent, letterSpacing:'0.02em' }}>{FOURM.lockupTitle}</span>
-          <span style={{ fontSize:'10px', fontWeight:700, color:T.guestViolet }}>AI Powered: Mobile · Money · Making · Machine</span>
-        </Link>
-        <Link href="/login" style={{ fontSize:'13px', color:T.guestMuted, textDecoration:'none', fontWeight:600 }}>Sign In</Link>
+  return (
+    <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
+
+      {/* Nav */}
+      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.95)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
+        <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Dashboard</Link>
+        <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>🤖 Z2B 4M Income System</div>
+        <button onClick={() => setManlawOpen(true)}
+          style={{ padding:'7px 14px', background:'rgba(76,29,149,0.2)', border:'1px solid rgba(76,29,149,0.4)', borderRadius:'20px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+          🤖 Coach
+        </button>
       </div>
 
-      <div style={{ maxWidth:'700px', margin:'0 auto', padding:'0 20px 80px' }}>
-
-        {/* Sponsor banner */}
-        {sponsorName && (
-          <div style={{ background:'rgba(16,185,129,0.1)', border:'1.5px solid rgba(16,185,129,0.35)', borderRadius:'14px', padding:'14px 18px', margin:'24px 0', display:'flex', alignItems:'center', gap:'12px' }}>
-            <span style={{ fontSize:'20px' }}>🏆</span>
-            <div>
-              <div style={{ fontSize:'12px', color:T.guestMuted, textTransform:'uppercase', letterSpacing:'1px' }}>Invited by</div>
-              <div style={{ fontSize:'16px', fontWeight:700, color:'#059669' }}>{sponsorName}</div>
-            </div>
+      {/* Activation banner */}
+      {activated && (
+        <div style={{ background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'12px', padding:'14px 20px', margin:'16px 16px 0', display:'flex', alignItems:'center', gap:'12px' }}>
+          <span style={{ fontSize:'20px' }}>🎉</span>
+          <div>
+            <div style={{ fontSize:'14px', fontWeight:700, color:'#6EE7B7' }}>Payment successful — your 4M Machine is activated!</div>
+            <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)' }}>Start with the Manual Vehicle. Use the Offer Generator to create your first sellable offer today.</div>
           </div>
-        )}
-
-        {/* Hero — “Deploy Yourself.” conversion layout + hook quote */}
-        <div style={{ textAlign:'center', padding:'48px 0 36px' }}>
-          <div style={{ fontSize:'11px', letterSpacing:'3px', color:T.guestViolet, marginBottom:'10px', textTransform:'uppercase', fontWeight:700 }}>4M · AI-Powered Money Machine</div>
-          <p style={{ fontSize:'13px', color:T.guestSub, maxWidth:'580px', margin:'0 auto 14px', lineHeight:1.7 }}>
-            <strong>4M Framework:</strong> AI Powered <strong>1. Mobile</strong> · <strong>2. Money</strong> · <strong>3. Making</strong> · <strong>4. Machine</strong>
-          </p>
-          <p style={{ fontSize:'14px', color:T.guestSub, fontStyle:'italic', maxWidth:'520px', margin:'0 auto 22px', lineHeight:1.65, textAlign:'center', borderLeft:`3px solid ${T.guestAccent}`, borderRight:`3px solid ${T.guestAccent}`, padding:'0 16px' }}>
-            &ldquo;{FOURM.hookLine}&rdquo;
-          </p>
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,52px)', fontWeight:900, color:T.guestText, margin:'0 0 16px', lineHeight:1.05 }}>
-            <span style={{ color:T.guestAccent }}>{FOURM.heroHeadline}</span>
-          </h1>
-          <p style={{ fontSize:'17px', color:T.guestText, maxWidth:'560px', margin:'0 auto 14px', lineHeight:1.75, fontWeight:600 }}>
-            {FOURM.heroSub}
-          </p>
-          <p style={{ fontSize:'15px', color:T.guestViolet, maxWidth:'540px', margin:'0 auto 18px', lineHeight:1.75, fontWeight:600 }}>
-            {FOURM.heroSupport}
-          </p>
-          <p style={{ fontSize:'13px', color:T.guestMuted, margin:0 }}>
-            — {FOURM.author} · {FOURM.authorCred}
-          </p>
         </div>
+      )}
 
-        {/* What you will learn */}
-        <div style={{ background:T.guestCard, border:`1px solid ${T.guestBorder}`, borderRadius:'16px', padding:'24px', marginBottom:'28px', boxShadow:T.guestShadow }}>
-          <div style={{ fontSize:'13px', fontWeight:700, color:T.guestAccent, marginBottom:'16px', letterSpacing:'1px', textTransform:'uppercase' }}>🔓 What You Unlock — 60-Day AI Income Activation</div>
-          {[
-            ['🧠', 'AI Offer Generator',         'AI creates your personalised sellable offer today'],
-            ['📲', 'AI Customer Finder',          'Exactly where to find customers + step-by-step plan'],
-            ['✍️', 'AI Post & Message Generator', 'WhatsApp statuses, Facebook posts, direct messages'],
-            ['💬', 'AI Sales Reply System',       'AI-generated replies for every customer response'],
-            ['💸', 'AI Closing Assistant',        'Scripts to close confidently and collect payment'],
-            ['🔁', 'Daily R300/Day Engine',       'Daily checklist to contact 10-20 people and close 1-3'],
-            ['🔗', 'Referral Booster',            'Earn R50 per person you refer — your own mini income'],
-          ].map(([icon, title, desc]) => (
-            <div key={title as string} style={{ display:'flex', alignItems:'flex-start', gap:'12px', marginBottom:'14px' }}>
-              <span style={{ fontSize:'20px', flexShrink:0 }}>{icon}</span>
-              <div>
-                <div style={{ fontSize:'14px', fontWeight:700, color:T.guestText, marginBottom:'2px' }}>{title}</div>
-                <div style={{ fontSize:'13px', color:T.guestMuted }}>{desc}</div>
+      <div style={{ maxWidth:'820px', margin:'0 auto', padding:'20px 16px 80px' }}>
+
+        {/* ── VEHICLE SELECTOR ── */}
+        <div style={{ marginBottom:'24px' }}>
+          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'12px', textAlign:'center' }}>Choose Your 4M Machine Level</div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+            {VEHICLES.map(v => (
+              <button key={v.id} onClick={() => setVehicle(v.id as Vehicle)}
+                style={{ padding:'16px 10px', borderRadius:'14px', cursor:'pointer', fontFamily:'Georgia,serif', textAlign:'center' as const, transition:'all 0.2s',
+                  background: vehicle===v.id ? `${v.color}18` : 'rgba(255,255,255,0.03)',
+                  border: vehicle===v.id ? `2px solid ${v.color}` : '2px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ fontSize:'24px', marginBottom:'6px' }}>{v.icon}</div>
+                <div style={{ fontSize:'13px', fontWeight:700, color: vehicle===v.id ? v.color : '#fff', marginBottom:'2px' }}>{v.label} Mode</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', marginBottom:'4px' }}>{v.sub}</div>
+                <div style={{ fontSize:'10px', color: vehicle===v.id ? v.color : 'rgba(255,255,255,0.25)', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px' }}>{v.tier}</div>
+              </button>
+            ))}
+          </div>
+          {/* Description strip */}
+          {VEHICLES.filter(v => v.id === vehicle).map(v => (
+            <div key={v.id} style={{ marginTop:'12px', background:'rgba(255,255,255,0.03)', border:`1px solid ${v.color}22`, borderRadius:'12px', padding:'14px 18px' }}>
+              <div style={{ fontSize:'13px', fontWeight:700, color:v.color, marginBottom:'4px' }}>{v.icon} {v.label}</div>
+              <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', lineHeight:1.7, marginBottom:'8px' }}>{v.truth}</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', fontStyle:'italic', cursor:'pointer' }}
+                onClick={() => { const next = vehicle==='manual'?'automatic':vehicle==='automatic'?'electric':'manual'; setVehicle(next as Vehicle) }}>
+                {v.upgrade}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Income potential */}
-        <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'13px', color:'#047857', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'12px', fontWeight:700 }}>📊 Income Potential (Execution Based)</div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', textAlign:'center' }}>
-            {[['1 client/day','R100–R200/day','Beginner'],['2 clients/day','R200–R400/day','Building'],['3+ clients/day','R300–R600/day','R300/day achieved']].map(([label,amount,stage]) => (
-              <div key={stage as string} style={{ background:'rgba(255,255,255,0.85)', borderRadius:'10px', padding:'12px', border:`1px solid ${T.guestBorder}` }}>
-                <div style={{ fontSize:'16px', fontWeight:700, color:'#059669', marginBottom:'4px' }}>{amount}</div>
-                <div style={{ fontSize:'11px', color:T.guestMuted }}>{label}</div>
-                <div style={{ fontSize:'10px', color:'#059669', marginTop:'2px', opacity:0.85 }}>{stage}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop:'14px', fontSize:'12px', color:T.guestMuted, textAlign:'center', fontStyle:'italic' }}>
-            Start simple: one offer, one post, 10 messages daily. Consistency creates results.
-          </div>
-        </div>
-
-        {/* Upsell path */}
-        <div style={{ background:'rgba(79,70,229,0.06)', border:`1px solid ${T.guestBorder}`, borderRadius:'14px', padding:'16px 20px', marginBottom:'28px' }}>
-          <div style={{ fontSize:'12px', color:T.guestViolet, marginBottom:'8px', fontWeight:700 }}>🚀 WHERE THIS LEADS</div>
-          <p style={{ fontSize:'13px', color:T.guestSub, margin:0, lineHeight:1.7 }}>
-            Once you make your first income with this system — you are ready for the full Z2B Table Banquet ecosystem. Bronze membership (R2,500) unlocks 99 workshop sessions, network marketing income, and business systems that work while you sleep.
-          </p>
-        </div>
-
-        {/* CTA */}
-        <div style={{ background:T.guestCard, border:`2px solid ${T.guestAccent}`, borderRadius:'20px', padding:'32px 24px', textAlign:'center', boxShadow:T.guestShadow }}>
-          <div style={{ fontSize:'11px', color:T.guestViolet, letterSpacing:'1px', textTransform:'uppercase', fontWeight:800, marginBottom:'6px' }}>Launch your R300/day target system</div>
-          <div style={{ fontSize:'32px', fontWeight:900, color:T.guestAccent, marginBottom:'4px' }}>R500</div>
-          <div style={{ fontSize:'14px', color:T.guestMuted, marginBottom:'10px' }}>60-Day Access · R500/month after · Cancel anytime</div>
-          <div style={{ fontSize:'12px', color:'#047857', marginBottom:'20px', fontWeight:700 }}>
-            Includes: Offer + Finder + Posts + Digital Product + Guided execution
-          </div>
-
-          {payError && (
-            <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>
-          )}
-
-          <button onClick={handlePay} disabled={paying}
-            style={{ ...btnLight, opacity: paying ? 0.7 : 1 }}>
-            {paying ? 'Setting up payment...' : '⚡ Deploy Yourself — Start Earning (R500)'}
-          </button>
-          <div style={{ marginTop:'10px', fontSize:'12px', color:T.guestViolet, fontWeight:600, letterSpacing:'0.04em' }}>
-            Execute Now · Get Your First Paying Client · Launch Income
-          </div>
-          <div style={{ marginTop:'12px', fontSize:'13px', color:T.guestMuted }}>
-            Already have an account? <Link href="/login?redirect=/ai-income" style={{ color:T.guestAccent, textDecoration:'none', fontWeight:700 }}>Sign in →</Link>
-          </div>
-        </div>
-
-        {/* Sticky mobile conversion bar */}
-        <div style={{ position:'fixed', left:0, right:0, bottom:0, zIndex:60, padding:'10px 12px calc(10px + env(safe-area-inset-bottom))', background:'rgba(15,23,42,0.94)', borderTop:'1px solid rgba(99,102,241,0.35)', backdropFilter:'blur(10px)' }}>
-          <div style={{ maxWidth:'700px', margin:'0 auto', display:'flex', alignItems:'center', gap:'10px' }}>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:'11px', color:'#A5B4FC', fontWeight:800, letterSpacing:'0.04em', textTransform:'uppercase' }}>R300/day target</div>
-              <div style={{ fontSize:'12px', color:'rgba(248,250,252,0.85)', whiteSpace:'nowrap' as const, overflow:'hidden', textOverflow:'ellipsis' }}>Start with 4M Pro and execute daily</div>
-            </div>
-            <button onClick={handlePay} disabled={paying}
-              style={{ padding:'11px 14px', border:'none', borderRadius:'10px', background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'#fff', fontWeight:800, fontSize:'12px', cursor:'pointer', whiteSpace:'nowrap' as const, opacity: paying ? 0.7 : 1 }}>
-              {paying ? 'Opening...' : 'Start (R500)'}
-            </button>
-          </div>
-        </div>
-
-        {/* Light registration — new users only (opens from CTA when not logged in) */}
-        {showReg && (
-          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(8px)' }}>
-            <div style={{ background:T.regBg, border:`1px solid ${T.guestBorder}`, borderRadius:'20px', padding:'32px', maxWidth:'420px', width:'100%', position:'relative', boxShadow:'0 24px 60px rgba(79,70,229,0.15)' }}>
-              <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'#F1F5F9', border:'none', color:T.guestMuted, fontSize:'20px', cursor:'pointer', width:'32px', height:'32px', borderRadius:'50%' }}>×</button>
-              <div style={{ textAlign:'center', marginBottom:'20px' }}>
-                <div style={{ fontSize:'24px', marginBottom:'8px' }}>🚀</div>
-                <h2 style={{ fontSize:'18px', fontWeight:700, color:T.regText, margin:'0 0 6px' }}>Join 4M — Create Your Account</h2>
-                <p style={{ fontSize:'13px', color:T.regMuted, margin:0 }}>Light registration — then proceed to R500 payment</p>
-              </div>
-              {payError && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'14px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>}
-              <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
-                {[
-                  { label:'Full Name', val:regName, set:setRegName, ph:'Your full name', type:'text' },
-                  { label:'Email', val:regEmail, set:setRegEmail, ph:'your@email.com', type:'email' },
-                  { label:'WhatsApp', val:regWa, set:setRegWa, ph:'+27 or 0XX XXX XXXX', type:'tel' },
-                ].map(({ label, val, set, ph, type }) => (
-                  <div key={label}>
-                    <label style={{ fontSize:'11px', color:T.regMuted, display:'block', marginBottom:'5px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>{label} *</label>
-                    <input type={type} value={val} onChange={e => set(e.target.value)} placeholder={ph} style={inpLight} />
-                  </div>
-                ))}
-              </div>
-              <button onClick={handleRegisterAndPay} disabled={regLoading}
-                style={{ ...btnLight, opacity: regLoading ? 0.7 : 1 }}>
-                {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-
-  // ── MAIN APP (logged in — 3 free tools; full unlock optional) ─────────────────
-  return (
-    <div style={{ minHeight:'100vh', background:BG, color:T.text, fontFamily:'Georgia,serif' }}>
-      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
-
-      {/* First-visit onboarding — “Deploy Yourself.” */}
-      {showDeployWelcome && (
-        <div style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(15,23,42,0.92)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
-          role="dialog" aria-modal="true" aria-labelledby="fourm-welcome-title">
-          <div style={{ maxWidth:'440px', width:'100%', background:'linear-gradient(165deg,#1E1B4B,#312E81)', border:`2px solid ${GOLD}`, borderRadius:'22px', padding:'32px 28px', boxShadow:'0 24px 80px rgba(0,0,0,0.45)' }}>
-            <div style={{ fontSize:'36px', textAlign:'center', marginBottom:'12px' }}>👋</div>
-            <h2 id="fourm-welcome-title" style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:'#fff', textAlign:'center', margin:'0 0 8px', lineHeight:1.25 }}>
-              {FOURM.onboardTitle}
-            </h2>
-            <p style={{ fontSize:'15px', color:'rgba(212,175,55,0.95)', textAlign:'center', margin:'0 0 6px', fontWeight:700 }}>
-              {FOURM.onboardCoach}
-            </p>
-            <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textAlign:'center', margin:'0 0 18px' }}>
-              {FOURM.onboardBefore}
-            </p>
-            <blockquote style={{ margin:'0 0 22px', padding:'14px 16px', background:'rgba(212,175,55,0.08)', borderRadius:'12px', borderLeft:`4px solid ${GOLD}`, fontSize:'15px', fontStyle:'italic', color:'rgba(255,255,255,0.9)', lineHeight:1.65 }}>
-              &ldquo;{FOURM.onboardQuote}&rdquo;
-              <footer style={{ marginTop:'10px', fontSize:'12px', fontStyle:'normal', color:'rgba(212,175,55,0.75)' }}>
-                — {FOURM.author}
-              </footer>
-            </blockquote>
-            <div style={{ fontSize:'12px', fontWeight:800, color:GOLD, letterSpacing:'2px', textTransform:'uppercase', marginBottom:'10px' }}>⚡ System introduction</div>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.75)', margin:'0 0 12px' }}>{FOURM.onboardIntro}</p>
-            <ul style={{ margin:'0 0 24px', paddingLeft:'20px', color:'rgba(255,255,255,0.82)', fontSize:'14px', lineHeight:1.85 }}>
-              {FOURM.onboardSteps.map(s => <li key={s}>{s}</li>)}
-            </ul>
-            <button type="button" onClick={dismissDeployWelcome}
-              style={{ ...btn(), marginBottom:'10px', fontSize:'16px', padding:'16px 24px' }}>
-              👉 {FOURM.startCta}
-            </button>
-            <p style={{ textAlign:'center', fontSize:'11px', color:'rgba(255,255,255,0.35)', margin:0 }}>
-              {`Start Making Money · Send & Earn · ${FOURM.lockupTagline}`}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Nav — same 4M lockup inside app */}
-      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.appBorder}`, background:T.appNavBg, backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
-        <Link href="/dashboard" style={{ fontSize:'13px', color:T.textMuted, textDecoration:'none' }}>← Dashboard</Link>
-        <div style={{ textAlign:'center', lineHeight:1.15 }}>
-          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'13px', fontWeight:700, color:GOLD }}>{FOURM.lockupTitle}</div>
-          <div style={{ fontSize:'10px', fontWeight:700, color:T.goldDim }}>AI Powered: Mobile · Money · Making · Machine</div>
-        </div>
-        <div style={{ fontSize:'11px', color: unlocked ? 'rgba(16,185,129,0.95)' : T.indigo, fontWeight:700, textAlign:'right', maxWidth:'100px' }}>
-          {unlocked ? '✅ Full' : 'Free · 4'}
-        </div>
-      </div>
-
-      {!unlocked && (
-        <div style={{ margin:'14px 16px 0', padding:'14px 18px', borderRadius:'14px', background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.35)' }}>
-          <span style={{ fontSize:'13px', color:T.text, lineHeight:1.55 }}>
-            <strong style={{ color:GOLD }}>Free tier:</strong> 4M Guide, Offer, Finder, Posts &amp; Create Digital Product — no upgrade needed. Tap 🔒 tabs to unlock Replies, Close, Daily &amp; Referrals (paid program).
-          </span>
-        </div>
-      )}
-
-      {/* Welcome banner on activation */}
-      {activated && (
-        <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.08))', border:'1.5px solid rgba(16,185,129,0.4)', borderRadius:'14px', padding:'16px 20px', margin:'20px 20px 0', display:'flex', alignItems:'center', gap:'12px' }}>
-          <span style={{ fontSize:'24px' }}>🎉</span>
+        {/* ══ VEHICLE 1: MANUAL ══ */}
+        {vehicle === 'manual' && (
           <div>
-            <div style={{ fontSize:'15px', fontWeight:700, color:'#6EE7B7' }}>Payment successful — you are unlocked!</div>
-            <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)' }}>{FOURM.lockupTagline} Start with the AI Offer Generator — Execute Now and launch income today.</div>
-          </div>
-        </div>
-      )}
-
-      <div style={{ maxWidth:'800px', margin:'0 auto', padding:'20px 16px 80px' }}>
-
-        {/* Tabs */}
-        <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
-          {tabBtn('guide',    '🎯', '4M Guide')}
-          {tabBtn('offer',    '🧠', 'Offer')}
-          {tabBtn('finder',   '📲', 'Finder')}
-          {tabBtn('post',     '✍️', 'Posts')}
-          {tabBtn('product',  '📦', 'Create Digital Product')}
-          {tabBtn('reply',    '💬', 'Replies')}
-          {tabBtn('close',    '💸', 'Close')}
-          {tabBtn('daily',    '🔁', 'Daily')}
-          {tabBtn('referral', '🔗', 'Referral')}
-        </div>
-
-        {/* ── 4M GUIDE ── */}
-        {tab === 'guide' && (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🎯 4M Feature Guide (How To Use Everything)</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.7 }}>
-              This page shows exactly what each 4M feature does, when to use it, and what action to take next so nobody gets stuck after joining.
-            </p>
-            <div style={{ background:'rgba(99,102,241,0.10)', border:'1px solid rgba(99,102,241,0.35)', borderRadius:'14px', padding:'14px 16px', marginBottom:'14px' }}>
-              <h3 style={{ margin:'0 0 8px', fontSize:'13px', color:'#C7D2FE', letterSpacing:'1px', textTransform:'uppercase' }}>What 4M means</h3>
-              <p style={{ margin:0, color:'rgba(255,255,255,0.88)', fontSize:'14px', lineHeight:1.75 }}>
-                <strong>4M Framework:</strong> AI Powered <strong>1. Mobile</strong>, <strong>2. Money</strong>, <strong>3. Making</strong>, <strong>4. Machine</strong>.
-              </p>
+            {/* API Power Banner */}
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(124,58,237,0.06)', border:'1px solid rgba(124,58,237,0.15)', borderRadius:'12px', alignItems:'center' }}>
+              <span style={{ fontSize:'11px', color:'rgba(124,58,237,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
+              {[['🤖','Claude AI','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['📧','Resend','#0891B2']].map(([icon,name,color]) => (
+                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
+                  {icon} {name}
+                </span>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
+              {tabBtn('offer',    '🧠', 'Offer')}
+              {tabBtn('finder',   '📲', 'Finder')}
+              {tabBtn('post',     '✍️', 'Posts')}
+              {tabBtn('reply',    '💬', 'Replies')}
+              {tabBtn('close',    '💸', 'Close')}
+              {tabBtn('daily',    '🔁', 'Daily')}
+              {tabBtn('referral', '🔗', 'Referral')}
             </div>
 
-            <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.22)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
-              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:GOLD, letterSpacing:'0.02em', textTransform:'uppercase' }}>Best First Flow (Daily)</h3>
-              <p style={{ margin:'0 0 6px', color:'rgba(255,255,255,0.82)', fontSize:'14px' }}>1) Offer → 2) Finder → 3) Posts → 4) Replies → 5) Close → 6) Daily Tracker</p>
-              <p style={{ margin:0, color:'rgba(255,255,255,0.55)', fontSize:'13px' }}>If you are product-based, add: Create Digital Product before Posts.</p>
-            </div>
-
-            <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.14)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
-              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:GOLD, letterSpacing:'0.02em', textTransform:'uppercase' }}>
-                Why 4M Digital Products Wins
-              </h3>
-              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.72)', fontSize:'13px', lineHeight:1.65 }}>
-                Green = strong, Yellow = medium, Red = weak. This compares startup model quality for underpaid and unemployed builders.
-              </p>
-              <div style={{ overflowX:'auto' as const }}>
-                <div style={{ minWidth:'760px' }}>
-                  <div style={{ display:'grid', gridTemplateColumns:'2fr repeat(5,1fr)', gap:'8px', marginBottom:'8px' }}>
-                    {['Model','Startup Cost','Risk','Physical Stock Need','Scalability','Automation'].map(h => (
-                      <div key={h} style={{ padding:'10px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.86)', fontSize:'12px', fontWeight:700 }}>
-                        {h}
-                      </div>
-                    ))}
+            {/* Offer Generator */}
+            {tab === 'offer' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🧠 AI Offer Generator</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Tell the AI what you can do — it creates your sellable offer.</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
+                  <div>
+                    <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Skill or Resource *</label>
+                    <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. I can cook, I have a car, I know Excel, I can do hair..." style={inp} />
                   </div>
-                  {[
-                    ['4M Digital Products (AI Powered)', [5,4,5,5,5], 'Best for low-capital execution and fast scaling.'],
-                    ['Retail Business', [1,2,1,2,2], 'High setup and stock burden; slower expansion.'],
-                    ['Taxi Business', [1,2,1,2,2], 'Asset-heavy with high operating and compliance pressure.'],
-                    ['Forex Trading', [4,1,5,2,2], 'Low setup but high volatility/risk for beginners.'],
-                    ['Online Physical Product Selling', [2,2,2,3,3], 'Possible but inventory/logistics reduce margins and speed.'],
-                  ].map(([name, scores, verdict]) => (
-                    <div key={String(name)} style={{ display:'grid', gridTemplateColumns:'2fr repeat(5,1fr)', gap:'8px', marginBottom:'8px' }}>
-                      <div style={{ padding:'10px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.02)' }}>
-                        <div style={{ color:'#fff', fontSize:'12px', fontWeight:700 }}>{name}</div>
-                        <div style={{ color:'rgba(255,255,255,0.55)', fontSize:'11px', marginTop:'4px', lineHeight:1.5 }}>{verdict}</div>
+                  <div>
+                    <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Area / Context</label>
+                    <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Soweto, online, Pretoria CBD..." style={inp} />
+                  </div>
+                </div>
+                <button onClick={generateOffer} disabled={aiLoading||!skill.trim()} style={{ ...primaryBtn(aiLoading, !skill.trim()), marginBottom:'16px' }}>
+                  {aiLoading ? '🤖 Generating your offer...' : '🧠 Generate My Offer'}
+                </button>
+                {result && (
+                  <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
+                    {result}
+                    <button onClick={() => { navigator.clipboard.writeText(result); setOfferDesc(result.split('\n')[1]||result) }}
+                      style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:GOLD, fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
+                      📋 Copy & Use in Posts
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Customer Finder */}
+            {tab === 'finder' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📲 AI Customer Finder</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Tell AI your offer — get an exact plan to find your first customers today.</p>
+                <div style={{ marginBottom:'12px' }}>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Offer</label>
+                  <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. I do home cleaning for R200 in Soweto" style={inp} />
+                </div>
+                <button onClick={generateFinder} disabled={aiLoading||!skill.trim()} style={{ ...primaryBtn(aiLoading,!skill.trim()), marginBottom:'16px' }}>
+                  {aiLoading ? '🤖 Finding your customers...' : '📲 Find My Customers'}
+                </button>
+                {result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>{result}</div>}
+              </div>
+            )}
+
+            {/* Post Generator */}
+            {tab === 'post' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>✍️ AI Post & Message Generator</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Generate ready-to-post content for WhatsApp, Facebook or direct messages.</p>
+                <div style={{ display:'flex', gap:'8px', marginBottom:'12px' }}>
+                  {[['whatsapp','📱 WhatsApp'],['facebook','📘 Facebook'],['dm','💬 Direct Message']].map(([val,lbl]) => (
+                    <button key={val} onClick={() => setPostType(val as any)}
+                      style={{ flex:1, padding:'10px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700,
+                        background: postType===val?'rgba(212,175,55,0.15)':'rgba(255,255,255,0.04)',
+                        border: postType===val?`1.5px solid ${GOLD}`:'1.5px solid rgba(255,255,255,0.08)',
+                        color: postType===val?GOLD:'rgba(255,255,255,0.5)' }}>{lbl}</button>
+                  ))}
+                </div>
+                <div style={{ marginBottom:'12px' }}>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Describe Your Offer</label>
+                  <textarea value={offerDesc} onChange={e => setOfferDesc(e.target.value)} placeholder="e.g. CV writing for R150. Done same day via WhatsApp." rows={3} style={{ ...inp, resize:'vertical' as const }} />
+                </div>
+                <button onClick={generatePost} disabled={aiLoading||!offerDesc.trim()} style={{ ...primaryBtn(aiLoading,!offerDesc.trim()), marginBottom:'16px' }}>
+                  {aiLoading ? '🤖 Writing your post...' : '✍️ Generate Post'}
+                </button>
+                {result && (
+                  <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(76,29,149,0.35)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
+                    {result}
+                    <button onClick={() => navigator.clipboard.writeText(result)}
+                      style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(76,29,149,0.15)', border:'1px solid rgba(76,29,149,0.3)', borderRadius:'8px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
+                      📋 Copy Post
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reply Helper */}
+            {tab === 'reply' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💬 AI Sales Reply System</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Customer responded? Select their reaction — get your perfect reply.</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px' }}>
+                  {([['expensive','💸','Too Expensive'],['moreinfo','📋','Send More Info'],['thinking','🤔','Thinking About It'],['notinterested','❌','Not Interested'],['howworks','❓','How Does It Work']] as [ReplyCategory,string,string][]).map(([val,icon,lbl]) => (
+                    <button key={val} onClick={() => setReplyCategory(val)}
+                      style={{ padding:'12px 16px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'14px', fontWeight:700, textAlign:'left' as const,
+                        background: replyCategory===val?'rgba(212,175,55,0.1)':'rgba(255,255,255,0.03)',
+                        border: replyCategory===val?`1.5px solid ${GOLD}`:'1.5px solid rgba(255,255,255,0.07)',
+                        color: replyCategory===val?GOLD:'rgba(255,255,255,0.6)' }}>
+                      {icon} {lbl}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ marginBottom:'12px' }}>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Extra Context (optional)</label>
+                  <input value={replyContext} onChange={e => setReplyContext(e.target.value)} placeholder="e.g. I am selling CV writing at R150" style={inp} />
+                </div>
+                <button onClick={generateReply} disabled={aiLoading} style={{ ...primaryBtn(aiLoading), marginBottom:'16px' }}>
+                  {aiLoading ? '🤖 Generating reply...' : '💬 Get My Reply'}
+                </button>
+                {result && (
+                  <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
+                    {result}
+                    <button onClick={() => navigator.clipboard.writeText(result)}
+                      style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'8px', color:'#6EE7B7', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
+                      📋 Copy Reply
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Closing Assistant */}
+            {tab === 'close' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💸 AI Closing Assistant</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Get the exact words to close the sale and collect payment confidently.</p>
+                <div style={{ marginBottom:'12px' }}>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Offer</label>
+                  <input value={offerDesc} onChange={e => setOfferDesc(e.target.value)} placeholder="e.g. Logo design for R300, delivered in 24 hours" style={inp} />
+                </div>
+                <button onClick={generateClose} disabled={aiLoading||!offerDesc.trim()} style={{ ...primaryBtn(aiLoading,!offerDesc.trim()), marginBottom:'16px' }}>
+                  {aiLoading ? '🤖 Writing closing script...' : '💸 Get Closing Script'}
+                </button>
+                {result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>{result}</div>}
+              </div>
+            )}
+
+            {/* Daily Engine */}
+            {tab === 'daily' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Daily R300/Day Engine</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>Complete today's checklist. Consistency is the only secret.</p>
+                <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'12px', padding:'16px', marginBottom:'20px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
+                    <span style={{ fontSize:'14px', fontWeight:700, color:'#fff' }}>Today Points</span>
+                    <span style={{ fontSize:'20px', fontWeight:900, color: totalPoints>=80?'#6EE7B7':totalPoints>=40?GOLD:'rgba(255,255,255,0.5)' }}>{totalPoints}/120</span>
+                  </div>
+                  <div style={{ height:'8px', background:'rgba(255,255,255,0.06)', borderRadius:'4px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', width:`${(totalPoints/120)*100}%`, background:`linear-gradient(90deg,${PURP},${GRN})`, borderRadius:'4px', transition:'width 0.4s' }} />
+                  </div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'6px' }}>
+                    {totalPoints>=100?'🏆 Excellent! You are on track for R300+':totalPoints>=60?'💪 Good progress — keep going!':'⚡ Get started — your R300 day begins now'}
+                  </div>
+                </div>
+                <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
+                  {DAILY_TASKS.map(task => (
+                    <div key={task.id} onClick={() => setChecked(prev => ({...prev,[task.id]:!prev[task.id]}))}
+                      style={{ display:'flex', alignItems:'center', gap:'14px', padding:'14px 16px', background:checked[task.id]?'rgba(16,185,129,0.08)':'rgba(255,255,255,0.03)', border:`1px solid ${checked[task.id]?'rgba(16,185,129,0.3)':'rgba(255,255,255,0.07)'}`, borderRadius:'12px', cursor:'pointer' }}>
+                      <div style={{ width:'24px', height:'24px', borderRadius:'6px', border:`2px solid ${checked[task.id]?GRN:'rgba(255,255,255,0.2)'}`, background:checked[task.id]?GRN:'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                        {checked[task.id] && <span style={{ color:'#fff', fontSize:'14px' }}>✓</span>}
                       </div>
-                      {(scores as number[]).map((score, i) => {
-                        const tone = getScoreTone(score)
-                        return (
-                          <div key={`${String(name)}-${i}`} style={{ padding:'10px', borderRadius:'8px', border:`1px solid ${tone.border}`, background:tone.bg, color:tone.color, fontSize:'13px', fontWeight:800, textAlign:'center' }}>
-                            {score}/5
-                          </div>
-                        )
-                      })}
+                      <span style={{ fontSize:'18px', flexShrink:0 }}>{task.icon}</span>
+                      <span style={{ flex:1, fontSize:'14px', color:checked[task.id]?'rgba(255,255,255,0.5)':'#fff', textDecoration:checked[task.id]?'line-through':'none' }}>{task.text}</span>
+                      <span style={{ fontSize:'12px', fontWeight:700, color:checked[task.id]?GRN:'rgba(255,255,255,0.3)' }}>+{task.points}pts</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <p style={{ margin:'10px 0 0', color:'rgba(255,255,255,0.62)', fontSize:'12px', lineHeight:1.65 }}>
-                Conclusion: 4M has the strongest mix of low startup barrier, low operational drag, high scalability, and high automation potential.
-              </p>
+            )}
+
+            {/* Referral */}
+            {tab === 'referral' && (
+              <div>
+                <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
+                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer to the 4M system.</p>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', marginBottom:'20px' }}>
+                  {[{l:'Total Referrals',v:myCommissions.length,c:'#7C3AED'},{l:'Earned (paid)',v:`R${totalEarned}`,c:GRN},{l:'Pending',v:`R${pending}`,c:GOLD}].map(({l,v,c}) => (
+                    <div key={l} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${c}22`, borderRadius:'12px', padding:'16px', textAlign:'center' }}>
+                      <div style={{ fontSize:'22px', fontWeight:900, color:c }}>{v}</div>
+                      <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginTop:'2px', textTransform:'uppercase', letterSpacing:'1px' }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background:'rgba(212,175,55,0.06)', border:'1.5px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'18px', marginBottom:'16px' }}>
+                  <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your 4M Referral Link</div>
+                  <div style={{ fontSize:'13px', color:'rgba(212,175,55,0.8)', fontFamily:'monospace', wordBreak:'break-all', marginBottom:'12px' }}>{refLink}</div>
+                  <button onClick={() => { navigator.clipboard.writeText(refLink); setRefCopied(true); setTimeout(()=>setRefCopied(false),2500) }}
+                    style={{ padding:'10px 20px', background:refCopied?'rgba(16,185,129,0.1)':'rgba(212,175,55,0.1)', border:`1px solid ${refCopied?'rgba(16,185,129,0.3)':'rgba(212,175,55,0.3)'}`, borderRadius:'10px', color:refCopied?'#6EE7B7':GOLD, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
+                    {refCopied?'✅ Link Copied!':'📋 Copy Link'}
+                  </button>
+                </div>
+                {/* Upgrade nudge */}
+                <div style={{ background:'linear-gradient(135deg,rgba(8,145,178,0.1),rgba(8,145,178,0.06))', border:'2px solid rgba(8,145,178,0.3)', borderRadius:'14px', padding:'20px 20px' }}>
+                  <div style={{ fontSize:'11px', color:'rgba(8,145,178,0.6)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>NEXT LEVEL AWAITS</div>
+                  <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>⚙️ Tired of doing everything manually?</div>
+                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.7, margin:'0 0 14px' }}>
+                    Upgrade to Silver — your 4M Machine starts working WITH you. Product multiplication, 1-click launch packs, 5-day follow-up sequences, and Buffer auto-posting. From struggle to FLOW.
+                  </p>
+                  <Link href="/invite" style={{ display:'inline-block', padding:'11px 26px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+                    ⚙️ Upgrade to Automatic Mode (Silver) →
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ VEHICLE 2: AUTOMATIC ══ */}
+        {vehicle === 'automatic' && (
+          <div>
+            {/* API Power Banner */}
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(8,145,178,0.06)', border:'1px solid rgba(8,145,178,0.15)', borderRadius:'12px', alignItems:'center' }}>
+              <span style={{ fontSize:'11px', color:'rgba(8,145,178,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
+              {[['🤖','Claude AI','#0891B2'],['📅','Buffer','#0891B2'],['🔗','Make.com','#6D28D9'],['🎨','Canva API','#00C4CC'],['📧','Resend','#059669']].map(([icon,name,color]) => (
+                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
+                  {icon} {name}
+                </span>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:'8px', marginBottom:'20px', overflowX:'auto' }}>
+              {[['multiply','🔁 Multiply Products'],['launch','🚀 1-Click Launch'],['sequence','📅 Follow-Up Sequence']].map(([val,lbl]) => (
+                <button key={val} onClick={() => { setV2Mode(val as any); setV2Result('') }}
+                  style={{ padding:'10px 16px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'13px', fontWeight:700, whiteSpace:'nowrap' as const,
+                    background: v2Mode===val?'rgba(8,145,178,0.15)':'rgba(255,255,255,0.04)',
+                    border: v2Mode===val?'1.5px solid #0891B2':'1.5px solid rgba(255,255,255,0.08)',
+                    color: v2Mode===val?'#38BDF8':'rgba(255,255,255,0.5)' }}>{lbl}</button>
+              ))}
             </div>
 
-            <div style={{ background:'rgba(16,185,129,0.10)', border:'1px solid rgba(16,185,129,0.30)', borderRadius:'14px', padding:'16px', marginBottom:'16px' }}>
-              <h3 style={{ margin:'0 0 10px', fontSize:'14px', color:'#6EE7B7', letterSpacing:'0.02em', textTransform:'uppercase' }}>
-                Digital Product Growth Projections
-              </h3>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,minmax(0,1fr))', gap:'10px' }}>
-                {[
-                  ['Creator economy', '~$250B today → ~ $480B by 2027', 'Strong demand for knowledge, templates and digital services.'],
-                  ['E-learning / info products', '~14%+ CAGR through decade', 'Courses, guides and playbooks continue to expand globally.'],
-                  ['Digital commerce enablement', 'Double-digit CAGR trend', 'AI tools reduce creation time and increase launch frequency.'],
-                ].map(([title, stat, note]) => (
-                  <div key={String(title)} style={{ border:'1px solid rgba(16,185,129,0.35)', borderRadius:'10px', padding:'10px', background:'rgba(0,0,0,0.12)' }}>
-                    <div style={{ color:'#D1FAE5', fontSize:'12px', fontWeight:700, marginBottom:'6px' }}>{title}</div>
-                    <div style={{ color:'#6EE7B7', fontSize:'13px', fontWeight:800, marginBottom:'6px', lineHeight:1.35 }}>{stat}</div>
-                    <div style={{ color:'rgba(255,255,255,0.65)', fontSize:'11px', lineHeight:1.5 }}>{note}</div>
+            {/* Product Selector */}
+            <div style={{ marginBottom:'16px' }}>
+              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase' }}>Select Seed Product</label>
+              <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+                {PRODUCT_SEEDS.map((p, i) => (
+                  <button key={i} onClick={() => setV2Product(i)}
+                    style={{ display:'flex', alignItems:'center', gap:'12px', padding:'12px 16px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', textAlign:'left' as const,
+                      background: v2Product===i?'rgba(8,145,178,0.1)':'rgba(255,255,255,0.03)',
+                      border: v2Product===i?'1.5px solid #0891B2':'1.5px solid rgba(255,255,255,0.07)' }}>
+                    <span style={{ fontSize:'20px' }}>{p.icon}</span>
+                    <div>
+                      <div style={{ fontSize:'13px', fontWeight:700, color: v2Product===i?'#38BDF8':'#fff' }}>{p.name}</div>
+                      <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>{p.price}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {v2Mode === 'multiply' && (
+              <div>
+                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Product Multiplication Engine</h2>
+                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Turn ONE product into 5 new sellable variations. This is how you build a product catalogue.</p>
+                <button onClick={v2Multiply} disabled={v2Loading}
+                  style={{ padding:'14px 28px', background:v2Loading?'rgba(8,145,178,0.3)':'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:v2Loading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%', marginBottom:'16px' }}>
+                  {v2Loading?'🤖 Multiplying products...':'🔁 Multiply This Product × 5'}
+                </button>
+                {v2Result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'13px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>{v2Result}<button onClick={()=>navigator.clipboard.writeText(v2Result)} style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(8,145,178,0.1)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy All Products</button></div>}
+              </div>
+            )}
+
+            {v2Mode === 'launch' && (
+              <div>
+                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🚀 1-Click Product Launch</h2>
+                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Generate WhatsApp post + DM script + Facebook post + send list. All at once.</p>
+                <button onClick={v2Launch} disabled={v2Loading}
+                  style={{ padding:'14px 28px', background:v2Loading?'rgba(8,145,178,0.3)':'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:v2Loading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%', marginBottom:'16px' }}>
+                  {v2Loading?'🤖 Building launch pack...':'🚀 Generate Full Launch Pack'}
+                </button>
+                {v2Result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'13px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>{v2Result}<button onClick={()=>navigator.clipboard.writeText(v2Result)} style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(8,145,178,0.1)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy Launch Pack</button></div>}
+              </div>
+            )}
+
+            {v2Mode === 'sequence' && (
+              <div>
+                <h2 style={{ fontSize:'18px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📅 5-Day Follow-Up Sequence</h2>
+                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'16px' }}>Generate a 5-day WhatsApp message sequence for any product. Never lose a lead again.</p>
+                <button onClick={v2Sequence} disabled={v2Loading}
+                  style={{ padding:'14px 28px', background:v2Loading?'rgba(8,145,178,0.3)':'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:v2Loading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', width:'100%', marginBottom:'16px' }}>
+                  {v2Loading?'🤖 Building sequence...':'📅 Build 5-Day Sequence'}
+                </button>
+                {v2Result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'13px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>{v2Result}<button onClick={()=>navigator.clipboard.writeText(v2Result)} style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(8,145,178,0.1)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy Sequence</button></div>}
+              </div>
+            )}
+
+            {/* Upgrade nudge to V3 */}
+            <div style={{ marginTop:'24px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'14px', padding:'16px 18px' }}>
+              <div style={{ fontSize:'13px', fontWeight:700, color:GOLD, marginBottom:'6px' }}>⚡ Ready for Electric Mode?</div>
+              <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.7, margin:'0 0 12px' }}>
+                Upgrade to Gold and the 4M Machine runs daily automation, tracks your income, and builds passive income streams while you focus on what matters.
+              </p>
+              <Link href="/invite" style={{ display:'inline-block', padding:'9px 22px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'10px', color:'#FDE68A', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+                ⚡ Upgrade to Gold →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ══ VEHICLE 3: ELECTRIC ══ */}
+        {vehicle === 'electric' && (
+          <div>
+            {/* API Power Banner */}
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'12px', alignItems:'center' }}>
+              <span style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
+              {[['🤖','Claude AI',GOLD],['🎥','D-ID Avatars','#EC4899'],['🖼️','Replicate','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['⚡','n8n Workflows','#FF6D00'],['📅','Buffer','#0891B2']].map(([icon,name,color]) => (
+                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
+                  {icon} {name}
+                </span>
+              ))}
+            </div>
+            <div style={{ background:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'24px', textAlign:'center' }}>
+              <div style={{ fontSize:'32px', marginBottom:'8px' }}>⚡</div>
+              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:700, color:GOLD, marginBottom:'4px' }}>Electric Mode — The Machine Drives For You</div>
+              <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)' }}>Automation blueprints · Daily income engines · Passive scaling · Multiple income streams</div>
+            </div>
+
+            {/* Product input */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' }}>
+              <div>
+                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Product Name</label>
+                <input value={v3ProductName} onChange={e => setV3ProductName(e.target.value)} placeholder="e.g. CV Writing Service" style={inp} />
+              </div>
+              <div>
+                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Price</label>
+                <input value={v3Price} onChange={e => setV3Price(e.target.value)} placeholder="e.g. R150" style={inp} />
+              </div>
+            </div>
+
+            {/* Automation sequences */}
+            <div style={{ marginBottom:'16px' }}>
+              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase' }}>Automation Sequence Templates</label>
+              <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
+                {AUTO_SEQUENCES.map((seq, i) => (
+                  <div key={i} onClick={() => setV3Sequence(i)}
+                    style={{ background: v3Sequence===i?'rgba(212,175,55,0.08)':'rgba(255,255,255,0.03)', border:`1px solid ${v3Sequence===i?'rgba(212,175,55,0.3)':'rgba(255,255,255,0.07)'}`, borderRadius:'12px', padding:'14px', cursor:'pointer' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+                      <span style={{ fontSize:'13px', fontWeight:700, color: v3Sequence===i?GOLD:'#fff' }}>{seq.name}</span>
+                      <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)', background:'rgba(255,255,255,0.05)', padding:'2px 8px', borderRadius:'10px' }}>{seq.steps.length} steps</span>
+                    </div>
+                    <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>Trigger: {seq.trigger}</div>
+                    {v3Sequence===i && (
+                      <div style={{ marginTop:'10px', display:'flex', flexDirection:'column', gap:'6px' }}>
+                        {seq.steps.map((step, j) => (
+                          <div key={j} style={{ display:'flex', gap:'10px', padding:'8px 10px', background:'rgba(255,255,255,0.04)', borderRadius:'8px' }}>
+                            <span style={{ fontSize:'10px', color:GOLD, fontWeight:700, whiteSpace:'nowrap' as const, flexShrink:0 }}>{step.delay}</span>
+                            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>{step.msg}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-              <p style={{ margin:'10px 0 0', color:'rgba(255,255,255,0.62)', fontSize:'11px', lineHeight:1.6 }}>
-                Figures are rounded industry estimates from widely cited market research and can vary by source/year, but direction is consistent: digital products continue to grow faster than many traditional small-business models.
-              </p>
             </div>
 
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-              {[
-                ['🧠 Offer Generator', 'Creates a clear sellable offer from your skill, with target customer, pricing and delivery steps.', 'Use when you are not sure what to sell.', 'After generating, copy the one-line pitch and move to Finder.', 'offer'],
-                ['📲 Customer Finder', 'Gives a practical customer-hunting plan (WhatsApp, Facebook and local network).', 'Use when you need real people to message today.', 'Follow the 2-hour action plan and then use Posts.', 'finder'],
-                ['✍️ Post & Message Generator', 'Writes WhatsApp/Facebook/DM content to market your offer quickly.', 'Use every day to stay visible and create incoming leads.', 'Post immediately, track replies, then use Replies/Close.', 'post'],
-                ['📦 Create Digital Product', 'Builds your digital product using AI Technology research + creation prompts, format ideas, outline and launch message.', 'Use when you want to sell downloadable products (PDF, guide, checklist, templates, video outline).', 'Pick one format, build version 1 in 24 hours, then promote with Posts.', 'product'],
-                ['💬 Replies (Premium)', 'Generates smart response scripts for objections and questions.', 'Use when prospects say: expensive, not interested, thinking, or ask for info.', 'Send the script, then move to Close.', 'reply'],
-                ['💸 Close (Premium)', 'Creates closing language to collect payment confidently.', 'Use when prospect is warm and decision-ready.', 'Send closing script and ask for payment confirmation.', 'close'],
-                ['🔁 Daily Engine (Premium)', 'Tracks your income actions and points so you execute consistently.', 'Use at start and end of each day.', 'Finish all checklist items before ending your day.', 'daily'],
-                ['🔗 Referral (Premium)', 'Lets you share your link and track commissions.', 'Use after people see your results and ask what you use.', 'Share link with qualified people and follow up weekly.', 'referral'],
-              ].map(([title, whatItDoes, whenToUse, nextStep, targetTab]) => (
-                <div key={String(title)} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.10)', borderRadius:'12px', padding:'14px' }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', gap:'10px', alignItems:'center' }}>
-                    <h3 style={{ margin:0, fontSize:'16px', color:'#fff' }}>{title}</h3>
-                    <button onClick={() => setTab(targetTab as Tab)} style={{ padding:'7px 10px', borderRadius:'8px', border:`1px solid ${GOLD}`, background:'rgba(212,175,55,0.08)', color:GOLD, cursor:'pointer', fontSize:'11px', fontWeight:700 }}>
-                      Open
-                    </button>
-                  </div>
-                  <p style={{ margin:'10px 0 6px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>What it does:</strong> {whatItDoes}</p>
-                  <p style={{ margin:'0 0 6px', color:'rgba(255,255,255,0.70)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>When to use:</strong> {whenToUse}</p>
-                  <p style={{ margin:0, color:'rgba(255,255,255,0.70)', fontSize:'13px', lineHeight:1.65 }}><strong style={{ color:GOLD }}>Next step:</strong> {nextStep}</p>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop:'16px', background:'rgba(16,185,129,0.10)', border:'1px solid rgba(16,185,129,0.32)', borderRadius:'12px', padding:'14px' }}>
-              <div style={{ fontSize:'12px', fontWeight:800, color:'#6EE7B7', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>
-                Conversion offers
-              </div>
-              <p style={{ margin:'0 0 10px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}>
-                Offer 1: <strong>4M Pro (R500)</strong> — unlock Replies, Close, Daily Engine and Referral Booster to increase conversion and daily execution.
-              </p>
-              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.82)', fontSize:'13px', lineHeight:1.65 }}>
-                Offer 2: <strong>Bronze Automation Upgrade (R2,500)</strong> — move from manual hustle to automated systems with PWA build support, automation planning and API-ready setup.
-              </p>
-              <p style={{ margin:'0 0 12px', color:'rgba(255,255,255,0.68)', fontSize:'12px', lineHeight:1.6 }}>
-                Positioning script: Start with 4M to prove income manually, then move to Bronze to automate what already works.
-              </p>
-              <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' as const }}>
-                <button type="button" onClick={handlePay} disabled={paying} style={{ padding:'9px 12px', borderRadius:'8px', border:`1px solid ${GREEN}`, background:'rgba(16,185,129,0.15)', color:'#6EE7B7', fontSize:'12px', fontWeight:700, cursor:'pointer', opacity: paying ? 0.7 : 1 }}>
-                  {paying ? 'Opening…' : 'Upgrade Now: 4M Pro'}
-                </button>
-                <Link href="/pricing" style={{ padding:'9px 12px', borderRadius:'8px', border:'1px solid rgba(99,102,241,0.50)', background:'rgba(99,102,241,0.10)', color:'#C7D2FE', fontSize:'12px', fontWeight:700, textDecoration:'none' }}>
-                  See Bronze Automation Plan
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── OFFER GENERATOR ── */}
-        {tab === 'offer' && (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🧠 AI Offer Generator</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Tell the AI what you can do — it creates your sellable offer.</p>
-            <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'16px' }}>
-              <div>
-                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Skill or Resource *</label>
-                <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. I can cook, I have a car, I know Excel, I can do hair..." style={inp} />
-              </div>
-              <div>
-                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Area / Context</label>
-                <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Soweto, online, Pretoria CBD..." style={inp} />
-              </div>
-            </div>
-            <button onClick={generateOffer} disabled={aiLoading || !skill.trim()} style={{ ...btn(), marginBottom:'16px', opacity: aiLoading||!skill.trim() ? 0.6:1 }}>
-              {aiLoading ? '🤖 Generating your offer...' : '🧠 Generate My Offer · Execute Now'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-                <button onClick={() => { navigator.clipboard.writeText(result); setOfferDesc(result.split('\n')[1]||result) }}
-                  style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:GOLD, fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
-                  📋 Copy & Use in Posts
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── CUSTOMER FINDER ── */}
-        {tab === 'finder' && (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📲 AI Customer Finder</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Tell AI your offer — get an exact plan to find your first customers today.</p>
-            <div style={{ marginBottom:'12px' }}>
-              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Offer</label>
-              <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. I do home cleaning for R200 in Soweto" style={inp} />
-            </div>
-            <button onClick={generateFinder} disabled={aiLoading||!skill.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!skill.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Finding your customers...' : '📲 Find My Customers · Execute Now'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── POST GENERATOR ── */}
-        {tab === 'post' && (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>✍️ AI Post & Message Generator</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Generate ready-to-post content for WhatsApp, Facebook or direct messages.</p>
-            <div style={{ display:'flex', gap:'8px', marginBottom:'12px' }}>
-              {[['whatsapp','📱 WhatsApp Status'],['facebook','📘 Facebook Post'],['dm','💬 Direct Message']].map(([val,lbl]) => (
-                <button key={val} onClick={() => setPostType(val as any)}
-                  style={{ flex:1, padding:'10px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700,
-                    background: postType===val ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: postType===val ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
-                    color: postType===val ? GOLD : 'rgba(255,255,255,0.5)' }}>
-                  {lbl}
-                </button>
-              ))}
-            </div>
-            <div style={{ marginBottom:'12px' }}>
-              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Describe Your Offer</label>
-              <textarea value={offerDesc} onChange={e => setOfferDesc(e.target.value)} placeholder="e.g. I do CV writing for R150. Done same day via WhatsApp." rows={3}
-                style={{ ...inp, resize:'vertical' as const }} />
-            </div>
-            <button onClick={generatePost} disabled={aiLoading||!offerDesc.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!offerDesc.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Writing your post...' : '✍️ Generate Post · Send & Earn'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(76,29,149,0.35)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-                <button onClick={() => navigator.clipboard.writeText(result)}
-                  style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(76,29,149,0.15)', border:'1px solid rgba(76,29,149,0.3)', borderRadius:'8px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
-                  📋 Copy Post
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── DIGITAL PRODUCT BUILDER (free) ── */}
-        {tab === 'product' && (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>📦 Create Digital Product</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
-              Create sellable digital products (PDF, worksheet, guide, checklist, template, video training) powered by AI Technology research + creation prompts.
-            </p>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'12px' }}>
-              {([
-                ['pdf','📄 PDF'],
-                ['worksheet','🧾 Worksheet'],
-                ['guide','📘 Guide'],
-                ['checklist','✅ Checklist'],
-                ['template','🧩 Template'],
-                ['video','🎬 Video'],
-              ] as [typeof productType,string][]).map(([val,lbl]) => (
-                <button key={val} onClick={() => setProductType(val)}
-                  style={{ padding:'9px 10px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'12px', fontWeight:700,
-                    background: productType===val ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: productType===val ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.08)',
-                    color: productType===val ? GOLD : 'rgba(255,255,255,0.65)' }}>
-                  {lbl}
-                </button>
-              ))}
-            </div>
-            <div style={{ display:'flex', flexDirection:'column', gap:'12px', marginBottom:'12px' }}>
-              <div>
-                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Niche / Topic *</label>
-                <input value={productNiche} onChange={e => setProductNiche(e.target.value)} placeholder="e.g. CV writing, weight loss meal prep, WhatsApp sales" style={inp} />
-              </div>
-              <div>
-                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Target Audience</label>
-                <input value={productAudience} onChange={e => setProductAudience(e.target.value)} placeholder="e.g. unemployed graduates in SA, salon owners, freelancers" style={inp} />
-              </div>
-              <div>
-                <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Desired Result *</label>
-                <input value={productGoal} onChange={e => setProductGoal(e.target.value)} placeholder="e.g. get interviews in 14 days, close first 5 clients" style={inp} />
-              </div>
-            </div>
-            <button onClick={generateProduct} disabled={aiLoading || !productNiche.trim() || !productGoal.trim()} style={{ ...btn(), marginBottom:'16px', opacity: aiLoading || !productNiche.trim() || !productGoal.trim() ? 0.6 : 1 }}>
-              {aiLoading ? '🤖 Building your digital product...' : '📦 Create My Digital Product'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(99,102,241,0.32)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-                <button onClick={() => navigator.clipboard.writeText(result)}
-                  style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(99,102,241,0.15)', border:'1px solid rgba(99,102,241,0.3)', borderRadius:'8px', color:'#C7D2FE', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
-                  📋 Copy Product Pack
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── REPLY HELPER (premium) ── */}
-        {tab === 'reply' && (unlocked ? (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💬 AI Sales Reply System</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Customer responded? Select their reaction — get your perfect reply.</p>
-            <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px' }}>
-              {([
-                ['expensive',     '💸', 'Too Expensive'],
-                ['moreinfo',      '📋', 'Send More Info'],
-                ['thinking',      '🤔', 'Thinking About It'],
-                ['notinterested', '❌', 'Not Interested'],
-                ['howworks',      '❓', 'How Does It Work'],
-              ] as [ReplyCategory,string,string][]).map(([val,icon,lbl]) => (
-                <button key={val} onClick={() => setReplyCategory(val)}
-                  style={{ padding:'12px 16px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'14px', fontWeight:700, textAlign:'left' as const,
-                    background: replyCategory===val ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.03)',
-                    border: replyCategory===val ? `1.5px solid ${GOLD}` : '1.5px solid rgba(255,255,255,0.07)',
-                    color: replyCategory===val ? GOLD : 'rgba(255,255,255,0.6)' }}>
-                  {icon} {lbl}
-                </button>
-              ))}
-            </div>
-            <div style={{ marginBottom:'12px' }}>
-              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Extra Context (optional)</label>
-              <input value={replyContext} onChange={e => setReplyContext(e.target.value)} placeholder="e.g. I'm selling CV writing at R150" style={inp} />
-            </div>
-            <button onClick={generateReply} disabled={aiLoading} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading?0.6:1 }}>
-              {aiLoading ? '🤖 Generating reply...' : '💬 Get My Reply · Send & Earn'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-                <button onClick={() => navigator.clipboard.writeText(result)}
-                  style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'8px', color:'#6EE7B7', fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>
-                  📋 Copy Reply
-                </button>
-              </div>
-            )}
-          </div>
-        ) : renderUpgradeGate())}
-
-        {/* ── CLOSING ASSISTANT (premium) ── */}
-        {tab === 'close' && (unlocked ? (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💸 AI Closing Assistant</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Get the exact words to close the sale and collect payment confidently.</p>
-            <div style={{ marginBottom:'12px' }}>
-              <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Offer</label>
-              <input value={offerDesc} onChange={e => setOfferDesc(e.target.value)} placeholder="e.g. Logo design for R300, delivered in 24 hours" style={inp} />
-            </div>
-            <button onClick={generateClose} disabled={aiLoading||!offerDesc.trim()} style={{ ...btn(), marginBottom:'16px', opacity:aiLoading||!offerDesc.trim()?0.6:1 }}>
-              {aiLoading ? '🤖 Writing closing script...' : '💸 Get Closing Script · Launch Income'}
-            </button>
-            {result && (
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'14px', lineHeight:1.8, color:'rgba(255,255,255,0.85)' }}>
-                {result}
-              </div>
-            )}
-          </div>
-        ) : renderUpgradeGate())}
-
-        {/* ── DAILY ENGINE (premium) ── */}
-        {tab === 'daily' && (unlocked ? (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Daily R300/Day Engine</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>Complete today's checklist. Consistency is the only secret.</p>
-
-            {/* Progress */}
-            <div style={{ background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:'12px', padding:'16px', marginBottom:'20px' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
-                <span style={{ fontSize:'14px', fontWeight:700, color:'#fff' }}>Today's Points</span>
-                <span style={{ fontSize:'20px', fontWeight:900, color:totalPoints>=80?'#6EE7B7':totalPoints>=40?GOLD:'rgba(255,255,255,0.5)' }}>{totalPoints}/120</span>
-              </div>
-              <div style={{ height:'8px', background:'rgba(255,255,255,0.06)', borderRadius:'4px', overflow:'hidden' }}>
-                <div style={{ height:'100%', width:`${(totalPoints/120)*100}%`, background:`linear-gradient(90deg,${PURP},${GREEN})`, borderRadius:'4px', transition:'width 0.4s' }} />
-              </div>
-              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginTop:'6px' }}>
-                {totalPoints >= 100 ? '🏆 Excellent day! Start Making Money — on track for R300+' : totalPoints >= 60 ? '💪 Good progress — Execute Now!' : '⚡ Deploy Yourself — your R300 day begins now'}
-              </div>
-            </div>
-
-            <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
-              {DAILY_TASKS.map(task => (
-                <div key={task.id} onClick={() => setChecked(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
-                  style={{ display:'flex', alignItems:'center', gap:'14px', padding:'14px 16px', background: checked[task.id] ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)', border:`1px solid ${checked[task.id] ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'12px', cursor:'pointer', transition:'all 0.2s' }}>
-                  <div style={{ width:'24px', height:'24px', borderRadius:'6px', border:`2px solid ${checked[task.id] ? GREEN : 'rgba(255,255,255,0.2)'}`, background: checked[task.id] ? GREEN : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    {checked[task.id] && <span style={{ color:'#fff', fontSize:'14px' }}>✓</span>}
-                  </div>
-                  <span style={{ fontSize:'18px', flexShrink:0 }}>{task.icon}</span>
-                  <span style={{ flex:1, fontSize:'14px', color: checked[task.id] ? 'rgba(255,255,255,0.5)' : '#fff', textDecoration: checked[task.id] ? 'line-through' : 'none' }}>{task.text}</span>
-                  <span style={{ fontSize:'12px', fontWeight:700, color: checked[task.id] ? GREEN : 'rgba(255,255,255,0.3)' }}>+{task.points}pts</span>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop:'20px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'12px', padding:'16px', fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.8 }}>
-              💡 <strong style={{ color:GOLD }}>The R300/Day Formula:</strong> Contact 20 people × 15% conversion = 3 clients × R100 average = R300/day. Repeat 5 days = R1,500/week.
-            </div>
-          </div>
-        ) : renderUpgradeGate())}
-
-        {/* ── REFERRAL BOOSTER (premium) ── */}
-        {tab === 'referral' && (unlocked ? (
-          <div>
-            <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
-            <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer who joins the 60-Day Program.</p>
-
-            {/* Stats */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px', marginBottom:'20px' }}>
-              {[
-                { label:'Total Referrals', value:myCommissions.length, color:'#7C3AED' },
-                { label:'Earned (paid)',    value:`R${totalEarned}`,    color:GREEN },
-                { label:'Pending',          value:`R${pending}`,        color:GOLD },
-              ].map(({ label, value, color }) => (
-                <div key={label} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${color}22`, borderRadius:'12px', padding:'16px', textAlign:'center' }}>
-                  <div style={{ fontSize:'22px', fontWeight:900, color }}>{value}</div>
-                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginTop:'2px', textTransform:'uppercase', letterSpacing:'1px' }}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Referral link */}
-            <div style={{ background:'rgba(212,175,55,0.06)', border:'1.5px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'18px', marginBottom:'16px' }}>
-              <div style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', marginBottom:'6px', letterSpacing:'1px', textTransform:'uppercase' }}>Your Referral Link</div>
-              <div style={{ fontSize:'13px', color:'rgba(212,175,55,0.8)', fontFamily:'monospace', wordBreak:'break-all', marginBottom:'12px' }}>{refLink}</div>
-              <button onClick={() => { navigator.clipboard.writeText(refLink); setRefCopied(true); setTimeout(()=>setRefCopied(false),2500) }}
-                style={{ padding:'10px 20px', background: refCopied?'rgba(16,185,129,0.1)':'rgba(212,175,55,0.1)', border:`1px solid ${refCopied?'rgba(16,185,129,0.3)':'rgba(212,175,55,0.3)'}`, borderRadius:'10px', color:refCopied?'#6EE7B7':GOLD, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>
-                {refCopied ? '✅ Link Copied!' : '📋 Copy Link'}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+              <button onClick={v3PersonalizeSequence} disabled={v3Loading||!v3ProductName.trim()}
+                style={{ padding:'14px', background:v3Loading||!v3ProductName.trim()?'rgba(212,175,55,0.2)':`linear-gradient(135deg,${GOLD},#B8860B)`, border:'none', borderRadius:'12px', color: v3Loading||!v3ProductName.trim()?'rgba(255,255,255,0.4)':'#000', fontWeight:700, fontSize:'13px', cursor:v3Loading||!v3ProductName.trim()?'not-allowed':'pointer', fontFamily:'Georgia,serif' }}>
+                {v3Loading?'Building...':'⚡ Personalise Sequence'}
+              </button>
+              <button onClick={v3BuildAutomation} disabled={v3Loading||!v3ProductName.trim()}
+                style={{ padding:'14px', background:v3Loading||!v3ProductName.trim()?'rgba(212,175,55,0.2)':`linear-gradient(135deg,${GOLD},#B8860B)`, border:'none', borderRadius:'12px', color: v3Loading||!v3ProductName.trim()?'rgba(255,255,255,0.4)':'#000', fontWeight:700, fontSize:'13px', cursor:v3Loading||!v3ProductName.trim()?'not-allowed':'pointer', fontFamily:'Georgia,serif' }}>
+                {v3Loading?'Building...':'🏭 Full Automation Blueprint'}
               </button>
             </div>
 
-            {/* Ready-made referral messages */}
-            <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.6)', marginBottom:'10px', letterSpacing:'1px', textTransform:'uppercase' }}>Ready-Made Referral Messages</div>
-            {[
-              {
-                label: '📱 WhatsApp Status',
-                msg: `🤖 I just unlocked something powerful!\n\nAI helped me create my offer, find customers and write my sales messages — all from my phone.\n\nR100 once-off and you're in.\n\n👉 ${refLink}\n\n#AIIncome #SmartphoneIncome`,
-              },
-              {
-                label: '💬 Direct Message',
-                msg: `Hi [Name], I know you've been looking for ways to earn extra income.\n\nI found this AI system that helps you make R100-R300/day using your phone — CV writing, cleaning, anything you're good at.\n\nIt's R500 for 60 days. Here's my link:\n${refLink}\n\nLet me know if you want more info.`,
-              },
-              {
-                label: '📘 Facebook Post',
-                msg: `Have you ever wished you had a personal business coach available 24/7?\n\nI found one. It's AI — and it helped me:\n✅ Create a sellable offer\n✅ Find customers on WhatsApp & Facebook\n✅ Write messages that convert\n\nR100 once-off. No monthly fees.\n\nLink in comments 👇\n${refLink}`,
-              },
-            ].map(({ label, msg }) => (
-              <div key={label} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'16px', marginBottom:'10px' }}>
-                <div style={{ fontSize:'13px', fontWeight:700, color:GOLD, marginBottom:'8px' }}>{label}</div>
-                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', whiteSpace:'pre-wrap', lineHeight:1.7, marginBottom:'10px' }}>{msg}</div>
-                <button onClick={() => navigator.clipboard.writeText(msg)}
-                  style={{ padding:'7px 16px', background:'rgba(212,175,55,0.08)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'8px', color:GOLD, fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
-                  📋 Copy
-                </button>
-              </div>
-            ))}
+            {v3Result && <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'14px', padding:'20px', whiteSpace:'pre-wrap', fontSize:'13px', lineHeight:1.8, color:'rgba(255,255,255,0.85)', marginBottom:'16px' }}>{v3Result}<button onClick={()=>navigator.clipboard.writeText(v3Result)} style={{ marginTop:'12px', padding:'8px 18px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', color:GOLD, fontSize:'12px', fontWeight:700, cursor:'pointer', display:'block' }}>📋 Copy Blueprint</button></div>}
 
-            {/* Commission history */}
-            {myCommissions.length > 0 && (
-              <div style={{ marginTop:'20px' }}>
-                <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.6)', marginBottom:'10px', textTransform:'uppercase', letterSpacing:'1px' }}>Commission History</div>
-                {myCommissions.map((c: any, i: number) => (
-                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'10px 14px', background:'rgba(255,255,255,0.03)', borderRadius:'8px', marginBottom:'6px' }}>
-                    <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)' }}>
-                      {new Date(c.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' })}
-                    </span>
-                    <span style={{ fontSize:'13px', fontWeight:700, color: c.status==='paid'?GREEN:GOLD }}>
-                      R{c.amount} — {c.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Upsell */}
-            <div style={{ marginTop:'24px', background:'rgba(76,29,149,0.08)', border:'1px solid rgba(76,29,149,0.25)', borderRadius:'14px', padding:'18px' }}>
-              <div style={{ fontSize:'13px', fontWeight:700, color:'#C4B5FD', marginBottom:'8px' }}>🚀 Ready to Scale Beyond R300/Day?</div>
+            {/* Upgrade to Z2B Table */}
+            <div style={{ background:'rgba(76,29,149,0.08)', border:'1px solid rgba(76,29,149,0.25)', borderRadius:'14px', padding:'18px' }}>
+              <div style={{ fontSize:'13px', fontWeight:700, color:'#C4B5FD', marginBottom:'8px' }}>🍽️ Ready to Scale Beyond R300/Day?</div>
               <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.7, margin:'0 0 14px' }}>
-                Upgrade to Z2B Table Banquet Bronze membership and unlock 99 workshop sessions, network marketing income, and business systems that work while you sleep.
+                Upgrade to Z2B Table Banquet Platinum and own your own white-label platform, 7 apps built for you, and 1-on-1 strategic business consultation for 3 months.
               </p>
-              <Link href="/invite" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#2D1B69,#4C1D95)', border:'2px solid #D4AF37', borderRadius:'10px', color:'#FDE68A', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+              <Link href="/invite" style={{ display:'inline-block', padding:'10px 24px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'10px', color:'#FDE68A', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
                 🍽️ Explore Z2B Table Banquet →
               </Link>
             </div>
           </div>
-        ) : renderUpgradeGate())}
-
+        )}
       </div>
+
+      {/* ── COACH MANLAW DRAWER ── */}
+      {manlawOpen && (
+        <div style={{ position:'fixed', inset:0, zIndex:9999, display:'flex', flexDirection:'column', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setManlawOpen(false) }}>
+          <div style={{ position:'absolute', bottom:0, left:0, right:0, maxWidth:'560px', margin:'0 auto', background:'linear-gradient(160deg,#0D0820,#1A1245)', border:'1px solid rgba(76,29,149,0.4)', borderRadius:'20px 20px 0 0', padding:'20px', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', flexShrink:0 }}>
+              <div>
+                <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:700, color:GOLD }}>🤖 Coach Manlaw</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>The Executor — Action · Income · Execution</div>
+              </div>
+              <button onClick={() => setManlawOpen(false)} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
+            </div>
+
+            {/* Intro if no history */}
+            {manlawHist.length === 0 && (
+              <div style={{ background:'rgba(76,29,149,0.1)', border:'1px solid rgba(76,29,149,0.2)', borderRadius:'12px', padding:'14px', marginBottom:'12px', fontSize:'13px', color:'rgba(255,255,255,0.7)', lineHeight:1.7, flexShrink:0 }}>
+                I am not here to motivate you. I am here to make you execute. Tell me where you are stuck — I will tell you exactly what to do next.
+              </div>
+            )}
+
+            {/* Chat history */}
+            <div style={{ flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:'10px', marginBottom:'12px' }}>
+              {manlawHist.map((msg, i) => (
+                <div key={i} style={{ display:'flex', justifyContent: msg.role==='user'?'flex-end':'flex-start' }}>
+                  <div style={{ maxWidth:'85%', padding:'10px 14px', borderRadius:'14px', fontSize:'13px', lineHeight:1.7,
+                    background: msg.role==='user'?`rgba(76,29,149,0.4)`:'rgba(255,255,255,0.06)',
+                    color: msg.role==='user'?'#C4B5FD':'rgba(255,255,255,0.85)' }}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {manlawLoading && (
+                <div style={{ display:'flex', gap:'6px', padding:'12px 14px' }}>
+                  {[0,1,2].map(i => <div key={i} style={{ width:'6px', height:'6px', borderRadius:'50%', background:GOLD, animation:`pulse 1s ${i*0.2}s infinite` }} />)}
+                </div>
+              )}
+            </div>
+
+            {/* Quick prompts */}
+            {manlawHist.length === 0 && (
+              <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'10px', flexShrink:0 }}>
+                {["I don't know what to sell", "Customer said too expensive", "I'm scared to send messages", "How do I make R300 today?"].map(q => (
+                  <button key={q} onClick={() => callManlaw(q)}
+                    style={{ padding:'6px 12px', background:'rgba(76,29,149,0.15)', border:'1px solid rgba(76,29,149,0.3)', borderRadius:'20px', color:'#C4B5FD', fontSize:'11px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Input */}
+            <div style={{ display:'flex', gap:'8px', flexShrink:0 }}>
+              <input value={manlawInput} onChange={e => setManlawInput(e.target.value)}
+                onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); callManlaw(manlawInput) } }}
+                placeholder="Ask Coach Manlaw anything..." style={{ ...inp, flex:1 }} />
+              <button onClick={() => callManlaw(manlawInput)} disabled={manlawLoading||!manlawInput.trim()}
+                style={{ padding:'12px 20px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer' }}>
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default function AIIncomeWrapper() {
   return (
-    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#0F172A', display:'flex', alignItems:'center', justifyContent:'center', color:'#EAB308', fontFamily:'Georgia,serif' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#09060F', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>Loading...</div>}>
       <AIIncomeInner />
     </Suspense>
   )
