@@ -299,14 +299,14 @@ function LandingInner() {
                 points:['D-ID Video Avatars — AI talks for you','n8n Workflows — full daily automation engine','Twilio WhatsApp API — bulk sequences at scale','Replicate Image AI — auto-generate product visuals','Multiple income streams running simultaneously'],
                 badge:'SELF-SUSTAINING',
               },
-            ].map(({ icon, mode, tier, headline, color, bg, points, badge }) => (
+            ].map(({ icon, mode, tier, headline, sub, color, bg, points, badge }) => (
               <div key={mode} style={{ background: bg, borderRadius: '20px', padding: '28px 20px', border: `2px solid ${color}25`, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '14px', right: '14px', background: color, borderRadius: '6px', padding: '3px 8px', fontSize: '9px', fontWeight: 700, color: W, letterSpacing: '1px' }}>{badge}</div>
                 <div style={{ fontSize: '36px', marginBottom: '12px' }}>{icon}</div>
                 <div style={{ fontSize: '16px', fontWeight: 900, color, fontFamily: 'Cinzel,Georgia,serif', marginBottom: '4px' }}>{mode}</div>
                 <div style={{ fontSize: '11px', color, fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>{tier}</div>
                 <div style={{ fontSize: '13px', fontStyle: 'italic', color: DARK, fontWeight: 700, marginBottom: '4px' }}>{headline}</div>
-                <div style={{ fontSize: '12px', color, fontWeight: 700, marginBottom: '12px', paddingBottom: '12px', borderBottom: `1px solid ${color}20` }}>{(v as any).sub || ''}</div>
+                <div style={{ fontSize: '12px', color, fontWeight: 700, marginBottom: '12px', paddingBottom: '12px', borderBottom: `1px solid ${color}20` }}>{sub}</div>
                 {points.map(pt => (
                   <div key={pt} style={{ display: 'flex', gap: '8px', marginBottom: '7px' }}>
                     <span style={{ color, fontSize: '12px', flexShrink: 0, marginTop: '2px' }}>✦</span>
