@@ -509,7 +509,7 @@ export default function PricingPage() {
                             style={{ width:'100%', padding:'13px', background: isCurrentTier?'#F3F4F6':isBest?`linear-gradient(135deg,${tierColor},#B8860B)`:`linear-gradient(135deg,${power.color},${power.border})`,
                               border:'none', borderRadius:'12px', color: isCurrentTier?'#9CA3AF':'#fff', fontWeight:700, fontSize:'13px', cursor: isCurrentTier?'not-allowed':'pointer',
                               fontFamily:'Cinzel,Georgia,serif' }}>
-                            {isCurrentTier ? '✓ Current Tier' : price===0 ? 'Start Free' // never zero now : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
+                            {isCurrentTier ? '✓ Current Tier' : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
                           </button>
                         </div>
                       )
