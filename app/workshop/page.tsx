@@ -37,7 +37,7 @@ interface SectionProgress {
 
 type ProgressMap = Record<number, SectionProgress>;
 const FREE_SESSION_LIMIT = 18;
-const FULL_UNLOCK_TIERS = new Set(["bronze", "copper", "silver", "gold", "platinum"]);
+const FULL_UNLOCK_TIERS = new Set(["fam", "bronze", "copper", "silver", "gold", "platinum"]);
 
 interface HomeViewProps {
   setView: (v: ViewType) => void;

@@ -426,7 +426,7 @@ export default function Home() {
               className="font-bold text-lg px-10 py-4 rounded-xl border-4 border-yellow-400 text-yellow-900 hover:scale-105 transition-all shadow-xl"
               style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
             >
-              🎁 Start Free Workshop — 9 Sections, No Login Needed
+              🎁 Start Free Workshop — 99 Sections, No Login Needed
             </Link>
             {!user && (
               <Link href="/signup" className="btn-primary text-lg px-10 py-4 shadow-xl">
@@ -982,7 +982,7 @@ export default function Home() {
                         emoji:'🎓', title:'99-Session Workshop',
                         tag:'ALL TIERS', tagColor:'#7C3AED',
                         short:'Entrepreneurial Consumer transformation journey',
-                        detail:'A structured 99-session personal and business development programme split into Morning Sessions (identity anchoring, audio only) and Evening Sessions (deep learning with mirror moments, comprehension questions and daily activities). Sessions 1–9 are free. Sessions 10–99 unlock with Bronze and above.',
+                        detail:'A structured 99-session personal and business development programme split into Morning Sessions (identity anchoring, audio only) and Evening Sessions (deep learning with mirror moments, comprehension questions and daily activities). Starter Pack builders can access all 99 sessions.',
                       },
                       {
                         emoji:'🤖', title:'Coach Manlaw AI',
@@ -1433,7 +1433,7 @@ export default function Home() {
               <div className="px-6 py-6" style={{ background: 'rgba(6,95,70,0.1)' }}>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   {[
-                    { step:'1', emoji:'🎓', title:'Start Free', desc:'Join the free workshop. No credit card. No pressure. 9 sessions free.' },
+                    { step:'1', emoji:'🎓', title:'Start Free', desc:'Join the free workshop. No credit card. No pressure. 99 sessions available.' },
                     { step:'2', emoji:'🧠', title:'Learn & Grow', desc:'Complete the morning and evening sessions. Find your Purple Cow.' },
                     { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R480 once-off. Card, EFT or ATM cash. No monthly fees. Ever.' },
                     { step:'4', emoji:'🌳', title:'Build Your Table', desc:'Share your referral link. Help your first 4. Watch it multiply.' },

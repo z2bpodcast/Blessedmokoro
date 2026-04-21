@@ -61,7 +61,7 @@ export default function AdminMembersPage() {
   const [stats,       setStats]       = useState({ total:0, paid:0, free:0, suspended:0, pending:0 })
   const [saving,      setSaving]      = useState<string|null>(null)
   const [expanded,    setExpanded]    = useState<string|null>(null)
-  const [activePanel, setActivePanel] = useState<'tier'|'role'|'sponsor'|'danger'|null>(null)
+  const [activePanel, setActivePanel] = useState<'tier'|'role'|'sponsor'|'unlock'|'danger'|null>(null)
 
   // Action states
   const [newTier,    setNewTier]    = useState('')
@@ -128,7 +128,7 @@ export default function AdminMembersPage() {
   // ── HELPERS ──
   const canDoCEO = (role: string) => ['ceo','superadmin'].includes(role)
 
-  const openExpanded = (id: string, panel: 'tier'|'role'|'sponsor'|'danger') => {
+  const openExpanded = (id: string, panel: 'tier'|'role'|'sponsor'|'unlock'|'danger') => {
     if (expanded === id && activePanel === panel) {
       setExpanded(null); setActivePanel(null)
     } else {
@@ -326,6 +326,59 @@ export default function AdminMembersPage() {
       loadMembers()
     } catch(err:any) { alert('Error: ' + err.message) }
     finally { setSaving(null) }
+  }
+
+  const unlockMemberAssets = async (member: Member, target: '4m' | 'workshop' | 'both') => {
+    if (!confirm(`Unlock ${target === 'both' ? '4M + 99 workshop sessions' : target === '4m' ? '4M' : '99 workshop sessions'} for ${member.full_name}?`)) return
+    setSaving(member.id)
+    try {
+      if (target === '4m' || target === 'both') {
+        const r = await fetch('/api/admin/ai-income', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'unlock_user',
+            user_id: member.id,
+            referred_by: member.referred_by || null,
+            amount_paid: 500,
+          }),
+        })
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}))
+          throw new Error(j.error || 'Failed to unlock 4M')
+        }
+      }
+      if (target === 'workshop' || target === 'both') {
+        const sessions = Array.from({ length: 99 }, (_, i) => i + 1)
+        const r = await fetch('/api/admin/unlock-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: member.id, sessions }),
+        })
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}))
+          throw new Error(j.error || 'Failed to unlock workshop sessions')
+        }
+      }
+      await supabase.from('builder_alerts').insert({
+        builder_code: member.referral_code,
+        prospect_id: member.id,
+        alert_type: 'system',
+        session_num: 0,
+        message: target === 'both'
+          ? '🎉 Admin unlocked your 4M system and all 99 Entrepreneurial Consumer Workshop sessions.'
+          : target === '4m'
+          ? '🎉 Admin unlocked your 4M system.'
+          : '🎉 Admin unlocked all 99 Entrepreneurial Consumer Workshop sessions for your account.',
+        read: false,
+      })
+      alert(`✅ Unlock successful for ${member.full_name}.`)
+      setExpanded(null); setActivePanel(null)
+    } catch (err: any) {
+      alert('Error: ' + err.message)
+    } finally {
+      setSaving(null)
+    }
   }
 
   const filtered = members.filter(m => {
@@ -535,6 +588,12 @@ export default function AdminMembersPage() {
                             }`}>
                             <Link2 className="w-3 h-3"/>Sponsor
                           </button>
+                          <button onClick={() => openExpanded(m.id, 'unlock')}
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-all ${
+                              isExp && activePanel==='unlock' ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-purple-50 border-purple-200 text-purple-700 hover:border-purple-400'
+                            }`}>
+                            🔓 Unlock
+                          </button>
                         </>
                       )}
                       <button onClick={() => openExpanded(m.id, 'danger')}
@@ -656,6 +715,36 @@ export default function AdminMembersPage() {
                           className="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl font-bold text-sm">
                           Cancel
                         </button>
+                      </div>
+                    )}
+
+                    {/* ACCESS UNLOCKS */}
+                    {activePanel === 'unlock' && ceo && (
+                      <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-5">
+                        <h3 className="font-black text-gray-800 mb-1 flex items-center gap-2">
+                          🔓 Unlock Access
+                        </h3>
+                        <p className="text-xs text-gray-500 mb-4">
+                          Manually unlock 4M and/or Entrepreneurial Consumer Workshop for this member.
+                        </p>
+                        <div className="flex gap-3 flex-wrap">
+                          <button onClick={() => unlockMemberAssets(m, '4m')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-sm disabled:opacity-40">
+                            🤖 Unlock 4M
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, 'workshop')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 font-bold text-sm disabled:opacity-40">
+                            🎓 Unlock 99 Workshop Sessions
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, 'both')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-purple-400 bg-purple-100 text-purple-800 hover:bg-purple-200 font-black text-sm disabled:opacity-40">
+                            🚀 Unlock Both
+                          </button>
+                          <button onClick={() => { setExpanded(null); setActivePanel(null) }}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold text-sm">
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     )}
 

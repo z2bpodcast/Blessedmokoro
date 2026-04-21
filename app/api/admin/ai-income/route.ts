@@ -29,11 +29,26 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
     )
-    const { action, commission_id } = await req.json()
+    const { action, commission_id, user_id, referred_by, amount_paid } = await req.json()
     if (action === 'mark_paid') {
       await supabase.from('ai_income_commissions')
         .update({ status: 'paid', paid_at: new Date().toISOString() })
         .eq('id', commission_id)
+      return NextResponse.json({ ok: true })
+    }
+    if (action === 'unlock_user') {
+      if (!user_id) {
+        return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
+      }
+      const { error } = await supabase.from('ai_income_unlocks').upsert(
+        {
+          user_id,
+          referred_by: referred_by || null,
+          amount_paid: amount_paid ?? 500,
+        },
+        { onConflict: 'user_id' }
+      )
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json({ ok: true })
     }
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
