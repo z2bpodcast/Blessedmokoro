@@ -48,11 +48,8 @@ function InvitePage() {
   }
 
   const openModal = (name: string, price: string) => {
-    setSelTier({ name, price, amount: tierAmounts[name.toLowerCase()] || 2500 })
-    setStep('register')
-    setFullName(''); setEmail(''); setWhatsapp('')
-    setModalError(''); setModalLoading(false)
-    setModal(true)
+    const tierKey = name.toLowerCase()
+    window.location.href = `/pricing?compare=true&autoopen=${encodeURIComponent(tierKey)}&ref=${encodeURIComponent(ref)}`
   }
 
   const handlePay = async () => {

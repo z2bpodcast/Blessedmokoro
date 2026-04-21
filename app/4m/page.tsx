@@ -17,5 +17,5 @@ export default function FourMRedirectPage({
   }
 
   const suffix = qs.toString()
-  redirect(`/ai-income${suffix ? `?${suffix}` : ''}`)
+  redirect(`/ai-income/landing${suffix ? `?${suffix}` : ''}`)
 }

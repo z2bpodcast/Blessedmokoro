@@ -441,10 +441,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         </p>
         {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
         <button onClick={handlePay} disabled={paying} style={primaryBtn(paying)}>
-          {paying ? 'Setting up...' : '🚀 Start 4M Machine — R500'}
+          {paying ? 'Setting up...' : '🚀 Start 4M Machine — R500 TO Continue'}
         </button>
         <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
-          60-day access · R500/month after · <Link href="/4m" style={{ color:GOLD, textDecoration:'none' }}>See full details →</Link>
+          60-day access · R500/month after · <Link href={`/ai-income/landing${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`} style={{ color:GOLD, textDecoration:'none' }}>See full details →</Link>
         </div>
       </div>
 
@@ -466,6 +466,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             <button onClick={handleRegPay} disabled={regLoading} style={primaryBtn(regLoading)}>
               {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
             </button>
+            <div style={{ marginTop:'12px', display:'flex', justifyContent:'center', gap:'14px', fontSize:'12px' }}>
+              <Link href="/login" style={{ color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>I am already registered, login</Link>
+              <Link href="/login" style={{ color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Forgot password</Link>
+            </div>
           </div>
         </div>
       )}
