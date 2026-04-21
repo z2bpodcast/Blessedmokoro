@@ -1,4 +1,5 @@
 'use client'
+// updated 2026-04-21 09:02
 
 // app/admin/page.tsx
 // Z2B Admin Hub — Central command · Role management · Staff permissions
@@ -95,6 +96,7 @@ const NAV_SECTIONS = [
   { href:'/z2b-command-7x9k/payments',      icon:'💳', label:'Payments & Grants',    desc:'Approve EFT · Commission upgrades · CEO grants',        color:'#D97706', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/members',       icon:'👥', label:'Manage Members',       desc:'View, edit, suspend or delete members',                  color:'#0369A1', bg:'#E0F2FE', roles:['ceo','superadmin','admin','support'] },
   { href:'/z2b-command-7x9k/leaderboard-admin', icon:'🏆', label:'Leaderboard Admin', desc:'Award bonus points · Override scores · Weekly management', color:'#D4AF37', bg:'#FEF9C3', roles:['ceo','superadmin','admin'] },
+  { href:'/compensation',                       icon:'📋', label:'Public Comp Plan Page',    desc:'View the public compensation plan page — ISP · TSC · QPB · BFM breakdown',   color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/compensation',  icon:'💎', label:'Compensation Dashboard', desc:'QPB · Torch Bearer reset · Monthly payout summary · ISP · TSC', color:'#7C3AED', bg:'#EDE9FE', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/leaderboard-admin', icon:'🏆', label:'Leaderboard Manager', desc:'Award bonus points · Override scores · View weekly board', color:'#D4AF37', bg:'#FEF3C7', roles:['ceo','superadmin','admin'] },
   { href:'/z2b-command-7x9k/hub',     icon:'🔗', label:'Referral Tree',        desc:'View sponsor chains and referral analytics',             color:'#059669', bg:'#D1FAE5', roles:['ceo','superadmin','admin','support'] },

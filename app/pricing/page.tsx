@@ -61,7 +61,8 @@ const MACHINE_POWERS = [
 // ── 4M OFFERS PER TIER (override/extend existing) ────────────────────────────
 const FOUR_M_OFFERS: Record<string, string[]> = {
   fam: [
-    '🤖 Z2B 4M Machine — Manual Mode (Free Preview)',
+    '🤖 Z2B 4M Machine — Manual Power (3 Features FREE to explore)',
+    '⬆️ Unlock ALL 7 features with R500 Starter Pack',
     '🧠 AI Offer Generator — 3 uses',
     '📲 AI Customer Finder — 3 uses',
     '🎓 Workshop Sessions 1–9 free forever',
@@ -137,7 +138,7 @@ const FOUR_M_OFFERS: Record<string, string[]> = {
     '👤 1-on-1 Coaching — 3 months monthly',
     '🎪 1 Weekend Bootcamp',
     '💰 Platinum Pool Profit Sharing',
-    '🏷️ White-Label Platform License',
+    '🏷️ Distribution License (T&Cs Apply)',
     '👑 CEO Mastermind Access',
   ],
 }
@@ -157,11 +158,11 @@ const TIER_COLORS: Record<string,string> = {
 }
 
 const TIER_PRICES: Record<string,number> = {
-  fam:0, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
+  fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
 }
 
 const TIER_LABELS: Record<string,string> = {
-  fam:'4M Free Preview', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
+  fam:'Starter Pack', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
 }
 
 export default function PricingPage() {
@@ -269,7 +270,7 @@ export default function PricingPage() {
     { label:'1-on-1 Coaching',     manual:['—','—','—'],                    auto:['—'],                electric:['✓','3 months'] },
     { label:'Bootcamp',            manual:['—','—','—'],                    auto:['—'],                electric:['1 Weekend','1 Weekend'] },
     { label:'Profit Sharing',      manual:['—','—','—'],                    auto:['—'],                electric:['Gold Pool','Platinum Pool'] },
-    { label:'White-Label License', manual:['—','—','—'],                    auto:['—'],                electric:['—','✓'] },
+    { label:'Distribution License', manual:['—','—','—'],                    auto:['—'],                electric:['—','✓ T&Cs'] },
   ]
 
   const FAQS = [
@@ -369,7 +370,7 @@ export default function PricingPage() {
                   </tr>
                   <tr>
                     <th style={{ padding:'10px 16px', background:'#1E1245', fontSize:'11px', color:'rgba(255,255,255,0.3)' }}></th>
-                    {['4M Free\nR0','Bronze\nR2,500','Copper\nR5,000'].map(t => (
+                    {['Starter Pack\nR500','Bronze\nR2,500','Copper\nR5,000'].map(t => (
                       <th key={t} style={{ padding:'10px 8px', background:'rgba(76,29,149,0.1)', textAlign:'center', fontSize:'11px', fontWeight:700, color:'#4C1D95', borderLeft:'1px solid #E5E7EB', whiteSpace:'pre-line' as const }}>{t}</th>
                     ))}
                     {['Silver\nR12,000'].map(t => (
@@ -404,7 +405,7 @@ export default function PricingPage() {
                     {['fam','bronze','copper'].map(k => (
                       <td key={k} style={{ padding:'12px 8px', textAlign:'center', borderLeft:'1px solid rgba(255,255,255,0.1)' }}>
                         <button onClick={() => openPayment(k)} style={{ padding:'8px 14px', background:k==='fam'?'rgba(255,255,255,0.1)':'#7C3AED', border:`1px solid ${k==='fam'?'rgba(255,255,255,0.2)':'#7C3AED'}`, borderRadius:'8px', color:'#fff', fontSize:'11px', fontWeight:700, cursor:'pointer' }}>
-                          {k==='fam'?'Free':'Get '+(TIER_LABELS[k])}
+                          {k==='fam'?'Get Starter Pack':'Get '+(TIER_LABELS[k])}
                         </button>
                       </td>
                     ))}
@@ -468,8 +469,14 @@ export default function PricingPage() {
                               {tierKey==='platinum'?'👑':tierKey==='gold'?'⭐':tierKey==='silver'?'⚡':tierKey==='copper'?'🔶':tierKey==='bronze'?'🥉':'🆓'}
                             </div>
                             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[tierKey]}</div>
-                            <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>{price===0?'Free':`R${price.toLocaleString()}`}</div>
-                            {price > 0 && <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Lifetime Access</div>}
+                            <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>R{price.toLocaleString()}</div>
+                            <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
+                            {tierKey==='fam' && <div style={{ fontSize:'10px', color:'rgba(76,29,149,0.6)', marginTop:'2px' }}>R850/month BFM after 60 days</div>}
+                            {tierKey==='bronze' && <div style={{ fontSize:'10px', color:'rgba(205,127,50,0.6)', marginTop:'2px' }}>R1,050/month BFM</div>}
+                            {tierKey==='copper' && <div style={{ fontSize:'10px', color:'rgba(184,115,51,0.6)', marginTop:'2px' }}>R1,300/month BFM</div>}
+                            {tierKey==='silver' && <div style={{ fontSize:'10px', color:'rgba(8,145,178,0.6)', marginTop:'2px' }}>R2,000/month BFM</div>}
+                            {tierKey==='gold' && <div style={{ fontSize:'10px', color:'rgba(212,175,55,0.6)', marginTop:'2px' }}>R3,200/month BFM</div>}
+                            {tierKey==='platinum' && <div style={{ fontSize:'10px', color:'rgba(229,228,226,0.6)', marginTop:'2px' }}>R5,800/month BFM</div>}
                           </div>
 
                           {/* 4M Offers — PRIMARY */}
@@ -502,7 +509,7 @@ export default function PricingPage() {
                             style={{ width:'100%', padding:'13px', background: isCurrentTier?'#F3F4F6':isBest?`linear-gradient(135deg,${tierColor},#B8860B)`:`linear-gradient(135deg,${power.color},${power.border})`,
                               border:'none', borderRadius:'12px', color: isCurrentTier?'#9CA3AF':'#fff', fontWeight:700, fontSize:'13px', cursor: isCurrentTier?'not-allowed':'pointer',
                               fontFamily:'Cinzel,Georgia,serif' }}>
-                            {isCurrentTier ? '✓ Current Tier' : price===0 ? 'Start Free' : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
+                            {isCurrentTier ? '✓ Current Tier' : price===0 ? 'Start Free' // never zero now : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
                           </button>
                         </div>
                       )
@@ -539,7 +546,7 @@ export default function PricingPage() {
                   <div style={{ fontSize:'11px', fontWeight:700, color:power?.color, letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'8px' }}>{power?.icon} {power?.label}</div>
                   <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[selectedTier]} Membership</div>
                   <div style={{ fontSize:'32px', fontWeight:900, color:TIER_COLORS[selectedTier] }}>R{price.toLocaleString()}</div>
-                  <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Lifetime Access</div>
+                  <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
                 </div>
               )
             })()}
