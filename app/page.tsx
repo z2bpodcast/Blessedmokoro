@@ -970,6 +970,11 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
 
+                <p className="text-purple-200 leading-relaxed mb-5">
+                  We offer a two-part growth path: the <strong className="text-white">4M Income Machine</strong> (start earning from your phone) and the
+                  <strong className="text-white"> Entrepreneurial Consumer Workshop</strong> (build identity, systems and legacy through all 99 sessions).
+                </p>
+
                 {/* Category 1 — Membership & Coaching */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
@@ -1171,19 +1176,19 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <p className="text-purple-200 leading-relaxed mb-5">
-                  We use the <strong className="text-white">Purple Cow Strategy</strong> — you share what genuinely moves you. Your daily workshop session becomes your content. Your personal transformation becomes your testimony. Your referral link does the rest.
+                  We sell with the <strong className="text-white">4M flow</strong>: attract interest with value content, move prospects to the landing page for light registration, and let the payment system close with card/EFT/ATM options. Your referral link tracks every step.
                 </p>
                 <div className="flex flex-wrap gap-3 items-center">
                   {[
-                    { step:'1', text:'Do your daily workshop session', color:'#7C3AED' },
+                    { step:'1', text:'Share 4M value content daily', color:'#7C3AED' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'2', text:'Post 4 times on social media', color:'#1D4ED8' },
+                    { step:'2', text:'Prospect opens AI-income landing page', color:'#1D4ED8' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'3', text:'4 free sign-ups enter your pipeline', color:'#065F46' },
+                    { step:'3', text:'Light registration captures lead data', color:'#065F46' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'4', text:'System nurtures for 9 days automatically', color:'#92400E' },
+                    { step:'4', text:'Prospect proceeds to payment options', color:'#92400E' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'5', text:'15% upgrade to Bronze = your income', color:'#D4AF37' },
+                    { step:'5', text:'Activation + R200 referral income', color:'#D4AF37' },
                   ].map((s, i) => s.step === '→' ? (
                     <span key={i} className="text-purple-500 text-xl font-black">→</span>
                   ) : (
@@ -1193,7 +1198,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <p className="text-purple-400 text-sm mt-4 italic">The ratio: 4 posts · 4 sign-ups/day · 5 days · 4 weeks · 15% conversion = 12 Bronze upgrades/month</p>
+                <p className="text-purple-400 text-sm mt-4 italic">Simple path: content → landing page → light registration → payment → activation.</p>
               </div>
             </div>
 

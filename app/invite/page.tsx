@@ -258,6 +258,9 @@ function InvitePage() {
 
           {/* ── HEADER ── */}
           <header className="site-header">
+            <div style={{ textAlign:'left', marginBottom:'10px' }}>
+              <Link href="/" style={{ fontSize:'13px', color:'rgba(212,175,55,0.8)', textDecoration:'none' }}>← Back to Home</Link>
+            </div>
             <p className="eyebrow">Zero2Billionaires Amavulandlela Pty Ltd</p>
             <h1 className="tagline">
               You Were Never Built<br/>

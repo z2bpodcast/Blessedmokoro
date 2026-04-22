@@ -124,7 +124,10 @@ function LandingInner() {
 
       {/* ── NAV ── */}
       <nav style={{ position:'sticky', top:0, zIndex:100, background:'rgba(76,29,149,0.95)', backdropFilter:'blur(20px)', padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:GOLDL }}>Z2B 4M</div>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>← Back to Home</Link>
+          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:GOLDL }}>Z2B 4M</div>
+        </div>
         <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
           {unlocked
             ? <Link href="/ai-income" style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>

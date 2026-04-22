@@ -427,7 +427,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
   if (!unlocked) return (
     <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
       <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-        <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.65)', textDecoration:'none' }}>← Back to Home</Link>
+          <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
+        </div>
         {user ? <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Dashboard →</Link>
                : <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Sign In</Link>}
       </div>
@@ -492,7 +495,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
 
       {/* Nav */}
       <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.95)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
-        <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Dashboard</Link>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Home</Link>
+          <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>Dashboard</Link>
+        </div>
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>🤖 Z2B 4M Income System</div>
         <button onClick={() => setManlawOpen(true)}
           style={{ padding:'7px 14px', background:'rgba(76,29,149,0.2)', border:'1px solid rgba(76,29,149,0.4)', borderRadius:'20px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>

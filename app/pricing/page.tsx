@@ -349,6 +349,7 @@ export default function PricingPage() {
             </div>
           </Link>
           <div style={{ display:'flex', gap:'10px', alignItems:'center' }}>
+            <Link href="/" style={{ padding:'8px 16px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.25)', borderRadius:'8px', color:'#fff', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>← Back to Home</Link>
             <Link href="/" style={{ padding:'8px 16px', background:'rgba(255,255,255,0.1)', border:'1px solid rgba(212,175,55,0.4)', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>Home</Link>
             <Link href="/ai-income/landing" style={{ padding:'8px 16px', background:'rgba(212,175,55,0.2)', border:'1px solid #D4AF37', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>🤖 4M System</Link>
             {user
