@@ -1257,13 +1257,13 @@ export default function Home() {
                         { tier:'SILVER',   price:'R12,000',     bg:'#1D4ED8',   text:'#EFF6FF', hl:true,  machine:'⚙️' },
                         { tier:'GOLD',     price:'R24,000',     bg:'#78350F',   text:'#FEF9C3', hl:false, machine:'⚡' },
                         { tier:'PLATINUM', price:'R50,000',     bg:'#4C1D95',   text:'#F3F0FF', hl:false, machine:'⚡' },
-                      ].map(({ tier, price, bg, text, hl }) => (
+                      ].map(({ tier, price, bg, text, hl, machine }) => (
                         <th key={tier} className="px-2 py-2 text-center" style={{
                           background: bg,
                           border: hl ? `3px solid ${tier==='BRONZE'?'#FDE68A':'#93C5FD'}` : undefined,
                           minWidth: '80px',
                         }}>
-                          <div className="font-black text-xs" style={{ color: text }}>{(col as any).machine} {tier}</div>
+                          <div className="font-black text-xs" style={{ color: text }}>{machine} {tier}</div>
                           <div className="font-bold text-xs mt-0.5 opacity-80" style={{ color: text }}>{price}</div>
                           {hl && <div className="text-xs mt-0.5" style={{ color: tier==='BRONZE'?'#FDE68A':'#BFDBFE' }}>★ HIGHLIGHTED</div>}
                         </th>
