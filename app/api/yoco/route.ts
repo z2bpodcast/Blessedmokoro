@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import { minVehicle, parseVehicleScope, tierVehicleCap } from '@/lib/fourm-access'
 
 // FILE: app/api/yoco/route.ts
 // Yoco payment webhook + checkout creation
@@ -23,6 +24,39 @@ const AMOUNT_TO_TIER: Record<number, string> = {
   12000: 'silver',
   24000: 'gold',
   50000: 'platinum',
+}
+
+function tierFromAmount(amountRands: number): string {
+  return AMOUNT_TO_TIER[amountRands] || 'bronze'
+}
+
+type FourmVehicle = 'manual' | 'automatic' | 'electric'
+
+function tierVehicleCap(tier: string): FourmVehicle {
+  const t = (tier || 'fam').toLowerCase()
+  if (t === 'silver') return 'automatic'
+  if (t === 'gold' || t === 'platinum') return 'electric'
+  return 'manual'
+}
+
+async function syncFourmUnlockForTier(supabase: any, userId: string, tier: string, refCode: string | null) {
+  // Starter Pack / free tier: remove entitlement row (preview only)
+  if (!tier || tier === 'fam') {
+    await supabase.from('ai_income_unlocks').delete().eq('user_id', userId)
+    return
+  }
+
+  const cap = tierVehicleCap(tier)
+  await supabase.from('ai_income_unlocks').upsert(
+    {
+      user_id: userId,
+      referred_by: refCode || null,
+      amount_paid: 0,
+      four_m_vehicle_scope: cap,
+      four_m_unlock_source: 'membership_tier',
+    },
+    { onConflict: 'user_id' }
+  )
 }
 
 function verifyYocoSignature(rawBody: string, signature: string, secret: string): boolean {
@@ -146,7 +180,8 @@ export async function POST(req: NextRequest) {
       const userId       = metadata.user_id
       const refCode      = metadata.ref_code
       const amountRands  = Math.round(payment.amount / 100)
-      const newTier      = AMOUNT_TO_TIER[amountRands] || 'bronze'
+      const checkoutTier = (metadata.tier as string) || ''
+      const newTier      = checkoutTier || tierFromAmount(amountRands)
       // Content Engine product detection
       const productType  = metadata.product_type || 'membership'
       const isContentEngine = productType === 'content_engine'
@@ -184,7 +219,43 @@ export async function POST(req: NextRequest) {
       }
 
       // ── MEMBERSHIP PAYMENT (existing flow) ───────────────────
-      // Update profile tier
+      if (newTier === 'ai_income') {
+        // R500 AI Income activation — does NOT change Table Banquet membership tier
+        await supabase.from('ai_income_unlocks').upsert(
+          {
+            user_id: userId,
+            referred_by: refCode || null,
+            amount_paid: amountRands,
+            four_m_vehicle_scope: 'manual',
+            four_m_unlock_source: 'payment_ai_income',
+          },
+          { onConflict: 'user_id' }
+        )
+
+        if (refCode) {
+          const { data: referrer } = await supabase
+            .from('profiles').select('id').eq('referral_code', refCode).single()
+          if (referrer) {
+            await supabase.from('ai_income_commissions').insert({
+              referrer_id: referrer.id,
+              referred_id: userId,
+              amount: 200,
+              status: 'pending',
+            })
+          }
+        }
+
+        fetch(`${APP_URL}/api/email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'payment', user_id: userId, data: { tier: 'ai_income', amount: amountRands } }),
+        }).catch(() => {})
+
+        console.log(`✅ AI Income unlocked: ${userId}`)
+        return new NextResponse('OK', { status: 200 })
+      }
+
+      // Update profile tier (Table Banquet membership)
       await supabase.from('profiles').update({
         paid_tier:      newTier,
         payment_status: 'paid',
@@ -233,31 +304,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ type:'payment', user_id:userId, data:{ tier:newTier, amount:amountRands } })
       }).catch(()=>{})
 
-      // ── AI Income unlock ───────────────────────────────────────
-      if (newTier === 'ai_income') {
-        const refCode = metadata.ref_code || ''
-        // Unlock for buyer
-        await supabase.from('ai_income_unlocks').upsert(
-          { user_id: userId, referred_by: refCode || null, amount_paid: amountRands },
-          { onConflict: 'user_id' }
-        )
-        // Commission for referrer
-        if (refCode) {
-          const { data: referrer } = await supabase
-            .from('profiles').select('id').eq('referral_code', refCode).single()
-          if (referrer) {
-            await supabase.from('ai_income_commissions').insert({
-              referrer_id: referrer.id,
-              referred_id: userId,
-              amount: 200,
-              status: 'pending',
-            })
-          }
-        }
-        console.log(`✅ AI Income unlocked: ${userId}`)
-        return new NextResponse('OK', { status:200 })
-      }
-      // ─────────────────────────────────────────────────────────
+      await syncFourmUnlockForTier(supabase, userId, newTier, refCode || null)
 
       console.log(`✅ Yoco payment: ${userId} → ${newTier} (R${amountRands})`)
       return new NextResponse('OK', { status:200 })

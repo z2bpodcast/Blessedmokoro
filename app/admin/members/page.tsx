@@ -207,6 +207,12 @@ export default function AdminMembersPage() {
         read:         false,
       })
 
+      await fetch('/api/admin/ai-income', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_four_m_access', user_id: member.id }),
+      }).catch(() => {})
+
       alert(`✅ ${member.full_name} upgraded to ${newTier.toUpperCase()}.`)
       setExpanded(null); setActivePanel(null)
       loadMembers()
@@ -313,9 +319,25 @@ export default function AdminMembersPage() {
     )) return
     setSaving(member.id)
     try {
+      const { data: pendingPay } = await supabase
+        .from('payments')
+        .select('tier')
+        .eq('user_id', member.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const paidTierFromPayment = String(pendingPay?.tier || member.paid_tier || 'fam')
+
       await supabase.from('profiles').update({
+        ...(paidTierFromPayment && paidTierFromPayment !== 'null'
+          ? {
+              paid_tier: paidTierFromPayment,
+              is_paid_member: paidTierFromPayment !== 'fam',
+            }
+          : { is_paid_member: true }),
         payment_status: 'paid',
-        is_paid_member: true,
         paid_at:        new Date().toISOString(),
       }).eq('id', member.id)
       // Also mark their pending payment as completed
@@ -323,16 +345,55 @@ export default function AdminMembersPage() {
         .update({ status: 'completed', verified_at: new Date().toISOString() })
         .eq('user_id', member.id)
         .eq('status', 'pending')
+
+      // Keep 4M entitlements aligned to what was actually paid for
+      await fetch('/api/admin/ai-income', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_four_m_access', user_id: member.id }),
+      }).catch(() => {})
+
       loadMembers()
     } catch(err:any) { alert('Error: ' + err.message) }
     finally { setSaving(null) }
   }
 
-  const unlockMemberAssets = async (member: Member, target: '4m' | 'workshop' | 'both') => {
-    if (!confirm(`Unlock ${target === 'both' ? '4M + 99 workshop sessions' : target === '4m' ? '4M' : '99 workshop sessions'} for ${member.full_name}?`)) return
+  const unlockMemberAssets = async (
+    member: Member,
+    target: '4m_manual' | '4m_manual_auto' | '4m_all' | '4m_lock' | 'workshop' | 'both_manual' | 'both_manual_auto' | 'both_all'
+  ) => {
+    const fourMLabel =
+      target === '4m_manual' || target === 'both_manual' ? '4M — Manual Power only' :
+      target === '4m_manual_auto' || target === 'both_manual_auto' ? '4M — Manual + Automatic' :
+      target === '4m_all' || target === 'both_all' ? '4M — Manual + Automatic + Electric' :
+      target === '4m_lock' ? '4M — lock/remove manual admin unlock' : ''
+
+    if (!confirm(
+      target === '4m_lock'
+        ? `Lock 4M admin unlock for ${member.full_name}?\n\nThis removes the manual admin unlock row. Paid membership tiers will still apply their normal 4M access.`
+        : `Unlock ${target.startsWith('both') ? `${fourMLabel} + 99 workshop sessions` : fourMLabel} for ${member.full_name}?`
+    )) return
     setSaving(member.id)
     try {
-      if (target === '4m' || target === 'both') {
+      const wants4m =
+        target === '4m_manual' || target === '4m_manual_auto' || target === '4m_all' ||
+        target === 'both_manual' || target === 'both_manual_auto' || target === 'both_all'
+
+      if (target === '4m_lock') {
+        const r = await fetch('/api/admin/ai-income', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'lock_four_m', user_id: member.id }),
+        })
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}))
+          throw new Error(j.error || 'Failed to lock 4M')
+        }
+      } else if (wants4m) {
+        const scope =
+          target === '4m_manual' || target === 'both_manual' ? 'manual' :
+          target === '4m_manual_auto' || target === 'both_manual_auto' ? 'automatic' :
+          'electric'
         const r = await fetch('/api/admin/ai-income', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -340,7 +401,8 @@ export default function AdminMembersPage() {
             action: 'unlock_user',
             user_id: member.id,
             referred_by: member.referred_by || null,
-            amount_paid: 500,
+            amount_paid: 0,
+            four_m_vehicle_scope: scope,
           }),
         })
         if (!r.ok) {
@@ -348,7 +410,7 @@ export default function AdminMembersPage() {
           throw new Error(j.error || 'Failed to unlock 4M')
         }
       }
-      if (target === 'workshop' || target === 'both') {
+      if (target === 'workshop' || target.startsWith('both')) {
         const sessions = Array.from({ length: 99 }, (_, i) => i + 1)
         const r = await fetch('/api/admin/unlock-sessions', {
           method: 'POST',
@@ -365,11 +427,14 @@ export default function AdminMembersPage() {
         prospect_id: member.id,
         alert_type: 'system',
         session_num: 0,
-        message: target === 'both'
-          ? '🎉 Admin unlocked your 4M system and all 99 Entrepreneurial Consumer Workshop sessions.'
-          : target === '4m'
-          ? '🎉 Admin unlocked your 4M system.'
-          : '🎉 Admin unlocked all 99 Entrepreneurial Consumer Workshop sessions for your account.',
+        message:
+          target === '4m_lock'
+            ? 'ℹ️ Admin removed a manual 4M unlock override from your account. Your paid tier rules now apply as normal.'
+            : target.startsWith('both')
+              ? `🎉 Admin unlocked your 4M system (${fourMLabel}) and all 99 Entrepreneurial Consumer Workshop sessions.`
+              : wants4m
+                ? `🎉 Admin unlocked your 4M system (${fourMLabel}).`
+                : '🎉 Admin unlocked all 99 Entrepreneurial Consumer Workshop sessions for your account.',
         read: false,
       })
       alert(`✅ Unlock successful for ${member.full_name}.`)
@@ -725,20 +790,43 @@ export default function AdminMembersPage() {
                           🔓 Unlock Access
                         </h3>
                         <p className="text-xs text-gray-500 mb-4">
-                          Manually unlock 4M and/or Entrepreneurial Consumer Workshop for this member.
+                          Manually control 4M vehicle access and/or Entrepreneurial Consumer Workshop unlocks for this member.
                         </p>
+                        <div className="text-xs text-gray-600 mb-3">
+                          <strong>Note:</strong> paid membership tiers still cap what the member can access. Admin unlocks cannot exceed the member&apos;s paid tier unless you also upgrade their tier.
+                        </div>
                         <div className="flex gap-3 flex-wrap">
-                          <button onClick={() => unlockMemberAssets(m, '4m')} disabled={isBusy}
+                          <button onClick={() => unlockMemberAssets(m, '4m_manual')} disabled={isBusy}
                             className="px-5 py-2.5 rounded-xl border-2 border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-sm disabled:opacity-40">
-                            🤖 Unlock 4M
+                            🚗 4M — Manual only
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, '4m_manual_auto')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-sm disabled:opacity-40">
+                            🚗⚙️ 4M — Manual + Auto
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, '4m_all')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-sm disabled:opacity-40">
+                            🚗⚙️⚡ 4M — All 3
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, '4m_lock')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-gray-300 bg-white text-gray-800 hover:bg-gray-50 font-bold text-sm disabled:opacity-40">
+                            🔒 Remove admin 4M unlock
                           </button>
                           <button onClick={() => unlockMemberAssets(m, 'workshop')} disabled={isBusy}
                             className="px-5 py-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 font-bold text-sm disabled:opacity-40">
                             🎓 Unlock 99 Workshop Sessions
                           </button>
-                          <button onClick={() => unlockMemberAssets(m, 'both')} disabled={isBusy}
+                          <button onClick={() => unlockMemberAssets(m, 'both_manual')} disabled={isBusy}
                             className="px-5 py-2.5 rounded-xl border-2 border-purple-400 bg-purple-100 text-purple-800 hover:bg-purple-200 font-black text-sm disabled:opacity-40">
-                            🚀 Unlock Both
+                            🚀 Workshop + 4M (Manual)
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, 'both_manual_auto')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-purple-400 bg-purple-100 text-purple-800 hover:bg-purple-200 font-black text-sm disabled:opacity-40">
+                            🚀 Workshop + 4M (Manual+Auto)
+                          </button>
+                          <button onClick={() => unlockMemberAssets(m, 'both_all')} disabled={isBusy}
+                            className="px-5 py-2.5 rounded-xl border-2 border-purple-400 bg-purple-100 text-purple-800 hover:bg-purple-200 font-black text-sm disabled:opacity-40">
+                            🚀 Workshop + 4M (All 3)
                           </button>
                           <button onClick={() => { setExpanded(null); setActivePanel(null) }}
                             className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold text-sm">

@@ -3,10 +3,19 @@
 // Z2B 4M Income Execution System — Landing Page
 // Light Purple dominant · Smartphone-first · Outcome language · No API exposure
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import {
+  famHasPaidStarterUnlock,
+  hasFourmWorkspaceAccess,
+  minVehicle,
+  parseVehicleScope,
+  tierVehicleCap,
+  vehicleRank,
+  type FourmVehicle,
+} from '@/lib/fourm-access'
 
 const INCOME_PROOFS = [
   { name:'Thabo M.', location:'Soweto', product:'CV Writing', earned:'R300', time:'Day 2', quote:'I sent 8 messages on Day 1. By Day 2 I had R300 in my SnapScan.' },
@@ -38,6 +47,8 @@ function LandingInner() {
   const [sponsorName, setSponsorName]   = useState('')
   const [user,        setUser]          = useState<any>(null)
   const [unlocked,    setUnlocked]      = useState(false)
+  const [paidTier,    setPaidTier]      = useState<string>('fam')
+  const [unlockRow,   setUnlockRow]     = useState<any>(null)
   const [activeProduct, setActiveProduct] = useState<number|null>(null)
   const [activeProof,   setActiveProof]   = useState(0)
   const [showReg,     setShowReg]       = useState(false)
@@ -52,8 +63,13 @@ function LandingInner() {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       setUser(u)
       if (u) {
-        const { data: unlock } = await supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).single()
-        if (unlock) setUnlocked(true)
+        const [{ data: prof }, { data: unlock }] = await Promise.all([
+          supabase.from('profiles').select('paid_tier').eq('id', u.id).single(),
+          supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).maybeSingle(),
+        ])
+        setPaidTier(String(prof?.paid_tier || 'fam'))
+        setUnlockRow(unlock || null)
+        setUnlocked(hasFourmWorkspaceAccess(String(prof?.paid_tier || 'fam'), unlock || null))
       }
     })
     if (ref) {
@@ -64,6 +80,24 @@ function LandingInner() {
     const t = setInterval(() => setActiveProof(p => (p + 1) % INCOME_PROOFS.length), 4000)
     return () => clearInterval(t)
   }, [ref])
+
+  const tierCap = useMemo(() => tierVehicleCap(paidTier), [paidTier])
+
+  const adminOverride = useMemo(() => {
+    if (!unlockRow) return null
+    if (String(unlockRow.four_m_unlock_source || '') !== 'admin_manual') return null
+    return parseVehicleScope(unlockRow.four_m_vehicle_scope) || 'manual'
+  }, [unlockRow])
+
+  const maxVehicle = useMemo((): FourmVehicle => {
+    if (paidTier !== 'fam') return adminOverride ? minVehicle(tierCap, adminOverride) : tierCap
+    if (!unlockRow) return 'manual'
+    if (famHasPaidStarterUnlock(unlockRow)) return 'manual'
+    if (String(unlockRow.four_m_unlock_source || '') === 'admin_manual') {
+      return minVehicle('manual', adminOverride || 'manual')
+    }
+    return 'manual'
+  }, [paidTier, tierCap, unlockRow, adminOverride])
 
   const handlePay = async () => {
     if (!user) { setShowReg(true); return }

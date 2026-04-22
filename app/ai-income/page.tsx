@@ -3,10 +3,20 @@
 // Z2B 4M Income Execution System — Three Vehicles — patched 2026-04-21 06:52:31
 // 🚗 Manual (R500) → ⚙️ Automatic (R2,500) → ⚡ Electric (R5,000+)
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import {
+  famHasPaidStarterUnlock,
+  hasFourmWorkspaceAccess,
+  minVehicle,
+  parseVehicleScope,
+  tierIncludesFourmMembership,
+  tierVehicleCap,
+  type FourmVehicle,
+  vehicleRank,
+} from '@/lib/fourm-access'
 
 type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
@@ -97,7 +107,7 @@ function AIIncomeInner() {
 
   const [user,         setUser]         = useState<any>(null)
   const [profile,      setProfile]      = useState<any>(null)
-  const [unlocked,     setUnlocked]     = useState(false)
+  const [unlockRow,    setUnlockRow]    = useState<any>(null)
   const [vehicle,      setVehicle]      = useState<Vehicle>('manual')
   const [loading,      setLoading]      = useState(true)
   const [tab,          setTab]          = useState<Tab>('offer')
@@ -162,16 +172,51 @@ function AIIncomeInner() {
       if (u) {
         const [{ data: prof }, { data: unlock }, { data: comms }] = await Promise.all([
           supabase.from('profiles').select('full_name,referral_code,paid_tier').eq('id', u.id).single(),
-          supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).single(),
+          supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).maybeSingle(),
           supabase.from('ai_income_commissions').select('*').eq('referrer_id', u.id).order('created_at', { ascending: false }),
         ])
         setProfile(prof)
-        if (unlock) setUnlocked(true)
+        setUnlockRow(unlock || null)
         setMyCommissions(comms || [])
       }
       setLoading(false)
     })
   }, [])
+
+  const paidTier = String(profile?.paid_tier || 'fam')
+  const tierCap = useMemo(() => tierVehicleCap(paidTier), [paidTier])
+
+  const adminOverride = useMemo(() => {
+    if (!unlockRow) return null
+    if (String(unlockRow.four_m_unlock_source || '') !== 'admin_manual') return null
+    return parseVehicleScope(unlockRow.four_m_vehicle_scope) || 'manual'
+  }, [unlockRow])
+
+  const maxVehicle = useMemo(() => {
+    if (paidTier !== 'fam') return adminOverride ? minVehicle(tierCap, adminOverride) : tierCap
+    // fam: R500 activation OR admin manual — never beyond Manual Power at the fam tier
+    if (!unlockRow) return 'manual'
+    const src = String(unlockRow.four_m_unlock_source || '')
+    if (src === 'payment_ai_income') return 'manual'
+    if (src === 'admin_manual') return minVehicle('manual', adminOverride || 'manual')
+    return 'manual'
+  }, [paidTier, tierCap, unlockRow, adminOverride])
+
+  const hasFourmAccess = useMemo(() => {
+    if (!user) return false
+    return hasFourmWorkspaceAccess(paidTier, unlockRow)
+  }, [user, paidTier, unlockRow])
+
+  const premiumUnlocked = useMemo(() => {
+    if (tierIncludesFourmMembership(paidTier)) return true
+    return famHasPaidStarterUnlock(unlockRow)
+  }, [paidTier, unlockRow])
+
+  useEffect(() => {
+    if (vehicleRank(vehicle) > vehicleRank(maxVehicle)) {
+      setVehicle(maxVehicle)
+    }
+  }, [vehicle, maxVehicle])
 
   const refLink  = `${typeof window !== 'undefined' ? window.location.origin : 'https://app.z2blegacybuilders.co.za'}/4m?ref=${profile?.referral_code || ''}`
   const totalEarned = myCommissions.filter(c => c.status === 'paid').reduce((s: number, c: any) => s + c.amount, 0)
@@ -423,8 +468,8 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
     <div style={{ minHeight:'100vh', background:BG, display:'flex', alignItems:'center', justifyContent:'center', color:GOLD, fontFamily:'Georgia,serif' }}>Loading...</div>
   )
 
-  // ── LANDING (not unlocked) ────────────────────────────
-  if (!unlocked) return (
+  // ── LANDING (no 4M access yet) ────────────────────────────
+  if (!hasFourmAccess) return (
     <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
       <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
         <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
@@ -513,17 +558,26 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         <div style={{ marginBottom:'24px' }}>
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'12px', textAlign:'center' }}>Choose Your 4M Machine Level</div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
-            {VEHICLES.map(v => (
-              <button key={v.id} onClick={() => setVehicle(v.id as Vehicle)}
-                style={{ padding:'16px 10px', borderRadius:'14px', cursor:'pointer', fontFamily:'Georgia,serif', textAlign:'center' as const, transition:'all 0.2s',
+            {VEHICLES.map(v => {
+              const allowed = vehicleRank(v.id as FourmVehicle) <= vehicleRank(maxVehicle)
+              return (
+              <button key={v.id}
+                onClick={() => {
+                  if (!allowed) return
+                  setVehicle(v.id as Vehicle)
+                }}
+                style={{ padding:'16px 10px', borderRadius:'14px', cursor: allowed ? 'pointer' : 'not-allowed', fontFamily:'Georgia,serif', textAlign:'center' as const, transition:'all 0.2s',
+                  opacity: allowed ? 1 : 0.35,
                   background: vehicle===v.id ? `${v.color}18` : 'rgba(255,255,255,0.03)',
                   border: vehicle===v.id ? `2px solid ${v.color}` : '2px solid rgba(255,255,255,0.07)' }}>
                 <div style={{ fontSize:'24px', marginBottom:'6px' }}>{v.icon}</div>
                 <div style={{ fontSize:'13px', fontWeight:700, color: vehicle===v.id ? v.color : '#fff', marginBottom:'2px' }}>{v.label} Mode</div>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', marginBottom:'4px' }}>{v.sub}</div>
                 <div style={{ fontSize:'10px', color: vehicle===v.id ? v.color : 'rgba(255,255,255,0.25)', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px' }}>{v.tier}</div>
+                {!allowed && <div style={{ fontSize:'10px', color:'rgba(248,113,113,0.85)', marginTop:'6px', fontWeight:800 }}>LOCKED</div>}
               </button>
-            ))}
+              )
+            })}
           </div>
           {/* Description strip */}
           {VEHICLES.filter(v => v.id === vehicle).map(v => (
@@ -531,7 +585,16 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               <div style={{ fontSize:'13px', fontWeight:700, color:v.color, marginBottom:'4px' }}>{v.icon} {v.label}</div>
               <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', lineHeight:1.7, marginBottom:'8px' }}>{v.truth}</div>
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', fontStyle:'italic', cursor:'pointer' }}
-                onClick={() => { const next = vehicle==='manual'?'automatic':vehicle==='automatic'?'electric':'manual'; setVehicle(next as Vehicle) }}>
+                onClick={() => {
+                  if (vehicleRank(maxVehicle) <= vehicleRank(vehicle as FourmVehicle)) {
+                    window.location.href = '/pricing'
+                    return
+                  }
+                  const order: FourmVehicle[] = ['manual','automatic','electric']
+                  const idx = order.indexOf(vehicle as FourmVehicle)
+                  const next = order[Math.min(idx + 1, order.indexOf(maxVehicle))]
+                  setVehicle(next as Vehicle)
+                }}>
                 {v.upgrade}
               </div>
             </div>
@@ -690,10 +753,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               {tabBtn('offer',    '🧠', 'Offer ✓')}
               {tabBtn('finder',   '📲', 'Finder ✓')}
               {tabBtn('post',     '✍️', 'Posts ✓')}
-              {tabBtn('reply',    '💬', unlocked ? 'Replies' : '🔒 Replies')}
-              {tabBtn('close',    '💸', unlocked ? 'Close' : '🔒 Close')}
-              {tabBtn('daily',    '🔁', unlocked ? 'Daily' : '🔒 Daily')}
-              {tabBtn('referral', '🔗', unlocked ? 'Referral' : '🔒 Referral')}
+              {tabBtn('reply',    '💬', premiumUnlocked ? 'Replies' : '🔒 Replies')}
+              {tabBtn('close',    '💸', premiumUnlocked ? 'Close' : '🔒 Close')}
+              {tabBtn('daily',    '🔁', premiumUnlocked ? 'Daily' : '🔒 Daily')}
+              {tabBtn('referral', '🔗', premiumUnlocked ? 'Referral' : '🔒 Referral')}
             </div>
 
             {/* Offer Generator */}
@@ -776,10 +839,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Reply Helper */}
-            {tab === 'reply' && !unlocked && (
+            {tab === 'reply' && !premiumUnlocked && (
               <PaywallGate GOLD={GOLD} PURP={PURP} />
             )}
-            {tab === 'reply' && unlocked && (
+            {tab === 'reply' && premiumUnlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💬 AI Sales Reply System</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Customer responded? Select their reaction — get your perfect reply.</p>
@@ -814,10 +877,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Closing Assistant */}
-            {tab === 'close' && !unlocked && (
+            {tab === 'close' && !premiumUnlocked && (
               <PaywallGate GOLD={GOLD} PURP={PURP} />
             )}
-            {tab === 'close' && unlocked && (
+            {tab === 'close' && premiumUnlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💸 AI Closing Assistant</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Get the exact words to close the sale and collect payment confidently.</p>
@@ -833,10 +896,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Daily Engine */}
-            {tab === 'daily' && !unlocked && (
+            {tab === 'daily' && !premiumUnlocked && (
               <PaywallGate GOLD={GOLD} PURP={PURP} />
             )}
-            {tab === 'daily' && unlocked && (
+            {tab === 'daily' && premiumUnlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Daily R300/Day Engine</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>Complete today's checklist. Consistency is the only secret.</p>
@@ -869,10 +932,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Referral */}
-            {tab === 'referral' && !unlocked && (
+            {tab === 'referral' && !premiumUnlocked && (
               <PaywallGate GOLD={GOLD} PURP={PURP} />
             )}
-            {tab === 'referral' && unlocked && (
+            {tab === 'referral' && premiumUnlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer to the 4M system.</p>
@@ -909,7 +972,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         )}
 
         {/* ══ VEHICLE 2: AUTOMATIC ══ */}
-        {vehicle === 'automatic' && (
+        {vehicle === 'automatic' && vehicleRank(maxVehicle) >= vehicleRank('automatic') && (
           <div>
             <div style={{ display:'flex', gap:'8px', marginBottom:'20px', overflowX:'auto' }}>
               {[['multiply','🔁 Multiply Products'],['launch','🚀 1-Click Launch'],['sequence','📅 Follow-Up Sequence']].map(([val,lbl]) => (
@@ -990,7 +1053,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         )}
 
         {/* ══ VEHICLE 3: ELECTRIC ══ */}
-        {vehicle === 'electric' && (
+        {vehicle === 'electric' && vehicleRank(maxVehicle) >= vehicleRank('electric') && (
           <div>
             <div style={{ background:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'24px', textAlign:'center' }}>
               <div style={{ fontSize:'32px', marginBottom:'8px' }}>⚡</div>
