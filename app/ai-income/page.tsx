@@ -686,15 +686,6 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         {/* ══ VEHICLE 1: MANUAL ══ */}
         {vehicle === 'manual' && (
           <div>
-            {/* API Power Banner */}
-            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(124,58,237,0.06)', border:'1px solid rgba(124,58,237,0.15)', borderRadius:'12px', alignItems:'center' }}>
-              <span style={{ fontSize:'11px', color:'rgba(124,58,237,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['📧','Resend','#0891B2']].map(([icon,name,color]) => (
-                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
-                  {icon} {name}
-                </span>
-              ))}
-            </div>
             <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
               {tabBtn('offer',    '🧠', 'Offer ✓')}
               {tabBtn('finder',   '📲', 'Finder ✓')}
@@ -920,15 +911,6 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         {/* ══ VEHICLE 2: AUTOMATIC ══ */}
         {vehicle === 'automatic' && (
           <div>
-            {/* API Power Banner */}
-            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(8,145,178,0.06)', border:'1px solid rgba(8,145,178,0.15)', borderRadius:'12px', alignItems:'center' }}>
-              <span style={{ fontSize:'11px', color:'rgba(8,145,178,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI','#0891B2'],['📅','Buffer','#0891B2'],['🔗','Make.com','#6D28D9'],['🎨','Canva API','#00C4CC'],['📧','Resend','#059669']].map(([icon,name,color]) => (
-                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
-                  {icon} {name}
-                </span>
-              ))}
-            </div>
             <div style={{ display:'flex', gap:'8px', marginBottom:'20px', overflowX:'auto' }}>
               {[['multiply','🔁 Multiply Products'],['launch','🚀 1-Click Launch'],['sequence','📅 Follow-Up Sequence']].map(([val,lbl]) => (
                 <button key={val} onClick={() => { setV2Mode(val as any); setV2Result('') }}
@@ -1010,15 +992,6 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         {/* ══ VEHICLE 3: ELECTRIC ══ */}
         {vehicle === 'electric' && (
           <div>
-            {/* API Power Banner */}
-            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'12px', alignItems:'center' }}>
-              <span style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI',GOLD],['🎥','D-ID Avatars','#EC4899'],['🖼️','Replicate','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['⚡','n8n Workflows','#FF6D00'],['📅','Buffer','#0891B2']].map(([icon,name,color]) => (
-                <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
-                  {icon} {name}
-                </span>
-              ))}
-            </div>
             <div style={{ background:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'16px', padding:'20px', marginBottom:'24px', textAlign:'center' }}>
               <div style={{ fontSize:'32px', marginBottom:'8px' }}>⚡</div>
               <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:700, color:GOLD, marginBottom:'4px' }}>Electric Mode — The Machine Drives For You</div>
