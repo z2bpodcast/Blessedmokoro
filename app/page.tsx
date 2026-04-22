@@ -245,30 +245,28 @@ export default function Home() {
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
             {!user && (
-              <>
-                <div className="flex gap-4 justify-center flex-wrap">
-                  <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
-                    Start Building
-                  </Link>
-                  <Link
-                    href="/invite"
-                    className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
-                    style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
-                  >
-                    🌟 You are Invited
-                  </Link>
-                </div>
-                {/* 4M AI Income Machine CTA — for guests */}
-                <div className="mt-4 flex justify-center">
-                  <Link
-                    href="/ai-income/landing"
-                    className="inline-flex items-center gap-2 font-bold px-8 py-3 rounded-full text-sm border-2 hover:opacity-90 shadow-lg"
-                    style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', borderColor: 'rgba(212,175,55,0.5)', color: '#1E1245' }}
-                  >
-                    🤖 Start Earning with AI — 4M Money Machine
-                  </Link>
-                </div>
-              </>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
+                  Start Building
+                </Link>
+                <Link
+                  href="/invite"
+                  className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
+                  style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
+                >
+                  🌟 You are Invited
+                </Link>
+              </div>
+              {/* 4M AI Income Machine CTA — for guests */}
+              <div className="mt-4 flex justify-center">
+                <Link
+                  href="/ai-income/landing"
+                  className="inline-flex items-center gap-2 font-bold px-8 py-3 rounded-full text-sm border-2 hover:opacity-90 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', borderColor: 'rgba(212,175,55,0.5)', color: '#1E1245' }}
+                >
+                  🤖 Start Earning with AI — 4M Money Machine
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -426,7 +424,7 @@ export default function Home() {
               className="font-bold text-lg px-10 py-4 rounded-xl border-4 border-yellow-400 text-yellow-900 hover:scale-105 transition-all shadow-xl"
               style={{ background: 'linear-gradient(135deg, #fde68a, #fbbf24)' }}
             >
-              🎁 Start Free Workshop — 99 Sections, No Login Needed
+              🎁 Start Free Workshop — 9 Sections, No Login Needed
             </Link>
             {!user && (
               <Link href="/signup" className="btn-primary text-lg px-10 py-4 shadow-xl">
@@ -970,11 +968,6 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
 
-                <p className="text-purple-200 leading-relaxed mb-5">
-                  We offer a two-part growth path: the <strong className="text-white">4M Income Machine</strong> (start earning from your phone) and the
-                  <strong className="text-white"> Entrepreneurial Consumer Workshop</strong> (build identity, systems and legacy through all 99 sessions).
-                </p>
-
                 {/* Category 1 — Membership & Coaching */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
@@ -987,7 +980,7 @@ export default function Home() {
                         emoji:'🎓', title:'99-Session Workshop',
                         tag:'ALL TIERS', tagColor:'#7C3AED',
                         short:'Entrepreneurial Consumer transformation journey',
-                        detail:'A structured 99-session personal and business development programme split into Morning Sessions (identity anchoring, audio only) and Evening Sessions (deep learning with mirror moments, comprehension questions and daily activities). Starter Pack builders can access all 99 sessions.',
+                        detail:'A structured 99-session personal and business development programme split into Morning Sessions (identity anchoring, audio only) and Evening Sessions (deep learning with mirror moments, comprehension questions and daily activities). Sessions 1–9 are free. Sessions 10–99 unlock with Bronze and above.',
                       },
                       {
                         emoji:'🤖', title:'Coach Manlaw AI',
@@ -1176,19 +1169,19 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <p className="text-purple-200 leading-relaxed mb-5">
-                  We sell with the <strong className="text-white">4M flow</strong>: attract interest with value content, move prospects to the landing page for light registration, and let the payment system close with card/EFT/ATM options. Your referral link tracks every step.
+                  We use the <strong className="text-white">Purple Cow Strategy</strong> — you share what genuinely moves you. Your daily workshop session becomes your content. Your personal transformation becomes your testimony. Your referral link does the rest.
                 </p>
                 <div className="flex flex-wrap gap-3 items-center">
                   {[
-                    { step:'1', text:'Share 4M value content daily', color:'#7C3AED' },
+                    { step:'1', text:'Do your daily workshop session', color:'#7C3AED' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'2', text:'Prospect opens AI-income landing page', color:'#1D4ED8' },
+                    { step:'2', text:'Post 4 times on social media', color:'#1D4ED8' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'3', text:'Light registration captures lead data', color:'#065F46' },
+                    { step:'3', text:'4 free sign-ups enter your pipeline', color:'#065F46' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'4', text:'Prospect proceeds to payment options', color:'#92400E' },
+                    { step:'4', text:'System nurtures for 9 days automatically', color:'#92400E' },
                     { step:'→', text:'', color:'transparent' },
-                    { step:'5', text:'Activation + R200 referral income', color:'#D4AF37' },
+                    { step:'5', text:'15% upgrade to Bronze = your income', color:'#D4AF37' },
                   ].map((s, i) => s.step === '→' ? (
                     <span key={i} className="text-purple-500 text-xl font-black">→</span>
                   ) : (
@@ -1198,7 +1191,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <p className="text-purple-400 text-sm mt-4 italic">Simple path: content → landing page → light registration → payment → activation.</p>
+                <p className="text-purple-400 text-sm mt-4 italic">The ratio: 4 posts · 4 sign-ups/day · 5 days · 4 weeks · 15% conversion = 12 Bronze upgrades/month</p>
               </div>
             </div>
 
@@ -1217,17 +1210,17 @@ export default function Home() {
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                   {[
-                    { code:'ISP', name:'Individual Sales Profit', desc:'18%–30% on your personal sales', color:'#7C3AED' },
-                    { code:'QPB', name:'Quick Pathfinder Bonus', desc:'7.5%–10% for fast recruiting in first 90 days', color:'#D97706' },
-                    { code:'TSC', name:'Team Sales Commission', desc:'1%–10% on your team across up to 10 generations', color:'#1D4ED8' },
-                    { code:'MKT', name:'Marketplace Sales', desc:'95% of your asking price (Gold & Platinum)', color:'#065F46' },
-                    { code:'CEO', name:'CEO Competitions', desc:'Variable prizes set by the CEO', color:'#DC2626' },
-                    { code:'AWD', name:'CEO Quarterly Awards', desc:'Gold Pool, Platinum Pool & Founders Circle', color:'#9333EA' },
-                  ].map((s, i) => (
-                    <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: `${s.color}15` }}>
-                      <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: s.color, color: '#fff' }}>{s.code}</span>
-                      <p className="text-white font-black text-sm mt-1">{s.name}</p>
-                      <p className="text-purple-300 text-xs mt-1">{s.desc}</p>
+                    { code:'ISP', name:'Individual Sales Profit', desc:'Starter: R200 flat · Bronze 18% · up to 30% at Platinum · No BFM required', color:'#059669' },
+                    { code:'QPB', name:'Quick Pathfinder Bonus', desc:'7.5%–10% bonus · Bronze and above · Torch Bearer = no time limit', color:'#D97706' },
+                    { code:'TSC', name:'Team Sales Commission', desc:'1%–10% across up to 10 team generations · BFM active = TSC flows', color:'#1D4ED8' },
+                    { code:'TLI', name:'Team Leadership Incentives', desc:'R3,000–R3.5M quarterly · Silver+ · Develop 4 same-tier leaders · 10 levels', color:'#D4AF37' },
+                    { code:'CEO', name:'CEO Competitions', desc:'Quarterly performance prizes set by Rev · All active BFM builders eligible', color:'#DC2626' },
+                    { code:'MKT', name:'Marketplace Sales', desc:'95% of asking price · Gold & Platinum only', color:'#065F46' },
+                  ].map((st, i) => (
+                    <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: `${st.color}15` }}>
+                      <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: st.color, color: '#fff' }}>{st.code}</span>
+                      <p className="text-white font-black text-sm mt-1">{st.name}</p>
+                      <p className="text-purple-300 text-xs mt-1">{st.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -1239,8 +1232,8 @@ export default function Home() {
               <div className="flex items-center gap-4 px-6 py-5" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
                 <span className="text-3xl flex-shrink-0">📊</span>
                 <div>
-                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">Bonus Structure</p>
-                  <h3 className="text-white font-black text-xl">Team Performance Bonuses — Per Tier</h3>
+                  <p className="text-yellow-400 font-black text-xs tracking-widest uppercase">4M Machine Power + Compensation</p>
+                  <h3 className="text-white font-black text-xl">Earnings Per Tier — Full Comparison</h3>
                   <p className="text-purple-300 text-xs mt-0.5">
                     <span className="text-yellow-300 font-black">🟡 Bronze</span> and <span className="text-blue-300 font-black">🔵 Silver</span> highlighted for easy comparison
                   </p>
@@ -1256,19 +1249,19 @@ export default function Home() {
                     <tr>
                       <th className="text-left px-3 py-3 font-black text-white text-xs" style={{ background: '#1E1B4B', width: '22%' }}>INCOME STREAM</th>
                       {[
-                        { tier:'FAM',      price:'Free',        bg:'#374151',   text:'#9CA3AF', hl:false },
-                        { tier:'BRONZE',   price:'R480',        bg:'#D97706',   text:'#1A0A00', hl:true  },
-                        { tier:'COPPER',   price:'R1,200',      bg:'#92400E',   text:'#FEF3C7', hl:false },
-                        { tier:'SILVER',   price:'R2,500',      bg:'#1D4ED8',   text:'#EFF6FF', hl:true  },
-                        { tier:'GOLD',     price:'R5,000',      bg:'#78350F',   text:'#FEF9C3', hl:false },
-                        { tier:'PLATINUM', price:'R12,000',     bg:'#4C1D95',   text:'#F3F0FF', hl:false },
+                        { tier:'STARTER',  price:'R500',        bg:'#374151',   text:'#9CA3AF', hl:false, machine:'🚗' },
+                        { tier:'BRONZE',   price:'R2,500',      bg:'#D97706',   text:'#1A0A00', hl:true,  machine:'🚗' },
+                        { tier:'COPPER',   price:'R5,000',      bg:'#92400E',   text:'#FEF3C7', hl:false, machine:'🚗' },
+                        { tier:'SILVER',   price:'R12,000',     bg:'#1D4ED8',   text:'#EFF6FF', hl:true,  machine:'⚙️' },
+                        { tier:'GOLD',     price:'R24,000',     bg:'#78350F',   text:'#FEF9C3', hl:false, machine:'⚡' },
+                        { tier:'PLATINUM', price:'R50,000',     bg:'#4C1D95',   text:'#F3F0FF', hl:false, machine:'⚡' },
                       ].map(({ tier, price, bg, text, hl }) => (
                         <th key={tier} className="px-2 py-2 text-center" style={{
                           background: bg,
                           border: hl ? `3px solid ${tier==='BRONZE'?'#FDE68A':'#93C5FD'}` : undefined,
                           minWidth: '80px',
                         }}>
-                          <div className="font-black text-xs" style={{ color: text }}>{tier}</div>
+                          <div className="font-black text-xs" style={{ color: text }}>{(col as any).machine} {tier}</div>
                           <div className="font-bold text-xs mt-0.5 opacity-80" style={{ color: text }}>{price}</div>
                           {hl && <div className="text-xs mt-0.5" style={{ color: tier==='BRONZE'?'#FDE68A':'#BFDBFE' }}>★ HIGHLIGHTED</div>}
                         </th>
@@ -1278,10 +1271,11 @@ export default function Home() {
 
                   <tbody>
                     {/* ISP SECTION */}
-                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>💰 ISP — Individual Sales Profit (on your personal R480 sales)</td></tr>
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>💰 ISP — Individual Sales Profit (No BFM required — always earns)</td></tr>
                     {[
-                      ['ISP Rate',                '10%',  '18%',   '22%',   '25%',   '28%',   '30%'   ],
-                      ['Rand per R480 sale',      'R48',  'R86.40','R105.60','R120', 'R134.40','R144' ],
+                      ['ISP Rate',            '10%',    '18%',    '22%',     '25%',    '28%',    '30%'    ],
+                      ['First Sale Bonus',    'R200 flat','18% of sale','22% of sale','25% of sale','28% of sale','30% of sale'],
+                      ['Ongoing (per sale)',  '10% BFM','R450',   '1,100',   '3,000',  '6,720',  '15,000' ],
                     ].map(([label,...vals], ri) => (
                       <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
                         <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
@@ -1297,10 +1291,11 @@ export default function Home() {
                     ))}
 
                     {/* QPB SECTION */}
-                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>⚡ QPB — Quick Pathfinder Bonus (first 90 days · min 4 sales/month)</td></tr>
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>⚡ QPB — Quick Pathfinder Bonus (Bronze+ · BFM active required)</td></tr>
                     {[
-                      ['First 4 sales/month',     '✗',    '7.5% = R144','7.5% = R144','7.5% = R144','7.5% = R144','7.5% = R144'],
-                      ['Each next set of 4',       '✗',    '10% = R192', '10% = R192', '10% = R192', '10% = R192', '10% = R192' ],
+                      ['4 sales/month',    '✗',  '7.5% bonus','7.5% bonus','7.5% bonus','7.5% bonus','7.5% bonus'],
+                      ['5+ sales/month',   '✗',  '10% bonus', '10% bonus', '10% bonus', '10% bonus', '10% bonus' ],
+                      ['Torch Bearer',     '✗',  '7.5–10% ∞','7.5–10% ∞','7.5–10% ∞','7.5–10% ∞','7.5–10% ∞'],
                     ].map(([label,...vals], ri) => (
                       <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
                         <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
@@ -1315,7 +1310,7 @@ export default function Home() {
                     ))}
 
                     {/* TSC SECTION */}
-                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🌳 TSC — Team Sales Commission (on your team's Bronze sales · G2 onwards)</td></tr>
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🌳 TSC — Team Sales Commission (BFM active = TSC flows · G2 onwards · Starter earns ISP only)</td></tr>
                     {[
                       ['G2 (10%)', '10%','10%','10%','10%','10%','10%'],
                       ['G3 (5%)',  '—',  '5%', '5%', '5%', '5%', '5%' ],
@@ -1350,11 +1345,31 @@ export default function Home() {
                       ))}
                     </tr>
 
+                    {/* TLI */}
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>💎 TLI — Team Leadership Incentives (Quarterly · Silver+ · Full BFM 3 months required)</td></tr>
+                    {[
+                      ['TLI Eligible',      '✗','✗',           '✗',           '✓ Silver+',   '✓ Gold+',     '✓ Platinum'   ],
+                      ['Level 1 (Table Starter)','✗','✗',      '✗',           'R3,000/qtr',  'R3,000/qtr',  'R3,000/qtr'  ],
+                      ['Level 5 (Income Architect)','✗','✗',   '✗',           'R90,000/qtr', 'R90,000/qtr', 'R90,000/qtr' ],
+                      ['Level 10 (Billionaire)','✗','✗',       '✗',           '✗',           '✗',           'R3.5M/qtr'   ],
+                    ].map(([label,...vals], ri) => (
+                      <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
+                        <td className="px-3 py-2 text-purple-200 text-xs">{label}</td>
+                        {vals.map((v,ci) => (
+                          <td key={ci} className="px-2 py-2 text-center font-black text-xs" style={{
+                            color: v==='✗'?'#4B5563':ci===3?'#1E3A8A':v.includes('R')?'#D4AF37':'#E5E7EB',
+                            background: ci===3&&v!=='✗'?'#BFDBFE':'transparent',
+                            border: ci===3&&v!=='✗'?'2px solid #3B82F6':'none',
+                          }}>{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+
                     {/* MKT / CEO */}
-                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🛒 MKT Marketplace · CEO Competitions · CEO Quarterly Awards</td></tr>
+                    <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🛒 MKT Marketplace · CEO Competitions · CEO Quarterly Awards (Active BFM required)</td></tr>
                     {[
                       ['Marketplace (MKT)',    '✗','✗',     '✗',     '✗',     '95%',   '95%'   ],
-                      ['CEO Competitions',     '✓','✓',     '✓',     '✓',     '✓',     '✓'     ],
+                      ['CEO Competitions',     '✗','✓ BFM', '✓ BFM', '✓ BFM', '✓ BFM', '✓ BFM' ],
                       ['CEO Quarterly Awards', '✗','✗',     '✗',     '✗',     '✓ Gold','✓ Plat.'],
                     ].map(([label,...vals], ri) => (
                       <tr key={ri} style={{ background: ri%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)' }}>
@@ -1375,14 +1390,14 @@ export default function Home() {
                 <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-white/10">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded" style={{ background:'#FDE68A', border:'2px solid #D97706' }}/>
-                    <span className="text-yellow-300 text-xs font-black">BRONZE — R480 once-off · Start here · 18% ISP · QPB active · TSC to G3</span>
+                    <span className="text-yellow-300 text-xs font-black">🚗 BRONZE — R2,500 once-off · Manual Power · 18% ISP · QPB active · TSC to G3 · BFM R1,050/month</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded" style={{ background:'#BFDBFE', border:'2px solid #3B82F6' }}/>
-                    <span className="text-blue-300 text-xs font-black">SILVER — R2,500 once-off · 25% ISP · TSC opens to G6 · Best upgrade value</span>
+                    <span className="text-blue-300 text-xs font-black">⚙️ SILVER — R12,000 once-off · Automatic Power · 25% ISP · TLI eligible · TSC to G6 · BFM R2,000/month</span>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-purple-400 text-xs italic">⚡ QPB active in first 90 days from Bronze upgrade date only</span>
+                    <span className="text-purple-400 text-xs italic">⛽ BFM required for TSC, TLI and CEO Awards. ISP always earns — no BFM needed.</span>
                   </div>
                 </div>
               </div>
@@ -1399,14 +1414,14 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(120,53,15,0.15)' }}>
                 <p className="text-purple-200 leading-relaxed mb-6">
-                  Running the 4:4:5:4:15% ratio consistently. All projections based on Bronze sales at R480.
+                  Running the 4:4:5:4:15% ratio consistently. Projections reflect new tier pricing. BFM active assumed.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                   {[
-                    { stage:'Month 1', tier:'Bronze', amount:'R1,564', desc:'12 personal upgrades · ISP + QPB' },
-                    { stage:'Stage 3', tier:'Silver TSC', amount:'R427,219', desc:'6-generation team · G2–G6 active' },
-                    { stage:'Stage 4', tier:'Platinum G7', amount:'R1,371,225', desc:'7 generations deep · G2–G7 only' },
-                    { stage:'Stage 5', tier:'Platinum G10', amount:'Unlimited', desc:'G8–G10 not projected. Beyond measure.' },
+                    { stage:'Month 1', tier:'🚗 Bronze Start', amount:'R2,250', desc:'4 personal Bronze sales · R2,500 each · ISP 18% = R450/sale + QPB' },
+                    { stage:'Stage 2', tier:'⚙️ Silver TSC', amount:'R127,500', desc:'Silver builder · 6-gen team · 50 team sales/month · TSC G2–G6' },
+                    { stage:'Stage 3', tier:'⚡ Gold TLI', amount:'R380,000+', desc:'Gold Electric Power · TSC G2–G8 + TLI quarterly + CEO Awards' },
+                    { stage:'Stage 4', tier:'💎 Platinum All', amount:'Unlimited', desc:'All 10 generations + TLI Level 5+ + Billionaire Table pathway' },
                   ].map((p, i) => (
                     <div key={i} className="rounded-2xl p-4 text-center border-2" style={{
                       background: i === 3 ? 'linear-gradient(135deg,#1e1b4b,#4c1d95)' : 'rgba(255,255,255,0.05)',
@@ -1420,8 +1435,8 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="rounded-xl p-4 border border-yellow-400/30 text-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
-                  <p className="text-yellow-300 font-black">⚡ Even at 10% team performance — you can still potentially earn <strong className="text-yellow-400 text-lg">R137,000/month</strong> at Stage 4</p>
-                  <p className="text-yellow-500 text-xs mt-1 italic">Projections are mathematical potential based on consistent ratio execution. Not a guarantee. Results vary.</p>
+                  <p className="text-yellow-300 font-black">⚡ TLI adds R3,000–R3.5M per quarter on top of monthly ISP + TSC. The 4M Machine compounds your income across 5 streams simultaneously.</p>
+                  <p className="text-yellow-500 text-xs mt-1 italic">Projections are mathematical potential based on consistent ratio execution and active BFM. Not a guarantee. Results vary.</p>
                 </div>
               </div>
             </div>
@@ -1438,16 +1453,16 @@ export default function Home() {
               <div className="px-6 py-6" style={{ background: 'rgba(6,95,70,0.1)' }}>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   {[
-                    { step:'1', emoji:'🎓', title:'Start Free', desc:'Join the free workshop. No credit card. No pressure. 99 sessions available.' },
-                    { step:'2', emoji:'🧠', title:'Learn & Grow', desc:'Complete the morning and evening sessions. Find your Purple Cow.' },
-                    { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R480 once-off. Card, EFT or ATM cash. No monthly fees. Ever.' },
-                    { step:'4', emoji:'🌳', title:'Build Your Table', desc:'Share your referral link. Help your first 4. Watch it multiply.' },
-                  ].map((s, i) => (
+                    { step:'1', emoji:'🤖', title:'Try 4M Free', desc:'Use 3 of 7 AI tools as a guest. Generate your first offer. See what AI can do for your income.' },
+                    { step:'2', emoji:'🚀', title:'Activate Starter Pack', desc:'R500 unlocks all 7 AI tools · 60-day access · OR earn 3×R200 referrals to pay for it free.' },
+                    { step:'3', emoji:'💎', title:'Upgrade to Bronze', desc:'R2,500 once-off. 🚗 Manual Power. 18% ISP. All 99 sessions. 1 PWA App built. BFM R1,050/month.' },
+                    { step:'4', emoji:'🌳', title:'Build Your Table', desc:'Share your 4M + Table links. Develop 4 leaders. Scale to Automatic ⚙️ and Electric ⚡ power.' },
+                  ].map((st, i) => (
                     <div key={i} className="rounded-2xl p-5 text-center border border-green-800/40" style={{ background: 'rgba(6,95,70,0.15)' }}>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white mx-auto mb-3 text-lg" style={{ background: 'linear-gradient(135deg,#065F46,#059669)' }}>{s.step}</div>
-                      <div className="text-3xl mb-2">{s.emoji}</div>
-                      <p className="text-white font-black text-sm mb-1">{s.title}</p>
-                      <p className="text-green-300 text-xs">{s.desc}</p>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white mx-auto mb-3 text-lg" style={{ background: 'linear-gradient(135deg,#065F46,#059669)' }}>{st.step}</div>
+                      <div className="text-3xl mb-2">{st.emoji}</div>
+                      <p className="text-white font-black text-sm mb-1">{st.title}</p>
+                      <p className="text-green-300 text-xs">{st.desc}</p>
                     </div>
                   ))}
                 </div>

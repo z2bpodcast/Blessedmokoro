@@ -427,10 +427,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
   if (!unlocked) return (
     <div style={{ minHeight:'100vh', background:BG, color:'#F0EEF8', fontFamily:'Georgia,serif' }}>
       <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.65)', textDecoration:'none' }}>← Back to Home</Link>
-          <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
-        </div>
+        <Link href="/" style={{ fontSize:'14px', fontWeight:700, color:GOLD, textDecoration:'none' }}>Z2B 4M</Link>
         {user ? <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Dashboard →</Link>
                : <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Sign In</Link>}
       </div>
@@ -444,10 +441,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         </p>
         {payError && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px', padding:'10px', marginBottom:'16px', fontSize:'13px', color:'#FCA5A5' }}>⚠️ {payError}</div>}
         <button onClick={handlePay} disabled={paying} style={primaryBtn(paying)}>
-          {paying ? 'Setting up...' : '🚀 Start 4M Machine — R500 TO Continue'}
+          {paying ? 'Setting up...' : '🚀 Start 4M Machine — R500'}
         </button>
         <div style={{ marginTop:'12px', fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
-          60-day access · R500/month after · <Link href={`/ai-income/landing${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`} style={{ color:GOLD, textDecoration:'none' }}>See full details →</Link>
+          60-day access · R500/month after · <Link href="/4m" style={{ color:GOLD, textDecoration:'none' }}>See full details →</Link>
         </div>
       </div>
 
@@ -469,10 +466,6 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             <button onClick={handleRegPay} disabled={regLoading} style={primaryBtn(regLoading)}>
               {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
             </button>
-            <div style={{ marginTop:'12px', display:'flex', justifyContent:'center', gap:'14px', fontSize:'12px' }}>
-              <Link href="/login" style={{ color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>I am already registered, login</Link>
-              <Link href="/login" style={{ color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>Forgot password</Link>
-            </div>
           </div>
         </div>
       )}
@@ -495,10 +488,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
 
       {/* Nav */}
       <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(9,6,15,0.95)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:50 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Home</Link>
-          <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>Dashboard</Link>
-        </div>
+        <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>← Dashboard</Link>
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>🤖 Z2B 4M Income System</div>
         <button onClick={() => setManlawOpen(true)}
           style={{ padding:'7px 14px', background:'rgba(76,29,149,0.2)', border:'1px solid rgba(76,29,149,0.4)', borderRadius:'20px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
@@ -706,13 +696,13 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               ))}
             </div>
             <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
-              {tabBtn('offer',    '🧠', 'Offer')}
-              {tabBtn('finder',   '📲', 'Finder')}
-              {tabBtn('post',     '✍️', 'Posts')}
-              {tabBtn('reply',    '💬', 'Replies')}
-              {tabBtn('close',    '💸', 'Close')}
-              {tabBtn('daily',    '🔁', 'Daily')}
-              {tabBtn('referral', '🔗', 'Referral')}
+              {tabBtn('offer',    '🧠', 'Offer ✓')}
+              {tabBtn('finder',   '📲', 'Finder ✓')}
+              {tabBtn('post',     '✍️', 'Posts ✓')}
+              {tabBtn('reply',    '💬', unlocked ? 'Replies' : '🔒 Replies')}
+              {tabBtn('close',    '💸', unlocked ? 'Close' : '🔒 Close')}
+              {tabBtn('daily',    '🔁', unlocked ? 'Daily' : '🔒 Daily')}
+              {tabBtn('referral', '🔗', unlocked ? 'Referral' : '🔒 Referral')}
             </div>
 
             {/* Offer Generator */}
@@ -795,7 +785,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Reply Helper */}
-            {tab === 'reply' && (
+            {tab === 'reply' && !unlocked && (
+              <PaywallGate GOLD={GOLD} PURP={PURP} />
+            )}
+            {tab === 'reply' && unlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💬 AI Sales Reply System</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Customer responded? Select their reaction — get your perfect reply.</p>
@@ -830,7 +823,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Closing Assistant */}
-            {tab === 'close' && (
+            {tab === 'close' && !unlocked && (
+              <PaywallGate GOLD={GOLD} PURP={PURP} />
+            )}
+            {tab === 'close' && unlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>💸 AI Closing Assistant</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Get the exact words to close the sale and collect payment confidently.</p>
@@ -846,7 +842,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Daily Engine */}
-            {tab === 'daily' && (
+            {tab === 'daily' && !unlocked && (
+              <PaywallGate GOLD={GOLD} PURP={PURP} />
+            )}
+            {tab === 'daily' && unlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔁 Daily R300/Day Engine</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>Complete today's checklist. Consistency is the only secret.</p>
@@ -879,7 +878,10 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             )}
 
             {/* Referral */}
-            {tab === 'referral' && (
+            {tab === 'referral' && !unlocked && (
+              <PaywallGate GOLD={GOLD} PURP={PURP} />
+            )}
+            {tab === 'referral' && unlocked && (
               <div>
                 <h2 style={{ fontSize:'20px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>🔗 Referral Booster System</h2>
                 <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>Earn R200 for every person you refer to the 4M system.</p>
@@ -1152,6 +1154,58 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ── PAYWALL GATE COMPONENT ──────────────────────────────────────────────────
+function PaywallGate({ GOLD, PURP }: { GOLD: string; PURP: string }) {
+  return (
+    <div style={{ textAlign:'center', padding:'32px 20px', background:'rgba(212,175,55,0.06)', border:`2px solid rgba(212,175,55,0.3)`, borderRadius:'20px' }}>
+      <div style={{ fontSize:'36px', marginBottom:'14px' }}>🔒</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#fff', marginBottom:'8px' }}>
+        Unlock the Full 4M Machine
+      </div>
+      <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.6)', lineHeight:1.8, marginBottom:'24px', maxWidth:'400px', margin:'0 auto 24px' }}>
+        You have explored the first 3 features. The remaining 4 — including the AI Reply System, Closing Assistant, Daily Engine and Referral Booster — unlock with your R500 Starter Pack.
+      </p>
+
+      {/* Path 1 — Pay R500 */}
+      <div style={{ background:'rgba(76,29,149,0.15)', border:'1.5px solid rgba(76,29,149,0.4)', borderRadius:'16px', padding:'20px', marginBottom:'12px', maxWidth:'440px', margin:'0 auto 12px' }}>
+        <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(196,181,253,0.8)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>PATH 1 — DIRECT PAYMENT</div>
+        <div style={{ fontSize:'22px', fontWeight:900, color:'#fff', marginBottom:'4px' }}>R500 <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', fontWeight:400 }}>once-off · 60-day access</span></div>
+        <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', margin:'0 0 14px' }}>All 7 AI tools · Referral income R200/referral · 60 days full access</p>
+        <a href="/ai-income/landing" style={{ display:'block', padding:'13px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'12px', color:GOLD, fontWeight:700, fontSize:'14px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+          🚀 Unlock for R500 →
+        </a>
+      </div>
+
+      {/* Path 2 — Earn your way in */}
+      <div style={{ background:'rgba(16,185,129,0.08)', border:'1.5px solid rgba(16,185,129,0.3)', borderRadius:'16px', padding:'20px', maxWidth:'440px', margin:'0 auto 20px' }}>
+        <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(110,231,183,0.8)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>PATH 2 — EARN YOUR ACCESS</div>
+        <div style={{ fontSize:'16px', fontWeight:700, color:'#6EE7B7', marginBottom:'4px' }}>3 × R200 referrals = R600</div>
+        <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', margin:'0 0 12px', lineHeight:1.7 }}>
+          Share your 4M referral link. Every person who joins and pays R500 earns you R200 commission. Refer 3 people = R600 — more than enough to cover your own R500 upgrade. <strong style={{ color:'#6EE7B7' }}>Your 4M Machine pays for itself.</strong>
+        </p>
+        <div style={{ display:'flex', gap:'8px', justifyContent:'center', flexWrap:'wrap' }}>
+          <div style={{ padding:'10px 18px', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'10px', fontSize:'13px', fontWeight:700, color:'#6EE7B7' }}>
+            Referral 1 → R200
+          </div>
+          <div style={{ padding:'10px 18px', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'10px', fontSize:'13px', fontWeight:700, color:'#6EE7B7' }}>
+            Referral 2 → R200
+          </div>
+          <div style={{ padding:'10px 18px', background:'rgba(16,185,129,0.25)', border:'1.5px solid rgba(16,185,129,0.5)', borderRadius:'10px', fontSize:'13px', fontWeight:700, color:'#6EE7B7' }}>
+            Referral 3 → R200 ✅
+          </div>
+        </div>
+        <div style={{ marginTop:'12px', fontSize:'12px', color:'rgba(255,255,255,0.4)', fontStyle:'italic' }}>
+          Use your free Offer Generator and Post Generator to find your first 3 referrals — right here in this app.
+        </div>
+      </div>
+
+      <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.3)', marginTop:'8px' }}>
+        Already paid? <a href="/login?redirect=/ai-income" style={{ color:GOLD, textDecoration:'none', fontWeight:700 }}>Sign in →</a>
+      </p>
     </div>
   )
 }
