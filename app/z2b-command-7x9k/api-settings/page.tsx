@@ -23,6 +23,21 @@ interface ApiConfig {
   value2:   string
 }
 
+interface TokenAllocation {
+  gpt: string
+  claude: string
+}
+
+const TOKEN_ALLOCATION_KEY = 'z2b_backend_token_allocations_v1'
+const DEFAULT_TOKEN_ALLOCATIONS: Record<string, TokenAllocation> = {
+  'Starter Pack': { gpt: '70000/month (GPT-5 mini)', claude: '30000/month (Claude Haiku)' },
+  Bronze:         { gpt: '250000/month (GPT-5 mini)', claude: '100000/month (Claude Haiku)' },
+  Copper:         { gpt: '500000/month (GPT-5 mini)', claude: '250000/month (Claude Haiku)' },
+  Silver:         { gpt: '1000000/month (GPT-5 mini)', claude: '500000/month (Claude Haiku)' },
+  Gold:           { gpt: '100000/day fair use (GPT-5)', claude: '50000/day fair use (Claude Sonnet)' },
+  Platinum:       { gpt: '200000/day fair use (GPT-5)', claude: '100000/day fair use (Claude Sonnet)' },
+}
+
 const API_LIST: Omit<ApiConfig,'status'|'value'|'value2'>[] = [
   // ── ALL VEHICLES ──────────────────────────────────────
   {
@@ -142,6 +157,8 @@ export default function AdminApiSettingsPage() {
   const [filter,  setFilter]  = useState<string>('all')
   const [saved,   setSaved]   = useState<Record<string,boolean>>({})
   const [showKey, setShowKey] = useState<Record<string,boolean>>({})
+  const [tokenAllocations, setTokenAllocations] = useState<Record<string, TokenAllocation>>(DEFAULT_TOKEN_ALLOCATIONS)
+  const [tokenSaved, setTokenSaved] = useState(false)
 
   useEffect(() => {
     // Load current values from API
@@ -159,6 +176,16 @@ export default function AdminApiSettingsPage() {
       .catch(() => {
         setApis(API_LIST.map(api => ({ ...api, status:'missing', value:'', value2:'' })))
       })
+
+    const raw = localStorage.getItem(TOKEN_ALLOCATION_KEY)
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        setTokenAllocations({ ...DEFAULT_TOKEN_ALLOCATIONS, ...parsed })
+      } catch {
+        setTokenAllocations(DEFAULT_TOKEN_ALLOCATIONS)
+      }
+    }
   }, [])
 
   const saveApi = async (id: string, value: string, value2: string) => {
@@ -190,6 +217,19 @@ export default function AdminApiSettingsPage() {
 
   const updateValue = (id: string, val: string, field: 'value'|'value2') => {
     setApis(prev => prev.map(a => a.id===id ? {...a, [field]:val} : a))
+  }
+
+  const updateTokenAllocation = (tier: string, key: keyof TokenAllocation, value: string) => {
+    setTokenAllocations(prev => ({
+      ...prev,
+      [tier]: { ...prev[tier], [key]: value }
+    }))
+  }
+
+  const saveTokenAllocations = () => {
+    localStorage.setItem(TOKEN_ALLOCATION_KEY, JSON.stringify(tokenAllocations))
+    setTokenSaved(true)
+    setTimeout(() => setTokenSaved(false), 2500)
   }
 
   const filtered = filter === 'all' ? apis : apis.filter(a => a.vehicle === filter)
@@ -369,6 +409,58 @@ export default function AdminApiSettingsPage() {
             </div>
           </div>
         ))}
+
+        {/* Backend token allocations */}
+        <div style={{ ...S.card, marginTop:'18px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:'12px', flexWrap:'wrap', marginBottom:'14px' }}>
+            <div>
+              <div style={{ fontSize:'12px', fontWeight:700, color:'#6B7280', letterSpacing:'1px', textTransform:'uppercase' }}>
+                🧠 Backend Token Allocation Manager
+              </div>
+              <div style={{ fontSize:'13px', color:'#6B7280', marginTop:'4px' }}>
+                Increase or decrease token allocations per tier without changing tier prices.
+              </div>
+            </div>
+            <button
+              onClick={saveTokenAllocations}
+              style={{ padding:'8px 16px', background: tokenSaved ? '#059669' : '#1E1245', border:'none', borderRadius:'8px', color:'#fff', fontSize:'12px', fontWeight:700, cursor:'pointer' }}
+            >
+              {tokenSaved ? '✅ Saved!' : '💾 Save Allocations'}
+            </button>
+          </div>
+
+          <div style={{ display:'grid', gap:'10px' }}>
+            {Object.keys(DEFAULT_TOKEN_ALLOCATIONS).map((tier) => (
+              <div key={tier} style={{ border:'1px solid #E5E7EB', borderRadius:'10px', padding:'12px', background:'#FAFAFA' }}>
+                <div style={{ fontSize:'13px', fontWeight:700, color:'#1E1245', marginBottom:'8px' }}>{tier}</div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+                  <div>
+                    <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
+                      GPT Allocation
+                    </label>
+                    <input
+                      value={tokenAllocations[tier]?.gpt || ''}
+                      onChange={e => updateTokenAllocation(tier, 'gpt', e.target.value)}
+                      style={S.inp}
+                      placeholder='e.g. 250000/month (GPT-5 mini)'
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
+                      Claude Allocation
+                    </label>
+                    <input
+                      value={tokenAllocations[tier]?.claude || ''}
+                      onChange={e => updateTokenAllocation(tier, 'claude', e.target.value)}
+                      style={S.inp}
+                      placeholder='e.g. 100000/month (Claude Haiku)'
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Note */}
         <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:'12px', padding:'16px 20px', marginTop:'8px' }}>

@@ -168,6 +168,15 @@ const TIER_LABELS: Record<string,string> = {
   fam:'Starter Pack', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
 }
 
+const TIER_FUEL_POWER: Record<string, string> = {
+  fam: 'Ignition Fuel Power',
+  bronze: 'Momentum Fuel Power',
+  copper: 'Builder Fuel Power',
+  silver: 'System Fuel Power',
+  gold: 'Strategic Fuel Power',
+  platinum: 'Elite Fuel Power',
+}
+
 export default function PricingPage() {
   const [user,          setUser]          = useState<any>(null)
   const [currentTier,   setCurrentTier]   = useState<string>('fam')
@@ -519,6 +528,9 @@ export default function PricingPage() {
                             </div>
                             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[tierKey]}</div>
                             <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>R{price.toLocaleString()}</div>
+                            <div style={{ fontSize:'11px', color:'#4B5563', marginTop:'4px', fontWeight:700 }}>
+                              ⛽ {TIER_FUEL_POWER[tierKey]}
+                            </div>
                             <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
                             {tierKey==='fam' && <div style={{ fontSize:'10px', color:'rgba(76,29,149,0.6)', marginTop:'2px' }}>R850/month BFM after 60 days</div>}
                             {tierKey==='bronze' && <div style={{ fontSize:'10px', color:'rgba(205,127,50,0.6)', marginTop:'2px' }}>R1,050/month BFM</div>}
