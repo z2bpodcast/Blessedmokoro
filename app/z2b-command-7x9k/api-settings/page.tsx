@@ -1,473 +1,446 @@
 'use client'
 // FILE: app/z2b-command-7x9k/api-settings/page.tsx
 // Admin: API Integration Manager
-// Connect external APIs that power the 3 Vehicle Modes
+// OpenAI (primary AI engine) + Claude (fallback) + all platform APIs
+// Paste API keys here — saved to Vercel environment variables
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-type ApiStatus = 'connected'|'missing'|'testing'|'failed'
+type ApiStatus = 'connected' | 'missing' | 'testing' | 'failed'
 
 interface ApiConfig {
-  id:       string
-  name:     string
-  icon:     string
-  vehicle:  '🚗 Manual'|'⚙️ Automatic'|'⚡ Electric'|'🌐 All'
-  purpose:  string
-  envKey:   string
-  envKey2?: string
-  docsUrl:  string
-  affiliate?:string
-  status:   ApiStatus
-  value:    string
-  value2:   string
+  id:        string
+  name:      string
+  icon:      string
+  group:     'AI Engine' | 'Core' | 'Manual' | 'Automatic' | 'Electric'
+  priority?: boolean      // shows at very top
+  purpose:   string
+  envKey:    string
+  envKey2?:  string
+  docsUrl:   string
+  affiliate?: string
+  status:    ApiStatus
+  value:     string
+  value2:    string
 }
 
-interface TokenAllocation {
-  gpt: string
-  claude: string
-}
+const API_LIST: Omit<ApiConfig, 'status' | 'value' | 'value2'>[] = [
 
-const TOKEN_ALLOCATION_KEY = 'z2b_backend_token_allocations_v1'
-const DEFAULT_TOKEN_ALLOCATIONS: Record<string, TokenAllocation> = {
-  'Starter Pack': { gpt: '70000/month (GPT-5 mini)', claude: '30000/month (Claude Haiku)' },
-  Bronze:         { gpt: '250000/month (GPT-5 mini)', claude: '100000/month (Claude Haiku)' },
-  Copper:         { gpt: '500000/month (GPT-5 mini)', claude: '250000/month (Claude Haiku)' },
-  Silver:         { gpt: '1000000/month (GPT-5 mini)', claude: '500000/month (Claude Haiku)' },
-  Gold:           { gpt: '100000/day fair use (GPT-5)', claude: '50000/day fair use (Claude Sonnet)' },
-  Platinum:       { gpt: '200000/day fair use (GPT-5)', claude: '100000/day fair use (Claude Sonnet)' },
-}
+  // ══ AI ENGINE — TOP PRIORITY ══════════════════════════════════════════════
+  {
+    id: 'openai', name: 'OpenAI (Primary AI Engine)', icon: '⚡',
+    group: 'AI Engine', priority: true,
+    purpose: 'PRIMARY BRAIN: Powers Coach Manlaw execution engine, 4M offer generator, customer finder, post writer, reply system and closing assistant. GPT-4.1 for Gold/Platinum · GPT-4.1-mini for Silver · GPT-4.1-nano for Starter/Bronze/Copper.',
+    envKey: 'OPENAI_API_KEY',
+    docsUrl: 'https://platform.openai.com/api-keys',
+  },
+  {
+    id: 'anthropic', name: 'Claude AI (Fallback Engine)', icon: '🤖',
+    group: 'AI Engine', priority: true,
+    purpose: 'FALLBACK BRAIN: Activates automatically if OpenAI is unavailable. Claude Sonnet for Gold/Platinum · Claude Haiku for all other tiers. Always keep this configured as your backup.',
+    envKey: 'ANTHROPIC_API_KEY',
+    docsUrl: 'https://console.anthropic.com/',
+  },
 
-const API_LIST: Omit<ApiConfig,'status'|'value'|'value2'>[] = [
-  // ── ALL VEHICLES ──────────────────────────────────────
+  // ══ CORE PLATFORM ═════════════════════════════════════════════════════════
   {
-    id:'anthropic', name:'Claude AI (Anthropic)', icon:'🤖',
-    vehicle:'🌐 All',
-    purpose:'Powers Coach Manlaw, all AI generation modules, offer/post/reply/closing engines',
-    envKey:'ANTHROPIC_API_KEY',
-    docsUrl:'https://console.anthropic.com/',
+    id: 'supabase_service', name: 'Supabase Service Role', icon: '🗄️',
+    group: 'Core',
+    purpose: 'Database admin bypass — required for all admin panels, member management, commission tracking, BFM payments and workshop unlock.',
+    envKey: 'SUPABASE_SERVICE_ROLE_KEY',
+    docsUrl: 'https://supabase.com/dashboard/project/_/settings/api',
   },
   {
-    id:'supabase_service', name:'Supabase Service Role', icon:'🗄️',
-    vehicle:'🌐 All',
-    purpose:'Admin bypass of RLS — required for all admin panels, unlock sessions, commission tracking',
-    envKey:'SUPABASE_SERVICE_ROLE_KEY',
-    docsUrl:'https://supabase.com/dashboard/project/_/settings/api',
+    id: 'yoco', name: 'Yoco Payments', icon: '💳',
+    group: 'Core',
+    purpose: 'Payment processing — R500 Starter Pack, Bronze R2,500 through Platinum R50,000. Webhook signature verification included.',
+    envKey: 'YOCO_SECRET_KEY',
+    envKey2: 'YOCO_WEBHOOK_SECRET',
+    docsUrl: 'https://developers.yoco.com/',
   },
   {
-    id:'yoco', name:'Yoco Payments', icon:'💳',
-    vehicle:'🌐 All',
-    purpose:'Payment processing for all tiers — R500 4M unlock, Bronze→Platinum memberships',
-    envKey:'YOCO_SECRET_KEY',
-    docsUrl:'https://developers.yoco.com/',
+    id: 'resend', name: 'Resend (Email)', icon: '📧',
+    group: 'Core',
+    purpose: 'Transactional emails — welcome messages, payment confirmations, workshop milestones, BFM reminders, community updates.',
+    envKey: 'RESEND_API_KEY',
+    docsUrl: 'https://resend.com/',
+  },
+
+  // ══ MANUAL POWER ══════════════════════════════════════════════════════════
+  {
+    id: 'elevenlabs', name: 'ElevenLabs (Voice)', icon: '🎙️',
+    group: 'Manual',
+    purpose: 'Coach Manlaw speaks — voice coaching sessions, motivational audio, session narration. Members hear their coach instead of reading.',
+    envKey: 'ELEVENLABS_API_KEY',
+    envKey2: 'ELEVENLABS_VOICE_ID',
+    docsUrl: 'https://elevenlabs.io/',
+    affiliate: 'https://elevenlabs.io/affiliate-program',
   },
   {
-    id:'resend', name:'Resend (Email)', icon:'📧',
-    vehicle:'🌐 All',
-    purpose:'Transactional emails — welcome, payment confirmation, workshop milestones, community updates',
-    envKey:'RESEND_API_KEY',
-    docsUrl:'https://resend.com/',
-    affiliate:'https://resend.com/referral', // check if they have program
+    id: 'assembly', name: 'AssemblyAI (Speech-to-Text)', icon: '🎤',
+    group: 'Manual',
+    purpose: 'Members speak their business idea — AI transcribes and generates written offer, post or message automatically.',
+    envKey: 'ASSEMBLYAI_API_KEY',
+    docsUrl: 'https://www.assemblyai.com/',
   },
-  // ── MANUAL VEHICLE ────────────────────────────────────
+
+  // ══ AUTOMATIC POWER ═══════════════════════════════════════════════════════
   {
-    id:'elevenlabs', name:'ElevenLabs (Voice)', icon:'🎙️',
-    vehicle:'🚗 Manual',
-    purpose:'Coach Manlaw speaks to members — voice coaching, motivational audio, session narration',
-    envKey:'ELEVENLABS_API_KEY',
-    envKey2:'ELEVENLABS_VOICE_ID',
-    docsUrl:'https://elevenlabs.io/',
-    affiliate:'https://elevenlabs.io/affiliate-program',
-  },
-  {
-    id:'assembly', name:'AssemblyAI (Speech-to-Text)', icon:'🎤',
-    vehicle:'🚗 Manual',
-    purpose:'Members speak their offer or message — AI transcribes and generates written version automatically',
-    envKey:'ASSEMBLYAI_API_KEY',
-    docsUrl:'https://www.assemblyai.com/',
-  },
-  // ── AUTOMATIC VEHICLE ─────────────────────────────────
-  {
-    id:'buffer', name:'Buffer (Social Scheduling)', icon:'📅',
-    vehicle:'⚙️ Automatic',
-    purpose:'One-click post scheduling to WhatsApp Business, Facebook, Instagram, LinkedIn, TikTok',
-    envKey:'BUFFER_ACCESS_TOKEN',
-    docsUrl:'https://buffer.com/',
-    affiliate:'https://buffer.com/partners',
+    id: 'buffer', name: 'Buffer (Social Scheduling)', icon: '📅',
+    group: 'Automatic',
+    purpose: 'One-click post scheduling to WhatsApp Business, Facebook, Instagram, LinkedIn and TikTok. Rev affiliate link embedded.',
+    envKey: 'BUFFER_ACCESS_TOKEN',
+    docsUrl: 'https://buffer.com/',
+    affiliate: 'https://buffer.com/partners',
   },
   {
-    id:'make', name:'Make.com (Automation)', icon:'🔗',
-    vehicle:'⚙️ Automatic',
-    purpose:'Connect 4M to any app — CRM, WhatsApp API, Google Sheets, email sequences, webhook triggers',
-    envKey:'MAKE_WEBHOOK_URL',
-    docsUrl:'https://www.make.com/',
+    id: 'make', name: 'Make.com (Automation)', icon: '🔗',
+    group: 'Automatic',
+    purpose: 'Connect 4M to any external app — CRM workflows, WhatsApp API sequences, Google Sheets, email automations.',
+    envKey: 'MAKE_WEBHOOK_URL',
+    docsUrl: 'https://www.make.com/',
   },
   {
-    id:'canva', name:'Canva API (Design)', icon:'🎨',
-    vehicle:'⚙️ Automatic',
-    purpose:'Auto-generate branded product posters, WhatsApp flyers, and social media graphics in seconds',
-    envKey:'CANVA_API_KEY',
-    docsUrl:'https://www.canva.com/developers/',
-    affiliate:'https://www.canva.com/affiliates/',
+    id: 'canva', name: 'Canva API (Design)', icon: '🎨',
+    group: 'Automatic',
+    purpose: 'Auto-generate branded product posters, WhatsApp flyers and social media graphics from member offers.',
+    envKey: 'CANVA_API_KEY',
+    docsUrl: 'https://www.canva.com/developers/',
+    affiliate: 'https://www.canva.com/affiliates/',
   },
-  // ── ELECTRIC VEHICLE ──────────────────────────────────
+
+  // ══ ELECTRIC POWER ════════════════════════════════════════════════════════
   {
-    id:'did', name:'D-ID (AI Video Avatars)', icon:'🎥',
-    vehicle:'⚡ Electric',
-    purpose:'Create Coach Manlaw video avatars — talking AI videos for product demos, course content, daily income tips',
-    envKey:'DID_API_KEY',
-    docsUrl:'https://www.d-id.com/',
-    affiliate:'https://www.d-id.com/affiliates/',
-  },
-  {
-    id:'replicate', name:'Replicate (Image AI)', icon:'🖼️',
-    vehicle:'⚡ Electric',
-    purpose:'Generate product mockup images, hero banners, and marketing visuals for digital products',
-    envKey:'REPLICATE_API_TOKEN',
-    docsUrl:'https://replicate.com/',
+    id: 'did', name: 'D-ID (AI Video Avatars)', icon: '🎥',
+    group: 'Electric',
+    purpose: 'AI video avatar of Coach Manlaw — talks to leads 24/7, delivers course content, creates daily income tips as video.',
+    envKey: 'DID_API_KEY',
+    docsUrl: 'https://www.d-id.com/',
+    affiliate: 'https://www.d-id.com/affiliates/',
   },
   {
-    id:'n8n', name:'n8n (Workflow Engine)', icon:'⚡',
-    vehicle:'⚡ Electric',
-    purpose:'Full automation engine — daily income actions, CRM updates, WhatsApp sequences, multi-platform sync',
-    envKey:'N8N_WEBHOOK_URL',
-    docsUrl:'https://n8n.io/',
+    id: 'replicate', name: 'Replicate (Image AI)', icon: '🖼️',
+    group: 'Electric',
+    purpose: 'Generate product mockup images, hero banners and marketing visuals for digital products automatically.',
+    envKey: 'REPLICATE_API_TOKEN',
+    docsUrl: 'https://replicate.com/',
   },
   {
-    id:'twilio', name:'Twilio (WhatsApp Business API)', icon:'💬',
-    vehicle:'⚡ Electric',
-    purpose:'Official WhatsApp Business API — send automated messages, bulk sequences, and chatbot flows at scale',
-    envKey:'TWILIO_ACCOUNT_SID',
-    envKey2:'TWILIO_AUTH_TOKEN',
-    docsUrl:'https://www.twilio.com/whatsapp',
+    id: 'n8n', name: 'n8n (Workflow Engine)', icon: '⚙️',
+    group: 'Electric',
+    purpose: 'Full automation engine — daily income actions, CRM updates, WhatsApp sequences, multi-platform sync.',
+    envKey: 'N8N_WEBHOOK_URL',
+    docsUrl: 'https://n8n.io/',
+  },
+  {
+    id: 'twilio', name: 'Twilio (WhatsApp Business API)', icon: '💬',
+    group: 'Electric',
+    purpose: 'Official WhatsApp Business API — bulk automated sequences, chatbot flows, lead nurturing at scale.',
+    envKey: 'TWILIO_ACCOUNT_SID',
+    envKey2: 'TWILIO_AUTH_TOKEN',
+    docsUrl: 'https://www.twilio.com/whatsapp',
   },
 ]
 
-const VEHICLE_COLORS: Record<string, string> = {
-  '🌐 All':        '#6B7280',
-  '🚗 Manual':     '#7C3AED',
-  '⚙️ Automatic':  '#0891B2',
-  '⚡ Electric':   '#D4AF37',
+const GROUP_META: Record<string, { label: string; icon: string; color: string; bg: string }> = {
+  'AI Engine': { label: 'AI Engine (Coach Manlaw Brain)',  icon: '🧠', color: '#7C3AED', bg: '#F3F0FF' },
+  'Core':      { label: 'Core Platform',                   icon: '🔧', color: '#0891B2', bg: '#F0F9FF' },
+  'Manual':    { label: '🚗 Manual Power APIs',            icon: '🚗', color: '#4C1D95', bg: '#F3F0FF' },
+  'Automatic': { label: '⚙️ Automatic Power APIs',         icon: '⚙️', color: '#0891B2', bg: '#F0F9FF' },
+  'Electric':  { label: '⚡ Electric Power APIs',          icon: '⚡', color: '#B8860B', bg: '#FFFBEB' },
 }
 
+const STATUS_STYLE: Record<ApiStatus, { bg: string; color: string; label: string }> = {
+  connected: { bg: '#D1FAE5', color: '#065F46', label: '✅ Connected' },
+  missing:   { bg: '#FEF3C7', color: '#92400E', label: '⚠️ Not Set' },
+  testing:   { bg: '#DBEAFE', color: '#1E40AF', label: '🔄 Testing...' },
+  failed:    { bg: '#FEE2E2', color: '#991B1B', label: '❌ Failed' },
+}
+
+const PURP = '#4C1D95'
+const GOLD = '#D4AF37'
+const DARK = '#1E1245'
+const BG   = '#F3F0FF'
+
 export default function AdminApiSettingsPage() {
-  const [apis,    setApis]    = useState<ApiConfig[]>([])
-  const [saving,  setSaving]  = useState<string|null>(null)
-  const [testing, setTesting] = useState<string|null>(null)
-  const [filter,  setFilter]  = useState<string>('all')
-  const [saved,   setSaved]   = useState<Record<string,boolean>>({})
-  const [showKey, setShowKey] = useState<Record<string,boolean>>({})
-  const [tokenAllocations, setTokenAllocations] = useState<Record<string, TokenAllocation>>(DEFAULT_TOKEN_ALLOCATIONS)
-  const [tokenSaved, setTokenSaved] = useState(false)
+  const [apis,     setApis]     = useState<ApiConfig[]>([])
+  const [saving,   setSaving]   = useState<string | null>(null)
+  const [saved,    setSaved]    = useState<Record<string, boolean>>({})
+  const [testing,  setTesting]  = useState<string | null>(null)
+  const [showKey,  setShowKey]  = useState<Record<string, boolean>>({})
+  const [filter,   setFilter]   = useState<string>('all')
+  const [saveMsg,  setSaveMsg]  = useState<Record<string, string>>({})
 
   useEffect(() => {
-    // Load current values from API
     fetch('/api/admin/api-settings')
       .then(r => r.json())
       .then(data => {
         const configs = API_LIST.map(api => ({
           ...api,
-          status:  data.statuses?.[api.id] || 'missing',
-          value:   data.values?.[api.id]   || '',
-          value2:  data.values?.[api.id + '_2'] || '',
+          status:  (data.statuses?.[api.id] || 'missing') as ApiStatus,
+          value:   '',
+          value2:  '',
         }))
         setApis(configs)
       })
       .catch(() => {
-        setApis(API_LIST.map(api => ({ ...api, status:'missing', value:'', value2:'' })))
+        setApis(API_LIST.map(api => ({ ...api, status: 'missing' as ApiStatus, value: '', value2: '' })))
       })
-
-    const raw = localStorage.getItem(TOKEN_ALLOCATION_KEY)
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw)
-        setTokenAllocations({ ...DEFAULT_TOKEN_ALLOCATIONS, ...parsed })
-      } catch {
-        setTokenAllocations(DEFAULT_TOKEN_ALLOCATIONS)
-      }
-    }
   }, [])
 
+  const updateValue = (id: string, val: string, field: 'value' | 'value2') => {
+    setApis(prev => prev.map(a => a.id === id ? { ...a, [field]: val } : a))
+  }
+
   const saveApi = async (id: string, value: string, value2: string) => {
+    if (!value.trim()) return
     setSaving(id)
     try {
       const res = await fetch('/api/admin/api-settings', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, value, value2 }),
+        body:    JSON.stringify({ id, value: value.trim(), value2: value2.trim() }),
       })
-      if (res.ok) {
+      const data = await res.json()
+      if (data.ok) {
         setSaved(prev => ({ ...prev, [id]: true }))
-        setTimeout(() => setSaved(prev => ({ ...prev, [id]: false })), 2500)
-        setApis(prev => prev.map(a => a.id===id ? {...a, status:value?'connected':'missing'} : a))
+        setSaveMsg(prev => ({ ...prev, [id]: data.instruction || 'Saved — add to Vercel env vars and redeploy.' }))
+        setApis(prev => prev.map(a => a.id === id ? { ...a, status: 'connected' } : a))
+        setTimeout(() => setSaved(prev => ({ ...prev, [id]: false })), 4000)
       }
-    } catch (e) {}
+    } catch {}
     setSaving(null)
   }
 
   const testApi = async (id: string) => {
     setTesting(id)
+    setApis(prev => prev.map(a => a.id === id ? { ...a, status: 'testing' } : a))
     try {
-      const res = await fetch(`/api/admin/api-settings/test?id=${id}`)
+      const res  = await fetch(`/api/admin/api-settings/test?id=${id}`)
       const data = await res.json()
-      setApis(prev => prev.map(a => a.id===id ? {...a, status:data.ok?'connected':'failed'} : a))
-    } catch { setApis(prev => prev.map(a => a.id===id ? {...a, status:'failed'} : a)) }
+      setApis(prev => prev.map(a => a.id === id ? { ...a, status: data.ok ? 'connected' : 'failed' } : a))
+    } catch {
+      setApis(prev => prev.map(a => a.id === id ? { ...a, status: 'failed' } : a))
+    }
     setTesting(null)
   }
 
-  const updateValue = (id: string, val: string, field: 'value'|'value2') => {
-    setApis(prev => prev.map(a => a.id===id ? {...a, [field]:val} : a))
-  }
-
-  const updateTokenAllocation = (tier: string, key: keyof TokenAllocation, value: string) => {
-    setTokenAllocations(prev => ({
-      ...prev,
-      [tier]: { ...prev[tier], [key]: value }
-    }))
-  }
-
-  const saveTokenAllocations = () => {
-    localStorage.setItem(TOKEN_ALLOCATION_KEY, JSON.stringify(tokenAllocations))
-    setTokenSaved(true)
-    setTimeout(() => setTokenSaved(false), 2500)
-  }
-
-  const filtered = filter === 'all' ? apis : apis.filter(a => a.vehicle === filter)
-
+  // Group APIs for display
+  const groups = ['AI Engine', 'Core', 'Manual', 'Automatic', 'Electric'] as const
   const connectedCount = apis.filter(a => a.status === 'connected').length
-  const missingCount   = apis.filter(a => a.status === 'missing').length
+  const aiEngineStatus = apis.filter(a => a.group === 'AI Engine').map(a => a.status)
+  const primaryAI = apis.find(a => a.id === 'openai')
+  const fallbackAI = apis.find(a => a.id === 'anthropic')
 
-  const STATUS_STYLE: Record<ApiStatus, {bg:string,color:string,label:string}> = {
-    connected: { bg:'#D1FAE5', color:'#065F46', label:'✅ Connected' },
-    missing:   { bg:'#FEF3C7', color:'#92400E', label:'⚠️ Not Set' },
-    testing:   { bg:'#DBEAFE', color:'#1E40AF', label:'🔄 Testing' },
-    failed:    { bg:'#FEE2E2', color:'#991B1B', label:'❌ Failed' },
-  }
-
-  const S = {
-    page: { minHeight:'100vh', background:'#F8F5FF', fontFamily:'Georgia,serif', padding:'24px' } as React.CSSProperties,
-    wrap: { maxWidth:'960px', margin:'0 auto' } as React.CSSProperties,
-    card: { background:'#fff', border:'1px solid #E5E7EB', borderRadius:'14px', padding:'22px', marginBottom:'14px', boxShadow:'0 1px 6px rgba(0,0,0,0.05)' } as React.CSSProperties,
-    inp:  { width:'100%', padding:'10px 12px', border:'1.5px solid #E5E7EB', borderRadius:'9px', fontSize:'13px', fontFamily:'monospace', outline:'none', boxSizing:'border-box' as const, background:'#FAFAFA' },
-  }
+  const filtered = (groupId: string) =>
+    filter === 'all' || filter === groupId
+      ? apis.filter(a => a.group === groupId)
+      : []
 
   return (
-    <div style={S.page}>
-      <div style={S.wrap}>
+    <div style={{ minHeight: '100vh', background: BG, fontFamily: 'Georgia,serif', padding: '24px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div style={{ marginBottom:'24px' }}>
-          <Link href="/z2b-command-7x9k/hub" style={{ fontSize:'13px', color:'#6B7280', textDecoration:'none' }}>← Admin Hub</Link>
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'24px', fontWeight:900, color:'#1E1245', margin:'10px 0 4px' }}>
-            ⚡ API Integration Manager
+        <div style={{ marginBottom: '24px' }}>
+          <Link href="/z2b-command-7x9k/hub" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>← Admin Hub</Link>
+          <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '24px', fontWeight: 900, color: DARK, margin: '10px 0 4px' }}>
+            🧠 API Integration Manager
           </h1>
-          <p style={{ fontSize:'14px', color:'#6B7280', margin:0 }}>
-            Connect the APIs that power each 4M Vehicle Mode — Manual 🚗 · Automatic ⚙️ · Electric ⚡
+          <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
+            Paste your API keys below. They are stored as Vercel environment variables — never exposed to members.
           </p>
         </div>
 
+        {/* AI Engine Status Banner */}
+        <div style={{ background: '#fff', border: `2px solid ${PURP}30`, borderRadius: '16px', padding: '20px', marginBottom: '20px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: PURP, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '12px' }}>🧠 Coach Manlaw Brain Status</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {[
+              { label: '⚡ Primary (OpenAI)', status: primaryAI?.status || 'missing', desc: 'GPT-4.1 · Used when available' },
+              { label: '🤖 Fallback (Claude)', status: fallbackAI?.status || 'missing', desc: 'Haiku/Sonnet · Auto-activates if OpenAI fails' },
+            ].map(({ label, status, desc }) => (
+              <div key={label} style={{ padding: '14px', background: status === 'connected' ? '#D1FAE5' : '#FEF3C7', borderRadius: '12px', border: `1.5px solid ${status === 'connected' ? '#6EE7B7' : '#FCD34D'}` }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: status === 'connected' ? '#065F46' : '#92400E' }}>{label}</div>
+                <div style={{ fontSize: '20px', fontWeight: 900, color: status === 'connected' ? '#059669' : '#D97706', margin: '4px 0 2px' }}>
+                  {status === 'connected' ? '✅ Active' : '⚠️ Not Set'}
+                </div>
+                <div style={{ fontSize: '11px', color: '#6B7280' }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+          {primaryAI?.status !== 'connected' && fallbackAI?.status !== 'connected' && (
+            <div style={{ marginTop: '12px', padding: '10px 14px', background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '10px', fontSize: '13px', color: '#991B1B' }}>
+              ⚠️ No AI engine configured. Coach Manlaw will not function until at least one API key is set.
+            </div>
+          )}
+          {primaryAI?.status !== 'connected' && fallbackAI?.status === 'connected' && (
+            <div style={{ marginTop: '12px', padding: '10px 14px', background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '10px', fontSize: '13px', color: '#92400E' }}>
+              ⚡ Coach Manlaw is running on Claude (fallback). Paste your OpenAI key below to activate the primary engine.
+            </div>
+          )}
+        </div>
+
         {/* Stats */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '10px', marginBottom: '18px' }}>
           {[
-            { label:'Total APIs',  value:apis.length,      color:'#4C1D95' },
-            { label:'Connected',   value:connectedCount,   color:'#059669' },
-            { label:'Not Set',     value:missingCount,     color:'#D97706' },
-            { label:'Vehicles',    value:'3 Modes',        color:'#D4AF37' },
+            { label: 'Total APIs', value: apis.length, color: PURP },
+            { label: 'Connected',  value: connectedCount, color: '#059669' },
+            { label: 'Not Set',    value: apis.length - connectedCount, color: '#D97706' },
+            { label: 'AI Engines', value: aiEngineStatus.filter(s => s === 'connected').length + '/2', color: '#7C3AED' },
           ].map(({ label, value, color }) => (
-            <div key={label} style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:'12px', padding:'16px', textAlign:'center' }}>
-              <div style={{ fontSize:'22px', fontWeight:900, color }}>{value}</div>
-              <div style={{ fontSize:'11px', color:'#9CA3AF', textTransform:'uppercase', letterSpacing:'1px', marginTop:'2px' }}>{label}</div>
+            <div key={label} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 900, color }}>{value}</div>
+              <div style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '2px' }}>{label}</div>
             </div>
           ))}
         </div>
 
-        {/* Vehicle Map */}
-        <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:'14px', padding:'20px', marginBottom:'20px' }}>
-          <div style={{ fontSize:'12px', fontWeight:700, color:'#6B7280', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'14px' }}>
-            🗺️ Which API Powers Which Vehicle
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px' }}>
-            {[
-              { v:'🚗 Manual', color:'#7C3AED', apis:['Claude AI','ElevenLabs','AssemblyAI','Resend'] },
-              { v:'⚙️ Automatic', color:'#0891B2', apis:['Claude AI','Buffer','Make.com','Canva API','Resend'] },
-              { v:'⚡ Electric', color:'#D4AF37', apis:['Claude AI','D-ID','Replicate','ElevenLabs','n8n','Twilio'] },
-            ].map(({ v, color, apis: vApis }) => (
-              <div key={v} style={{ background:`${color}08`, border:`1.5px solid ${color}25`, borderRadius:'12px', padding:'14px' }}>
-                <div style={{ fontSize:'13px', fontWeight:700, color, marginBottom:'10px' }}>{v}</div>
-                {vApis.map(name => (
-                  <div key={name} style={{ fontSize:'12px', color:'#374151', marginBottom:'5px', display:'flex', alignItems:'center', gap:'6px' }}>
-                    <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:color, flexShrink:0 }} />
-                    {name}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Filter tabs */}
-        <div style={{ display:'flex', gap:'8px', marginBottom:'16px', flexWrap:'wrap' }}>
-          {[['all','All APIs'],['🌐 All','Core'],['🚗 Manual','Manual 🚗'],['⚙️ Automatic','Automatic ⚙️'],['⚡ Electric','Electric ⚡']].map(([val,lbl]) => (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          {[['all', 'All APIs'], ['AI Engine', '🧠 AI Engine'], ['Core', '🔧 Core'], ['Manual', '🚗 Manual'], ['Automatic', '⚙️ Automatic'], ['Electric', '⚡ Electric']].map(([val, lbl]) => (
             <button key={val} onClick={() => setFilter(val)}
-              style={{ padding:'8px 16px', borderRadius:'10px', cursor:'pointer', fontSize:'13px', fontWeight:700, fontFamily:'Georgia,serif',
-                background: filter===val ? '#1E1245' : 'rgba(0,0,0,0.03)',
-                border: filter===val ? '1.5px solid #1E1245' : '1.5px solid #E5E7EB',
-                color: filter===val ? '#fff' : '#6B7280' }}>
+              style={{ padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 700, fontFamily: 'Georgia,serif',
+                background: filter === val ? DARK : 'rgba(0,0,0,0.03)',
+                border: `1.5px solid ${filter === val ? DARK : '#E5E7EB'}`,
+                color: filter === val ? '#fff' : '#6B7280' }}>
               {lbl}
             </button>
           ))}
         </div>
 
-        {/* API Cards */}
-        {filtered.map(api => (
-          <div key={api.id} style={{ ...S.card, borderLeft:`4px solid ${VEHICLE_COLORS[api.vehicle]||'#6B7280'}` }}>
-            <div style={{ display:'flex', alignItems:'flex-start', gap:'14px' }}>
-              {/* Icon */}
-              <div style={{ width:'46px', height:'46px', borderRadius:'12px', background:`${VEHICLE_COLORS[api.vehicle]||'#6B7280'}12`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0 }}>
-                {api.icon}
+        {/* API Groups */}
+        {groups.map(groupId => {
+          const groupApis = filtered(groupId)
+          if (groupApis.length === 0) return null
+          const meta = GROUP_META[groupId]
+          return (
+            <div key={groupId} style={{ marginBottom: '24px' }}>
+              {/* Group header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', padding: '12px 16px', background: meta.bg, border: `1.5px solid ${meta.color}30`, borderRadius: '12px' }}>
+                <span style={{ fontSize: '20px' }}>{meta.icon}</span>
+                <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: meta.color }}>{meta.label}</span>
+                <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#9CA3AF' }}>
+                  {groupApis.filter(a => a.status === 'connected').length}/{groupApis.length} connected
+                </span>
               </div>
 
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap', marginBottom:'4px' }}>
-                  <span style={{ fontSize:'15px', fontWeight:700, color:'#1E1245' }}>{api.name}</span>
-                  {/* Vehicle badge */}
-                  <span style={{ fontSize:'10px', fontWeight:700, padding:'2px 8px', borderRadius:'12px', background:`${VEHICLE_COLORS[api.vehicle]||'#6B7280'}15`, color:VEHICLE_COLORS[api.vehicle]||'#6B7280' }}>
-                    {api.vehicle}
-                  </span>
-                  {/* Status badge */}
-                  <span style={{ fontSize:'11px', fontWeight:700, padding:'2px 10px', borderRadius:'12px', background:STATUS_STYLE[api.status].bg, color:STATUS_STYLE[api.status].color }}>
-                    {STATUS_STYLE[api.status].label}
-                  </span>
-                </div>
-                <p style={{ fontSize:'13px', color:'#6B7280', margin:'0 0 12px', lineHeight:1.6 }}>{api.purpose}</p>
+              {/* API cards in this group */}
+              {groupApis.map(api => (
+                <div key={api.id} style={{ background: '#fff', border: `1px solid ${api.priority ? meta.color + '60' : '#E5E7EB'}`, borderLeft: `4px solid ${meta.color}`, borderRadius: '14px', padding: '20px', marginBottom: '10px', boxShadow: api.priority ? `0 2px 12px ${meta.color}15` : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
 
-                {/* Key input(s) */}
-                <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'12px' }}>
-                  <div>
-                    <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
-                      {api.envKey}
-                    </label>
-                    <div style={{ display:'flex', gap:'6px' }}>
-                      <input
-                        type={showKey[api.id] ? 'text' : 'password'}
-                        value={api.value}
-                        onChange={e => updateValue(api.id, e.target.value, 'value')}
-                        placeholder={`Enter ${api.envKey}...`}
-                        style={S.inp}
-                      />
-                      <button onClick={() => setShowKey(prev => ({...prev,[api.id]:!prev[api.id]}))}
-                        style={{ padding:'0 12px', background:'#F9FAFB', border:'1px solid #E5E7EB', borderRadius:'9px', cursor:'pointer', fontSize:'14px' }}>
-                        {showKey[api.id] ? '🙈' : '👁️'}
-                      </button>
+                    {/* Icon */}
+                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: `${meta.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
+                      {api.icon}
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {/* Name + badges */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 700, color: DARK }}>{api.name}</span>
+                        {api.priority && (
+                          <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: `${meta.color}15`, color: meta.color }}>
+                            {api.id === 'openai' ? 'PRIMARY ENGINE' : 'FALLBACK ENGINE'}
+                          </span>
+                        )}
+                        <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 10px', borderRadius: '12px', background: STATUS_STYLE[api.status].bg, color: STATUS_STYLE[api.status].color }}>
+                          {STATUS_STYLE[api.status].label}
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 14px', lineHeight: 1.6 }}>{api.purpose}</p>
+
+                      {/* Key input(s) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#9CA3AF', display: 'block', marginBottom: '4px', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
+                            {api.envKey}
+                          </label>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <input
+                              type={showKey[api.id] ? 'text' : 'password'}
+                              value={api.value}
+                              onChange={e => updateValue(api.id, e.target.value, 'value')}
+                              placeholder={`Paste your ${api.id === 'openai' ? 'OpenAI' : api.id === 'anthropic' ? 'Anthropic' : ''} API key here...`}
+                              style={{ flex: 1, padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: '9px', fontSize: '13px', fontFamily: 'monospace', outline: 'none', background: '#FAFAFA', boxSizing: 'border-box' as const }}
+                            />
+                            <button onClick={() => setShowKey(prev => ({ ...prev, [api.id]: !prev[api.id] }))}
+                              style={{ padding: '0 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '9px', cursor: 'pointer', fontSize: '14px' }}>
+                              {showKey[api.id] ? '🙈' : '👁️'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {api.envKey2 && (
+                          <div>
+                            <label style={{ fontSize: '11px', color: '#9CA3AF', display: 'block', marginBottom: '4px', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
+                              {api.envKey2}
+                            </label>
+                            <input
+                              type={showKey[api.id] ? 'text' : 'password'}
+                              value={api.value2}
+                              onChange={e => updateValue(api.id, e.target.value, 'value2')}
+                              placeholder={`Paste ${api.envKey2}...`}
+                              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: '9px', fontSize: '13px', fontFamily: 'monospace', outline: 'none', background: '#FAFAFA', boxSizing: 'border-box' as const }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button onClick={() => saveApi(api.id, api.value, api.value2)} disabled={saving === api.id || !api.value.trim()}
+                          style={{ padding: '9px 22px', background: saved[api.id] ? '#059669' : saving === api.id ? '#9CA3AF' : !api.value.trim() ? '#E5E7EB' : meta.color,
+                            border: 'none', borderRadius: '9px', color: !api.value.trim() ? '#9CA3AF' : '#fff', fontSize: '12px', fontWeight: 700, cursor: !api.value.trim() ? 'not-allowed' : 'pointer', fontFamily: 'Georgia,serif' }}>
+                          {saved[api.id] ? '✅ Saved!' : saving === api.id ? 'Saving...' : '💾 Save Key'}
+                        </button>
+
+                        <button onClick={() => testApi(api.id)} disabled={testing === api.id || api.status === 'missing'}
+                          style={{ padding: '9px 18px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '9px', color: '#059669', fontSize: '12px', fontWeight: 700, cursor: testing === api.id || api.status === 'missing' ? 'not-allowed' : 'pointer' }}>
+                          {testing === api.id ? '🔄 Testing...' : '🧪 Test Connection'}
+                        </button>
+
+                        <a href={api.docsUrl} target="_blank" rel="noopener noreferrer"
+                          style={{ padding: '9px 16px', background: 'rgba(79,70,229,0.06)', border: '1px solid rgba(79,70,229,0.15)', borderRadius: '9px', color: '#4F46E5', fontSize: '12px', fontWeight: 700, textDecoration: 'none' }}>
+                          📖 Docs
+                        </a>
+
+                        {api.affiliate && (
+                          <a href={api.affiliate} target="_blank" rel="noopener noreferrer"
+                            style={{ padding: '9px 16px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '9px', color: '#B8860B', fontSize: '12px', fontWeight: 700, textDecoration: 'none' }}>
+                            💰 Affiliate
+                          </a>
+                        )}
+                      </div>
+
+                      {/* Save instruction box */}
+                      {saveMsg[api.id] && saved[api.id] && (
+                        <div style={{ marginTop: '10px', padding: '10px 14px', background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '10px', fontSize: '12px', color: '#166534' }}>
+                          ✅ {saveMsg[api.id]}
+                        </div>
+                      )}
+
+                      {/* Vercel instruction when value pasted */}
+                      {api.value.trim() && !saved[api.id] && (
+                        <div style={{ marginTop: '10px', padding: '10px 14px', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '10px', fontSize: '12px', color: '#0C4A6E' }}>
+                          💡 Click <strong>Save Key</strong> then add <code style={{ background: '#E0F2FE', padding: '1px 5px', borderRadius: '4px', fontFamily: 'monospace' }}>{api.envKey}</code> to <strong>Vercel → Settings → Environment Variables → Redeploy</strong>.
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {api.envKey2 && (
-                    <div>
-                      <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
-                        {api.envKey2}
-                      </label>
-                      <input
-                        type={showKey[api.id] ? 'text' : 'password'}
-                        value={api.value2}
-                        onChange={e => updateValue(api.id, e.target.value, 'value2')}
-                        placeholder={`Enter ${api.envKey2}...`}
-                        style={S.inp}
-                      />
-                    </div>
-                  )}
                 </div>
-
-                {/* Actions */}
-                <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', alignItems:'center' }}>
-                  <button onClick={() => saveApi(api.id, api.value, api.value2)} disabled={saving===api.id}
-                    style={{ padding:'8px 20px', background: saved[api.id]?'#059669':saving===api.id?'#9CA3AF':'#1E1245', border:'none', borderRadius:'8px', color:'#fff', fontSize:'12px', fontWeight:700, cursor:saving===api.id?'not-allowed':'pointer' }}>
-                    {saved[api.id] ? '✅ Saved!' : saving===api.id ? 'Saving...' : '💾 Save to Vercel'}
-                  </button>
-                  <button onClick={() => testApi(api.id)} disabled={testing===api.id || !api.value}
-                    style={{ padding:'8px 16px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'8px', color:'#059669', fontSize:'12px', fontWeight:700, cursor:testing===api.id||!api.value?'not-allowed':'pointer' }}>
-                    {testing===api.id ? '🔄 Testing...' : '🧪 Test Connection'}
-                  </button>
-                  <a href={api.docsUrl} target="_blank" rel="noopener noreferrer"
-                    style={{ padding:'8px 16px', background:'rgba(79,70,229,0.05)', border:'1px solid rgba(79,70,229,0.15)', borderRadius:'8px', color:'#4F46E5', fontSize:'12px', fontWeight:700, textDecoration:'none' }}>
-                    📖 Docs
-                  </a>
-                  {api.affiliate && (
-                    <a href={api.affiliate} target="_blank" rel="noopener noreferrer"
-                      style={{ padding:'8px 16px', background:'rgba(212,175,55,0.08)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:'8px', color:'#B8860B', fontSize:'12px', fontWeight:700, textDecoration:'none' }}>
-                      💰 Affiliate Program
-                    </a>
-                  )}
-                </div>
-
-                {/* Vercel instruction */}
-                {api.value && (
-                  <div style={{ marginTop:'10px', padding:'8px 12px', background:'#F0F9FF', border:'1px solid #BAE6FD', borderRadius:'8px', fontSize:'12px', color:'#0C4A6E' }}>
-                    💡 Add <code style={{ background:'#E0F2FE', padding:'1px 5px', borderRadius:'4px', fontFamily:'monospace' }}>{api.envKey}</code> to Vercel → Settings → Environment Variables, then redeploy.
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
-          </div>
-        ))}
+          )
+        })}
 
-        {/* Backend token allocations */}
-        <div style={{ ...S.card, marginTop:'18px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:'12px', flexWrap:'wrap', marginBottom:'14px' }}>
-            <div>
-              <div style={{ fontSize:'12px', fontWeight:700, color:'#6B7280', letterSpacing:'1px', textTransform:'uppercase' }}>
-                🧠 Backend Token Allocation Manager
-              </div>
-              <div style={{ fontSize:'13px', color:'#6B7280', marginTop:'4px' }}>
-                Increase or decrease token allocations per tier without changing tier prices.
-              </div>
-            </div>
-            <button
-              onClick={saveTokenAllocations}
-              style={{ padding:'8px 16px', background: tokenSaved ? '#059669' : '#1E1245', border:'none', borderRadius:'8px', color:'#fff', fontSize:'12px', fontWeight:700, cursor:'pointer' }}
-            >
-              {tokenSaved ? '✅ Saved!' : '💾 Save Allocations'}
-            </button>
-          </div>
-
-          <div style={{ display:'grid', gap:'10px' }}>
-            {Object.keys(DEFAULT_TOKEN_ALLOCATIONS).map((tier) => (
-              <div key={tier} style={{ border:'1px solid #E5E7EB', borderRadius:'10px', padding:'12px', background:'#FAFAFA' }}>
-                <div style={{ fontSize:'13px', fontWeight:700, color:'#1E1245', marginBottom:'8px' }}>{tier}</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
-                  <div>
-                    <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
-                      GPT Allocation
-                    </label>
-                    <input
-                      value={tokenAllocations[tier]?.gpt || ''}
-                      onChange={e => updateTokenAllocation(tier, 'gpt', e.target.value)}
-                      style={S.inp}
-                      placeholder='e.g. 250000/month (GPT-5 mini)'
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize:'11px', color:'#9CA3AF', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>
-                      Claude Allocation
-                    </label>
-                    <input
-                      value={tokenAllocations[tier]?.claude || ''}
-                      onChange={e => updateTokenAllocation(tier, 'claude', e.target.value)}
-                      style={S.inp}
-                      placeholder='e.g. 100000/month (Claude Haiku)'
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Note */}
-        <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:'12px', padding:'16px 20px', marginTop:'8px' }}>
-          <div style={{ fontSize:'12px', color:'#6B7280', lineHeight:1.8 }}>
-            <strong style={{ color:'#1E1245' }}>⚠️ Important:</strong> API keys are sensitive. They are saved as Vercel environment variables and never exposed to members.
-            After adding or updating any key, you must <strong>redeploy</strong> on Vercel for changes to take effect.
-            Keys marked <strong>⚠️ Not Set</strong> will cause that feature to show gracefully degraded messages to members.
+        {/* Footer note */}
+        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px 20px' }}>
+          <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.8 }}>
+            <strong style={{ color: DARK }}>🔒 Security:</strong> API keys are never exposed to members or visible in the frontend. They live only in Vercel environment variables.
+            After saving any key here, go to <strong>Vercel → Your Project → Settings → Environment Variables</strong>, add the key, then click <strong>Redeploy</strong> for changes to take effect.
           </div>
         </div>
       </div>

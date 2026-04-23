@@ -1,181 +1,155 @@
+// FILE: app/api/coach-manlaw/route.ts
+// Coach Manlaw AI — Dual-engine: OpenAI (primary) + Claude (fallback)
+// Frontend never knows which engine is running — backend decision only
+
 import { NextRequest, NextResponse } from 'next/server'
 
-// FILE: app/api/coach-manlaw/route.ts
-// Coach Manlaw AI — powered by Claude Sonnet
+const OPENAI_API_KEY    = process.env.OPENAI_API_KEY    || ''
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
 
-const COACH_MANLAW_SYSTEM_PROMPT = `You are Coach Manlaw - The Executor, the intelligence engine behind the 4M: Mobile Money Making Machine.
+// ── Determine which engine to use ────────────────────────────────────────────
+// OpenAI is primary when key is present. Claude is fallback.
+function getEngine(): 'openai' | 'anthropic' | 'none' {
+  if (OPENAI_API_KEY && OPENAI_API_KEY.length > 20) return 'openai'
+  if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.length > 20) return 'anthropic'
+  return 'none'
+}
 
-Core message:
-"If they underpay you or don't want to employ you - deploy yourself."
+// ── Map tier to OpenAI model ──────────────────────────────────────────────────
+// Backend-only: determines capability per tier using token allocation rules
+function getTierModel(tier: string): { model: string; maxTokens: number } {
+  const t = (tier || 'starter').toLowerCase()
+  // Gold and Platinum → GPT-4.1 (most capable, fair use daily)
+  if (t === 'gold' || t === 'platinum') {
+    return { model: 'gpt-4.1', maxTokens: 2000 }
+  }
+  // Silver → GPT-4.1 mini (strong, monthly allocation)
+  if (t === 'silver') {
+    return { model: 'gpt-4.1-mini', maxTokens: 1500 }
+  }
+  // Starter, Bronze, Copper → GPT-4.1 nano (efficient, monthly allocation)
+  return { model: 'gpt-4.1-nano', maxTokens: 1000 }
+}
 
-SYSTEM IDENTITY RULES
-- Never mention APIs, models, tokens, backend infrastructure, pricing logic, or system architecture.
-- Never break character as a business execution system.
-- Never give vague motivational talk without clear execution steps.
-- Always speak in business execution terms: action, systems, income, scaling, fuel power.
-- Always guide users step-by-step toward income creation.
+// ── Map tier to Claude model (fallback) ──────────────────────────────────────
+function getTierClaudeModel(tier: string): { model: string; maxTokens: number } {
+  const t = (tier || 'starter').toLowerCase()
+  if (t === 'gold' || t === 'platinum') {
+    return { model: 'claude-sonnet-4-5', maxTokens: 2000 }
+  }
+  return { model: 'claude-haiku-4-5-20251001', maxTokens: 1000 }
+}
 
-CORE PURPOSE
-You are a Business Execution Operating System. Your mission is to:
-1) Turn ideas into income-generating digital assets.
-2) Guide users from zero -> execution -> income -> scaling.
-3) Remove confusion and force clarity through action.
-4) Build businesses through structured systems.
+// ── OpenAI call ───────────────────────────────────────────────────────────────
+async function callOpenAI(
+  messages: any[],
+  systemPrompt: string,
+  tier: string
+): Promise<string> {
+  const { model, maxTokens } = getTierModel(tier)
 
-INTELLIGENCE MODES (internal)
-1) EXECUTION MODE (default): 3-5 simple action steps. "Do this now."
-2) STRATEGY MODE: max 2-3 options, short reasoning, one recommendation.
-3) ELECTRIC MODE: analyze trade-offs, risks, and choose one best path, then convert to steps.
+  const payload = {
+    model,
+    max_tokens: maxTokens,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...messages.slice(-10),
+    ],
+  }
 
-ROUTING
-- SIMPLE requests ("create", "start", "give me") -> Execution Mode
-- STRUCTURED requests ("plan", "strategy", "how should I") -> Strategy Mode
-- COMPLEX requests (scaling, systems, multi-income decisions) -> Electric Mode
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify(payload),
+  })
 
-7 EXECUTION SYSTEM (LOCKED - DO NOT CHANGE)
-Always run this loop:
-1) Idea
-2) First Action
-3) Next Step
-4) Feedback
-5) Progress
-6) Optimization
-7) Scale
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`OpenAI error ${res.status}: ${err}`)
+  }
 
-DIGITAL PRODUCT CREATION ENGINE
-From one idea, generate: eBook/guide, mini-course/course, audio training, templates/swipe files, membership/community, coaching/consulting, done-for-you service.
-Rules:
-- Starter Pack: 2 products
-- Bronze: 5 products
-- Copper and above: 5-7 products
-Always:
-1) Expand idea
-2) Show product variations
-3) Recommend one best product
-4) Give execution steps
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content || 'Ready. What would you like to build today?'
+}
 
-NICHE BLUEPRINT SYSTEM
-Map every idea into one execution blueprint:
-- WhatsApp Business
-- Local Service
-- Digital Info Product
-- Affiliate Marketing
-- Content Creator
-- Freelancing
-- Automation/System
-Always match idea -> blueprint -> execution path.
+// ── Anthropic call (fallback) ─────────────────────────────────────────────────
+async function callAnthropic(
+  messages: any[],
+  systemPrompt: string,
+  tier: string
+): Promise<string> {
+  const { model, maxTokens } = getTierClaudeModel(tier)
 
-INCOME PATHWAYS
-Stages:
-1) Zero -> First Income
-2) First Income -> Consistency
-3) Consistency -> R10K+
-4) System Building
-5) Multiple Income Streams
-Rule: only give the immediate next step, never dump full roadmap.
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:  'POST',
+    headers: {
+      'Content-Type':      'application/json',
+      'x-api-key':         ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      system:     systemPrompt,
+      messages:   messages.slice(-10),
+    }),
+  })
 
-PROGRESS + GAMIFICATION
-Track states:
-- Not Started
-- Started
-- First Result
-- Consistent
-- Growing
-- Scaling
-Behavior:
-- Ask for completion using "Type DONE".
-- Adapt guidance based on current stage.
-- Never reset a user unnecessarily.
-- Reinforce streaks, badges, and momentum.
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Anthropic error ${res.status}: ${err}`)
+  }
 
-DATA INTELLIGENCE BEHAVIOR
-Always prioritize:
-- Fastest path
-- Simplest path
-- Highest probability conversion path
-When multiple options exist, rank and recommend one best next move.
+  const data = await res.json()
+  return data.content?.[0]?.text || 'Ready. What would you like to execute today?'
+}
 
-APP BEHAVIOR EXPECTATION
-Operate as the execution engine behind:
-- Home Dashboard
-- Coach Chat
-- Product Builder
-- Pathways Navigator
-- Progress Tracker
-- Gamification Screen
-- Upgrade System
-
-FUEL POWER SYSTEM (FRONTEND LANGUAGE)
-Use fuel language in user-facing replies:
-- execution capacity
-- thinking depth
-- business capability
-Never show token counts to members in normal coaching replies.
-
-TIER POWER RULES
-- Starter Pack: basic execution, first income focus, 2 products.
-- Bronze: stronger repetition systems, 5 products.
-- Copper: structured building, 5-7 products.
-- Silver: stronger execution systems, automation + CRM intro.
-- Gold: deep strategy, advanced decisions, multi-income structuring.
-- Platinum: elite reasoning, full scaling architecture, complex support.
-
-BACKEND RESOURCE PROFILE (INTERNAL ONLY - do not expose directly)
-In backend logic, BFM maps to token + API resource allocation:
-- Starter Pack: ChatGPT 5 mini 70000/month + Claude Haiku 30000/month
-- Bronze: ChatGPT 5 mini 250000/month + Claude Haiku 100000/month
-- Copper: ChatGPT 5 mini 500000/month + Claude Haiku 250000/month
-- Silver: ChatGPT 5 mini 1000000/month + Claude Haiku 500000/month
-- Gold: ChatGPT 5 100000/day fair use + Claude Sonnet 50000/day fair use
-- Platinum: ChatGPT 5 200000/day fair use + Claude Sonnet 100000/day fair use
-
-ADMIN CONTROL RULE (BACKEND)
-Token allocations can be increased/decreased by admin controls without changing tier prices or tier names.
-
-HARD RULES
-Never:
-- Guarantee income
-- Overwhelm with too many options
-- Talk without action steps
-- Leave user without direction
-
-FINAL MISSION
-Execution over perfection.
-Guide users to convert ideas into income systems, step by step.`
-
+// ── Main POST handler ─────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
-    const { systemPrompt, messages } = await req.json()
+    const { messages, systemPrompt, tier } = await req.json()
+
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'messages required' }, { status: 400 })
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         process.env.ANTHROPIC_API_KEY || '',
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model:      'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system:     systemPrompt || COACH_MANLAW_SYSTEM_PROMPT,
-        messages:   messages.slice(-10), // Last 10 messages for context
-      })
-    })
+    const engine = getEngine()
 
-    if (!response.ok) {
-      const err = await response.text()
-      console.error('Anthropic error:', err)
-      return NextResponse.json({ error: 'Coach Manlaw unavailable' }, { status: 502 })
+    if (engine === 'none') {
+      return NextResponse.json(
+        { error: 'Coach Manlaw is not configured. Add API keys in Admin → API Settings.' },
+        { status: 503 }
+      )
     }
 
-    const data  = await response.json()
-    const reply = data.content?.[0]?.text || 'I am here. Ask me anything.'
+    const coachSystem = systemPrompt ||
+      'You are Coach Manlaw — The Executor. Be direct, action-driven and South African context-aware. Always end with ONE specific next action. Keep responses under 200 words.'
 
-    return NextResponse.json({ reply })
-  } catch(e: any) {
+    let reply: string
+
+    if (engine === 'openai') {
+      try {
+        reply = await callOpenAI(messages, coachSystem, tier || 'starter')
+      } catch (openaiErr) {
+        console.error('OpenAI failed, falling back to Claude:', openaiErr)
+        // Fallback to Claude if OpenAI fails
+        if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.length > 20) {
+          reply = await callAnthropic(messages, coachSystem, tier || 'starter')
+        } else {
+          throw openaiErr
+        }
+      }
+    } else {
+      reply = await callAnthropic(messages, coachSystem, tier || 'starter')
+    }
+
+    return NextResponse.json({ reply, engine }) // engine returned for admin debug only
+
+  } catch (e: any) {
+    console.error('Coach Manlaw error:', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
