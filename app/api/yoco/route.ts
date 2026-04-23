@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
-import { minVehicle, parseVehicleScope, tierVehicleCap } from '@/lib/fourm-access'
+import { tierVehicleCap } from '@/lib/fourm-access'
 
 // FILE: app/api/yoco/route.ts
 // Yoco payment webhook + checkout creation
@@ -28,15 +28,6 @@ const AMOUNT_TO_TIER: Record<number, string> = {
 
 function tierFromAmount(amountRands: number): string {
   return AMOUNT_TO_TIER[amountRands] || 'bronze'
-}
-
-type FourmVehicle = 'manual' | 'automatic' | 'electric'
-
-function tierVehicleCap(tier: string): FourmVehicle {
-  const t = (tier || 'fam').toLowerCase()
-  if (t === 'silver') return 'automatic'
-  if (t === 'gold' || t === 'platinum') return 'electric'
-  return 'manual'
 }
 
 async function syncFourmUnlockForTier(supabase: any, userId: string, tier: string, refCode: string | null) {
@@ -72,7 +63,7 @@ function verifyYocoSignature(rawBody: string, signature: string, secret: string)
   }
 }
 
-// ── Shared commission processor — used by both membership and Content Engine sales ──
+// ── Shared commission processor ──────────────────────────────────────────────
 async function processCommissions(
   supabase: any,
   buyerUserId: string,
@@ -85,7 +76,7 @@ async function processCommissions(
     silver:0.25, gold:0.28, platinum:0.30
   }
 
-  // ── ISP — Direct sponsor ────────────────────────────────────
+  // ── ISP — Direct sponsor ─────────────────────────────────────────────────
   const { data: sponsor } = await supabase.from('profiles')
     .select('id,paid_tier,full_name,referral_code').eq('referral_code', refCode).single()
 
@@ -105,7 +96,7 @@ async function processCommissions(
     notes:            `ISP on R${amountRands} — ${productLabel}`,
   })
 
-  // ── TSC — Walk up the upline tree ──────────────────────────
+  // ── TSC — Walk up the upline tree ────────────────────────────────────────
   const tscRates: Record<number,number> = {
     2:0.10, 3:0.05, 4:0.03, 5:0.02,
     6:0.01, 7:0.01, 8:0.01, 9:0.01, 10:0.01,
@@ -118,7 +109,6 @@ async function processCommissions(
   let gen = 2
 
   while (gen <= 10 && currentRefCode) {
-    // Find this builder's sponsor
     const { data: upline } = await supabase.from('profiles')
       .select('id,paid_tier,full_name,referred_by_code')
       .eq('referral_code', currentRefCode)
@@ -161,12 +151,10 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text()
     const body    = JSON.parse(rawBody)
 
-    // ── WEBHOOK from Yoco ──────────────────────────────────────
+    // ── WEBHOOK from Yoco ────────────────────────────────────────────────────
     if (body.type === 'payment.succeeded') {
-      // Supabase only needed for webhook processing
       const supabase = getSupabase()
 
-      // Verify signature if secret is configured
       if (YOCO_WEBHOOK_SECRET) {
         const signature = req.headers.get('x-yoco-signature') || ''
         if (!signature || !verifyYocoSignature(rawBody, signature, YOCO_WEBHOOK_SECRET)) {
@@ -182,24 +170,21 @@ export async function POST(req: NextRequest) {
       const amountRands  = Math.round(payment.amount / 100)
       const checkoutTier = (metadata.tier as string) || ''
       const newTier      = checkoutTier || tierFromAmount(amountRands)
-      // Content Engine product detection
       const productType  = metadata.product_type || 'membership'
       const isContentEngine = productType === 'content_engine'
-      const cePlan       = metadata.ce_plan || null   // 'starter'|'pro'
+      const cePlan       = metadata.ce_plan || null
 
       if (!userId) {
         console.error('No user_id in Yoco webhook metadata')
         return new NextResponse('Missing user_id', { status: 400 })
       }
 
-      // ── CONTENT ENGINE PAYMENT ──────────────────────────────
+      // ── CONTENT ENGINE PAYMENT ───────────────────────────────────────────
       if (isContentEngine && cePlan) {
-        // Grant paid plan access
         await supabase.rpc('admin_grant_ce_plan', {
           target_user_id: userId,
           plan_name:      cePlan,
         })
-        // Record transaction
         await supabase.from('transactions').insert({
           user_id:        userId,
           amount:         amountRands,
@@ -210,7 +195,6 @@ export async function POST(req: NextRequest) {
           referred_by:    refCode || null,
           notes:          `Content Engine ${cePlan} plan`,
         })
-        // Process commissions through the comp engine
         if (refCode) {
           await processCommissions(supabase, userId, refCode, amountRands, `Content Engine ${cePlan}`)
         }
@@ -218,9 +202,8 @@ export async function POST(req: NextRequest) {
         return new NextResponse('OK', { status:200 })
       }
 
-      // ── MEMBERSHIP PAYMENT (existing flow) ───────────────────
+      // ── AI INCOME PAYMENT ────────────────────────────────────────────────
       if (newTier === 'ai_income') {
-        // R500 AI Income activation — does NOT change Table Banquet membership tier
         await supabase.from('ai_income_unlocks').upsert(
           {
             user_id: userId,
@@ -255,14 +238,13 @@ export async function POST(req: NextRequest) {
         return new NextResponse('OK', { status: 200 })
       }
 
-      // Update profile tier (Table Banquet membership)
+      // ── MEMBERSHIP PAYMENT ───────────────────────────────────────────────
       await supabase.from('profiles').update({
         paid_tier:      newTier,
         payment_status: 'paid',
         upgraded_at:    new Date().toISOString(),
       }).eq('id', userId)
 
-      // Record transaction
       await supabase.from('transactions').insert({
         user_id:        userId,
         amount:         amountRands,
@@ -273,10 +255,8 @@ export async function POST(req: NextRequest) {
         referred_by:    refCode || null,
       })
 
-      // Process ISP + TSC commissions through shared engine
       if (refCode) {
         await processCommissions(supabase, userId, refCode, amountRands, `${newTier} membership`)
-        // Mark invite as registered
         await supabase.from('invitation_dispatches')
           .update({ registered:true, registered_at:new Date().toISOString() })
           .eq('ref_code', refCode)
@@ -285,7 +265,6 @@ export async function POST(req: NextRequest) {
           .limit(1)
       }
 
-      // Award Bronze Legacy badge
       await supabase.from('builder_badges').upsert({
         user_id:    userId,
         badge_id:   'bronze_legacy',
@@ -293,11 +272,9 @@ export async function POST(req: NextRequest) {
         awarded_at: new Date().toISOString(),
       }, { onConflict:'user_id,badge_id' })
 
-      // Initialize builder records
       await supabase.from('builder_unlocks').upsert({ user_id:userId }, { onConflict:'user_id' })
       await supabase.from('torch_streaks').upsert({ user_id:userId }, { onConflict:'user_id' })
 
-      // Send payment confirmation email
       fetch(`${APP_URL}/api/email`, {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
@@ -310,20 +287,18 @@ export async function POST(req: NextRequest) {
       return new NextResponse('OK', { status:200 })
     }
 
-    // ── CREATE CHECKOUT ────────────────────────────────────────
+    // ── CREATE CHECKOUT ──────────────────────────────────────────────────────
     if (body.action === 'create_checkout') {
       const { user_id, ref_code, tier } = body
       const tierAmounts: Record<string,number> = {
         fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
-        // Content Engine plans
         ce_starter: 400, ce_pro: 900,
-        // AI Income Execution System
         ai_income: 500,
       }
-      const amountRands = tierAmounts[tier] || 500
+      const amountRands  = tierAmounts[tier] || 500
       const isCECheckout = tier.startsWith('ce_')
       const cePlanName   = isCECheckout ? tier.replace('ce_','') : null
-      const amountCents = amountRands * 100
+      const amountCents  = amountRands * 100
 
       if (!YOCO_SECRET_KEY) {
         console.error('YOCO_SECRET_KEY is not set in environment variables')
@@ -341,7 +316,11 @@ export async function POST(req: NextRequest) {
           amount:     amountCents,
           currency:   'ZAR',
           cancelUrl:  `${APP_URL}/pricing`,
-          successUrl: isCECheckout ? `${APP_URL}/content-studio-plus?activated=true` : tier === 'ai_income' ? `${APP_URL}/ai-income?activated=true` : `${APP_URL}/pay/success?tier=${tier}`,
+          successUrl: isCECheckout
+            ? `${APP_URL}/content-studio-plus?activated=true`
+            : tier === 'ai_income'
+              ? `${APP_URL}/ai-income?activated=true`
+              : `${APP_URL}/pay/success?tier=${tier}`,
           failureUrl: `${APP_URL}/pricing?error=payment_failed`,
           metadata: {
             user_id,
@@ -358,7 +337,6 @@ export async function POST(req: NextRequest) {
         })
       })
 
-      // Safe parse Yoco response
       let checkout: any = {}
       const yocoText = await response.text()
       try { if (yocoText) checkout = JSON.parse(yocoText) } catch {}
@@ -366,7 +344,6 @@ export async function POST(req: NextRequest) {
       if (!response.ok) {
         const errMsg = checkout.message || checkout.error || checkout.displayMessage || `Yoco error ${response.status}`
         console.error('Yoco checkout failed:', response.status, yocoText)
-        // Return descriptive error — not a throw, so we get proper JSON back
         return NextResponse.json({ error: errMsg }, { status: 502 })
       }
 
