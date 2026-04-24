@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
-type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'
+type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'|'discovery'|'niche'|'products'|'funnel'|'twin'
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
 type Vehicle = 'manual'|'automatic'|'electric'
 
@@ -222,6 +222,25 @@ function AIIncomeInner() {
   const [refCopied,    setRefCopied]    = useState(false)
   const [myCommissions,setMyCommissions]= useState<any[]>([])
 
+  // Self-Discovery & Advanced features
+  const [discoveryStep,  setDiscoveryStep]  = useState(0)
+  const [discAnswers,    setDiscAnswers]     = useState<Record<string,string>>({})
+  const [discResult,     setDiscResult]     = useState('')
+  const [discLoading,    setDiscLoading]    = useState(false)
+  const [nicheInput,     setNicheInput]     = useState('')
+  const [nicheResult,    setNicheResult]    = useState('')
+  const [nicheLoading,   setNicheLoading]   = useState(false)
+  const [productIdea,    setProductIdea]    = useState('')
+  const [productResult,  setProductResult]  = useState('')
+  const [productLoading, setProductLoading] = useState(false)
+  const [funnelInput,    setFunnelInput]    = useState('')
+  const [funnelResult,   setFunnelResult]   = useState('')
+  const [funnelLoading,  setFunnelLoading]  = useState(false)
+  const [twinName,       setTwinName]       = useState('')
+  const [twinStyle,      setTwinStyle]      = useState('')
+  const [twinResult,     setTwinResult]     = useState('')
+  const [twinLoading,    setTwinLoading]    = useState(false)
+
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       setUser(u)
@@ -248,15 +267,35 @@ function AIIncomeInner() {
   const callManlaw = async (msg: string) => {
     if (!msg.trim()) return
     setManlawLoading(true)
-    const history = manlawHist.map(h => ({ role: h.role === 'manlaw' ? 'assistant' : 'user', content: h.text }))
-    history.push({ role: 'user', content: msg })
-     const historyContext = history.slice(-6).map(h => `${h.role}: ${h.content}`).join('\n')
-     const fullSystem     = COACH_SYSTEM + (historyContext ? `\n\nConversation so far:\n${historyContext}` : '')
-     const response       = await callAI(msg, fullSystem, vehicle)
-    setManlawHist(prev => [...prev, { role:'user', text:msg }, { role:'manlaw', text:response }])
+    try {
+      // Build full message history for context
+      const messages = [
+        ...manlawHist.slice(-8).map(h => ({
+          role:    h.role === 'manlaw' ? 'assistant' : 'user',
+          content: h.text,
+        })),
+        { role: 'user', content: msg },
+      ]
+      // Call backend — engine (OpenAI/Claude) decided server-side
+      const res = await fetch('/api/coach-manlaw', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          messages,
+          systemPrompt: COACH_SYSTEM,
+          tier:         vehicle,
+        }),
+      })
+      const data = await res.json()
+      const response = data.reply || 'Ready. What would you like to execute today?'
+      setManlawHist(prev => [...prev, { role:'user', text:msg }, { role:'manlaw', text:response }])
+    } catch (err: any) {
+      setManlawHist(prev => [...prev, { role:'user', text:msg }, { role:'manlaw', text:'Connection issue — please try again.' }])
+    }
     setManlawInput('')
     setManlawLoading(false)
   }
+
 
   // ── V1: MANUAL AI CALLS ───────────────────────────────
   const generateOffer = async () => {
@@ -764,13 +803,16 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               ))}
             </div>
             <div style={{ display:'flex', gap:'6px', overflowX:'auto', paddingBottom:'4px', marginBottom:'20px' }}>
-              {tabBtn('offer',    '🧠', 'Offer ✓')}
-              {tabBtn('finder',   '📲', 'Finder ✓')}
-              {tabBtn('post',     '✍️', 'Posts ✓')}
-              {tabBtn('reply',    '💬', unlocked ? 'Replies' : '🔒 Replies')}
-              {tabBtn('close',    '💸', unlocked ? 'Close' : '🔒 Close')}
-              {tabBtn('daily',    '🔁', unlocked ? 'Daily' : '🔒 Daily')}
-              {tabBtn('referral', '🔗', unlocked ? 'Referral' : '🔒 Referral')}
+              {/* Free tools */}
+              {tabBtn('offer',     '🧠', 'Offer ✓')}
+              {tabBtn('finder',    '📲', 'Finder ✓')}
+              {tabBtn('post',      '✍️', 'Posts ✓')}
+              {tabBtn('discovery', '🔍', 'Self-Discovery ✓')}
+              {/* Unlocked with Starter Pack */}
+              {tabBtn('reply',     '💬', unlocked ? 'Replies'  : '🔒 Replies')}
+              {tabBtn('close',     '💸', unlocked ? 'Close'    : '🔒 Close')}
+              {tabBtn('daily',     '🔁', unlocked ? 'Daily'    : '🔒 Daily')}
+              {tabBtn('referral',  '🔗', unlocked ? 'Referral' : '🔒 Referral')}
             </div>
 
             {/* Offer Generator */}
@@ -985,6 +1027,112 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
           </div>
         )}
 
+
+            {/* ── SELF-DISCOVERY TAB ────────────────────────────────── */}
+            {tab === 'discovery' && (
+              <div>
+                <h2 style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>🔍 Self-Discovery Engine</h2>
+                <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
+                  Answer 5 quick questions. Coach Manlaw identifies your strongest income path and your ideal first product.
+                </p>
+
+                {/* Step progress */}
+                <div style={{ display:'flex', gap:'6px', marginBottom:'20px' }}>
+                  {[0,1,2,3,4].map(i => (
+                    <div key={i} style={{ flex:1, height:'4px', borderRadius:'2px', background: discoveryStep > i ? '#7C3AED' : discoveryStep === i ? '#A78BFA' : 'rgba(255,255,255,0.1)' }} />
+                  ))}
+                </div>
+
+                {/* Questions */}
+                {!discResult && (
+                  <div>
+                    {[
+                      { q:'What do people most often ask you to help them with?', key:'skill', placeholder:'e.g. fix computers, write CVs, cook, teach Excel...' },
+                      { q:'How many hours per week can you dedicate to this?', key:'time', placeholder:'e.g. 5 hours, 2 hours daily, weekends only...' },
+                      { q:'What is your current biggest financial goal?', key:'goal', placeholder:'e.g. pay rent, extra R2,000/month, replace salary...' },
+                      { q:'Which feels most natural to you?', key:'style', placeholder:'e.g. talking to people, writing, teaching, creating, selling...' },
+                      { q:'What is your WhatsApp network like?', key:'network', placeholder:'e.g. mostly family, local business owners, young professionals...' },
+                    ].filter((_, i) => i === discoveryStep).map(({ q, key, placeholder }) => (
+                      <div key={key}>
+                        <div style={{ fontSize:'14px', fontWeight:700, color:'#fff', marginBottom:'12px', lineHeight:1.6 }}>
+                          Q{discoveryStep + 1} of 5: {q}
+                        </div>
+                        <textarea
+                          rows={3}
+                          value={discAnswers[key] || ''}
+                          onChange={e => setDiscAnswers(prev => ({ ...prev, [key]: e.target.value }))}
+                          placeholder={placeholder}
+                          style={{ width:'100%', padding:'12px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'12px', color:'#fff', fontSize:'13px', outline:'none', resize:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif' }}
+                        />
+                        <div style={{ display:'flex', gap:'8px', marginTop:'10px' }}>
+                          {discoveryStep > 0 && (
+                            <button onClick={() => setDiscoveryStep(s => s - 1)}
+                              style={{ padding:'10px 18px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', color:'rgba(255,255,255,0.6)', fontSize:'13px', cursor:'pointer' }}>
+                              ← Back
+                            </button>
+                          )}
+                          {discoveryStep < 4 ? (
+                            <button onClick={() => { if (discAnswers[key]?.trim()) setDiscoveryStep(s => s + 1) }}
+                              disabled={!discAnswers[key]?.trim()}
+                              style={{ flex:1, padding:'10px', background: discAnswers[key]?.trim() ? '#7C3AED' : 'rgba(255,255,255,0.1)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor: discAnswers[key]?.trim() ? 'pointer' : 'not-allowed' }}>
+                              Next →
+                            </button>
+                          ) : (
+                            <button onClick={async () => {
+                              setDiscLoading(true)
+                              const prompt = `You are Coach Manlaw — South African business coach. Analyse this person and give them their INCOME BLUEPRINT.
+
+Their answers:
+1. People ask me to help with: ${discAnswers.skill}
+2. Available time per week: ${discAnswers.time}
+3. Financial goal: ${discAnswers.goal}
+4. Natural style: ${discAnswers.style}
+5. WhatsApp network: ${discAnswers.network}
+
+Provide:
+🎯 YOUR INCOME IDENTITY: (one powerful sentence about who they are as a money-maker)
+💰 YOUR #1 INCOME PATH: (the single best way for them to make money based on their answers)
+📦 YOUR FIRST PRODUCT: (exact product name, price, and one-line pitch)
+👥 YOUR IDEAL CUSTOMER: (exactly who to contact and why)
+⚡ YOUR FIRST ACTION TODAY: (one specific thing to do in the next 2 hours)
+
+Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words.`
+                              const result = await callAI(prompt, undefined, 'starter')
+                              setDiscResult(result)
+                              setDiscLoading(false)
+                            }}
+                            disabled={discLoading || !discAnswers[key]?.trim()}
+                            style={{ flex:1, padding:'10px', background:'linear-gradient(135deg,#7C3AED,#4C1D95)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
+                              {discLoading ? '🤖 Analysing...' : '✨ Reveal My Income Blueprint →'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Result */}
+                {discResult && (
+                  <div>
+                    <div style={{ background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.3)', borderRadius:'14px', padding:'18px', marginBottom:'12px', fontSize:'13px', color:'rgba(255,255,255,0.9)', lineHeight:2, whiteSpace:'pre-wrap' as const }}>
+                      {discResult}
+                    </div>
+                    <div style={{ display:'flex', gap:'8px' }}>
+                      <button onClick={() => navigator.clipboard.writeText(discResult)}
+                        style={{ flex:1, padding:'10px', background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.3)', borderRadius:'10px', color:'#A78BFA', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
+                        📋 Copy Blueprint
+                      </button>
+                      <button onClick={() => { setDiscResult(''); setDiscoveryStep(0); setDiscAnswers({}) }}
+                        style={{ padding:'10px 16px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px', color:'rgba(255,255,255,0.5)', fontSize:'13px', cursor:'pointer' }}>
+                        Redo
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
         {/* ══ VEHICLE 2: AUTOMATIC ══ */}
         {vehicle === 'automatic' && (
           <div>
@@ -998,7 +1146,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               ))}
             </div>
             <div style={{ display:'flex', gap:'8px', marginBottom:'20px', overflowX:'auto' }}>
-              {[['multiply','🔁 Multiply Products'],['launch','🚀 1-Click Launch'],['sequence','📅 Follow-Up Sequence']].map(([val,lbl]) => (
+              {[['multiply','🔁 Multiply Products'],['launch','🚀 1-Click Launch'],['sequence','📅 Follow-Up Sequence'],['niche','🗺️ Niche Blueprint'],['funnel','📊 Sales Funnel'],['products','📦 5-Product Engine']].map(([val,lbl]) => (
                 <button key={val} onClick={() => { setV2Mode(val as any); setV2Result('') }}
                   style={{ padding:'10px 16px', borderRadius:'10px', cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'13px', fontWeight:700, whiteSpace:'nowrap' as const,
                     background: v2Mode===val?'rgba(8,145,178,0.15)':'rgba(255,255,255,0.04)',
@@ -1075,7 +1223,130 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
           </div>
         )}
 
-        {/* ══ VEHICLE 3: ELECTRIC ══ */}
+     
+              {/* ── NICHE BLUEPRINT ── */}
+              {v2Mode === 'niche' && (
+                <div>
+                  <h3 style={{ fontSize:'15px', fontWeight:700, color:'#fff', marginBottom:'8px' }}>🗺️ Niche Blueprint Generator</h3>
+                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'14px' }}>Enter your skill or idea — get your complete niche business blueprint.</p>
+                  <textarea rows={3} value={nicheInput} onChange={e => setNicheInput(e.target.value)}
+                    placeholder="e.g. I am good at social media management for small restaurants..."
+                    style={{ width:'100%', padding:'12px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'12px', color:'#fff', fontSize:'13px', outline:'none', resize:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif', marginBottom:'10px' }} />
+                  <button onClick={async () => {
+                    if (!nicheInput.trim()) return
+                    setNicheLoading(true); setNicheResult('')
+                    const r = await callAI(`You are Coach Manlaw. Create a NICHE BLUEPRINT for this South African entrepreneur:
+
+Their skill/idea: "${nicheInput}"
+
+Provide:
+🎯 NICHE NAME: (what to call this business)
+👥 TARGET CUSTOMER: (exact person, age, problem, location)
+💰 INCOME MODEL: (exactly how they make money)
+📦 CORE OFFER: (main product/service, price in ZAR)
+📱 MARKETING CHANNEL: (where to find customers — WhatsApp, Facebook, etc)
+🏆 COMPETITIVE EDGE: (why clients choose them over others)
+⚡ FIRST 3 CLIENTS: (how to get the first 3 paying customers this week)
+
+Be extremely specific. South African context. ZAR prices. Under 300 words.`, undefined, 'silver')
+                    setNicheResult(r); setNicheLoading(false)
+                  }} disabled={nicheLoading || !nicheInput.trim()}
+                    style={{ width:'100%', padding:'12px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
+                    {nicheLoading ? '🤖 Building Blueprint...' : '🗺️ Generate My Niche Blueprint →'}
+                  </button>
+                  {nicheResult && (
+                    <div style={{ marginTop:'14px', background:'rgba(8,145,178,0.08)', border:'1px solid rgba(8,145,178,0.2)', borderRadius:'12px', padding:'16px', fontSize:'13px', color:'rgba(255,255,255,0.9)', lineHeight:2, whiteSpace:'pre-wrap' as const }}>
+                      {nicheResult}
+                      <button onClick={() => navigator.clipboard.writeText(nicheResult)}
+                        style={{ display:'block', marginTop:'10px', padding:'8px 16px', background:'rgba(8,145,178,0.15)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                        📋 Copy Blueprint
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 5-PRODUCT ENGINE ── */}
+              {v2Mode === 'products' && (
+                <div>
+                  <h3 style={{ fontSize:'15px', fontWeight:700, color:'#fff', marginBottom:'8px' }}>📦 5-Product Income Engine</h3>
+                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'14px' }}>One idea → 5 sellable products with prices and pitches. Silver builders get 5–7 products.</p>
+                  <input type="text" value={productIdea} onChange={e => setProductIdea(e.target.value)}
+                    placeholder="Your business idea or skill..."
+                    style={{ width:'100%', padding:'12px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'10px', color:'#fff', fontSize:'13px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif', marginBottom:'10px' }} />
+                  <button onClick={async () => {
+                    if (!productIdea.trim()) return
+                    setProductLoading(true); setProductResult('')
+                    const r = await callAI(`You are Coach Manlaw. From ONE idea, create 5 distinct sellable digital products for a South African entrepreneur.
+
+Their idea/skill: "${productIdea}"
+
+For each product provide:
+PRODUCT [N]: [Name]
+Price: R[amount]
+Format: [eBook/Mini-course/Template/Service/Membership]
+One-line pitch: "[pitch]"
+Who buys it: [exact customer type]
+
+Make them different price points (R50 → R500 range). All must be deliverable via WhatsApp or email. South African context. Be specific and creative.`, undefined, 'silver')
+                    setProductResult(r); setProductLoading(false)
+                  }} disabled={productLoading || !productIdea.trim()}
+                    style={{ width:'100%', padding:'12px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
+                    {productLoading ? '🤖 Building Products...' : '📦 Generate 5 Products →'}
+                  </button>
+                  {productResult && (
+                    <div style={{ marginTop:'14px', background:'rgba(8,145,178,0.08)', border:'1px solid rgba(8,145,178,0.2)', borderRadius:'12px', padding:'16px', fontSize:'13px', color:'rgba(255,255,255,0.9)', lineHeight:2, whiteSpace:'pre-wrap' as const }}>
+                      {productResult}
+                      <button onClick={() => navigator.clipboard.writeText(productResult)}
+                        style={{ display:'block', marginTop:'10px', padding:'8px 16px', background:'rgba(8,145,178,0.15)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                        📋 Copy All Products
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── SALES FUNNEL ── */}
+              {v2Mode === 'funnel' && (
+                <div>
+                  <h3 style={{ fontSize:'15px', fontWeight:700, color:'#fff', marginBottom:'8px' }}>📊 Sales Funnel Builder</h3>
+                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'14px' }}>Build a complete WhatsApp sales funnel for your product in seconds.</p>
+                  <input type="text" value={funnelInput} onChange={e => setFunnelInput(e.target.value)}
+                    placeholder="Your product name and price (e.g. CV Writing Service R150)..."
+                    style={{ width:'100%', padding:'12px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'10px', color:'#fff', fontSize:'13px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif', marginBottom:'10px' }} />
+                  <button onClick={async () => {
+                    if (!funnelInput.trim()) return
+                    setFunnelLoading(true); setFunnelResult('')
+                    const r = await callAI(`You are Coach Manlaw. Build a complete 5-step WhatsApp sales funnel for this South African product.
+
+Product: "${funnelInput}"
+
+Provide copy-paste ready messages for:
+STEP 1 — AWARENESS (WhatsApp Status or Facebook post to attract attention)
+STEP 2 — INTEREST (DM to anyone who reacts or replies)
+STEP 3 — DESIRE (Follow-up message that builds value)
+STEP 4 — CLOSE (Direct ask for the sale with payment instruction)
+STEP 5 — REFERRAL (Message after payment to get referrals)
+
+Each message under 80 words. Conversational South African tone. Include [NAME] placeholders. Be specific to the product.`, undefined, 'silver')
+                    setFunnelResult(r); setFunnelLoading(false)
+                  }} disabled={funnelLoading || !funnelInput.trim()}
+                    style={{ width:'100%', padding:'12px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
+                    {funnelLoading ? '🤖 Building Funnel...' : '📊 Build My Sales Funnel →'}
+                  </button>
+                  {funnelResult && (
+                    <div style={{ marginTop:'14px', background:'rgba(8,145,178,0.08)', border:'1px solid rgba(8,145,178,0.2)', borderRadius:'12px', padding:'16px', fontSize:'13px', color:'rgba(255,255,255,0.9)', lineHeight:2, whiteSpace:'pre-wrap' as const }}>
+                      {funnelResult}
+                      <button onClick={() => navigator.clipboard.writeText(funnelResult)}
+                        style={{ display:'block', marginTop:'10px', padding:'8px 16px', background:'rgba(8,145,178,0.15)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', color:'#38BDF8', fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                        📋 Copy Full Funnel
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+   {/* ══ VEHICLE 3: ELECTRIC ══ */}
         {vehicle === 'electric' && (
           <div>
             {/* API Power Banner */}
@@ -1218,6 +1489,79 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
                 style={{ padding:'12px 20px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer' }}>
                 →
               </button>
+
+            {/* ── DIGITAL TWIN (Electric Power Only) ───────────────────── */}
+            <div style={{ marginTop:'20px', background:'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(212,175,55,0.03))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'18px', padding:'22px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'14px' }}>
+                <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:'rgba(212,175,55,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0 }}>🎭</div>
+                <div>
+                  <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'15px', fontWeight:900, color:GOLD }}>Digital Twin Creator</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)' }}>Clone your voice and message style — sell while you sleep</div>
+                </div>
+                <div style={{ marginLeft:'auto', fontSize:'10px', fontWeight:700, padding:'3px 10px', background:'rgba(212,175,55,0.15)', borderRadius:'20px', color:GOLD }}>⚡ ELECTRIC</div>
+              </div>
+              <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.7 }}>
+                Your Digital Twin is an AI version of you that handles enquiries, sends follow-ups, and qualifies leads — even when you are offline. It speaks in your exact style.
+              </p>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'14px' }}>
+                <div>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'4px', textTransform:'uppercase', letterSpacing:'1px' }}>Your Name</label>
+                  <input type="text" value={twinName} onChange={e => setTwinName(e.target.value)}
+                    placeholder="e.g. Thabo Mokoena"
+                    style={{ width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'10px', color:'#fff', fontSize:'13px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'4px', textTransform:'uppercase', letterSpacing:'1px' }}>Your Business</label>
+                  <input type="text" value={twinStyle} onChange={e => setTwinStyle(e.target.value)}
+                    placeholder="e.g. CV Writing Service"
+                    style={{ width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'10px', color:'#fff', fontSize:'13px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif' }} />
+                </div>
+              </div>
+              <button onClick={async () => {
+                if (!twinName.trim() || !twinStyle.trim()) return
+                setTwinLoading(true); setTwinResult('')
+                const r = await callAI(`You are Coach Manlaw. Create a Digital Twin script package for ${twinName} who runs a ${twinStyle} business.
+
+Generate 5 WhatsApp message templates their Digital Twin will use automatically:
+
+1. ENQUIRY RESPONSE (when someone asks "how much?"):
+[message under 60 words]
+
+2. FOLLOW-UP (sent 24hrs after no reply):
+[message under 50 words]
+
+3. OBJECTION HANDLER (when they say "let me think"):
+[message under 60 words]
+
+4. PAYMENT RECEIVED (thank you + what happens next):
+[message under 60 words]
+
+5. REFERRAL REQUEST (after delivery):
+[message under 50 words]
+
+All messages must sound exactly like ${twinName} — warm, professional, South African. Use "I" as if ${twinName} is writing personally.`, undefined, 'gold')
+                setTwinResult(r); setTwinLoading(false)
+              }} disabled={twinLoading || !twinName.trim() || !twinStyle.trim()}
+                style={{ width:'100%', padding:'12px', background: twinName.trim() && twinStyle.trim() ? `linear-gradient(135deg,${GOLD},#B8860B)` : 'rgba(255,255,255,0.08)', border:'none', borderRadius:'12px', color: twinName.trim() && twinStyle.trim() ? '#1E1245' : 'rgba(255,255,255,0.3)', fontWeight:700, fontSize:'13px', cursor: twinName.trim() && twinStyle.trim() ? 'pointer' : 'not-allowed', fontFamily:'Cinzel,Georgia,serif' }}>
+                {twinLoading ? '🤖 Cloning Your Voice...' : '🎭 Create My Digital Twin Scripts →'}
+              </button>
+              {twinResult && (
+                <div style={{ marginTop:'14px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'12px', padding:'16px' }}>
+                  <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.85)', lineHeight:2, whiteSpace:'pre-wrap' as const, marginBottom:'12px' }}>{twinResult}</div>
+                  <div style={{ display:'flex', gap:'8px' }}>
+                    <button onClick={() => navigator.clipboard.writeText(twinResult)}
+                      style={{ flex:1, padding:'9px', background:'rgba(212,175,55,0.12)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'9px', color:GOLD, fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
+                      📋 Copy All Scripts
+                    </button>
+                    <button onClick={() => { setTwinResult(''); setTwinName(''); setTwinStyle('') }}
+                      style={{ padding:'9px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'9px', color:'rgba(255,255,255,0.4)', fontSize:'12px', cursor:'pointer' }}>
+                      Redo
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             </div>
           </div>
         </div>
