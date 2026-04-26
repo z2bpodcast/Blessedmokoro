@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model:      'gpt-3.5-turbo',
+        model:      'gpt-4.1-mini',
         max_tokens: 500,
         messages: [
           { role: 'system', content: COACH_SYSTEM },
@@ -85,4 +85,4 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Sun, Apr 26, 2026  9:15:26 PM
+// Sun, Apr 26, 2026  9:25:44 PM
