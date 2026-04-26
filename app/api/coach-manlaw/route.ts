@@ -34,7 +34,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, systemPrompt, tier } = await req.json()
+    const body = await req.json()
+    const { messages, systemPrompt, tier } = body
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'messages required' }, { status: 400 })
@@ -43,6 +44,18 @@ export async function POST(req: NextRequest) {
     const apiKey = (process.env.OPENAI_API_KEY || '').trim()
 
     console.log(`[Manlaw] key_length=${apiKey.length} key_prefix=${apiKey.slice(0,7)} tier=${tier}`)
+
+    // Return debug info if requested
+    if (body?.debug) {
+      return NextResponse.json({
+        debug: true,
+        openai_key_length: apiKey.length,
+        openai_key_prefix: apiKey.slice(0, 7),
+        openai_key_suffix: apiKey.slice(-4),
+        has_key: apiKey.length > 20,
+        env_keys: Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY')),
+      })
+    }
 
     if (!apiKey || apiKey.length < 20) {
       return NextResponse.json({
