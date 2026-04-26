@@ -1033,8 +1033,6 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
                 </div>
               </div>
             )}
-          </div>
-        )}
             {/* ── SELF-DISCOVERY TAB ────────────────────────────────── */}
             {tab === 'discovery' && (
               <div>
@@ -1120,6 +1118,8 @@ Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words
                     ))}
                   </div>
                 )}
+          </div>
+        )}
 
                 {/* Result */}
                 {discResult && (
@@ -1140,8 +1140,6 @@ Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words
                   </div>
                 )}
                 </div>}
-              </div>
-            )}
               </div>
             )}
           </div>
@@ -1601,6 +1599,7 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
           </div>
         </div>
       )}
+    </div>
     </div>
     </div>
   )
