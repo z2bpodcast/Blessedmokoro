@@ -1118,8 +1118,6 @@ Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words
                     ))}
                   </div>
                 )}
-          </div>
-        )}
 
                 {/* Result */}
                 {discResult && (
@@ -1599,6 +1597,7 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
           </div>
         </div>
       )}
+    </div>
     </div>
     </div>
     </div>
