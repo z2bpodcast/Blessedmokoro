@@ -13,8 +13,7 @@ type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks
 type Vehicle = 'manual'|'automatic'|'electric'
 
 async function callAI(prompt: string, systemPrompt?: string, tier?: string): Promise<string> {
-  // Routes through backend — engine selection (OpenAI/Claude) is handled server-side
-  // Frontend never knows which AI is running
+  // Routes through backend — engine selection handled server-side
   const res = await fetch('/api/coach-manlaw', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,6 +26,11 @@ async function callAI(prompt: string, systemPrompt?: string, tier?: string): Pro
   const data = await res.json()
   if (data.error) throw new Error(data.error)
   return data.reply || ''
+}
+
+// ── TIER GATE HELPER ─────────────────────────────────────────────────────────
+const TIER_RANK: Record<string,number> = {
+  guest:0, starter:1, bronze:2, copper:3, silver:4, gold:5, platinum:6
 }
 
 const COACH_SYSTEM = `You are Coach Manlaw – The Executor. The intelligence engine behind the 4M: Mobile Money Making Machine.
@@ -181,7 +185,7 @@ function AIIncomeInner() {
 
   // Automatic (V2) states
   const [v2Product,    setV2Product]    = useState<number>(0)
-  const [v2Mode,       setV2Mode]       = useState<'multiply'|'launch'|'sequence'>('multiply')
+  const [v2Mode,       setV2Mode]       = useState<'multiply'|'launch'|'sequence'|'niche'|'products'|'funnel'>('multiply')
   const [v2Result,     setV2Result]     = useState('')
   const [v2Loading,    setV2Loading]    = useState(false)
 
@@ -221,6 +225,9 @@ function AIIncomeInner() {
   // Referral
   const [refCopied,    setRefCopied]    = useState(false)
   const [myCommissions,setMyCommissions]= useState<any[]>([])
+  const [builderTier,  setBuilderTier]  = useState<string>('guest')  // guest|starter|bronze|copper|silver|gold|platinum
+  // Tier rank map for gating — available throughout component
+  const TIER_RANK: Record<string,number> = { guest:0, starter:1, bronze:2, copper:3, silver:4, gold:5, platinum:6 }
 
   // Self-Discovery & Advanced features
   const [discoveryStep,  setDiscoveryStep]  = useState(0)
@@ -251,6 +258,8 @@ function AIIncomeInner() {
           supabase.from('ai_income_commissions').select('*').eq('referrer_id', u.id).order('created_at', { ascending: false }),
         ])
         setProfile(prof)
+        if (prof?.paid_tier) setBuilderTier(prof.paid_tier)
+        else if (unlock)     setBuilderTier('starter')
         if (unlock) setUnlocked(true)
         setMyCommissions(comms || [])
       }
@@ -276,7 +285,7 @@ function AIIncomeInner() {
         })),
         { role: 'user', content: msg },
       ]
-      // Call backend — engine (OpenAI/Claude) decided server-side
+      // Call backend — engine decided server-side
       const res = await fetch('/api/coach-manlaw', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -796,7 +805,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             {/* API Power Banner */}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(124,58,237,0.06)', border:'1px solid rgba(124,58,237,0.15)', borderRadius:'12px', alignItems:'center' }}>
               <span style={{ fontSize:'11px', color:'rgba(124,58,237,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['📧','Resend','#0891B2']].map(([icon,name,color]) => (
+              {[['🤖','AI Writing Engine','#7C3AED'],['🎙️','Voice Coach','#E11D48'],['📧','Smart Notifications','#0891B2']].map(([icon,name,color]) => (
                 <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
                   {icon} {name}
                 </span>
@@ -1016,7 +1025,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
                   <div style={{ fontSize:'11px', color:'rgba(8,145,178,0.6)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>NEXT LEVEL AWAITS</div>
                   <div style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'6px' }}>⚙️ Tired of doing everything manually?</div>
                   <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.7, margin:'0 0 14px' }}>
-                    Upgrade to Silver — your 4M Machine starts working WITH you. Product multiplication, 1-click launch packs, 5-day follow-up sequences, and Buffer auto-posting. From struggle to FLOW.
+                    Upgrade to Silver — your 4M Machine starts working WITH you. Product multiplication, 1-click launch packs, 5-day follow-up sequences, and automatic post scheduling. From struggle to FLOW.
                   </p>
                   <Link href="/pricing?power=automatic" style={{ display:'inline-block', padding:'11px 26px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'2px solid #38BDF8', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
                     ⚙️ Upgrade to Automatic Mode (Silver) →
@@ -1031,6 +1040,8 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
             {/* ── SELF-DISCOVERY TAB ────────────────────────────────── */}
             {tab === 'discovery' && (
               <div>
+                <TierGate required="copper" current={builderTier} featureName="Self-Discovery Engine" GOLD={GOLD} PURP={PURP} />
+                {TIER_RANK[builderTier] >= TIER_RANK['copper'] && <div>
                 <h2 style={{ fontSize:'16px', fontWeight:700, color:'#fff', marginBottom:'4px' }}>🔍 Self-Discovery Engine</h2>
                 <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'20px' }}>
                   Answer 5 quick questions. Coach Manlaw identifies your strongest income path and your ideal first product.
@@ -1130,6 +1141,7 @@ Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words
                     </div>
                   </div>
                 )}
+                </div>}
               </div>
             )}
 
@@ -1139,7 +1151,7 @@ Be direct. Be specific. South African context. Use ZAR prices. Maximum 250 words
             {/* API Power Banner */}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(8,145,178,0.06)', border:'1px solid rgba(8,145,178,0.15)', borderRadius:'12px', alignItems:'center' }}>
               <span style={{ fontSize:'11px', color:'rgba(8,145,178,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI','#0891B2'],['📅','Buffer','#0891B2'],['🔗','Make.com','#6D28D9'],['🎨','Canva API','#00C4CC'],['📧','Resend','#059669']].map(([icon,name,color]) => (
+              {[['🤖','AI Business Engine','#0891B2'],['📅','Auto-Scheduler','#0891B2'],['🔗','Workflow Engine','#6D28D9'],['🎨','Design Generator','#00C4CC'],['📧','Smart Notifications','#059669']].map(([icon,name,color]) => (
                 <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
                   {icon} {name}
                 </span>
@@ -1266,18 +1278,25 @@ Be extremely specific. South African context. ZAR prices. Under 300 words.`, und
                 </div>
               )}
 
-              {/* ── 5-PRODUCT ENGINE ── */}
+              {/* ── PRODUCT ENGINE ── */}
               {v2Mode === 'products' && (
                 <div>
-                  <h3 style={{ fontSize:'15px', fontWeight:700, color:'#fff', marginBottom:'8px' }}>📦 5-Product Income Engine</h3>
-                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'14px' }}>One idea → 5 sellable products with prices and pitches. Silver builders get 5–7 products.</p>
+                  <TierGate required="bronze" current={builderTier} featureName="Product Income Engine" GOLD={GOLD} PURP={PURP} />
+                  {TIER_RANK[builderTier] >= TIER_RANK['bronze'] && <div>
+                  <h3 style={{ fontSize:'15px', fontWeight:700, color:'#fff', marginBottom:'8px' }}>
+                    📦 {builderTier === 'bronze' ? '2' : builderTier === 'copper' ? '5' : '7'}-Product Income Engine
+                  </h3>
+                  <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', marginBottom:'14px' }}>
+                    {builderTier === 'bronze' ? 'Bronze: 1 idea → 2 sellable products' : builderTier === 'copper' ? 'Copper: 1 idea → 5 products' : 'Silver+: 1 idea → 7 products with pitches and prices'}
+                  </p>
                   <input type="text" value={productIdea} onChange={e => setProductIdea(e.target.value)}
                     placeholder="Your business idea or skill..."
                     style={{ width:'100%', padding:'12px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'10px', color:'#fff', fontSize:'13px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif', marginBottom:'10px' }} />
                   <button onClick={async () => {
                     if (!productIdea.trim()) return
                     setProductLoading(true); setProductResult('')
-                    const r = await callAI(`You are Coach Manlaw. From ONE idea, create 5 distinct sellable digital products for a South African entrepreneur.
+                    const productCount = builderTier === 'bronze' ? 2 : builderTier === 'copper' ? 5 : 7
+                    const r = await callAI(`You are Coach Manlaw. From ONE idea, create exactly ${productCount} distinct sellable digital products for a South African entrepreneur.
 
 Their idea/skill: "${productIdea}"
 
@@ -1288,7 +1307,7 @@ Format: [eBook/Mini-course/Template/Service/Membership]
 One-line pitch: "[pitch]"
 Who buys it: [exact customer type]
 
-Make them different price points (R50 → R500 range). All must be deliverable via WhatsApp or email. South African context. Be specific and creative.`, undefined, 'silver')
+Make them different price points (R50 → R500 range). All must be deliverable via WhatsApp or email. South African context. Be specific and creative.`, undefined, builderTier)
                     setProductResult(r); setProductLoading(false)
                   }} disabled={productLoading || !productIdea.trim()}
                     style={{ width:'100%', padding:'12px', background:'linear-gradient(135deg,#0891B2,#0284C7)', border:'none', borderRadius:'10px', color:'#fff', fontSize:'13px', fontWeight:700, cursor:'pointer' }}>
@@ -1303,6 +1322,7 @@ Make them different price points (R50 → R500 range). All must be deliverable v
                       </button>
                     </div>
                   )}
+                  </div>}
                 </div>
               )}
 
@@ -1352,7 +1372,7 @@ Each message under 80 words. Conversational South African tone. Include [NAME] p
             {/* API Power Banner */}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px', padding:'12px 14px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'12px', alignItems:'center' }}>
               <span style={{ fontSize:'11px', color:'rgba(212,175,55,0.6)', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginRight:'4px' }}>Powered by:</span>
-              {[['🤖','Claude AI',GOLD],['🎥','D-ID Avatars','#EC4899'],['🖼️','Replicate','#7C3AED'],['🎙️','ElevenLabs','#E11D48'],['⚡','n8n Workflows','#FF6D00'],['📅','Buffer','#0891B2']].map(([icon,name,color]) => (
+              {[['🤖','Elite AI Engine',GOLD],['🎥','Video Avatar System','#EC4899'],['🖼️','Visual Creator','#7C3AED'],['🎙️','Voice Cloning','#E11D48'],['⚡','Automation Engine','#FF6D00'],['📅','Content Scheduler','#0891B2']].map(([icon,name,color]) => (
                 <span key={name as string} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 10px', background:`${color as string}12`, border:`1px solid ${color as string}30`, borderRadius:'20px', fontSize:'11px', color:color as string, fontWeight:700 }}>
                   {icon} {name}
                 </span>
@@ -1490,13 +1510,19 @@ Each message under 80 words. Conversational South African tone. Include [NAME] p
                 →
               </button>
 
-            {/* ── DIGITAL TWIN (Electric Power Only) ───────────────────── */}
+            {/* ── DIGITAL TWIN — Silver+ ───────────────────── */}
+            <TierGate required="silver" current={builderTier} featureName="Digital Twin Creator" GOLD={GOLD} PURP={PURP} />
+            {TIER_RANK[builderTier] >= TIER_RANK['silver'] && (
             <div style={{ marginTop:'20px', background:'linear-gradient(135deg,rgba(212,175,55,0.08),rgba(212,175,55,0.03))', border:'2px solid rgba(212,175,55,0.3)', borderRadius:'18px', padding:'22px' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'14px' }}>
                 <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:'rgba(212,175,55,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0 }}>🎭</div>
                 <div>
-                  <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'15px', fontWeight:900, color:GOLD }}>Digital Twin Creator</div>
-                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)' }}>Clone your voice and message style — sell while you sleep</div>
+                  <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'15px', fontWeight:900, color:GOLD }}>
+                    {builderTier === 'silver' ? '1 Digital Twin' : builderTier === 'gold' ? '5 Digital Twins' : '7 Digital Twins'} Creator
+                  </div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)' }}>
+                    {builderTier === 'silver' ? 'Silver: 1 Twin · ' : builderTier === 'gold' ? 'Gold: 1 Twin per PWA · ' : 'Platinum: 7 Twins · '}Clone your voice and message style
+                  </div>
                 </div>
                 <div style={{ marginLeft:'auto', fontSize:'10px', fontWeight:700, padding:'3px 10px', background:'rgba(212,175,55,0.15)', borderRadius:'20px', color:GOLD }}>⚡ ELECTRIC</div>
               </div>
@@ -1520,9 +1546,10 @@ Each message under 80 words. Conversational South African tone. Include [NAME] p
               <button onClick={async () => {
                 if (!twinName.trim() || !twinStyle.trim()) return
                 setTwinLoading(true); setTwinResult('')
+                const twinCount = builderTier === 'silver' ? 1 : builderTier === 'gold' ? 5 : builderTier === 'platinum' ? 7 : 1
                 const r = await callAI(`You are Coach Manlaw. Create a Digital Twin script package for ${twinName} who runs a ${twinStyle} business.
 
-Generate 5 WhatsApp message templates their Digital Twin will use automatically:
+Generate ${twinCount} Digital Twin WhatsApp script package(s). For each Twin, provide these 5 message templates:
 
 1. ENQUIRY RESPONSE (when someone asks "how much?"):
 [message under 60 words]
@@ -1539,7 +1566,7 @@ Generate 5 WhatsApp message templates their Digital Twin will use automatically:
 5. REFERRAL REQUEST (after delivery):
 [message under 50 words]
 
-All messages must sound exactly like ${twinName} — warm, professional, South African. Use "I" as if ${twinName} is writing personally.`, undefined, 'gold')
+All messages must sound exactly like ${twinName} — warm, professional, South African. Use "I" as if ${twinName} is writing personally.`, undefined, builderTier)
                 setTwinResult(r); setTwinLoading(false)
               }} disabled={twinLoading || !twinName.trim() || !twinStyle.trim()}
                 style={{ width:'100%', padding:'12px', background: twinName.trim() && twinStyle.trim() ? `linear-gradient(135deg,${GOLD},#B8860B)` : 'rgba(255,255,255,0.08)', border:'none', borderRadius:'12px', color: twinName.trim() && twinStyle.trim() ? '#1E1245' : 'rgba(255,255,255,0.3)', fontWeight:700, fontSize:'13px', cursor: twinName.trim() && twinStyle.trim() ? 'pointer' : 'not-allowed', fontFamily:'Cinzel,Georgia,serif' }}>
@@ -1566,6 +1593,37 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ── TIER GATE COMPONENT ──────────────────────────────────────────────────────
+// Shows locked state when user's tier is below required tier
+function TierGate({ required, current, featureName, GOLD, PURP }:
+  { required: string; current: string; featureName: string; GOLD: string; PURP: string }) {
+  const TIER_RANK: Record<string,number> = {
+    guest:0, starter:1, bronze:2, copper:3, silver:4, gold:5, platinum:6
+  }
+  const TIER_LABEL: Record<string,string> = {
+    starter:'Starter Pack (R500)', bronze:'Bronze (R2,500)', copper:'Copper (R5,000)',
+    silver:'Silver (R12,000)',     gold:'Gold (R24,000)',    platinum:'Platinum (R50,000)'
+  }
+  const hasAccess = (TIER_RANK[current] || 0) >= (TIER_RANK[required] || 0)
+  if (hasAccess) return null
+
+  return (
+    <div style={{ textAlign:'center', padding:'28px 20px', background:'rgba(212,175,55,0.06)', border:`2px solid rgba(212,175,55,0.25)`, borderRadius:'16px', marginTop:'8px' }}>
+      <div style={{ fontSize:'32px', marginBottom:'12px' }}>🔒</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:900, color:'#fff', marginBottom:'6px' }}>
+        {featureName}
+      </div>
+      <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.7 }}>
+        This feature requires <strong style={{ color:GOLD }}>{TIER_LABEL[required]}</strong> or above.
+        Your current tier: <strong style={{ color:'rgba(255,255,255,0.7)' }}>{TIER_LABEL[current] || 'Guest'}</strong>
+      </div>
+      <a href="/pricing" style={{ display:'inline-block', padding:'11px 28px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`1.5px solid ${GOLD}`, borderRadius:'10px', color:GOLD, fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+        Upgrade to {TIER_LABEL[required]} →
+      </a>
     </div>
   )
 }
