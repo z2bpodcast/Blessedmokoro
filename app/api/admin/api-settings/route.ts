@@ -1,66 +1,83 @@
 // FILE: app/api/admin/api-settings/route.ts
-// Admin API key manager — status check + Vercel env var instructions
-// OpenAI added as primary AI engine
+// Admin API key manager — saves keys to Supabase, reads at runtime
+// No Vercel dashboard needed — paste key in Admin panel = live immediately
 
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-const ENV_MAP: Record<string, string[]> = {
-  // AI Engines — top priority
-  openai:          ['OPENAI_API_KEY'],
-  anthropic:       ['ANTHROPIC_API_KEY'],
-  // Core platform
-  supabase_service:['SUPABASE_SERVICE_ROLE_KEY'],
-  yoco:            ['YOCO_SECRET_KEY', 'YOCO_WEBHOOK_SECRET'],
-  resend:          ['RESEND_API_KEY'],
-  // Manual power
-  elevenlabs:      ['ELEVENLABS_API_KEY', 'ELEVENLABS_VOICE_ID'],
-  assembly:        ['ASSEMBLYAI_API_KEY'],
-  // Automatic power
-  buffer:          ['BUFFER_ACCESS_TOKEN'],
-  make:            ['MAKE_WEBHOOK_URL'],
-  canva:           ['CANVA_API_KEY'],
-  // Electric power
-  did:             ['DID_API_KEY'],
-  replicate:       ['REPLICATE_API_TOKEN'],
-  n8n:             ['N8N_WEBHOOK_URL'],
-  twilio:          ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN'],
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const ENV_MAP: Record<string, string> = {
+  openai:     'OPENAI_API_KEY',
+  anthropic:  'ANTHROPIC_API_KEY',
+  elevenlabs: 'ELEVENLABS_API_KEY',
+  resend:     'RESEND_API_KEY',
+  yoco:       'YOCO_SECRET_KEY',
+  replicate:  'REPLICATE_API_TOKEN',
+  did:        'DID_API_KEY',
+  buffer:     'BUFFER_ACCESS_TOKEN',
 }
 
-// ── GET: Return connection status for all APIs ────────────────────────────────
+// ── GET: Return status of all keys ───────────────────────────────────────────
 export async function GET() {
-  const statuses: Record<string, string> = {}
-  for (const [id, keys] of Object.entries(ENV_MAP)) {
-    const primary = process.env[keys[0]]
-    statuses[id] = primary && primary.length > 10 ? 'connected' : 'missing'
+  const { data: rows } = await supabase
+    .from('z2b_api_keys')
+    .select('key_name, key_value')
+
+  const stored: Record<string, boolean> = {}
+  for (const row of rows || []) {
+    stored[row.key_name] = row.key_value?.length > 10
   }
 
-  // Extra info: which AI engine is active
-  const openaiActive    = !!process.env.OPENAI_API_KEY    && process.env.OPENAI_API_KEY.length > 10
-  const anthropicActive = !!process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.length > 10
-  const activeEngine    = openaiActive ? 'openai' : anthropicActive ? 'anthropic' : 'none'
+  const statuses: Record<string, string> = {}
+  for (const [id, envKey] of Object.entries(ENV_MAP)) {
+    const fromEnv     = process.env[envKey]
+    const fromDB      = stored[envKey]
+    statuses[id] = (fromEnv && fromEnv.length > 10) || fromDB ? 'connected' : 'missing'
+  }
 
-  return NextResponse.json({ statuses, activeEngine, values: {} })
+  const openaiKey    = await getKey('OPENAI_API_KEY')
+  const anthropicKey = await getKey('ANTHROPIC_API_KEY')
+  const activeEngine = openaiKey ? 'openai' : anthropicKey ? 'anthropic' : 'none'
+
+  return NextResponse.json({ statuses, activeEngine })
 }
 
-// ── POST: Return Vercel instructions for adding the key ───────────────────────
+// ── POST: Save key to Supabase ────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
-    const { id, value, value2 } = await req.json()
-    const keys = ENV_MAP[id]
-    if (!keys) return NextResponse.json({ error: 'Unknown API ID' }, { status: 400 })
-    if (!value || value.trim().length < 5) return NextResponse.json({ error: 'Key is too short' }, { status: 400 })
+    const { id, value } = await req.json()
+    const envKey = ENV_MAP[id]
+    if (!envKey) return NextResponse.json({ error: 'Unknown API' }, { status: 400 })
+    if (!value || value.trim().length < 10) return NextResponse.json({ error: 'Key too short' }, { status: 400 })
 
-    const keyNames = keys.join(' and ')
-    const instruction = `Add ${keyNames} to Vercel → Your Project → Settings → Environment Variables → Save → Redeploy`
+    const { error } = await supabase
+      .from('z2b_api_keys')
+      .upsert({ key_name: envKey, key_value: value.trim() }, { onConflict: 'key_name' })
 
-    return NextResponse.json({
-      ok:          true,
-      instruction,
-      envKey:      keys[0],
-      envKey2:     keys[1] || null,
-      // We return the instruction but never store or log the actual key value
-    })
+    if (error) throw error
+
+    return NextResponse.json({ ok: true, message: `${envKey} saved — active immediately` })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
+}
+
+// ── Helper: get key from DB or env ────────────────────────────────────────────
+export async function getKey(keyName: string): Promise<string> {
+  // Check env first (Vercel)
+  const fromEnv = process.env[keyName]
+  if (fromEnv && fromEnv.length > 10) return fromEnv
+
+  // Check Supabase (Admin panel)
+  const { data } = await supabase
+    .from('z2b_api_keys')
+    .select('key_value')
+    .eq('key_name', keyName)
+    .single()
+
+  return data?.key_value || ''
 }
