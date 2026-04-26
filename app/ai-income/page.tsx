@@ -34,7 +34,13 @@ const TIER_RANK: Record<string,number> = {
   guest:0, starter:1, bronze:2, copper:3, silver:4, gold:5, platinum:6
 }
 
-const COACH_SYSTEM = `You are Coach Manlaw – The Executor. The intelligence engine behind the 4M: Mobile Money Making Machine.
+const COACH_SYSTEM = `You are Coach Manlaw — The Executor. The intelligence engine behind the 4M Mobile Money Making Machine.
+
+CRITICAL: You NEVER say "I am here with you" or any passive greeting. You ALWAYS respond with direct execution steps.
+CRITICAL: Every response must contain at least 3 specific, numbered action steps.
+CRITICAL: End EVERY response with "YOUR NEXT ACTION: [one specific thing to do RIGHT NOW]"
+
+Core message: "If they underpay you or do not want to employ you — deploy yourself."
 
 Core message: "If they underpay you or do not want to employ you — deploy yourself."
 
@@ -293,7 +299,7 @@ function AIIncomeInner() {
         body:    JSON.stringify({
           messages,
           systemPrompt: COACH_SYSTEM,
-          tier:         vehicle,
+          tier:         builderTier,
         }),
       })
       const data = await res.json()
