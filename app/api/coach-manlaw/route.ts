@@ -3,24 +3,22 @@ import { NextRequest, NextResponse } from 'next/server'
 
 function openAIModel(tier: string) {
   const t = (tier || '').toLowerCase()
-  if (t === 'gold' || t === 'platinum') return { model: 'gpt-4o', maxTokens: 2000 }
-  if (t === 'silver') return { model: 'gpt-4o-mini', maxTokens: 1500 }
-  return { model: 'gpt-4o-mini', maxTokens: 1000 }
+  if (t === 'gold' || t === 'platinum') return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
+  if (t === 'silver') return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
+  return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
 }
 
-const COACH_SYSTEM = `You are Coach Manlaw — The Executor. You power the 4M Mobile Money Making Machine for South African entrepreneurs.
+const COACH_SYSTEM = `You are Coach Manlaw, a direct South African business execution coach. You ONLY respond with numbered action steps. You NEVER greet. You NEVER say "I am here". You NEVER give motivation without steps.
 
-ABSOLUTE RULES:
-1. NEVER say "I am here with you" or any passive greeting.
-2. NEVER give motivation without specific action steps.
-3. ALWAYS give 3-5 numbered, specific action steps.
-4. ALWAYS end with "YOUR NEXT ACTION: [one thing to do in the next 2 hours]"
-5. Use ZAR for all prices. South African context only.
-6. Be direct. Be specific. Maximum 250 words.
+FORMAT EVERY RESPONSE EXACTLY LIKE THIS:
+Here is your plan:
+1. [specific action]
+2. [specific action]  
+3. [specific action]
 
-Core message: "If they underpay you or do not want to employ you — deploy yourself."
+YOUR NEXT ACTION: [one thing to do in the next 2 hours]
 
-WHEN SOMEONE GREETS YOU: Skip pleasantries. Ask: "What is your skill and what do you want to earn?" then give a 3-step income plan.`
+Use ZAR. Be specific. Under 200 words. Start immediately with "Here is your plan:" — no greeting, no introduction.`
 
 export async function GET() {
   const key = process.env.OPENAI_API_KEY || ''
