@@ -1533,6 +1533,8 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
         )}
       </div>
 
+
+
       {/* ── COACH MANLAW DRAWER ── */}
       {manlawOpen && (
         <div style={{ position:'fixed', inset:0, zIndex:9999, display:'flex', flexDirection:'column', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}
@@ -1540,25 +1542,23 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
           <div style={{ position:'absolute', bottom:0, left:0, right:0, maxWidth:'560px', margin:'0 auto', background:'linear-gradient(160deg,#0D0820,#1A1245)', border:'1px solid rgba(76,29,149,0.4)', borderRadius:'20px 20px 0 0', padding:'20px', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', flexShrink:0 }}>
               <div>
-                <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:700, color:GOLD }}>🤖 Coach Manlaw</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>The Executor — Action · Income · Execution</div>
+                <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:700, color:GOLD }}>Coach Manlaw</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>The Executor</div>
               </div>
-              <button onClick={() => setManlawOpen(false)} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>×</button>
+              <button onClick={() => setManlawOpen(false)} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:'20px', cursor:'pointer' }}>x</button>
             </div>
 
-            {/* Intro if no history */}
             {manlawHist.length === 0 && (
               <div style={{ background:'rgba(76,29,149,0.1)', border:'1px solid rgba(76,29,149,0.2)', borderRadius:'12px', padding:'14px', marginBottom:'12px', fontSize:'13px', color:'rgba(255,255,255,0.7)', lineHeight:1.7, flexShrink:0 }}>
-                I am not here to motivate you. I am here to make you execute. Tell me where you are stuck — I will tell you exactly what to do next.
+                I am not here to motivate you. Tell me where you are stuck.
               </div>
             )}
 
-            {/* Chat history */}
             <div style={{ flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:'10px', marginBottom:'12px' }}>
               {manlawHist.map((msg, i) => (
                 <div key={i} style={{ display:'flex', justifyContent: msg.role==='user'?'flex-end':'flex-start' }}>
                   <div style={{ maxWidth:'85%', padding:'10px 14px', borderRadius:'14px', fontSize:'13px', lineHeight:1.7,
-                    background: msg.role==='user'?`rgba(76,29,149,0.4)`:'rgba(255,255,255,0.06)',
+                    background: msg.role==='user'?'rgba(76,29,149,0.4)':'rgba(255,255,255,0.06)',
                     color: msg.role==='user'?'#C4B5FD':'rgba(255,255,255,0.85)' }}>
                     {msg.text}
                   </div>
@@ -1566,15 +1566,14 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
               ))}
               {manlawLoading && (
                 <div style={{ display:'flex', gap:'6px', padding:'12px 14px' }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width:'6px', height:'6px', borderRadius:'50%', background:GOLD, animation:`pulse 1s ${i*0.2}s infinite` }} />)}
+                  {[0,1,2].map(i => <div key={i} style={{ width:'6px', height:'6px', borderRadius:'50%', background:GOLD, animation:'pulse 1s infinite' }} />)}
                 </div>
               )}
             </div>
 
-            {/* Quick prompts */}
             {manlawHist.length === 0 && (
               <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'10px', flexShrink:0 }}>
-                {["I don't know what to sell", "Customer said too expensive", "I'm scared to send messages", "How do I make R300 today?"].map(q => (
+                {["I do not know what to sell","Customer said too expensive","I am scared to send messages","How do I make R300 today?"].map(q => (
                   <button key={q} onClick={() => callManlaw(q)}
                     style={{ padding:'6px 12px', background:'rgba(76,29,149,0.15)', border:'1px solid rgba(76,29,149,0.3)', borderRadius:'20px', color:'#C4B5FD', fontSize:'11px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
                     {q}
@@ -1583,29 +1582,25 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
               </div>
             )}
 
-            {/* Input */}
             <div style={{ display:'flex', gap:'8px', flexShrink:0 }}>
               <input value={manlawInput} onChange={e => setManlawInput(e.target.value)}
                 onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); callManlaw(manlawInput) } }}
                 placeholder="Ask Coach Manlaw anything..." style={{ ...inp, flex:1 }} />
               <button onClick={() => callManlaw(manlawInput)} disabled={manlawLoading||!manlawInput.trim()}
-                style={{ padding:'12px 20px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer' }}>
-                →
+                style={{ padding:'12px 20px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer' }}>
+                Go
               </button>
             </div>
-
           </div>
         </div>
-    </div>
+        </div>
       )}
     </div>
-    </div>
   </div>
+</div>
   )
 }
 
-// ── TIER GATE COMPONENT ──────────────────────────────────────────────────────
-// Shows locked state when user's tier is below required tier
 function TierGate({ required, current, featureName, GOLD, PURP }:
   { required: string; current: string; featureName: string; GOLD: string; PURP: string }) {
   const TIER_RANK: Record<string,number> = {
