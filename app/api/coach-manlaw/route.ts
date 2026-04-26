@@ -64,8 +64,8 @@ export async function POST(req: NextRequest) {
     }
 
     const { model, maxTokens } = openAIModel(tier || 'starter')
-    const system = (systemPrompt && systemPrompt.trim().length > 100)
-      ? systemPrompt.trim() : COACH_SYSTEM
+    // Always use the backend system prompt — ignore frontend override
+    const system = COACH_SYSTEM
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
