@@ -1509,6 +1509,7 @@ Each message under 80 words. Conversational South African tone. Include [NAME] p
                 style={{ padding:'12px 20px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:'none', borderRadius:'10px', color:'#fff', fontWeight:700, fontSize:'14px', cursor:'pointer' }}>
                 →
               </button>
+            </div>
 
             {/* ── DIGITAL TWIN — Silver+ ───────────────────── */}
             <TierGate required="silver" current={builderTier} featureName="Digital Twin Creator" GOLD={GOLD} PURP={PURP} />
