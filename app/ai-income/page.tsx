@@ -1589,8 +1589,7 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
               )}
             </div>
 
-            </div>
-          </div>
+            )}
         </div>
       )}
     </div>
