@@ -1,97 +1,88 @@
 // FILE: app/api/coach-manlaw/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 
-function openAIModel(tier: string) {
-  const t = (tier || '').toLowerCase()
-  if (t === 'gold' || t === 'platinum') return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
-  if (t === 'silver') return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
-  return { model: 'gpt-3.5-turbo', maxTokens: 1000 }
-}
-
 const COACH_SYSTEM = `You are Coach Manlaw, a direct South African business execution coach. You ONLY respond with numbered action steps. You NEVER greet. You NEVER say "I am here". You NEVER give motivation without steps.
 
 FORMAT EVERY RESPONSE EXACTLY LIKE THIS:
 Here is your plan:
 1. [specific action]
-2. [specific action]  
+2. [specific action]
 3. [specific action]
 
 YOUR NEXT ACTION: [one thing to do in the next 2 hours]
 
-Use ZAR. Be specific. Under 200 words. Start immediately with "Here is your plan:" — no greeting, no introduction.`
+Use ZAR. Be specific. Under 200 words. Start immediately with "Here is your plan:" no greeting no introduction.`
 
-export async function GET() {
-  const key = process.env.OPENAI_API_KEY || ''
-  return NextResponse.json({
-    has_key: key.length > 0,
-    key_length: key.length,
-    key_prefix: key.slice(0, 7),
-    key_suffix: key.slice(-4),
-  })
+async function getOpenAIKey(): Promise<string> {
+  // Try Supabase first (saved via Admin panel)
+  try {
+    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const skey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    if (url && skey) {
+      const r = await fetch(
+        `${url}/rest/v1/z2b_api_keys?key_name=eq.OPENAI_API_KEY&select=key_value`,
+        { headers: { apikey: skey, Authorization: `Bearer ${skey}` }, cache: 'no-store' }
+      )
+      const rows = await r.json()
+      const val = rows?.[0]?.key_value?.trim()
+      if (val && val.length > 20) {
+        console.log(`[Manlaw] key from Supabase len=${val.length}`)
+        return val
+      }
+    }
+  } catch (e: any) {
+    console.log(`[Manlaw] Supabase key fetch failed: ${e.message}`)
+  }
+
+  // Fall back to env var
+  const envKey = (process.env.OPENAI_API_KEY || '').trim()
+  console.log(`[Manlaw] key from env len=${envKey.length}`)
+  return envKey
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { messages, systemPrompt, tier } = body
+    const { messages, tier } = await req.json()
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: 'messages required' }, { status: 400 })
-    }
-
-    const apiKey = (process.env.OPENAI_API_KEY || '').trim()
-
-    console.log(`[Manlaw] key_length=${apiKey.length} key_prefix=${apiKey.slice(0,7)} tier=${tier}`)
-
-    // Return debug info if requested
-    if (body?.debug) {
-      return NextResponse.json({
-        debug: true,
-        openai_key_length: apiKey.length,
-        openai_key_prefix: apiKey.slice(0, 7),
-        openai_key_suffix: apiKey.slice(-4),
-        has_key: apiKey.length > 20,
-        env_keys: Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY')),
-      })
-    }
+    const apiKey = await getOpenAIKey()
+    console.log(`[Manlaw] final key len=${apiKey.length} prefix=${apiKey.slice(0,7)}`)
 
     if (!apiKey || apiKey.length < 20) {
       return NextResponse.json({
-        reply: `No OpenAI key found. Key length: ${apiKey.length}. Please add OPENAI_API_KEY to Vercel environment variables.`,
+        reply: `Coach Manlaw offline — no API key found (len=${apiKey.length}). Paste your OpenAI key in Admin → API Settings.`,
       })
     }
-
-    const { model, maxTokens } = openAIModel(tier || 'starter')
-    // Always use the backend system prompt — ignore frontend override
-    const system = COACH_SYSTEM
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type':  'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        messages: [{ role: 'system', content: system }, ...messages.slice(-10)],
+        model:      'gpt-3.5-turbo',
+        max_tokens: 500,
+        messages: [
+          { role: 'system', content: COACH_SYSTEM },
+          ...( Array.isArray(messages) ? messages.slice(-6) : [] ),
+        ],
       }),
     })
 
     const raw = await res.text()
-    console.log(`[Manlaw] OpenAI status=${res.status}`)
+    console.log(`[Manlaw] OpenAI status=${res.status} body=${raw.slice(0,120)}`)
 
     if (!res.ok) {
-      return NextResponse.json({ reply: `OpenAI error ${res.status}: ${raw.slice(0, 200)}` })
+      return NextResponse.json({ reply: `OpenAI error ${res.status}: ${raw.slice(0,200)}` })
     }
 
     const reply = JSON.parse(raw).choices?.[0]?.message?.content?.trim()
-    console.log(`[Manlaw] ✅ reply: ${reply?.slice(0, 80)}`)
-    return NextResponse.json({ reply: reply || 'No response from AI' })
+    return NextResponse.json({ reply: reply || 'No response' })
 
   } catch (e: any) {
     console.error(`[Manlaw] ERROR: ${e.message}`)
     return NextResponse.json({ reply: `Error: ${e.message}` })
   }
 }
-// updated
+
+// Sun, Apr 26, 2026  9:15:26 PM
