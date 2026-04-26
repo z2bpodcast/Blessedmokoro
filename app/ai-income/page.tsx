@@ -1,5 +1,5 @@
 'use client'
-// last-built: 2026-04-26 12:50:17 // z2b 2026-04-26 12:04:18
+// last-built: 2026-04-26 13:18:57
 // FILE: app/ai-income/page.tsx
 // Z2B 4M Income Execution System — Three Vehicles — patched 2026-04-21 06:52:31
 // 🚗 Manual (R500) → ⚙️ Automatic (R2,500) → ⚡ Electric (R5,000+)
@@ -1596,7 +1596,6 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
         </div>
       )}
     </div>
-  </div>
   )
 }
 
