@@ -85,17 +85,17 @@ const INCOME_STREAMS = [
   {
     icon:'🎯', name:'NSB', full:'New Sale Bonus',
     color:'#6EE7B7',
-    short:'Once-off bonus on every new tier purchase you generate',
+    short:'R100 + ISP% on personal Starter Pack sales — you only, not team',
     detail:`NSB is a once-off bonus paid when you introduce a Builder who purchases ANY tier vehicle. Your NSB amount depends on YOUR tier level AND the tier they purchased.
 
 STARTER PACK SALES (R500):
 Your tier → NSB earned
-Free/Starter → R200 + 10% of R500 = R250
-Bronze       → R200 + 18% of R500 = R290
-Copper       → R200 + 22% of R500 = R310
-Silver       → R200 + 25% of R500 = R325
-Gold         → R200 + 28% of R500 = R340
-Platinum     → R200 + 30% of R500 = R350
+Free/Starter → R100 + 10% of R500 = R150
+Bronze       → R100 + 18% of R500 = R190
+Copper       → R100 + 22% of R500 = R210
+Silver       → R100 + 25% of R500 = R225
+Gold         → R100 + 28% of R500 = R240
+Platinum     → R100 + 30% of R500 = R250
 
 BRONZE+ SALES (no R200 flat — just your ISP %):
 Free/Starter → 10% of tier price
@@ -106,14 +106,14 @@ Gold         → 28% of tier price
 Platinum     → 30% of tier price
 
 Example: You are Bronze. Your builder buys Silver (R12,000) → you earn 18% = R2,160 NSB.
-Example: You are Copper. Your builder buys Starter (R500) → R200 + 22% of R500 = R310 NSB.
+Example: You are Copper. Your builder buys Starter (R500) → R100 + 22% of R500 = R210 NSB.
 
 Note: Tier vehicle price is once-off. NSB is also once-off per new purchase.`,
   },
   {
     icon:'💰', name:'ISP', full:'Individual Sales Profit',
     color:'#A78BFA',
-    short:'Monthly % on your builders BFM — activates after 60 days',
+    short:'ISP% on BFM payments AND on Bronze+ tier upgrades (personal + team)',
     detail:`ISP is your monthly recurring income earned on BFM (Builder Monthly Fee) payments from your personally introduced Builders. BFM activates 60 days after each tier purchase or upgrade.
 
 ISP Rates by YOUR tier:

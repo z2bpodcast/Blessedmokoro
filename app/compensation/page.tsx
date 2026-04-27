@@ -42,11 +42,18 @@ const STREAMS = [
   { id:'ceoA', name:'CEO Awards',       full:'CEO Special Achievement',    color:'#E879F9', icon:'👑' },
 ]
 
-function calcNSB(builderTier: string, saleTier: string): number {
-  const rate  = ISP_RATES[builderTier] || 10
-  const price = TIER_PRICES[saleTier]  || 500
-  if (saleTier === 'starter') return 200 + (rate/100 * price)
-  return rate/100 * price
+// NSB: R100 + ISP% of R500 — Starter Pack personal sales only
+function calcNSB(builderTier: string): number {
+  const rate = ISP_RATES[builderTier] || 10
+  return 100 + (rate/100 * 500)
+}
+
+// ISP on Bronze+ upgrades: ISP% of tier price — personal + accessible team generations
+function calcISPUpgrade(builderTier: string, saleTier: string): number {
+  if (['free','starter'].includes(builderTier)) return 0
+  if (saleTier === 'starter') return 0
+  const rate = ISP_RATES[builderTier] || 10
+  return Math.round(rate/100 * (TIER_PRICES[saleTier] || 0))
 }
 
 export default function CompensationPage() {
@@ -105,7 +112,7 @@ export default function CompensationPage() {
           <div style={card('#6EE7B730')}>
             <h2 style={{ color:'#6EE7B7', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🎯 NSB — New Sale Bonus</h2>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              Once-off bonus every time you introduce a Builder who purchases a tier. Your amount depends on YOUR tier and the tier they buy. R200 flat applies ONLY on Starter Pack sales.
+              <strong style={{color:'#6EE7B7'}}>Starter Pack sales only</strong> — paid to the builder who personally generated the sale. R100 flat + your ISP%. Free/Starter builders earn NSB on own sales only. Bronze+ earn NSB on their own Starter Pack sales only (not team Starter sales).
             </p>
             <div style={{ background:'rgba(110,231,183,0.06)', border:'1px solid rgba(110,231,183,0.2)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
               <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7', marginBottom:'10px' }}>💡 NSB Calculator</div>
@@ -125,9 +132,9 @@ export default function CompensationPage() {
               </div>
               <div style={{ textAlign:'center', padding:'14px', background:'rgba(110,231,183,0.1)', borderRadius:'10px' }}>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)', marginBottom:'4px' }}>
-                  {simSale === 'starter' ? `R200 + ${ISP_RATES[simTier]}% of R500` : `${ISP_RATES[simTier]}% of R${TIER_PRICES[simSale].toLocaleString()}`}
+                  `R100 + ${ISP_RATES[simTier]}% of R500 = R${calcNSB(simTier).toLocaleString()}`
                 </div>
-                <div style={{ fontSize:'30px', fontWeight:900, color:'#6EE7B7' }}>R{calcNSB(simTier, simSale).toLocaleString()}</div>
+                <div style={{ fontSize:'30px', fontWeight:900, color:'#6EE7B7' }}>R{calcNSB(simTier).toLocaleString()}</div>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>NSB earned · once-off</div>
               </div>
             </div>
@@ -145,7 +152,7 @@ export default function CompensationPage() {
                       <td style={{ padding:'6px 4px', fontWeight:700, textTransform:'capitalize', color:'#A78BFA' }}>{builder}</td>
                       {Object.keys(TIER_PRICES).map(sale => (
                         <td key={sale} style={{ padding:'6px 4px', textAlign:'center', color:'#6EE7B7', fontWeight:700 }}>
-                          R{calcNSB(builder, sale).toLocaleString()}
+                          R{calcNSB(builder).toLocaleString()}
                         </td>
                       ))}
                     </tr>
@@ -160,9 +167,14 @@ export default function CompensationPage() {
         {active === 'isp' && (
           <div style={card('#A78BFA30')}>
             <h2 style={{ color:'#A78BFA', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>💰 ISP — Individual Sales Profit</h2>
-            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              Monthly recurring income on BFM payments from your personally introduced Builders. BFM activates 60 days after each tier purchase or upgrade.
+            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'8px', lineHeight:1.8 }}>
+              ISP applies in TWO ways: (1) on monthly BFM payments after 60 days, and (2) on Bronze+ tier purchases/upgrades by yourself and your accessible team generations.
             </p>
+            <div style={{ background:'rgba(167,139,250,0.08)', border:'1px solid rgba(167,139,250,0.2)', borderRadius:'10px', padding:'12px', marginBottom:'16px', fontSize:'12px', color:'rgba(255,255,255,0.7)', lineHeight:1.8 }}>
+              Example: You are <strong style={{color:'#A78BFA'}}>Bronze (18%)</strong>.<br/>
+              • Team member upgrades to Silver (R12,000) → you earn <strong style={{color:'#A78BFA'}}>18% = R2,160 ISP</strong><br/>
+              • Team member pays Bronze BFM R1,050/month → you earn <strong style={{color:'#A78BFA'}}>18% = R189/month ISP</strong>
+            </div>
             {Object.entries(ISP_RATES).map(([tier, rate]) => (
               <div key={tier} style={{ background:'rgba(167,139,250,0.05)', border:'1px solid rgba(167,139,250,0.12)', borderRadius:'10px', padding:'12px 14px', marginBottom:'8px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>

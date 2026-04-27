@@ -35,7 +35,7 @@ export default function OpportunityPage() {
   const INCOME_STREAMS = [
     { icon:'💰', code:'ISP', name:'Individual Sales Profit', color:'#059669',
       desc:'Earn 10%–30% on every sale you generate. Your rate grows with your tier.',
-      detail:'Starter Pack: R200 flat on first sale then 10% of BFM · Bronze 18% · Copper 22% · Silver 25% · Gold 28% · Platinum 30%' },
+      detail:'Starter Pack: R100 flat on first sale then 10% of BFM · Bronze 18% · Copper 22% · Silver 25% · Gold 28% · Platinum 30%' },
     { icon:'⚡', code:'QPB', name:'Quick Pathfinder Bonus', color:'#D97706',
       desc:'Extra bonus for consistent daily outreach. Torch Bearer status = no time limit.',
       detail:'7.5% per set of 4 qualified sales · 5+ sales = 10% · Torch Bearer: 7.5%–10% on every sale forever' },
@@ -104,7 +104,7 @@ export default function OpportunityPage() {
             <span style={{ color:GOLD }}>Your Business.<br/>Your Income.</span>
           </h1>
           <p style={{ fontSize:'16px', color:'rgba(255,255,255,0.8)', maxWidth:'540px', margin:'0 auto 24px', lineHeight:1.8 }}>
-            The Z2B 4M Income Machine is a structured, AI-powered system that helps you earn your first R100 today — and scale to multiple income streams without quitting your job.
+            The Z2B 4M Income Machine is a structured, AI-powered system that helps you earn your first R100 today — and scale to multiple 7 income streams without quitting your job.
           </p>
           <div style={{ display:'inline-block', background:'rgba(255,255,255,0.1)', border:`1px solid ${GOLD}40`, borderRadius:'14px', padding:'14px 24px', marginBottom:'28px', maxWidth:'480px' }}>
             <p style={{ fontSize:'15px', fontStyle:'italic', color:W, margin:'0 0 6px' }}>
@@ -168,7 +168,7 @@ export default function OpportunityPage() {
               { icon:'⚙️', power:'Automatic Power', tiers:'Silver ⭐ CORE', color:'rgba(8,145,178,0.2)', border:'#0891B2',
                 items:['1 product becomes 5 automatically','1-click launch to all platforms','Follow-ups send themselves','Schedule content while you sleep','From struggle to FLOW'] },
               { icon:'⚡', power:'Electric Power', tiers:'Gold · Platinum', color:'rgba(212,175,55,0.15)', border:GOLD,
-                items:['AI avatar talks to leads 24/7','Full daily automation running','Multiple income streams active','5–7 PWA apps built for you','Self-sustaining income machine'] },
+                items:['AI avatar talks to leads 24/7','Full daily automation running','Multiple 7 income streams active','5–7 PWA apps built for you','Self-sustaining income machine'] },
             ].map(({ icon, power, tiers, color, border, items }) => (
               <div key={power} style={{ background:color, border:`2px solid ${border}`, borderRadius:'18px', padding:'24px 18px', textAlign:'center' as const }}>
                 <div style={{ fontSize:'32px', marginBottom:'10px' }}>{icon}</div>
@@ -195,7 +195,7 @@ export default function OpportunityPage() {
       <section style={s.section}>
         <div style={{ fontSize:'11px', fontWeight:700, color:PURP, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'12px' }}>YOUR EARNING POTENTIAL</div>
         <h2 style={s.h2}>6 Income Streams — All Active</h2>
-        <p style={s.lead}>Every builder accesses multiple income streams simultaneously. Your earnings compound as your team grows.</p>
+        <p style={s.lead}>Every builder accesses multiple 7 income streams simultaneously. Your earnings compound as your team grows.</p>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'12px', marginBottom:'24px' }}>
           {INCOME_STREAMS.map((stream, i) => (
             <div key={stream.code} onClick={() => setActiveIncome(activeIncome===i?null:i)}
@@ -226,7 +226,7 @@ export default function OpportunityPage() {
           <div style={{ textAlign:'center', marginBottom:'36px' }}>
             <div style={{ fontSize:'11px', fontWeight:700, color:PURP, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'12px' }}>YOUR INVESTMENT</div>
             <h2 style={{ ...s.h2, textAlign:'center', marginBottom:'8px' }}>Choose Your Machine Power</h2>
-            <p style={{ fontSize:'14px', color:'#64748B' }}>Once-off activation. Then BFM (Business Fuel Maintenance) keeps your income streams running.</p>
+            <p style={{ fontSize:'14px', color:'#64748B' }}>Once-off activation. Then BFM (Business Fuel Maintenance) keeps your 7 income streams running.</p>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'14px', marginBottom:'20px' }}>
             {TIERS.map(t => (
@@ -243,7 +243,7 @@ export default function OpportunityPage() {
             ))}
           </div>
           <div style={{ padding:'16px 20px', background:'rgba(76,29,149,0.06)', border:`1px solid ${PURP}20`, borderRadius:'12px', fontSize:'13px', color:'#374151', lineHeight:1.7, marginBottom:'24px' }}>
-            ⛽ <strong>BFM Formula:</strong> R800 base + 10% of tier price. Example — Starter Pack: R800 + R50 = <strong>R850/month</strong>. Bronze: R800 + R250 = <strong>R1,050/month</strong>. BFM keeps your AI tools, income streams and platform access active.
+            ⛽ <strong>BFM Formula:</strong> R800 base + 10% of tier price. Example — Starter Pack: R800 + R50 = <strong>R850/month</strong>. Bronze: R800 + R250 = <strong>R1,050/month</strong>. BFM keeps your AI tools, 7 income streams and platform access active.
           </div>
           <div style={{ textAlign:'center' as const }}>
             <Link href={pricingUrl} style={{ display:'inline-block', padding:'14px 36px', background:`linear-gradient(135deg,${PURP},#7C3AED)`, border:`2px solid ${GOLD}`, borderRadius:'14px', color:GOLD, fontWeight:700, fontSize:'15px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>

@@ -11,25 +11,25 @@ import Link from 'next/link'
 const INCOME_PROOFS = [
   { name:'Thabo M.', location:'Soweto', product:'CV Writing', earned:'R300', time:'Day 2', quote:'I sent 8 messages on Day 1. By Day 2 I had R300 in my SnapScan.' },
   { name:'Naledi S.', location:'Pretoria', product:'WhatsApp Content Pack', earned:'R450', time:'Day 3', quote:'I charged R150 per pack. Sold 3 in one day from my Facebook group post.' },
-  { name:'Gift K.', location:'Durban', product:'Side Hustle Starter Pack', earned:'R200', time:'Day 1', quote:'One WhatsApp status. One reply. R200. I was shocked it was that simple.' },
+  { name:'Gift K.', location:'Durban', product:'Side Hustle Starter Pack', earned:'R100', time:'Day 1', quote:'One WhatsApp status. One reply. R100. I was shocked it was that simple.' },
 ]
 
 const DIGITAL_PRODUCTS = [
   { icon:'💼', name:'WhatsApp Business Boost Pack', price:'R150–R300',
     outcome:'Help a local business get more customers using WhatsApp',
-    script:'I help small businesses get more customers using WhatsApp. Let me set up your profile and write 10 messages that bring paying clients — done in 24 hours. R200.' },
-  { icon:'📄', name:'CV & Job Boost Kit', price:'R100–R200',
+    script:'I help small businesses get more customers using WhatsApp. Let me set up your profile and write 10 messages that bring paying clients — done in 24 hours. R100.' },
+  { icon:'📄', name:'CV & Job Boost Kit', price:'R100–R100',
     outcome:'Write CVs that actually get people interviews',
     script:'I write professional CVs that get callbacks. Most CVs are rejected in 10 seconds. R150 — delivered same day via WhatsApp.' },
-  { icon:'📱', name:'Social Media Content Pack', price:'R200–R400',
+  { icon:'📱', name:'Social Media Content Pack', price:'R100–R400',
     outcome:'Create 30 days of content for a business in one sitting',
     script:'I create 30 days of social media posts for your business. R250 — WhatsApp me your business name and I start today.' },
-  { icon:'💬', name:'Customer Attraction Messages', price:'R100–R200',
+  { icon:'💬', name:'Customer Attraction Messages', price:'R100–R100',
     outcome:'Write messages that make people want to buy',
     script:'I write WhatsApp messages that make people want to buy from you. 10 messages written for YOUR product. R120.' },
   { icon:'🚀', name:'Side Hustle Starter Pack', price:'R150–R300',
     outcome:'Help someone start earning in 48 hours using what they already have',
-    script:'I help people start earning online in 48 hours using their existing skills. No quitting your job. R200 for the complete starter system.' },
+    script:'I help people start earning online in 48 hours using their existing skills. No quitting your job. R100 for the complete starter system.' },
 ]
 
 function LandingInner() {
@@ -312,7 +312,7 @@ function LandingInner() {
               <div style={{ fontSize:'14px', fontStyle:'italic', color:WHITE, fontWeight:700, marginBottom:'4px' }}>The system drives most of the journey.</div>
               <div style={{ fontSize:'13px', color:GOLDL, fontWeight:700, marginBottom:'12px' }}>Your income runs daily with minimal effort.</div>
               <div style={{ height:'1px', background:`${GOLDL}20`, marginBottom:'12px' }} />
-              {['An AI avatar talks to leads for you — 24/7','Your follow-ups run automatically even when offline','Multiple income streams active simultaneously','AI generates product images and marketing visuals','Your own white-label platform (Platinum)'].map(pt => (
+              {['An AI avatar talks to leads for you — 24/7','Your follow-ups run automatically even when offline','Multiple 7 income streams active simultaneously','AI generates product images and marketing visuals','Your own white-label platform (Platinum)'].map(pt => (
                 <div key={pt} style={{ display:'flex', gap:'8px', marginBottom:'7px', alignItems:'flex-start' }}>
                   <span style={{ color:GOLDL, fontSize:'12px', flexShrink:0, marginTop:'2px' }}>✦</span>
                   <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.8)', lineHeight:1.5 }}>{pt}</span>
@@ -419,7 +419,7 @@ function LandingInner() {
               { icon:'💸', outcome:'Scripts to close sales and collect payment confidently', when:'Day 1-3' },
               { icon:'🔄', outcome:'Sends follow-up messages automatically — even when you are offline', when:'Automatic' },
               { icon:'🎥', outcome:'An AI version of you talks to new leads while you focus on closing', when:'Electric Mode' },
-              { icon:'🔗', outcome:'Earn R200 every time someone you refer joins the system', when:'Always' },
+              { icon:'🔗', outcome:'Earn R100 every time someone you refer joins the system', when:'Always' },
             ].map(({ icon, outcome, when }) => (
               <div key={outcome} style={{ display:'flex', gap:'12px', padding:'14px 16px', background:WHITE, borderRadius:'14px', border:'1px solid rgba(76,29,149,0.1)', alignItems:'flex-start' }}>
                 <span style={{ fontSize:'20px', flexShrink:0 }}>{icon}</span>
@@ -443,7 +443,7 @@ function LandingInner() {
               <div style={{ fontSize:'11px', fontWeight:700, color:'#6EE7B7', letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'8px' }}>💵 THE PRICE</div>
               <div style={{ fontSize:'36px', fontWeight:900, color:'#6EE7B7', fontFamily:'Cinzel,Georgia,serif', marginBottom:'4px' }}>R500</div>
               <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', marginBottom:'14px' }}>60-Day AI Income Activation Program</div>
-              {['Full 4M Machine — 3 vehicle modes','AI creates your offers, posts and messages','5 ready-to-sell digital products','Referral income — R200 per person you refer','60-day guided execution plan'].map(item => (
+              {['Full 4M Machine — 3 vehicle modes','AI creates your offers, posts and messages','5 ready-to-sell digital products','Referral income — R100 per person you refer','60-day guided execution plan'].map(item => (
                 <div key={item} style={{ display:'flex', gap:'8px', marginBottom:'7px' }}>
                   <span style={{ color:'#6EE7B7', fontSize:'13px' }}>✅</span>
                   <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.8)' }}>{item}</span>
