@@ -11,7 +11,7 @@ import Link from 'next/link'
 
 type Tab = 'offer'|'finder'|'post'|'reply'|'close'|'daily'|'referral'|'discovery'|'niche'|'products'|'funnel'|'twin'
 type ReplyCategory = 'expensive'|'moreinfo'|'thinking'|'notinterested'|'howworks'
-type Vehicle = 'manual'|'automatic'|'electric'
+type Vehicle = 'manual'|'automatic'|'electric'|'rocket'
 
 async function callAI(prompt: string, systemPrompt?: string, tier?: string): Promise<string> {
   // Routes through backend — engine selection handled server-side
@@ -603,7 +603,9 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
     { id:'automatic', icon:'⚙️', label:'Automatic Mode', sub:'The system starts helping you drive', color:'#0891B2', tier:'Silver ⭐ — MOST IMPORTANT',
       truth:'From struggle to FLOW. Your 4M Machine starts working WITH you. Faster creation. Assisted messaging. Follow-ups begin.', upgrade:'Ready for the system to run while you sleep? Upgrade to Electric Mode →' },
     { id:'electric',  icon:'⚡', label:'Electric Mode',  sub:'The system drives most of the journey', color:GOLD, tier:'Gold · Platinum',
-      truth:'Your 4M Machine runs with MINIMAL EFFORT. Multiple income streams. Daily automation. Platform-level leverage.', upgrade:'You have built a self-sustaining income system. Scale with Z2B Table Banquet →' },
+      truth:'Your 4M Machine runs with MINIMAL EFFORT. Multiple income streams. Daily automation. Platform-level leverage.', upgrade:'You have built a self-sustaining income system. Scale with Z2B Table Banquet →' },,
+    { id:'rocket', icon:'🚀', label:'Rocket Mode', sub:'AI does everything. You just publish.', color:'#FF6B35', tier:'Silver · Gold · Platinum',
+      truth:'The world\'s most powerful digital product engine. AI scans the global market, finds what people are paying to fix, creates the product, packages it and hands it to you ready to sell.', upgrade:'Upgrade to Silver or above to start Rocket Mode →' }
   ]
 
   return (
@@ -636,7 +638,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
         {/* ── VEHICLE SELECTOR ── */}
         <div style={{ marginBottom:'24px' }}>
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'12px', textAlign:'center' }}>Choose Your 4M Machine Level</div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px' }}>
             {VEHICLES.map(v => (
               <button key={v.id} onClick={() => setVehicle(v.id as Vehicle)}
                 style={{ padding:'16px 10px', borderRadius:'14px', cursor:'pointer', fontFamily:'Georgia,serif', textAlign:'center' as const, transition:'all 0.2s',
@@ -655,7 +657,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
               <div style={{ fontSize:'13px', fontWeight:700, color:v.color, marginBottom:'4px' }}>{v.icon} {v.label}</div>
               <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', lineHeight:1.7, marginBottom:'8px' }}>{v.truth}</div>
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', fontStyle:'italic', cursor:'pointer' }}
-                onClick={() => { const next = vehicle==='manual'?'automatic':vehicle==='automatic'?'electric':'manual'; setVehicle(next as Vehicle) }}>
+                onClick={() => { const next = vehicle==='manual'?'automatic':vehicle==='automatic'?'electric':vehicle==='electric'?'rocket':'manual'; setVehicle(next as Vehicle) }}>
                 {v.upgrade}
               </div>
             </div>
@@ -1537,6 +1539,87 @@ All messages must sound exactly like ${twinName} — warm, professional, South A
                 🍽️ Explore Z2B Table Banquet →
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* ── 🚀 ROCKET MODE ── */}
+        {vehicle === 'rocket' && (
+          <div>
+            {/* Rocket Mode Banner */}
+            <div style={{ background:'linear-gradient(135deg,rgba(255,107,53,0.15),rgba(76,29,149,0.3))', border:'2px solid #FF6B3560', borderRadius:'16px', padding:'20px', marginBottom:'20px', textAlign:'center' }}>
+              <div style={{ fontSize:'40px', marginBottom:'8px' }}>🚀</div>
+              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:'#fff', marginBottom:'6px' }}>
+                4M Rocket Mode
+              </div>
+              <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.65)', lineHeight:1.8, marginBottom:'16px' }}>
+                AI scans the world for what people are paying to fix.<br/>
+                AI creates the expert product. AI builds your launch kit.<br/>
+                <strong style={{color:'#FF6B35'}}>You just press Publish.</strong>
+              </div>
+              <div style={{ display:'inline-block', padding:'6px 20px', background:'rgba(255,107,53,0.2)', border:'1px solid #FF6B3560', borderRadius:'20px', fontSize:'11px', fontWeight:700, color:'#FF6B35', letterSpacing:'2px' }}>
+                🔥 COMING SOON
+              </div>
+            </div>
+
+            {/* Tier Gate */}
+            {TIER_RANK[builderTier] >= TIER_RANK['silver'] ? (
+              <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+                {/* Silver/Gold/Platinum creator view */}
+                <div style={{ background:'rgba(255,107,53,0.06)', border:'1px solid rgba(255,107,53,0.2)', borderRadius:'14px', padding:'16px' }}>
+                  <div style={{ fontSize:'13px', fontWeight:700, color:'#FF6B35', marginBottom:'8px' }}>
+                    🚀 Your Rocket Mode Access ({builderTier})
+                  </div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.8, marginBottom:'12px' }}>
+                    {builderTier === 'silver' && '12 products/month · SA + Africa + Global scanner · All product formats · Z2B Marketplace'}
+                    {builderTier === 'gold'   && '30 products/month · Global + demographic targeting + live research · Sell anywhere + Z2B Marketplace'}
+                    {builderTier === 'platinum' && 'UNLIMITED products · Bulk creation · Own branded marketplace · Full Rocket Mode'}
+                  </div>
+                  <a href="/ai-income/rocket"
+                    style={{ display:'block', padding:'14px', background:'linear-gradient(135deg,#FF6B35,#E55A2B)', border:'none', borderRadius:'12px', color:'#fff', fontSize:'14px', fontWeight:700, textAlign:'center', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+                    🚀 Enter Rocket Mode →
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Preview mode for Free/Starter/Bronze/Copper */}
+                <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'14px', padding:'16px', marginBottom:'12px' }}>
+                  <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'10px' }}>
+                    Preview — Top Pain Points This Week
+                  </div>
+                  {[
+                    { rank:1, title:'Grade 12 Maths Exam Prep',    market:'South Africa', price:'R199',  gap:'HIGH' },
+                    { rank:2, title:'Side Income Ideas for Lagos',  market:'Nigeria',      price:'₦5,000',gap:'HIGH' },
+                    { rank:3, title:'UK Visa Application Guide',    market:'Global',       price:'£12',   gap:'HIGH' },
+                  ].map(p => (
+                    <div key={p.rank} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                      <div>
+                        <div style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{p.title}</div>
+                        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>📍 {p.market}</div>
+                      </div>
+                      <div style={{ textAlign:'right' as const }}>
+                        <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7' }}>{p.price}</div>
+                        <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)' }}>Gap: {p.gap}</div>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', marginTop:'10px', textAlign:'center' }}>
+                    {TIER_RANK[builderTier] === 0 && 'Upgrade to Starter to see 8 pain points'}
+                    {builderTier === 'starter' && 'Upgrade to Bronze to see 12 pain points'}
+                    {builderTier === 'bronze' && 'Upgrade to Copper to see 20 pain points'}
+                    {builderTier === 'copper' && 'Upgrade to Silver to start creating products'}
+                  </div>
+                </div>
+                <a href="/ai-income/rocket"
+                  style={{ display:'block', padding:'12px', background:'rgba(255,107,53,0.1)', border:'1px solid rgba(255,107,53,0.3)', borderRadius:'12px', color:'#FF6B35', fontSize:'13px', fontWeight:700, textAlign:'center', textDecoration:'none', marginBottom:'12px' }}>
+                  🔍 Explore Full Rocket Mode Preview →
+                </a>
+                <a href="/ai-income/choose-plan"
+                  style={{ display:'block', padding:'12px', background:'linear-gradient(135deg,#FF6B35,#E55A2B)', border:'none', borderRadius:'12px', color:'#fff', fontSize:'13px', fontWeight:700, textAlign:'center', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+                  🚀 Upgrade to Silver — Start Publishing →
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>
