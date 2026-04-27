@@ -603,7 +603,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
     { id:'automatic', icon:'⚙️', label:'Automatic Mode', sub:'The system starts helping you drive', color:'#0891B2', tier:'Silver ⭐ — MOST IMPORTANT',
       truth:'From struggle to FLOW. Your 4M Machine starts working WITH you. Faster creation. Assisted messaging. Follow-ups begin.', upgrade:'Ready for the system to run while you sleep? Upgrade to Electric Mode →' },
     { id:'electric',  icon:'⚡', label:'Electric Mode',  sub:'The system drives most of the journey', color:GOLD, tier:'Gold · Platinum',
-      truth:'Your 4M Machine runs with MINIMAL EFFORT. Multiple income streams. Daily automation. Platform-level leverage.', upgrade:'You have built a self-sustaining income system. Scale with Z2B Table Banquet →' },,
+      truth:'Your 4M Machine runs with MINIMAL EFFORT. Multiple income streams. Daily automation. Platform-level leverage.', upgrade:'You have built a self-sustaining income system. Scale with Z2B Table Banquet →' },
     { id:'rocket', icon:'🚀', label:'Rocket Mode', sub:'AI does everything. You just publish.', color:'#FF6B35', tier:'Silver · Gold · Platinum',
       truth:'The world\'s most powerful digital product engine. AI scans the global market, finds what people are paying to fix, creates the product, packages it and hands it to you ready to sell.', upgrade:'Upgrade to Silver or above to start Rocket Mode →' }
   ]
