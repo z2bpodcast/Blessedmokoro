@@ -127,7 +127,7 @@ function LandingInner() {
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:GOLDL }}>Z2B 4M</div>
         <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
           {unlocked
-            ? <Link href={`/ai-income/choose-plan${ref ? \`?ref=${ref}\` : ''}`} style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>
+            ? <Link href={ref ? `/ai-income/choose-plan?ref=${ref}` : `/ai-income/choose-plan`} style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>
             : <>
                 <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', textDecoration:'none' }}>Sign In</Link>
                 <button onClick={handlePay} style={{ padding:'9px 20px', background:GOLDL, border:'none', borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>Start R500 →</button>
