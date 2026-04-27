@@ -3,19 +3,10 @@
 // Z2B 4M Income Execution System — Landing Page
 // Light Purple dominant · Smartphone-first · Outcome language · No API exposure
 
-import { useState, useEffect, useMemo, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import {
-  famHasPaidStarterUnlock,
-  hasFourmWorkspaceAccess,
-  minVehicle,
-  parseVehicleScope,
-  tierVehicleCap,
-  vehicleRank,
-  type FourmVehicle,
-} from '@/lib/fourm-access'
 
 const INCOME_PROOFS = [
   { name:'Thabo M.', location:'Soweto', product:'CV Writing', earned:'R300', time:'Day 2', quote:'I sent 8 messages on Day 1. By Day 2 I had R300 in my SnapScan.' },
@@ -47,8 +38,6 @@ function LandingInner() {
   const [sponsorName, setSponsorName]   = useState('')
   const [user,        setUser]          = useState<any>(null)
   const [unlocked,    setUnlocked]      = useState(false)
-  const [paidTier,    setPaidTier]      = useState<string>('fam')
-  const [unlockRow,   setUnlockRow]     = useState<any>(null)
   const [activeProduct, setActiveProduct] = useState<number|null>(null)
   const [activeProof,   setActiveProof]   = useState(0)
   const [showReg,     setShowReg]       = useState(false)
@@ -63,13 +52,8 @@ function LandingInner() {
     supabase.auth.getUser().then(async ({ data: { user: u } }) => {
       setUser(u)
       if (u) {
-        const [{ data: prof }, { data: unlock }] = await Promise.all([
-          supabase.from('profiles').select('paid_tier').eq('id', u.id).single(),
-          supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).maybeSingle(),
-        ])
-        setPaidTier(String(prof?.paid_tier || 'fam'))
-        setUnlockRow(unlock || null)
-        setUnlocked(hasFourmWorkspaceAccess(String(prof?.paid_tier || 'fam'), unlock || null))
+        const { data: unlock } = await supabase.from('ai_income_unlocks').select('*').eq('user_id', u.id).single()
+        if (unlock) setUnlocked(true)
       }
     })
     if (ref) {
@@ -80,24 +64,6 @@ function LandingInner() {
     const t = setInterval(() => setActiveProof(p => (p + 1) % INCOME_PROOFS.length), 4000)
     return () => clearInterval(t)
   }, [ref])
-
-  const tierCap = useMemo(() => tierVehicleCap(paidTier), [paidTier])
-
-  const adminOverride = useMemo(() => {
-    if (!unlockRow) return null
-    if (String(unlockRow.four_m_unlock_source || '') !== 'admin_manual') return null
-    return parseVehicleScope(unlockRow.four_m_vehicle_scope) || 'manual'
-  }, [unlockRow])
-
-  const maxVehicle = useMemo((): FourmVehicle => {
-    if (paidTier !== 'fam') return adminOverride ? minVehicle(tierCap, adminOverride) : tierCap
-    if (!unlockRow) return 'manual'
-    if (famHasPaidStarterUnlock(unlockRow)) return 'manual'
-    if (String(unlockRow.four_m_unlock_source || '') === 'admin_manual') {
-      return minVehicle('manual', adminOverride || 'manual')
-    }
-    return 'manual'
-  }, [paidTier, tierCap, unlockRow, adminOverride])
 
   const handlePay = async () => {
     if (!user) { setShowReg(true); return }
@@ -158,15 +124,12 @@ function LandingInner() {
 
       {/* ── NAV ── */}
       <nav style={{ position:'sticky', top:0, zIndex:100, background:'rgba(76,29,149,0.95)', backdropFilter:'blur(20px)', padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.75)', textDecoration:'none' }}>← Back to Home</Link>
-          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:GOLDL }}>Z2B 4M</div>
-        </div>
+        <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:GOLDL }}>Z2B 4M</div>
         <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
           {unlocked
-            ? <Link href="/ai-income" style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>
+            ? <Link href="/ai-income/choose-plan" style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>
             : <>
-                <Link href={`/login?redirect=${encodeURIComponent(`/ai-income/landing${ref ? `?ref=${ref}` : ''}`)}`} style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', textDecoration:'none' }}>Sign In</Link>
+                <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', textDecoration:'none' }}>Sign In</Link>
                 <button onClick={handlePay} style={{ padding:'9px 20px', background:GOLDL, border:'none', borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>Start R500 →</button>
               </>
           }
@@ -297,7 +260,7 @@ function LandingInner() {
                   <div style={{ fontSize:'16px', fontWeight:900, color:PURP, fontFamily:'Cinzel,Georgia,serif' }}>Manual Mode</div>
                   <div style={{ fontSize:'11px', color:'#64748B', fontWeight:700, textTransform:'uppercase' as const, letterSpacing:'1px' }}>Starter · Bronze · Copper</div>
                 </div>
-                <button onClick={handlePay} style={{ marginLeft:'auto', background:`${PURP}10`, border:`1px solid ${PURP}30`, borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:PURP, cursor:'pointer' }}>LEARN & EARN</button>
+                <div style={{ marginLeft:'auto', background:`${PURP}10`, borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:PURP }}>LEARN & EARN</div>
               </div>
               <div style={{ fontSize:'14px', fontStyle:'italic', color:DARK, fontWeight:700, marginBottom:'4px' }}>You drive everything yourself.</div>
               <div style={{ fontSize:'13px', color:PURPL, fontWeight:700, marginBottom:'12px' }}>This is where you build your first income foundation.</div>
@@ -326,7 +289,7 @@ function LandingInner() {
                   <div style={{ fontSize:'16px', fontWeight:900, color:'#0891B2', fontFamily:'Cinzel,Georgia,serif' }}>Automatic Mode</div>
                   <div style={{ fontSize:'11px', color:'#64748B', fontWeight:700, textTransform:'uppercase' as const, letterSpacing:'1px' }}>Silver ⭐ — MOST IMPORTANT</div>
                 </div>
-                <button onClick={handlePay} style={{ marginLeft:'auto', background:'rgba(8,145,178,0.1)', border:'1px solid rgba(8,145,178,0.3)', borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:'#0891B2', cursor:'pointer' }}>AUTOMATION</button>
+                <div style={{ marginLeft:'auto', background:'rgba(8,145,178,0.1)', borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:'#0891B2' }}>AUTOMATION</div>
               </div>
               <div style={{ fontSize:'14px', fontStyle:'italic', color:DARK, fontWeight:700, marginBottom:'4px' }}>The system starts helping you drive.</div>
               <div style={{ fontSize:'13px', color:'#0891B2', fontWeight:700, marginBottom:'12px' }}>From struggle to FLOW — your 4M Machine works WITH you.</div>
@@ -352,7 +315,7 @@ function LandingInner() {
                   <div style={{ fontSize:'16px', fontWeight:900, color:GOLDL, fontFamily:'Cinzel,Georgia,serif' }}>Electric Mode</div>
                   <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)', fontWeight:700, textTransform:'uppercase' as const, letterSpacing:'1px' }}>Gold · Platinum</div>
                 </div>
-                <button onClick={handlePay} style={{ marginLeft:'auto', background:`${GOLDL}20`, border:`1px solid ${GOLDL}40`, borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:GOLDL, cursor:'pointer' }}>SELF-SUSTAINING</button>
+                <div style={{ marginLeft:'auto', background:`${GOLDL}20`, borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:700, color:GOLDL }}>SELF-SUSTAINING</div>
               </div>
               <div style={{ fontSize:'14px', fontStyle:'italic', color:WHITE, fontWeight:700, marginBottom:'4px' }}>The system drives most of the journey.</div>
               <div style={{ fontSize:'13px', color:GOLDL, fontWeight:700, marginBottom:'12px' }}>Your income runs daily with minimal effort.</div>
@@ -405,10 +368,10 @@ function LandingInner() {
               </div>
             ))}
           </div>
-          <button onClick={handlePay} style={{ marginTop:'20px', textAlign:'center' as const, padding:'16px', background:'rgba(255,255,255,0.1)', borderRadius:'12px', width:'100%', border:'1px solid rgba(255,255,255,0.2)', cursor:'pointer' }}>
+          <div style={{ marginTop:'20px', textAlign:'center' as const, padding:'16px', background:'rgba(255,255,255,0.1)', borderRadius:'12px' }}>
             <div style={{ fontSize:'14px', fontWeight:700, color:WHITE }}>You do not study business.</div>
             <div style={{ fontSize:'16px', fontWeight:900, color:GOLDL, marginTop:'4px' }}>You build income habits.</div>
-          </button>
+          </div>
         </div>
       </section>
 
@@ -580,10 +543,6 @@ function LandingInner() {
               style={{ width:'100%', padding:'14px', background:`linear-gradient(135deg,${PURP},${PURPL})`, border:'none', borderRadius:'12px', color:WHITE, fontWeight:700, fontSize:'16px', cursor:regLoading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', opacity:regLoading?0.7:1 }}>
               {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
             </button>
-            <div style={{ marginTop:'12px', display:'flex', justifyContent:'center', gap:'14px', fontSize:'12px' }}>
-              <Link href="/login" style={{ color:PURP, textDecoration:'none', fontWeight:700 }}>I am already registered, login</Link>
-              <Link href="/login" style={{ color:'#64748B', textDecoration:'none' }}>Forgot password</Link>
-            </div>
           </div>
         </div>
       )}
