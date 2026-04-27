@@ -245,7 +245,7 @@ export default function Home() {
             <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
-            {!user && (
+            {!loading && !user && (
               <div className="flex flex-col gap-3 justify-center items-center">
                 <Link
                   href="/ai-income/landing"
@@ -424,7 +424,7 @@ export default function Home() {
             >
               🎁 Start Free Workshop — 9 Sections, No Login Needed
             </Link>
-            {!user && (
+            {!loading && !user && (
               <Link href="/signup" className="btn-primary text-lg px-10 py-4 shadow-xl">
                 Pull Up Your Chair →
               </Link>
@@ -758,7 +758,7 @@ export default function Home() {
           <p className="text-xl mb-8 text-gold-100">
             Get access to exclusive video lessons, audio masterclasses, and downloadable resources at the royal table
           </p>
-          {!user && (
+          {!loading && !user && (
             <Link href="/signup" className="inline-block bg-white text-primary-700 font-bold px-10 py-4 rounded-lg hover:bg-gold-50 transition-colors text-lg border-4 border-gold-400 shadow-xl">
               Become a Member
             </Link>
