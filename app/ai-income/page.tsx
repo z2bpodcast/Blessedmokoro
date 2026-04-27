@@ -268,6 +268,7 @@ function AIIncomeInner() {
         if (prof?.paid_tier) setBuilderTier(prof.paid_tier)
         else if (unlock)     setBuilderTier('starter')
         if (unlock) setUnlocked(true)
+        else if (u) setUnlocked(true)  // free tier — user is logged in, show free features
         setMyCommissions(comms || [])
       }
       setLoading(false)
