@@ -88,7 +88,14 @@ export default function OpportunityPage() {
         </div>
       </header>
 
-      {/* Hero */}
+      
+      {/* Back to Home */}
+      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', gap:'12px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(0,0,0,0.3)' }}>
+        <a href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none', display:'flex', alignItems:'center', gap:'4px' }}>← Home</a>
+        <span style={{ color:'rgba(255,255,255,0.2)' }}>|</span>
+        <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>The 4M Opportunity</span>
+      </div>
+{/* Hero */}
       <section style={{ background:`linear-gradient(160deg,${DARK},${PURP},#5B21B6)`, padding:'72px 24px', textAlign:'center', borderBottom:`4px solid ${GOLD}` }}>
         <div style={{ maxWidth:'700px', margin:'0 auto' }}>
           <div style={{ fontSize:'11px', fontWeight:700, color:`${GOLD}90`, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'16px' }}>Z2B INCOME OPPORTUNITY</div>

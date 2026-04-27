@@ -171,20 +171,24 @@ This is how team income scales exponentially as your network grows.`,
   {
     icon:'🏆', name:'TLI', full:'Team Leadership Income',
     color:GOLD,
-    short:'Quarterly bonuses from R3,000 to R3.5M',
-    detail:`TLI is the leadership bonus paid quarterly to Builders who develop strong team structures. Silver tier and above only. Requires full 3-month BFM compliance.
+    short:'Once-off rank achievement bonuses from R3,000 to R3.5M',
+    detail:`TLI is a leadership achievement bonus paid ONCE when a Builder first qualifies for each rank level. Evaluations happen quarterly — but the payment is made once per rank, not every quarter.
 
-10 Levels:
-L1 Table Starter: R3,000/quarter
-L2 Table Builder: R8,000/quarter
-L3 Team Activator: R20,000/quarter
-L4 Legacy Builder: R45,000/quarter
-L5 Income Architect: R90,000/quarter
-L6 Wealth Multiplier: R180,000/quarter
-L7 Empire Maker: R380,000/quarter
-L8 Dynasty Leader: R750,000/quarter
-L9 Kingdom Architect: R1,500,000/quarter
-L10 Z2B Billionaire Table: R3,500,000 + Pool`,
+Silver tier and above only. Requires full BFM compliance at time of evaluation.
+
+10 Rank Levels (paid ONCE on first achievement):
+L1  Table Starter        R3,000
+L2  Table Builder        R8,000
+L3  Team Activator       R20,000
+L4  Legacy Builder       R45,000
+L5  Income Architect     R90,000
+L6  Wealth Multiplier    R180,000
+L7  Empire Maker         R380,000
+L8  Dynasty Leader       R750,000
+L9  Kingdom Architect    R1,500,000
+L10 Z2B Billionaire Table R3,500,000
+
+Total potential across all 10 levels: R6,475,000`,
   },
   {
     icon:'🏅', name:'CEO Competition', full:'CEO Competition Income',

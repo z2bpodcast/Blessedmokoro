@@ -439,3 +439,46 @@ export default function CompensationPlanPage() {
     </div>
   )
 }
+              { label:'Eligibility', value:'Varies per competition — some open to all, some tier-restricted' },
+              { label:'Frequency', value:'Announced by CEO — not a permanent stream' },
+            ].map(row => (
+              <div key={row.label} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.06)', gap:'12px' }}>
+                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{row.label}</span>
+                <span style={{ fontSize:'12px', color:W, textAlign:'right' as const }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CEO Awards */}
+        {active === 'ceoA' && (
+          <div style={card('#E879F930')}>
+            <h2 style={{ color:'#E879F9', fontSize:'17px', fontWeight:900, marginBottom:'4px' }}>👑 CEO Awards</h2>
+            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
+              Discretionary awards given by the CEO for extraordinary achievement. Unlike CEO Competition (rules-based), these are personal recognitions for exceptional contribution.
+            </p>
+            {[
+              { label:'Who decides', value:'The CEO — no fixed formula' },
+              { label:'Criteria', value:'Exceptional mentorship, community building, culture, milestone achievements' },
+              { label:'Frequency', value:'As the CEO decides — special and meaningful' },
+              { label:'Format', value:'Cash, recognition, gifts, platform features' },
+            ].map(row => (
+              <div key={row.label} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.06)', gap:'12px' }}>
+                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{row.label}</span>
+                <span style={{ fontSize:'12px', color:W, textAlign:'right' as const }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CTA */}
+        <div style={{ textAlign:'center' as const, marginTop:'32px', padding:'24px', background:`rgba(76,29,149,0.15)`, border:`1px solid ${GOLD}30`, borderRadius:'16px' }}>
+          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:900, color:W, marginBottom:'8px' }}>Ready to Start Earning?</div>
+          <Link href="/ai-income/landing" style={{ display:'inline-block', padding:'12px 32px', background:`linear-gradient(135deg,${GOLD},#B8860B)`, borderRadius:'12px', color:'#1E1245', fontWeight:900, fontSize:'14px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+            🚀 Start My 4M Machine →
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
