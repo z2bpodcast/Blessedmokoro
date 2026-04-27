@@ -11,12 +11,12 @@ const GOLD = '#D4AF37'
 const BG   = '#0D0820'
 
 const BANK_DETAILS = {
-  bank:    'First National Bank (FNB)',
-  account: '62123456789',
-  branch:  '250655',
-  type:    'Cheque Account',
-  name:    'Zero2Billionaires Amavulandlela PTY Ltd',
-  ref:     'Z2B-[YOUR NAME]',
+  bank:    'Nedbank',
+  account: '1318257727',
+  branch:  '198765',
+  type:    'Current Account',
+  name:    'Zero2Billionaires Amavuladlela Pty Ltd',
+  ref:     'Your Full Name',
 }
 
 function PaymentInner() {
@@ -166,7 +166,8 @@ function PaymentInner() {
 
             {!submitted ? (
               <div style={{ marginTop:'16px' }}>
-                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>After payment, enter your name to notify us:</div>
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>After payment, enter your name to notify us:
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)', marginTop:'4px' }}>📱 Also send proof to WhatsApp: <strong style={{color:'#6EE7B7'}}>0774901639</strong></div></div>
                 <input value={proofName} onChange={e => setProofName(e.target.value)}
                   placeholder="Your full name" style={{ ...inp, marginBottom:'10px' }} />
                 <button onClick={submitProof} disabled={submitting || !proofName.trim()}
@@ -196,7 +197,8 @@ function PaymentInner() {
 
             {!submitted ? (
               <div style={{ marginTop:'16px' }}>
-                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>After deposit, enter your name to notify us:</div>
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'8px' }}>After deposit, enter your name to notify us:
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)', marginTop:'4px' }}>📱 Also send proof to WhatsApp: <strong style={{color:'#6EE7B7'}}>0774901639</strong></div></div>
                 <input value={proofName} onChange={e => setProofName(e.target.value)}
                   placeholder="Your full name" style={{ ...inp, marginBottom:'10px' }} />
                 <button onClick={submitProof} disabled={submitting || !proofName.trim()}
