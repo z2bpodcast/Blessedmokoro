@@ -510,19 +510,6 @@ function LandingInner() {
           © {new Date().getFullYear()} Zero2Billionaires Amavulandlela PTY Ltd
         </p>
       </footer>
-
-      {/* ── REGISTRATION MODAL ── */}
-}
-    </div>
-  )
-}
-
-export default function AIIncomeLandingWrapper() {
-  return (
-    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F3F0FF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4C1D95', fontFamily:'Georgia,serif' }}>Loading...</div>}>
-      <LandingInner />
-    </Suspense>
-
       {/* ── LIGHT REGISTRATION MODAL ── */}
       {showReg && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
@@ -569,5 +556,16 @@ export default function AIIncomeLandingWrapper() {
           </div>
         </div>
       )}
+
+    </div>
+  )
+}
+
+export default function AIIncomeLandingWrapper() {
+  return (
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F3F0FF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4C1D95', fontFamily:'Georgia,serif' }}>Loading...</div>}>
+      <LandingInner />
+    </Suspense>
+
   )
 }
