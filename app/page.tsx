@@ -1259,7 +1259,7 @@ export default function Home() {
                           border: hl ? `3px solid ${tier==='BRONZE'?'#FDE68A':'#93C5FD'}` : undefined,
                           minWidth: '80px',
                         }}>
-                          <div className="font-black text-xs" style={{ color: text }}>{(col as any).machine} {tier}</div>
+                          <div className="font-black text-xs" style={{ color: text }}>{tier}</div>
                           <div className="font-bold text-xs mt-0.5 opacity-80" style={{ color: text }}>{price}</div>
                           {hl && <div className="text-xs mt-0.5" style={{ color: tier==='BRONZE'?'#FDE68A':'#BFDBFE' }}>★ HIGHLIGHTED</div>}
                         </th>
