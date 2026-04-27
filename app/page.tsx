@@ -1,6 +1,7 @@
 "use client"
 // v2026-03-26 20:06 — JSX fix
 'use client'
+// Compensation plan update — 2026-04-22 15:39:33
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -245,30 +246,25 @@ export default function Home() {
               Transform from employee to entrepreneurial consumer by flipping everyday expenses into income-generating assets within a powerful wealth-building ecosystem.
             </p>
             {!user && (
-              <>
-                <div className="flex gap-4 justify-center flex-wrap">
-                  <Link href="/signup" className="inline-block btn-primary text-lg px-10 py-4 text-xl shadow-2xl">
-                    Start Building
+              <div className="flex flex-col gap-3 justify-center items-center">
+                <Link
+                  href="/ai-income/landing"
+                  className="inline-flex items-center gap-2 font-bold px-10 py-4 rounded-full text-lg hover:opacity-90 shadow-2xl"
+                  style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', color: '#1E1245' }}
+                >
+                  🚀 Start My 4M Machine — Free
+                </Link>
+                <div className="flex gap-3 flex-wrap justify-center">
+                  <Link href="/invite" className="inline-block font-bold text-sm px-6 py-2 rounded-lg border-2 text-white hover:opacity-90"
+                    style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.5)' }}>
+                    🌟 I Was Invited
                   </Link>
-                  <Link
-                    href="/invite"
-                    className="inline-block font-bold text-lg px-10 py-4 rounded-lg border-2 text-white hover:opacity-90 shadow-2xl"
-                    style={{ background: 'linear-gradient(135deg, #2D1B69, #4C1D95)', borderColor: 'rgba(212,175,55,0.7)' }}
-                  >
-                    🌟 You are Invited
-                  </Link>
-                </div>
-                {/* 4M AI Income Machine CTA — for guests */}
-                <div className="mt-4 flex justify-center">
-                  <Link
-                    href="/ai-income/landing"
-                    className="inline-flex items-center gap-2 font-bold px-8 py-3 rounded-full text-sm border-2 hover:opacity-90 shadow-lg"
-                    style={{ background: 'linear-gradient(135deg,#B8860B,#D4AF37)', borderColor: 'rgba(212,175,55,0.5)', color: '#1E1245' }}
-                  >
-                    🤖 Start Earning with AI — 4M Money Machine
+                  <Link href="/login" className="inline-block font-bold text-sm px-6 py-2 rounded-lg border text-white hover:opacity-90"
+                    style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+                    Sign In →
                   </Link>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -1257,13 +1253,13 @@ export default function Home() {
                         { tier:'SILVER',   price:'R12,000',     bg:'#1D4ED8',   text:'#EFF6FF', hl:true,  machine:'⚙️' },
                         { tier:'GOLD',     price:'R24,000',     bg:'#78350F',   text:'#FEF9C3', hl:false, machine:'⚡' },
                         { tier:'PLATINUM', price:'R50,000',     bg:'#4C1D95',   text:'#F3F0FF', hl:false, machine:'⚡' },
-                      ].map(({ tier, price, bg, text, hl, machine }) => (
+                      ].map(({ tier, price, bg, text, hl }) => (
                         <th key={tier} className="px-2 py-2 text-center" style={{
                           background: bg,
                           border: hl ? `3px solid ${tier==='BRONZE'?'#FDE68A':'#93C5FD'}` : undefined,
                           minWidth: '80px',
                         }}>
-                          <div className="font-black text-xs" style={{ color: text }}>{machine} {tier}</div>
+                          <div className="font-black text-xs" style={{ color: text }}>{(col as any).machine} {tier}</div>
                           <div className="font-bold text-xs mt-0.5 opacity-80" style={{ color: text }}>{price}</div>
                           {hl && <div className="text-xs mt-0.5" style={{ color: tier==='BRONZE'?'#FDE68A':'#BFDBFE' }}>★ HIGHLIGHTED</div>}
                         </th>
