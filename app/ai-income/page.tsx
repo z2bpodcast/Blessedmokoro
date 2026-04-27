@@ -597,7 +597,7 @@ This is the Electric Mode — the 4M Machine running with minimal effort.`)
   )
 
   // ── MAIN APP (unlocked) ───────────────────────────────
-  const VEHICLES = [
+  const VEHICLES: Array<{id:string,icon:string,label:string,sub:string,color:string,tier:string,truth:string,upgrade:string}> = [
     { id:'manual',    icon:'🚗', label:'Manual Mode',    sub:'You drive everything yourself', color:'#7C3AED', tier:'Starter · Bronze · Copper',
       truth:'This is where you LEARN how to make money. Slower. Requires effort. But builds real understanding.', upgrade:'Tired of doing everything manually? Upgrade to Automatic Mode →' },
     { id:'automatic', icon:'⚙️', label:'Automatic Mode', sub:'The system starts helping you drive', color:'#0891B2', tier:'Silver ⭐ — MOST IMPORTANT',
