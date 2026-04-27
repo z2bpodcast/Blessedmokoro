@@ -178,7 +178,6 @@ export default function ChoosePlan() {
                   : `${tier.color}22`,
               color: tier.price === 0 || tier.highlight ? '#fff' : tier.color,
               fontSize:'13px', fontWeight:700, fontFamily:'Cinzel,Georgia,serif',
-              border: tier.price === 0 || tier.highlight ? 'none' : `1px solid ${tier.color}60`,
             }}>
               {tier.cta}
             </button>
