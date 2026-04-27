@@ -2,8 +2,8 @@
 // FILE: app/ai-income/choose-plan/page.tsx
 // Tier selection → Free starts immediately → Paid tiers go to payment page
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const PURP  = '#4C1D95'
 const GOLD  = '#D4AF37'
@@ -96,18 +96,20 @@ const TIERS = [
   },
 ]
 
-export default function ChoosePlan() {
+function ChoosePlanInner() {
   const router  = useRouter()
+  const params  = useSearchParams()
+  const ref     = params.get('ref') || ''
   const [selected, setSelected] = useState<string | null>(null)
 
   const handleSelect = (tier: typeof TIERS[0]) => {
     if (tier.price === 0) {
       // Free — go straight to app
-      router.push('/ai-income')
+      router.push(`/ai-income${ref ? '?ref=' + ref : ''}`)
       return
     }
     // Paid — go to payment page with tier pre-selected
-    router.push(`/ai-income/payment?tier=${tier.id}&amount=${tier.price}&name=${encodeURIComponent(tier.name)}`)
+    router.push(`/ai-income/payment?tier=${tier.id}&amount=${tier.price}&name=${encodeURIComponent(tier.name)}${ref ? '&ref=' + ref : ''}`)
   }
 
   return (
@@ -191,5 +193,13 @@ export default function ChoosePlan() {
         Upgrade anytime · Cancel anytime
       </div>
     </div>
+  )
+}
+
+export default function ChoosePlan() {
+  return (
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#0D0820', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>Loading...</div>}>
+      <ChoosePlanInner />
+    </Suspense>
   )
 }

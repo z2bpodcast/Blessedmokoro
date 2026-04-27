@@ -23,7 +23,7 @@ export default function OpportunityPage() {
     })
   }, [])
 
-  const inviteUrl = `https://app.z2blegacybuilders.co.za/ai-income/landing?ref=${refCode}`
+  const inviteUrl = `https://app.z2blegacybuilders.co.za/ai-income/choose-plan?ref=${refCode}`
   const pricingUrl = `https://app.z2blegacybuilders.co.za/pricing`
 
   const PURP = '#4C1D95'
