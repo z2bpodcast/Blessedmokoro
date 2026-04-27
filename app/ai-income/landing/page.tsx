@@ -65,18 +65,14 @@ function LandingInner() {
     return () => clearInterval(t)
   }, [ref])
 
-  const handlePay = async () => {
-    if (!user) { setShowReg(true); return }
-    setPaying(true); setPayError('')
-    try {
-      const res = await fetch('/api/yoco', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action:'create_checkout', user_id:user.id, ref_code:ref, tier:'ai_income' }),
-      })
-      const data = await res.json()
-      if (data.checkoutUrl) { window.location.href = data.checkoutUrl }
-      else { setPayError(data.error || 'Payment failed'); setPaying(false) }
-    } catch (e: any) { setPayError(e.message); setPaying(false) }
+  const handlePay = () => {
+    if (user) {
+      // Already logged in — go straight to choose-plan
+      window.location.href = ref ? `/ai-income/choose-plan?ref=${ref}` : '/ai-income/choose-plan'
+    } else {
+      // Show light registration modal first
+      setShowReg(true)
+    }
   }
 
   const handleRegPay = async () => {
@@ -87,16 +83,12 @@ function LandingInner() {
       email: regEmail.trim().toLowerCase(), password: pwd,
       options: { data: { full_name: regName.trim(), whatsapp: regWa.trim(), referred_by: ref || null } },
     })
-    if (error && !error.message.toLowerCase().includes('already')) { setPayError(error.message); setRegLoading(false); return }
-    const uid = authData?.user?.id
-    if (!uid) { setPayError('Registration failed'); setRegLoading(false); return }
-    const res = await fetch('/api/yoco', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'create_checkout', user_id:uid, ref_code:ref, tier:'ai_income' }),
-    })
-    const data = await res.json()
-    if (data.checkoutUrl) { window.location.href = data.checkoutUrl }
-    else { setPayError(data.error || 'Payment failed'); setRegLoading(false) }
+    if (error && !error.message.toLowerCase().includes('already')) {
+      setPayError(error.message); setRegLoading(false); return
+    }
+    // Light registration done — go to choose-plan
+    setShowReg(false)
+    window.location.href = ref ? `/ai-income/choose-plan?ref=${ref}` : '/ai-income/choose-plan'
   }
 
   // Colour tokens
@@ -130,7 +122,7 @@ function LandingInner() {
             ? <Link href={ref ? `/ai-income/choose-plan?ref=${ref}` : `/ai-income/choose-plan`} style={{ padding:'8px 18px', background:GOLDL, borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', textDecoration:'none' }}>Enter System →</Link>
             : <>
                 <Link href="/login?redirect=/ai-income" style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)', textDecoration:'none' }}>Sign In</Link>
-                <button onClick={handlePay} style={{ padding:'9px 20px', background:GOLDL, border:'none', borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>Start R500 →</button>
+                <button onClick={handlePay} style={{ padding:'9px 20px', background:GOLDL, border:'none', borderRadius:'20px', color:DARK, fontWeight:700, fontSize:'13px', cursor:'pointer' }}>Choose My Plan →</button>
               </>
           }
         </div>
@@ -520,32 +512,7 @@ function LandingInner() {
       </footer>
 
       {/* ── REGISTRATION MODAL ── */}
-      {showReg && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(8px)' }}>
-          <div style={{ background:WHITE, borderRadius:'24px', padding:'32px 24px', maxWidth:'420px', width:'100%', position:'relative', boxShadow:'0 24px 80px rgba(0,0,0,0.4)' }}>
-            <button onClick={() => setShowReg(false)} style={{ position:'absolute', top:'14px', right:'14px', background:'#F1F5F9', border:'none', borderRadius:'50%', width:'30px', height:'30px', cursor:'pointer', fontSize:'15px', color:'#64748B' }}>×</button>
-            <div style={{ textAlign:'center' as const, marginBottom:'20px' }}>
-              <div style={{ fontSize:'26px', marginBottom:'6px' }}>🚀</div>
-              <h2 style={{ fontSize:'18px', fontWeight:700, color:DARK, margin:'0 0 4px', fontFamily:'Cinzel,Georgia,serif' }}>Create Your Account</h2>
-              <p style={{ fontSize:'12px', color:'#64748B', margin:0 }}>Then proceed to R500 payment</p>
-            </div>
-            {payError && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'12px', fontSize:'13px', color:'#991B1B' }}>⚠️ {payError}</div>}
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'14px' }}>
-              {[{l:'Full Name',v:regName,s:setRegName,p:'Your full name',t:'text'},{l:'Email',v:regEmail,s:setRegEmail,p:'your@email.com',t:'email'},{l:'WhatsApp',v:regWa,s:setRegWa,p:'+27 or 0XX XXX XXXX',t:'tel'}].map(({l,v,s,p,t}) => (
-                <div key={l}>
-                  <label style={{ fontSize:'11px', color:'#64748B', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase' as const, fontWeight:700 }}>{l} *</label>
-                  <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p}
-                    style={{ width:'100%', padding:'12px 14px', border:'2px solid #E2E8F0', borderRadius:'10px', fontSize:'14px', outline:'none', boxSizing:'border-box' as const, fontFamily:'Georgia,serif', color:DARK }} />
-                </div>
-              ))}
-            </div>
-            <button onClick={handleRegPay} disabled={regLoading}
-              style={{ width:'100%', padding:'14px', background:`linear-gradient(135deg,${PURP},${PURPL})`, border:'none', borderRadius:'12px', color:WHITE, fontWeight:700, fontSize:'16px', cursor:regLoading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', opacity:regLoading?0.7:1 }}>
-              {regLoading ? 'Processing...' : 'Register & Pay R500 →'}
-            </button>
-          </div>
-        </div>
-      )}
+}
     </div>
   )
 }
@@ -555,5 +522,52 @@ export default function AIIncomeLandingWrapper() {
     <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F3F0FF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4C1D95', fontFamily:'Georgia,serif' }}>Loading...</div>}>
       <LandingInner />
     </Suspense>
+
+      {/* ── LIGHT REGISTRATION MODAL ── */}
+      {showReg && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
+          <div style={{ background:'linear-gradient(160deg,#1E1245,#0D0820)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'20px', padding:'28px 24px', width:'100%', maxWidth:'400px', position:'relative' }}>
+            
+            {/* Close */}
+            <button onClick={() => setShowReg(false)}
+              style={{ position:'absolute', top:'14px', right:'14px', background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'50%', width:'30px', height:'30px', color:'#fff', fontSize:'16px', cursor:'pointer' }}>×</button>
+
+            {/* Header */}
+            <div style={{ textAlign:'center', marginBottom:'20px' }}>
+              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#fff', marginBottom:'4px' }}>
+                Create Your Free Account
+              </div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)' }}>
+                Quick setup · Then choose your power level
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'16px' }}>
+              <input value={regName} onChange={e => setRegName(e.target.value)}
+                placeholder="Full Name *" autoFocus
+                style={{ padding:'12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', color:'#fff', fontSize:'14px', outline:'none', fontFamily:'Georgia,serif' }} />
+              <input value={regEmail} onChange={e => setRegEmail(e.target.value)}
+                placeholder="Email Address *" type="email"
+                style={{ padding:'12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', color:'#fff', fontSize:'14px', outline:'none', fontFamily:'Georgia,serif' }} />
+              <input value={regWa} onChange={e => setRegWa(e.target.value)}
+                placeholder="WhatsApp Number *"
+                style={{ padding:'12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', color:'#fff', fontSize:'14px', outline:'none', fontFamily:'Georgia,serif' }} />
+            </div>
+
+            {payError && <div style={{ color:'#FCA5A5', fontSize:'12px', marginBottom:'10px', textAlign:'center' }}>{payError}</div>}
+
+            {/* CTA */}
+            <button onClick={handleRegPay} disabled={regLoading || !regName.trim() || !regEmail.trim() || !regWa.trim()}
+              style={{ width:'100%', padding:'14px', background:'linear-gradient(135deg,#D4AF37,#B8860B)', border:'none', borderRadius:'12px', color:'#1E1245', fontWeight:900, fontSize:'15px', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif', opacity: regLoading ? 0.7 : 1 }}>
+              {regLoading ? 'Setting up your account...' : '🚀 Continue to Choose Plan →'}
+            </button>
+
+            <div style={{ textAlign:'center', marginTop:'12px', fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
+              Free to start · No payment required yet · Cancel anytime
+            </div>
+          </div>
+        </div>
+      )}
   )
 }
