@@ -21,6 +21,18 @@ const TIER_PRICES: Record<string,number> = {
   starter:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
   silver_rocket:17000, gold_rocket:35000, platinum_rocket:70000,
 }
+
+const NEXT_TIER: Record<string,{name:string,price:number}> = {
+  starter:      { name:'Bronze',           price:2500  },
+  bronze:       { name:'Copper',           price:5000  },
+  copper:       { name:'Silver',           price:12000 },
+  silver:       { name:'Silver Rocket',    price:17000 },
+  silver_rocket:{ name:'Gold',             price:24000 },
+  gold:         { name:'Gold Rocket',      price:35000 },
+  gold_rocket:  { name:'Platinum',         price:50000 },
+  platinum:     { name:'Platinum Rocket',  price:70000 },
+  platinum_rocket:{ name:'Max Tier Reached', price:0   },
+}
 const TLI_LEVELS = [
   { level:1,  name:'Table Starter',        amount:3000,      req:'30 builders · 4 Silver leaders' },
   { level:2,  name:'Table Builder',        amount:8000,      req:'80 builders · 4 Silver + 2 at L1' },
@@ -44,6 +56,7 @@ const STREAMS = [
   { id:'ceoA',  name:'CEO Awards',        full:'CEO Special Achievement',          color:'#E879F9', icon:'👑' },
   { id:'mkt',   name:'Marketplace',     full:'Marketplace Income (keep 90%)',    color:'#4ADE80', icon:'🏪' },
   { id:'dist',  name:'Distribution',    full:'Distribution Rights (Platinum+)',  color:'#818CF8', icon:'🌐' },
+  { id:'safe',  name:'Safe',             full:'Tier Upgrade Safe (Savings)',      color:'#FCD34D', icon:'💰' },
 ]
 
 // NSB: R100 + ISP% of sale tier price — personal sales only
@@ -119,8 +132,18 @@ export default function CompensationPage() {
         {active === 'nsb' && (
           <div style={card('#6EE7B730')}>
             <h2 style={{ color:'#6EE7B7', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🎯 NSB — New Sale Bonus</h2>
+            {/* Free Builder Special Rules */}
+            <div style={{ background:'rgba(110,231,183,0.08)', border:'1px solid rgba(110,231,183,0.25)', borderRadius:'12px', padding:'14px', marginBottom:'12px' }}>
+              <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7', marginBottom:'6px' }}>🆓 Free Builder — Special Rules</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.7)', lineHeight:1.8 }}>
+                Free builders earn <strong style={{color:'#6EE7B7'}}>ONLY NSB</strong> (R100 + 10%) on their personal sales — from Starter to Platinum Rocket. No ISP, TSC, QPB, TLI, CEO or Marketplace income.
+              </div>
+              <div style={{ marginTop:'8px', padding:'8px 12px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', fontSize:'12px', color:'#FCD34D', lineHeight:1.7 }}>
+                🚀 <strong>Auto-Upgrade:</strong> When a Free builder accumulates R500 in NSB earnings, the system automatically uses that R500 to upgrade them to Starter Pack. They instantly unlock all 9 income streams.
+              </div>
+            </div>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              <strong style={{color:'#6EE7B7'}}>Starter Pack sales only</strong> — paid to the builder who personally generated the sale. R100 flat + your ISP%. Free/Starter builders earn NSB on own sales only. Bronze+ earn NSB on their own Starter Pack sales only (not team Starter sales).
+              <strong style={{color:'#6EE7B7'}}>For Starter+ builders:</strong> NSB is paid to the builder who personally generated the sale. R100 flat + your ISP% of the sale tier price.
             </p>
             <div style={{ background:'rgba(110,231,183,0.06)', border:'1px solid rgba(110,231,183,0.2)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
               <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7', marginBottom:'10px' }}>💡 NSB Calculator</div>
@@ -366,6 +389,81 @@ export default function CompensationPage() {
                 <span style={{ fontSize:'12px', color:W, textAlign:'right' as const }}>{row.value}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ── TIER UPGRADE SAFE ── */}
+        {active === 'safe' && (
+          <div style={card('#FCD34D30')}>
+            <h2 style={{ color:'#FCD34D', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>💰 Tier Upgrade Safe</h2>
+            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
+              Available to <strong style={{color:'#FCD34D'}}>Starter+ builders</strong>. Give Z2B permission to automatically save a percentage of your earnings toward your next tier upgrade. The saved money belongs to you — always.
+            </p>
+
+            {/* How it works */}
+            <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px' }}>
+              {[
+                { step:'1', text:'Choose your save percentage (20%, 30% or custom %)', color:'#FCD34D' },
+                { step:'2', text:'Z2B automatically deducts your chosen % from every earning', color:'#FCD34D' },
+                { step:'3', text:'Your Safe balance grows until it reaches your next tier price', color:'#FCD34D' },
+                { step:'4', text:'You get notified — one tap to activate your upgrade', color:'#FCD34D' },
+              ].map(s => (
+                <div key={s.step} style={{ display:'flex', gap:'10px', alignItems:'flex-start' }}>
+                  <div style={{ width:'22px', height:'22px', borderRadius:'50%', background:`${s.color}20`, border:`1px solid ${s.color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:900, color:s.color, flexShrink:0 }}>{s.step}</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.7)', lineHeight:1.6 }}>{s.text}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Example calculations */}
+            <div style={{ fontSize:'12px', fontWeight:700, color:'#FCD34D', marginBottom:'8px' }}>📊 Example Savings Scenarios</div>
+            <div style={{ overflowX:'auto' }}>
+              <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'11px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding:'6px 4px', textAlign:'left', color:GOLD }}>Current → Next</th>
+                    <th style={{ padding:'6px 4px', textAlign:'center', color:GOLD }}>Monthly Earn</th>
+                    <th style={{ padding:'6px 4px', textAlign:'center', color:GOLD }}>Save 20%</th>
+                    <th style={{ padding:'6px 4px', textAlign:'center', color:GOLD }}>Save 30%</th>
+                    <th style={{ padding:'6px 4px', textAlign:'center', color:GOLD }}>Months (20%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { cur:'Starter', nxt:'Bronze', target:2500, monthly:500 },
+                    { cur:'Bronze', nxt:'Copper', target:5000, monthly:1000 },
+                    { cur:'Copper', nxt:'Silver', target:12000, monthly:2000 },
+                    { cur:'Silver', nxt:'S.Rocket', target:17000, monthly:3000 },
+                    { cur:'Gold', nxt:'G.Rocket', target:35000, monthly:5000 },
+                  ].map(row => (
+                    <tr key={row.cur} style={{ borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding:'6px 4px', color:W, fontWeight:700 }}>{row.cur} → {row.nxt}</td>
+                      <td style={{ padding:'6px 4px', textAlign:'center', color:'rgba(255,255,255,0.6)' }}>R{row.monthly.toLocaleString()}</td>
+                      <td style={{ padding:'6px 4px', textAlign:'center', color:'#6EE7B7' }}>R{(row.monthly*0.2).toLocaleString()}/mo</td>
+                      <td style={{ padding:'6px 4px', textAlign:'center', color:'#6EE7B7' }}>R{(row.monthly*0.3).toLocaleString()}/mo</td>
+                      <td style={{ padding:'6px 4px', textAlign:'center', color:'#FCD34D', fontWeight:700 }}>~{Math.ceil(row.target/(row.monthly*0.2))} mo</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Rules */}
+            <div style={{ marginTop:'14px', padding:'12px', background:'rgba(252,211,77,0.06)', border:'1px solid rgba(252,211,77,0.15)', borderRadius:'10px' }}>
+              <div style={{ fontSize:'12px', fontWeight:700, color:'#FCD34D', marginBottom:'6px' }}>📋 Safe Rules</div>
+              {[
+                'The saved money belongs to you — always',
+                'You can opt out at any time and receive a full refund of your saved balance',
+                'Opting out does NOT change your current tier — you stay where you are',
+                'You can top up your Safe balance manually at any time',
+                'Save % applies to all earnings: NSB, ISP, QPB, TSC, Marketplace income',
+                'When target is reached, you receive a notification to approve the upgrade',
+              ].map((rule, i) => (
+                <div key={i} style={{ display:'flex', gap:'6px', fontSize:'12px', color:'rgba(255,255,255,0.65)', padding:'3px 0', lineHeight:1.6 }}>
+                  <span style={{ color:'#FCD34D', flexShrink:0 }}>✓</span>{rule}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
