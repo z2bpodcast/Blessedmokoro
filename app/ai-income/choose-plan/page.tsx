@@ -145,8 +145,7 @@ function ChoosePlanInner() {
                     : tier.highlight ? `linear-gradient(135deg,${GOLD},#B8860B)`
                     : `${tier.color}22`,
                   color: tier.price === 0 || tier.rocket || tier.highlight ? '#fff' : tier.color,
-                  fontSize:'13px', fontWeight:700, fontFamily: tier.rocket || tier.highlight ? 'Cinzel,Georgia,serif' : 'Georgia,serif',
-                  border: (!tier.price || tier.rocket || tier.highlight) ? 'none' : `1px solid ${tier.color}60` }}>
+                  fontSize:'13px', fontWeight:700, fontFamily: tier.rocket || tier.highlight ? 'Cinzel,Georgia,serif' : 'Georgia,serif' }}>
                 {tier.cta}
               </button>
             </div>
