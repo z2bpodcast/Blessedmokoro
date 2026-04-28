@@ -197,14 +197,17 @@ const BONUS_OFFERS: Record<string, string[]> = {
 const TIER_COLORS: Record<string,string> = {
   fam:'#6B7280', bronze:'#CD7F32', copper:'#B87333',
   silver:'#C0C0C0', gold:'#D4AF37', platinum:'#E5E4E2',
+  silver_rocket:'#FF6B35', gold_rocket:'#FF6B35', platinum_rocket:'#FF6B35',
 }
 
 const TIER_PRICES: Record<string,number> = {
-  fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
+  fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
+  silver_rocket:17000, gold_rocket:35000, platinum_rocket:70000,
 }
 
 const TIER_LABELS: Record<string,string> = {
-  fam:'Starter Pack', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
+  fam:'Starter Pack', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum',
+  silver_rocket:'Silver Rocket', gold_rocket:'Gold Rocket', platinum_rocket:'Platinum Rocket',
 }
 
 export default function PricingPage() {
@@ -496,10 +499,10 @@ export default function PricingPage() {
                   {/* Tier cards in this power */}
                   <div style={{ background:power.bg, border:`2px solid ${power.border}30`, borderRadius:'0 0 20px 20px', padding:'24px', display:'grid', gridTemplateColumns:`repeat(${power.tiers.length},1fr)`, gap:'16px' }}>
                     {power.tiers.map(tierKey => {
-                      const price = TIER_PRICES[tierKey]
+                      const price = TIER_PRICES[tierKey] || 0
                       const isCurrentTier = currentTier === tierKey
                       const isBest = tierKey === 'gold'
-                      const tierColor = TIER_COLORS[tierKey]
+                      const tierColor = TIER_COLORS[tierKey] || '#FF6B35'
                       return (
                         <div key={tierKey} style={{ background:'#fff', borderRadius:'16px', border:`2px solid ${isBest?tierColor:isCurrentTier?'#059669':tierColor+'40'}`, padding:'24px 20px', position:'relative', boxShadow: isBest?`0 8px 32px ${tierColor}30`:'none' }}>
                           {isBest && <div style={{ position:'absolute', top:'-12px', left:'50%', transform:'translateX(-50%)', background:`linear-gradient(135deg,#D4AF37,#B8860B)`, borderRadius:'20px', padding:'4px 14px', fontSize:'11px', fontWeight:700, color:'#fff', whiteSpace:'nowrap' as const }}>⭐ BEST VALUE</div>}
@@ -511,7 +514,7 @@ export default function PricingPage() {
                               {tierKey==='platinum'?'👑':tierKey==='gold'?'⭐':tierKey==='silver'?'⚡':tierKey==='copper'?'🔶':tierKey==='bronze'?'🥉':'🆓'}
                             </div>
                             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[tierKey]}</div>
-                            <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>R{price.toLocaleString()}</div>
+                            <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>R{(price || 0).toLocaleString()}</div>
                             <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
                             {tierKey==='fam' && <div style={{ fontSize:'10px', color:'rgba(76,29,149,0.6)', marginTop:'2px' }}>R850/month BFM after 60 days</div>}
                             {tierKey==='bronze' && <div style={{ fontSize:'10px', color:'rgba(205,127,50,0.6)', marginTop:'2px' }}>R1,050/month BFM</div>}
@@ -551,7 +554,7 @@ export default function PricingPage() {
                             style={{ width:'100%', padding:'13px', background: isCurrentTier?'#F3F4F6':isBest?`linear-gradient(135deg,${tierColor},#B8860B)`:`linear-gradient(135deg,${power.color},${power.border})`,
                               border:'none', borderRadius:'12px', color: isCurrentTier?'#9CA3AF':'#fff', fontWeight:700, fontSize:'13px', cursor: isCurrentTier?'not-allowed':'pointer',
                               fontFamily:'Cinzel,Georgia,serif' }}>
-                            {isCurrentTier ? '✓ Current Tier' : `Get ${TIER_LABELS[tierKey]} — R${price.toLocaleString()}`}
+                            {isCurrentTier ? '✓ Current Tier' : `Get ${TIER_LABELS[tierKey]} — R${(price || 0).toLocaleString()}`}
                           </button>
                         </div>
                       )
@@ -587,7 +590,7 @@ export default function PricingPage() {
                 <div style={{ textAlign:'center', marginBottom:'24px' }}>
                   <div style={{ fontSize:'11px', fontWeight:700, color:power?.color, letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'8px' }}>{power?.icon} {power?.label}</div>
                   <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[selectedTier]} Membership</div>
-                  <div style={{ fontSize:'32px', fontWeight:900, color:TIER_COLORS[selectedTier] }}>R{price.toLocaleString()}</div>
+                  <div style={{ fontSize:'32px', fontWeight:900, color:TIER_COLORS[selectedTier] }}>R{(price || 0).toLocaleString()}</div>
                   <div style={{ fontSize:'12px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
                 </div>
               )
@@ -638,7 +641,7 @@ export default function PricingPage() {
                 ))}
                 <div style={{ background:'#FFFBEB', border:'2px solid #D4AF37', borderRadius:'10px', padding:'12px', marginBottom:'12px' }}>
                   <div style={{ fontSize:'11px', color:'#9CA3AF', marginBottom:'2px' }}>Amount to Deposit</div>
-                  <div style={{ fontSize:'24px', fontWeight:900, color:'#B8860B' }}>R{TIER_PRICES[selectedTier].toLocaleString()}</div>
+                  <div style={{ fontSize:'24px', fontWeight:900, color:'#B8860B' }}>R{(TIER_PRICES[selectedTier] || 0).toLocaleString()}</div>
                 </div>
                 <div style={{ background:'#FFFBEB', border:'2px solid #FCD34D', borderRadius:'10px', padding:'10px', marginBottom:'12px', fontSize:'12px', color:'#92400E' }}>
                   ⚠️ Use YOUR reference code above. We activate within 24 hours after verifying receipt.
