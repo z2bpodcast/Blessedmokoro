@@ -1,6 +1,6 @@
 'use client'
 // FILE: app/compensation/page.tsx
-// Z2B 4M Compensation Plan — 7 Income Streams Interactive Explorer
+// Z2B 4M Compensation Plan — 9 Income Streams Interactive Explorer
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -11,13 +11,15 @@ const PURP = '#4C1D95'
 const W    = '#F0EEF8'
 
 const ISP_RATES: Record<string,number> = {
-  free:10, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30
+  free:10, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30,
+  silver_rocket:25, gold_rocket:28, platinum_rocket:30,
 }
 const BFM_AMOUNTS: Record<string,number> = {
   starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800
 }
 const TIER_PRICES: Record<string,number> = {
-  starter:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000
+  starter:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
+  silver_rocket:17000, gold_rocket:35000, platinum_rocket:70000,
 }
 const TLI_LEVELS = [
   { level:1,  name:'Table Starter',        amount:3000,      req:'30 builders · 4 Silver leaders' },
@@ -39,13 +41,19 @@ const STREAMS = [
   { id:'tsc',  name:'TSC',              full:'Team Sales Commission',       color:'#38BDF8', icon:'🔗' },
   { id:'tli',  name:'TLI',              full:'Team Leadership Income',      color:GOLD,      icon:'🏆' },
   { id:'ceoC', name:'CEO Competition', full:'CEO Competition Income',      color:'#F472B6', icon:'🏅' },
-  { id:'ceoA', name:'CEO Awards',       full:'CEO Special Achievement',    color:'#E879F9', icon:'👑' },
+  { id:'ceoA',  name:'CEO Awards',        full:'CEO Special Achievement',          color:'#E879F9', icon:'👑' },
+  { id:'mkt',   name:'Marketplace',     full:'Marketplace Income (keep 90%)',    color:'#4ADE80', icon:'🏪' },
+  { id:'dist',  name:'Distribution',    full:'Distribution Rights (Platinum+)',  color:'#818CF8', icon:'🌐' },
 ]
 
-// NSB: R100 + ISP% of R500 — Starter Pack personal sales only
-function calcNSB(builderTier: string): number {
-  const rate = ISP_RATES[builderTier] || 10
-  return 100 + (rate/100 * 500)
+// NSB: R100 + ISP% of sale tier price — personal sales only
+// Starter Pack: R100 + ISP% of R500
+// Bronze+ tiers: ISP% of tier price only (no R100 flat)
+function calcNSB(builderTier: string, saleTier: string): number {
+  const rate  = ISP_RATES[builderTier] || 10
+  const price = TIER_PRICES[saleTier]  || 500
+  if (saleTier === 'starter') return Math.round(100 + (rate/100 * 500))
+  return Math.round(rate/100 * price)
 }
 
 // ISP on Bronze+ upgrades: ISP% of tier price — personal + accessible team generations
@@ -87,7 +95,7 @@ export default function CompensationPage() {
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:'24px' }}>
           <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:W, margin:'0 0 6px' }}>
-            7 Income Streams
+            9 Income Streams
           </h1>
           <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', margin:0 }}>
             Tap any stream to explore the full details
@@ -132,9 +140,11 @@ export default function CompensationPage() {
               </div>
               <div style={{ textAlign:'center', padding:'14px', background:'rgba(110,231,183,0.1)', borderRadius:'10px' }}>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)', marginBottom:'4px' }}>
-                  `R100 + ${ISP_RATES[simTier]}% of R500 = R${calcNSB(simTier).toLocaleString()}`
+                  simSale === 'starter' 
+                  ? `R100 + ${ISP_RATES[simTier]}% of R500 = R${calcNSB(simTier, 'starter').toLocaleString()}`
+                  : `${ISP_RATES[simTier]}% of R${(TIER_PRICES[simSale]||0).toLocaleString()} = R${calcNSB(simTier, simSale).toLocaleString()}`
                 </div>
-                <div style={{ fontSize:'30px', fontWeight:900, color:'#6EE7B7' }}>R{calcNSB(simTier).toLocaleString()}</div>
+                <div style={{ fontSize:'30px', fontWeight:900, color:'#6EE7B7' }}>R{calcNSB(simTier, simSale).toLocaleString()}</div>
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>NSB earned · once-off</div>
               </div>
             </div>
@@ -152,7 +162,7 @@ export default function CompensationPage() {
                       <td style={{ padding:'6px 4px', fontWeight:700, textTransform:'capitalize', color:'#A78BFA' }}>{builder}</td>
                       {Object.keys(TIER_PRICES).map(sale => (
                         <td key={sale} style={{ padding:'6px 4px', textAlign:'center', color:'#6EE7B7', fontWeight:700 }}>
-                          R{calcNSB(builder).toLocaleString()}
+                          R{calcNSB(builder, 'starter').toLocaleString()}
                         </td>
                       ))}
                     </tr>
@@ -305,6 +315,55 @@ export default function CompensationPage() {
               <div key={row.label} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.06)', gap:'12px' }}>
                 <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{row.label}</span>
                 <span style={{ fontSize:'12px', color:W, textAlign:'right' }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── MARKETPLACE ── */}
+        {active === 'mkt' && (
+          <div style={card('#4ADE8030')}>
+            <h2 style={{ color:'#4ADE80', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🏪 Marketplace Income</h2>
+            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
+              List your Rocket Mode digital products on the Z2B Marketplace. Set your own retail price. Builders keep <strong style={{color:'#4ADE80'}}>90%</strong> — Z2B takes 10% marketplace service fee only.
+            </p>
+            <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px' }}>
+              {[
+                { tier:'Silver (Rocket)', access:'List on Z2B Marketplace · 12 products/month', color:'#C0C0C0' },
+                { tier:'Gold (Rocket)',   access:'Z2B Marketplace + sell externally · 30 products/month', color:'#D4AF37' },
+                { tier:'Platinum (Rocket)', access:'Z2B Marketplace + own branded marketplace · Unlimited', color:'#E2E8F0' },
+              ].map(row => (
+                <div key={row.tier} style={{ display:'flex', justifyContent:'space-between', padding:'10px 14px', background:'rgba(74,222,128,0.04)', border:'1px solid rgba(74,222,128,0.12)', borderRadius:'10px' }}>
+                  <span style={{ fontSize:'13px', fontWeight:700, color:row.color }}>{row.tier}</span>
+                  <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)', textAlign:'right' as const, maxWidth:'60%' }}>{row.access}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background:'rgba(74,222,128,0.08)', border:'1px solid rgba(74,222,128,0.2)', borderRadius:'12px', padding:'14px', textAlign:'center' as const }}>
+              <div style={{ fontSize:'24px', fontWeight:900, color:'#4ADE80' }}>90%</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>of every sale goes to you</div>
+              <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)', marginTop:'4px' }}>Z2B takes 10% marketplace service fee · No listing fee · No monthly fee</div>
+            </div>
+          </div>
+        )}
+
+        {/* ── DISTRIBUTION RIGHTS ── */}
+        {active === 'dist' && (
+          <div style={card('#818CF830')}>
+            <h2 style={{ color:'#818CF8', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🌐 Distribution Rights</h2>
+            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
+              Exclusive to <strong style={{color:'#818CF8'}}>Platinum</strong> and <strong style={{color:'#818CF8'}}>Platinum Rocket</strong> builders. Distribution Rights allow you to licence and distribute the Z2B 4M system — creating your own sub-network with full branding rights.
+            </p>
+            {[
+              { label:'Who qualifies', value:'Platinum (R50,000) and Platinum Rocket (R70,000) only' },
+              { label:'What you get', value:'Right to distribute Z2B membership in your own branded environment' },
+              { label:'Your own marketplace', value:'Own branded product marketplace under your domain' },
+              { label:'Revenue', value:'Full TSC G2–G10 on your distribution network + Marketplace income + all other streams' },
+              { label:'Platinum Rocket bonus', value:'Unlimited Rocket Mode products + website builder + bulk creation for your entire network' },
+            ].map(row => (
+              <div key={row.label} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.06)', gap:'12px' }}>
+                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{row.label}</span>
+                <span style={{ fontSize:'12px', color:W, textAlign:'right' as const }}>{row.value}</span>
               </div>
             ))}
           </div>

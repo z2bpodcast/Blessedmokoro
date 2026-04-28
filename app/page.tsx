@@ -1001,8 +1001,8 @@ export default function Home() {
                       {
                         emoji:'📊', title:'Compensation Engine',
                         tag:'ALL TIERS', tagColor:'#7C3AED',
-                        short:'6 income streams tracked in real time',
-                        detail:'Your personal earnings dashboard tracks all 6 income streams: ISP (Individual Sales Profit), QPB (Quick Pathfinder Bonus), TSC (Team Sales Commission), MKT (Marketplace Sales), CEO Competitions and CEO Quarterly Awards. See confirmed earnings, pending payments and team depth — all in one view.',
+                        short:'9 income streams tracked in real time',
+                        detail:'Your personal earnings dashboard tracks all 9 income streams: ISP (Individual Sales Profit), QPB (Quick Pathfinder Bonus), TSC (Team Sales Commission), MKT (Marketplace Sales), CEO Competitions and CEO Quarterly Awards. See confirmed earnings, pending payments and team depth — all in one view.',
                       },
                       {
                         emoji:'❤️', title:'Start Here Orientation',
@@ -1204,7 +1204,7 @@ export default function Home() {
               </div>
               <div className="px-6 py-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <p className="text-purple-200 leading-relaxed mb-5">
-                  Z2B has <strong className="text-white">6 income streams</strong>. Every paid tier unlocks more. Bronze is the starting point. Platinum unlocks all 10 generations of Team Sales Commission.
+                  Z2B has <strong className="text-white">9 income streams</strong>. Every paid tier unlocks more. Bronze is the starting point. Platinum unlocks all 10 generations of Team Sales Commission.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                   {[
@@ -1213,7 +1213,7 @@ export default function Home() {
                     { code:'TSC', name:'Team Sales Commission', desc:'1%–10% across up to 10 team generations · BFM active = TSC flows', color:'#1D4ED8' },
                     { code:'TLI', name:'Team Leadership Incentives', desc:'R3,000–R3.5M quarterly · Silver+ · Develop 4 same-tier leaders · 10 levels', color:'#D4AF37' },
                     { code:'CEO', name:'CEO Competitions', desc:'Quarterly performance prizes set by Rev · All active BFM builders eligible', color:'#DC2626' },
-                    { code:'MKT', name:'Marketplace Sales', desc:'95% of asking price · Gold & Platinum only', color:'#065F46' },
+                    { code:'MKT', name:'Marketplace Sales', desc:'90% of asking price · Gold & Platinum only', color:'#065F46' },
                   ].map((st, i) => (
                     <div key={i} className="rounded-xl p-4 border border-white/10" style={{ background: `${st.color}15` }}>
                       <span className="text-xs font-black px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: st.color, color: '#fff' }}>{st.code}</span>
@@ -1366,7 +1366,7 @@ export default function Home() {
                     {/* MKT / CEO */}
                     <tr><td colSpan={7} className="px-3 py-2 font-black text-yellow-400 text-xs" style={{ background: '#1E1B4B' }}>🛒 MKT Marketplace · CEO Competitions · CEO Quarterly Awards (Active BFM required)</td></tr>
                     {[
-                      ['Marketplace (MKT)',    '✗','✗',     '✗',     '✗',     '95%',   '95%'   ],
+                      ['Marketplace (MKT)',    '✗','✗',     '✗',     '✗',     '90%',   '90%'   ],
                       ['CEO Competitions',     '✗','✓ BFM', '✓ BFM', '✓ BFM', '✓ BFM', '✓ BFM' ],
                       ['CEO Quarterly Awards', '✗','✗',     '✗',     '✗',     '✓ Gold','✓ Plat.'],
                     ].map(([label,...vals], ri) => (

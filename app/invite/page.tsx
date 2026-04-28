@@ -40,6 +40,14 @@ const VEHICLES = [
       { name:'Gold', price:'R24,000 once-off', features:'All Silver + Digital Twin (5 per PWA) · G2–G8 TSC · ISP 28% · Higher TLI · BFM: R3,200/month' },
       { name:'Platinum', price:'R50,000 once-off', features:'All Gold + Digital Twin (7) · Distribution License · G2–G10 TSC · ISP 30% · CEO Competition eligible · BFM: R5,800/month' },
     ],
+
+  {
+    icon:'🚀', name:'Rocket Mode', color:'#FF6B35',
+    tiers:[
+      { name:'Silver Rocket', price:'R17,000 once-off', features:'Everything in Silver + Rocket Mode (12 products/month) · AI creates complete products · AI website builder · Z2B Marketplace · Keep 90% · BFM: R2,000/month' },
+      { name:'Gold Rocket',   price:'R35,000 once-off', features:'Everything in Gold + Rocket Mode (30 products/month) · Live global research · Website + full promotion strategy · Sell anywhere · BFM: R3,200/month' },
+      { name:'Platinum Rocket',price:'R70,000 once-off', features:'Everything in Platinum + Unlimited Rocket Mode · Own branded marketplace · Bulk creation · Distribution Rights (9th income stream) · BFM: R5,800/month' },
+    ],
   },
 ]
 
@@ -200,6 +208,36 @@ Format: Various — team building races, sales sprints, recruitment targets
 Prizes: Cash, trips, recognition, tier upgrades
 Eligibility: Varies per competition — some open to all, some tier-restricted
 Frequency: Announced by CEO — not permanent`,
+  },
+  {
+    icon:'🏪', name:'Marketplace', full:'Marketplace Income',
+    color:'#4ADE80',
+    short:'Keep 90% of every product sale — Z2B takes 10% only',
+    detail:`List your Rocket Mode digital products on Z2B Marketplace. Set your own retail price. You keep 90% of every sale. Z2B takes 10% marketplace service fee only.
+
+Available to: Silver Rocket · Gold Rocket · Platinum Rocket
+Gold Rocket: Also sell externally on any platform
+Platinum Rocket: Plus own branded marketplace under your domain
+
+No listing fee. No monthly fee. Just 10% when you sell.`,
+  },
+  {
+    icon:'🌐', name:'Distribution', full:'Distribution Rights',
+    color:'#818CF8',
+    short:'Platinum only — licence and distribute the Z2B system',
+    detail:`The 9th and most powerful income stream. Exclusive to Platinum (R50,000) and Platinum Rocket (R70,000) builders.
+
+Distribution Rights allow you to:
+• Licence the Z2B 4M system under your own brand
+• Build your own sub-network with full branding
+• Run your own branded product marketplace
+• Earn TSC G2-G10 on your entire distribution network
+
+Platinum Rocket adds:
+• Unlimited Rocket Mode for your entire network
+• AI website builder for every product
+• Bulk creation tools
+• Full promotion strategy per product`,
   },
   {
     icon:'👑', name:'CEO Awards', full:'CEO Special Achievement Awards',
@@ -368,7 +406,7 @@ function InviteInner() {
         {/* ── 7 INCOME STREAMS (hover) ── */}
         <div style={{ marginBottom:'32px' }}>
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'6px' }}>Compensation</div>
-          <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:W, margin:'0 0 6px' }}>7 Income Streams</h2>
+          <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:W, margin:'0 0 6px' }}>9 Income Streams</h2>
           <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginBottom:'14px' }}>👆 Tap/hover any stream to see full details</div>
           <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
             {INCOME_STREAMS.map(s => (
@@ -393,7 +431,7 @@ function InviteInner() {
         <div style={{ textAlign:'center' as const, background:`linear-gradient(135deg,rgba(76,29,149,0.3),rgba(212,175,55,0.08))`, border:`2px solid ${GOLD}40`, borderRadius:'20px', padding:'28px 20px' }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:W, marginBottom:'8px' }}>Ready to Deploy Yourself?</div>
           <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginBottom:'20px', lineHeight:1.8 }}>
-            Start free today. Upgrade when you're ready.<br/>7 AI engines + 7 income streams waiting for you.
+            Start free today. Upgrade when you're ready.<br/>7 AI engines + 9 income streams waiting for you.
           </p>
           <Link href={landingUrl}
             style={{ display:'inline-block', padding:'15px 36px', background:`linear-gradient(135deg,${GOLD},#B8860B)`, borderRadius:'14px', color:'#1E1245', fontWeight:900, fontSize:'15px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>

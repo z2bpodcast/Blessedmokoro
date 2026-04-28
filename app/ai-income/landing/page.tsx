@@ -312,7 +312,7 @@ function LandingInner() {
               <div style={{ fontSize:'14px', fontStyle:'italic', color:WHITE, fontWeight:700, marginBottom:'4px' }}>The system drives most of the journey.</div>
               <div style={{ fontSize:'13px', color:GOLDL, fontWeight:700, marginBottom:'12px' }}>Your income runs daily with minimal effort.</div>
               <div style={{ height:'1px', background:`${GOLDL}20`, marginBottom:'12px' }} />
-              {['An AI avatar talks to leads for you — 24/7','Your follow-ups run automatically even when offline','Multiple 7 income streams active simultaneously','AI generates product images and marketing visuals','Your own white-label platform (Platinum)'].map(pt => (
+              {['An AI avatar talks to leads for you — 24/7','Your follow-ups run automatically even when offline','Multiple 9 income streams active simultaneously','AI generates product images and marketing visuals','Your own white-label platform (Platinum)'].map(pt => (
                 <div key={pt} style={{ display:'flex', gap:'8px', marginBottom:'7px', alignItems:'flex-start' }}>
                   <span style={{ color:GOLDL, fontSize:'12px', flexShrink:0, marginTop:'2px' }}>✦</span>
                   <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.8)', lineHeight:1.5 }}>{pt}</span>
