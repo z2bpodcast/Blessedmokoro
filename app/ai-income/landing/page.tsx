@@ -443,7 +443,7 @@ function LandingInner() {
               <div style={{ fontSize:'11px', fontWeight:700, color:'#6EE7B7', letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'8px' }}>💵 THE PRICE</div>
               <div style={{ fontSize:'36px', fontWeight:900, color:'#6EE7B7', fontFamily:'Cinzel,Georgia,serif', marginBottom:'4px' }}>R500</div>
               <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.6)', marginBottom:'14px' }}>60-Day AI Income Activation Program</div>
-              {['Full 4M Machine — 3 vehicle modes','AI creates your offers, posts and messages','5 ready-to-sell digital products','Referral income — R100 per person you refer','60-day guided execution plan'].map(item => (
+              {['Full 4M Machine — 4 vehicle modes','AI creates your offers, posts and messages','5 ready-to-sell digital products','Referral income — R100 per person you refer','60-day guided execution plan'].map(item => (
                 <div key={item} style={{ display:'flex', gap:'8px', marginBottom:'7px' }}>
                   <span style={{ color:'#6EE7B7', fontSize:'13px' }}>✅</span>
                   <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.8)' }}>{item}</span>

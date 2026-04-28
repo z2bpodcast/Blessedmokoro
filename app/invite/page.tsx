@@ -13,7 +13,7 @@ const W    = '#F0EEF8'
 
 const FOUR_M = [
   { m:'📱', t:'Mobile', d:'Everything runs from your smartphone. No office. No laptop required. Your phone is your business headquarters.' },
-  { m:'💰', t:'Money', d:'Real income streams — from your first R200 NSB to R3.5M quarterly TLI bonuses. Every level is designed to pay.' },
+  { m:'💰', t:'Money', d:'Real income streams — from your first R150 NSB to R3.5M TLI (once per rank) bonuses. Every level is designed to pay.' },
   { m:'🔧', t:'Making', d:'AI tools that DO the work with you — generating offers, finding customers, writing pitches, closing sales.' },
   { m:'⚙️', t:'Machine', d:'A system that works even when you sleep. Digital Twins handle enquiries. Funnels run automatically. Teams duplicate.' },
 ]
@@ -304,12 +304,14 @@ function InviteInner() {
         <div style={{ marginBottom:'32px' }}>
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', letterSpacing:'2px', textTransform:'uppercase' as const, marginBottom:'6px' }}>The Framework</div>
           <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:W, margin:'0 0 14px' }}>The 4M — What Each Letter Means</h2>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
             {FOUR_M.map(item => (
-              <div key={item.t} style={{ ...card, textAlign:'center' as const }}>
-                <div style={{ fontSize:'26px', marginBottom:'6px' }}>{item.m}</div>
-                <div style={{ fontSize:'15px', fontWeight:900, color:GOLD, marginBottom:'4px', fontFamily:'Cinzel,Georgia,serif' }}>{item.t}</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.55)', lineHeight:1.7 }}>{item.d}</div>
+              <div key={item.t} style={{ ...card, display:'flex', gap:'14px', alignItems:'flex-start' }}>
+                <div style={{ fontSize:'28px', flexShrink:0, width:'40px', textAlign:'center' as const }}>{item.m}</div>
+                <div>
+                  <div style={{ fontSize:'15px', fontWeight:900, color:GOLD, marginBottom:'4px', fontFamily:'Cinzel,Georgia,serif' }}>{item.t}</div>
+                  <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.7 }}>{item.d}</div>
+                </div>
               </div>
             ))}
           </div>

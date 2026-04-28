@@ -1,7 +1,7 @@
 'use client'
 // FILE: app/opportunity/page.tsx
 // Z2B Table Banquet — Opportunity Presentation
-// Aligned to 4M Income Machine · 3 Vehicle Powers · BFM model
+// Aligned to 4M Income Machine · 4 Vehicle Powers · BFM model
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -161,7 +161,7 @@ export default function OpportunityPage() {
           <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,4vw,36px)', fontWeight:900, color:W, margin:'0 0 12px' }}>The Z2B 4M Income Machine</h2>
           <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.7)', margin:'0 auto 36px', maxWidth:'560px', lineHeight:1.8 }}>Mobile · Money · Making · Machine</p>
 
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'32px' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'14px', marginBottom:'32px' }}>
             {[
               { icon:'🚗', power:'Manual Power', tiers:'Starter · Bronze · Copper', color:'rgba(255,255,255,0.15)', border:'rgba(255,255,255,0.2)',
                 items:['AI creates your offers','AI writes your posts','AI handles objections','AI scripts to close sales','Earn your first R100 today'] },
