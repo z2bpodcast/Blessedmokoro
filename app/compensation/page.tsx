@@ -1,4 +1,4 @@
-'use client' // fixed 20:34:21 // rebuilt 2026-04-28 20:05:29
+'use client' // fixed 20:54:39 // rebuilt 2026-04-28 20:05:29
 // FILE: app/compensation/page.tsx
 // Z2B 4M Compensation Plan — 9 Income Streams Interactive Explorer
 
@@ -819,5 +819,6 @@ export default function CompensationPage() {
             🚀 Start My 4M Machine →
           </Link>
         </div>
+    </div>
   )
 }
