@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
     if (action === 'calc_isp_bfm') {
       const { builderTier, memberTier } = body
       const bfm = BFM_AMOUNTS[memberTier] || 0
-      const isp = calcISPBFM(builderTier, bfm)
+      const isp = calcISPBFM(builderTier, memberTier)
       return NextResponse.json({ isp, bfm, rate: ISP_RATES[builderTier] || 0 })
     }
 
