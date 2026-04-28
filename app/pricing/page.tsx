@@ -1,7 +1,7 @@
 'use client'
 // FILE: app/pricing/page.tsx
 // Z2B Pricing — 4M Machine Power tiers
-// 🚗 Manual Power · ⚙️ Automatic Power · ⚡ Electric Power
+// 🚗 Manual Power · ⚙️ Automatic Power · ⚡ Electric Power · 🚀 Rocket Mode
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -56,6 +56,18 @@ const MACHINE_POWERS = [
     truth: 'Your income runs daily with minimal effort. Multiple streams. Platform leverage.',
     cta:   'Scale to Electric Power',
   },
+  {
+    id:    'rocket',
+    icon:  '🚀',
+    label: 'Rocket Mode',
+    sub:   'AI does everything. You just publish.',
+    color: '#FF6B35',
+    bg:    '#FFF7F5',
+    border:'#FF6B35',
+    tiers: ['silver_rocket','gold_rocket','platinum_rocket'],
+    truth: 'The world's most powerful digital product engine. AI scans markets, creates products, builds websites and promotion strategies. You press Publish. You earn 90%.',
+    cta:   'Launch Rocket Mode',
+  },
 ]
 
 // ── 4M OFFERS PER TIER (override/extend existing) ────────────────────────────
@@ -63,12 +75,9 @@ const FOUR_M_OFFERS: Record<string, string[]> = {
   fam: [
     '🤖 Z2B 4M Machine — Manual Power (3 Features FREE to explore)',
     '⬆️ Unlock ALL 7 features with R500 Starter Pack',
-    '📦 5 Plug-and-Play Digital Products',
-    '🔁 Daily R300/Day Engine — full',
-    '🔗 Referral Income — R200/referral',
     '🧠 AI Offer Generator — 3 uses',
     '📲 AI Customer Finder — 3 uses',
-    '🎓 Entrepreneurial Consumer Workshop — All 99 sessions',
+    '🎓 Workshop Sessions 1–9 free forever',
     '🤖 Coach Manlaw AI — 3/session',
   ],
   bronze: [
@@ -144,7 +153,37 @@ const FOUR_M_OFFERS: Record<string, string[]> = {
     '🏷️ Distribution License (T&Cs Apply)',
     '👑 CEO Mastermind Access',
   ],
-}
+
+  silver_rocket: [
+    '⚙️ Z2B 4M Machine — Silver tier features',
+    '🚀 Rocket Mode — 12 AI products/month',
+    '🌍 Global market research scanner',
+    '🤖 AI creates complete expert products',
+    '🌐 AI website builder per product',
+    '📢 Full launch kit (WhatsApp, Facebook, TikTok)',
+    '🏪 Z2B Marketplace listing (keep 90%)',
+    '💰 9 income streams active',
+  ],
+  gold_rocket: [
+    '⚡ Z2B 4M Machine — Gold tier features',
+    '🚀 Rocket Mode — 30 AI products/month',
+    '🌍 Live global research + demographic targeting',
+    '🌐 AI website + full promotion strategy',
+    '📊 Google Ads + Facebook Ads copy generated',
+    '📅 4-week content calendar per product',
+    '🏪 Z2B Marketplace + sell externally',
+    '💰 9 income streams active',
+  ],
+  platinum_rocket: [
+    '💎 Z2B 4M Machine — Platinum tier features',
+    '🚀 Rocket Mode — UNLIMITED AI products',
+    '🌐 AI website + Platinum promotion strategy (SEO, Ads, TikTok, Email)',
+    '📦 Bulk product creation',
+    '🏪 Own branded marketplace',
+    '🌍 Distribution Rights — 9th income stream',
+    '💰 All 9 income streams active',
+    '👑 CEO Competition + Awards eligible',
+  ],}
 
 const BONUS_OFFERS: Record<string, string[]> = {
   fam: [],
@@ -168,15 +207,6 @@ const TIER_LABELS: Record<string,string> = {
   fam:'Starter Pack', bronze:'Bronze', copper:'Copper', silver:'Silver', gold:'Gold', platinum:'Platinum'
 }
 
-const TIER_FUEL_POWER: Record<string, string> = {
-  fam: 'Ignition Fuel Power',
-  bronze: 'Momentum Fuel Power',
-  copper: 'Builder Fuel Power',
-  silver: 'System Fuel Power',
-  gold: 'Strategic Fuel Power',
-  platinum: 'Elite Fuel Power',
-}
-
 export default function PricingPage() {
   const [user,          setUser]          = useState<any>(null)
   const [currentTier,   setCurrentTier]   = useState<string>('fam')
@@ -190,13 +220,6 @@ export default function PricingPage() {
   const [activePower,   setActivePower]   = useState<string|null>(null)
   const [refCode,       setRefCode]       = useState('')
   const [email,         setEmail]         = useState('')
-  const [showLightReg,  setShowLightReg]  = useState(false)
-  const [regName,       setRegName]       = useState('')
-  const [regEmail,      setRegEmail]      = useState('')
-  const [regWa,         setRegWa]         = useState('')
-  const [regLoading,    setRegLoading]    = useState(false)
-  const [regError,      setRegError]      = useState('')
-  const [pendingTier,   setPendingTier]   = useState<string|null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -204,22 +227,18 @@ export default function PricingPage() {
     const savedRef   = localStorage.getItem('z2b_ref') || ''
     setEmail(savedEmail)
     setRefCode(savedRef)
-    const params = new URLSearchParams(window.location.search)
-    const refFromUrl = params.get('ref')
-    if (refFromUrl) {
-      setRefCode(refFromUrl)
-      localStorage.setItem('z2b_ref', refFromUrl)
-    }
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       if (user) {
         supabase.from('profiles').select('user_role, paid_tier').eq('id', user.id).single()
           .then(({ data }) => { if (data) setCurrentTier(data.paid_tier || data.user_role || 'fam') })
+        const params = new URLSearchParams(window.location.search)
         const autoOpen = params.get('autoopen')
         if (autoOpen) { setTimeout(() => { setSelectedTier(autoOpen); setShowModal(true) }, 600) }
       }
     })
     // Check if coming from ?compare=true or ?power=manual|automatic|electric
+    const params = new URLSearchParams(window.location.search)
     if (params.get('compare') === 'true') setShowCompare(true)
     const power = params.get('power')
     if (power) setActivePower(power)
@@ -234,47 +253,13 @@ export default function PricingPage() {
 
   const openPayment = (tierKey: string) => {
     if (TIER_PRICES[tierKey] === 0) { router.push('/workshop'); return }
-    if (!user) {
-      setPendingTier(tierKey)
-      setShowLightReg(true)
-      setRegError('')
-      return
-    }
+    if (!user) { router.push(`/login?redirect=/pricing?autoopen=${tierKey}`); return }
     setSelectedTier(tierKey)
     setPaymentMethod(null)
     setShowModal(true)
   }
 
   const closeModal = () => { setShowModal(false); setSelectedTier(null); setPaymentMethod(null) }
-
-  const handleLightReg = async () => {
-    if (!pendingTier || !regName.trim() || !regEmail.trim() || !regWa.trim()) return
-    setRegLoading(true)
-    setRegError('')
-    const pwd = 'Z2B' + Math.random().toString(36).slice(2, 10).toUpperCase() + '!'
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: regEmail.trim().toLowerCase(),
-      password: pwd,
-      options: { data: { full_name: regName.trim(), whatsapp: regWa.trim(), referred_by: refCode || null } },
-    })
-    if (error && !error.message.toLowerCase().includes('already')) {
-      setRegError(error.message)
-      setRegLoading(false)
-      return
-    }
-    const registeredUser = authData?.user
-    if (!registeredUser) {
-      setRegError('Registration failed. Please login if you already have an account.')
-      setRegLoading(false)
-      return
-    }
-    setUser(registeredUser)
-    setShowLightReg(false)
-    setSelectedTier(pendingTier)
-    setPaymentMethod(null)
-    setShowModal(true)
-    setRegLoading(false)
-  }
 
   const payByCard = async () => {
     if (!selectedTier) return
@@ -319,8 +304,8 @@ export default function PricingPage() {
     { label:'4M Machine Mode',     manual:['Free Preview','Manual Full','Manual Full'], auto:['Automatic Full'], electric:['Electric Full','Electric MAX'] },
     { label:'AI Tools',            manual:['3 uses','Unlimited','Unlimited'], auto:['Unlimited'],        electric:['Unlimited','Unlimited'] },
     { label:'Digital Products',    manual:['0','5 Products','5+10 Bonus'],  auto:['5+15 Bonus'],       electric:['5+20 Bonus','5+25 Bonus'] },
-    { label:'Referral Income',     manual:['R200','R200','R200'],              auto:['R200'],             electric:['R200 + Gold Pool','R200 + Plat Pool'] },
-    { label:'Workshop Sessions',   manual:['All 99','All 99','All 99'],        auto:['All 99'],           electric:['All 99','All 99'] },
+    { label:'Referral Income',     manual:['—','R200','R200'],              auto:['R200'],             electric:['R200 + Gold Pool','R200 + Plat Pool'] },
+    { label:'Workshop Sessions',   manual:['1–9','All 99','All 99'],        auto:['All 99'],           electric:['All 99','All 99'] },
     { label:'Coach Manlaw',        manual:['3/sess','Unlimited','Unlimited'], auto:['Unlimited'],      electric:['Priority','CEO Priority'] },
     { label:'PWA Apps Built',      manual:['0','1','2'],                    auto:['2'],                electric:['5','7'] },
     { label:'Automation',          manual:['—','—','—'],                    auto:['Begins here ⚙️'],   electric:['Full ⚡','Full MAX ⚡'] },
@@ -358,7 +343,6 @@ export default function PricingPage() {
             </div>
           </Link>
           <div style={{ display:'flex', gap:'10px', alignItems:'center' }}>
-            <Link href="/" style={{ padding:'8px 16px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.25)', borderRadius:'8px', color:'#fff', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>← Back to Home</Link>
             <Link href="/" style={{ padding:'8px 16px', background:'rgba(255,255,255,0.1)', border:'1px solid rgba(212,175,55,0.4)', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>Home</Link>
             <Link href="/ai-income/landing" style={{ padding:'8px 16px', background:'rgba(212,175,55,0.2)', border:'1px solid #D4AF37', borderRadius:'8px', color:'#D4AF37', fontSize:'13px', fontWeight:700, textDecoration:'none' }}>🤖 4M System</Link>
             {user
@@ -528,9 +512,6 @@ export default function PricingPage() {
                             </div>
                             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245', marginBottom:'4px' }}>{TIER_LABELS[tierKey]}</div>
                             <div style={{ fontSize:'28px', fontWeight:900, color:tierColor }}>R{price.toLocaleString()}</div>
-                            <div style={{ fontSize:'11px', color:'#4B5563', marginTop:'4px', fontWeight:700 }}>
-                              ⛽ {TIER_FUEL_POWER[tierKey]}
-                            </div>
                             <div style={{ fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>Once-off · Then BFM applies</div>
                             {tierKey==='fam' && <div style={{ fontSize:'10px', color:'rgba(76,29,149,0.6)', marginTop:'2px' }}>R850/month BFM after 60 days</div>}
                             {tierKey==='bronze' && <div style={{ fontSize:'10px', color:'rgba(205,127,50,0.6)', marginTop:'2px' }}>R1,050/month BFM</div>}
@@ -593,37 +574,6 @@ export default function PricingPage() {
       )}
 
       {/* ── PAYMENT MODAL ── */}
-      {showLightReg && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, padding:'20px', backdropFilter:'blur(8px)' }}>
-          <div style={{ background:'#fff', borderRadius:'24px', maxWidth:'420px', width:'100%', padding:'28px 24px', position:'relative', boxShadow:'0 24px 80px rgba(0,0,0,0.35)' }}>
-            <button onClick={() => setShowLightReg(false)} style={{ position:'absolute', top:'12px', right:'12px', background:'#F1F5F9', border:'none', borderRadius:'50%', width:'30px', height:'30px', cursor:'pointer', fontSize:'16px', color:'#64748B' }}>×</button>
-            <div style={{ textAlign:'center', marginBottom:'18px' }}>
-              <div style={{ fontSize:'24px', marginBottom:'6px' }}>🚀</div>
-              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:'#1E1245' }}>Create Your Account</div>
-              <div style={{ fontSize:'12px', color:'#64748B', marginTop:'2px' }}>Then proceed to payment</div>
-            </div>
-            {regError && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:'10px', padding:'10px', marginBottom:'12px', fontSize:'13px', color:'#991B1B' }}>⚠️ {regError}</div>}
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'14px' }}>
-              {[{ l:'Full Name', v:regName, s:setRegName, p:'Your full name', t:'text' }, { l:'Email', v:regEmail, s:setRegEmail, p:'your@email.com', t:'email' }, { l:'WhatsApp', v:regWa, s:setRegWa, p:'+27 or 0XX XXX XXXX', t:'tel' }].map(({ l, v, s, p, t }) => (
-                <div key={l}>
-                  <label style={{ fontSize:'11px', color:'#64748B', display:'block', marginBottom:'4px', letterSpacing:'1px', textTransform:'uppercase', fontWeight:700 }}>{l} *</label>
-                  <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p}
-                    style={{ width:'100%', padding:'12px 14px', border:'2px solid #E2E8F0', borderRadius:'10px', fontSize:'14px', outline:'none', boxSizing:'border-box', fontFamily:'Georgia,serif', color:'#1E1245' }} />
-                </div>
-              ))}
-            </div>
-            <button onClick={handleLightReg} disabled={regLoading}
-              style={{ width:'100%', padding:'14px', background:'linear-gradient(135deg,#1E1245,#4C1D95)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'15px', cursor:regLoading?'not-allowed':'pointer', fontFamily:'Cinzel,Georgia,serif', opacity:regLoading?0.7:1 }}>
-              {regLoading ? 'Processing...' : 'Continue to Payment →'}
-            </button>
-            <div style={{ marginTop:'12px', display:'flex', justifyContent:'center', gap:'14px', fontSize:'12px' }}>
-              <Link href="/login" style={{ color:'#4C1D95', textDecoration:'none', fontWeight:700 }}>I am already registered, login</Link>
-              <Link href="/login" style={{ color:'#64748B', textDecoration:'none' }}>Forgot password</Link>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showModal && selectedTier && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, padding:'20px', backdropFilter:'blur(8px)' }}>
           <div style={{ background:'#fff', borderRadius:'24px', maxWidth:'520px', width:'100%', maxHeight:'90vh', overflowY:'auto', padding:'32px', position:'relative', boxShadow:'0 24px 80px rgba(0,0,0,0.4)' }}>
