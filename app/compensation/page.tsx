@@ -1,4 +1,4 @@
-'use client' // fixed 2026-04-28 20:19:27 // rebuilt 2026-04-28 20:05:29
+'use client' // fixed 20:34:21 // rebuilt 2026-04-28 20:05:29
 // FILE: app/compensation/page.tsx
 // Z2B 4M Compensation Plan — 9 Income Streams Interactive Explorer
 
@@ -818,6 +818,6 @@ export default function CompensationPage() {
           <Link href="/ai-income/landing" style={{ display:'inline-block', padding:'12px 32px', background:`linear-gradient(135deg,${GOLD},#B8860B)`, borderRadius:'12px', color:'#1E1245', fontWeight:900, fontSize:'14px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
             🚀 Start My 4M Machine →
           </Link>
-    </div>
+        </div>
   )
 }
