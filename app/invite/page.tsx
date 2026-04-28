@@ -215,7 +215,7 @@ Frequency: Announced by CEO — not permanent`,
     short:'Keep 90% of every product sale — Z2B takes 10% only',
     detail:`List your Rocket Mode digital products on Z2B Marketplace. Set your own retail price. You keep 90% of every sale. Z2B takes 10% marketplace service fee only.
 
-Available to: Silver Rocket · Gold Rocket · Platinum Rocket
+Available to: Starter · Bronze · Copper · Silver · Gold · Platinum (and all Rocket tiers)
 Gold Rocket: Also sell externally on any platform
 Platinum Rocket: Plus own branded marketplace under your domain
 

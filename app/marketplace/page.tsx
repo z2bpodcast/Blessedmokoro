@@ -1,6 +1,6 @@
 'use client'
 // FILE: app/marketplace/page.tsx
-// Z2B Marketplace — Builder sets price · Z2B takes 5% only
+// Z2B Marketplace — Builder sets price · Z2B takes 10% only
 
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
@@ -114,7 +114,7 @@ function MarketplaceInner() {
             AI-created expert digital products · Ready to buy and use
           </p>
           <div style={{ fontSize:'12px', color:GOLD }}>
-            Builder keeps 95% · Z2B takes 5% only
+            Builder keeps 90% · Z2B takes 10% only
           </div>
         </div>
 
@@ -314,8 +314,8 @@ function MarketplaceInner() {
             Want to sell on the Marketplace?
           </div>
           <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.5)', marginBottom:'14px', lineHeight:1.7 }}>
-            Use Rocket Mode to create AI-powered digital products.<br/>
-            Set your own price. Keep 95%. Z2B takes only 5%.
+            Create digital products using any 4M tool — then list them here.<br/>
+            Set your own price. Keep 90%. Z2B takes only 5%.
           </p>
           <Link href="/ai-income/rocket" style={{ display:'inline-block', padding:'10px 28px', background:`linear-gradient(135deg,${ROCKET},#E55A2B)`, borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'13px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
             🚀 Start Rocket Mode →

@@ -325,11 +325,11 @@ export default function CompensationPage() {
           <div style={card('#4ADE8030')}>
             <h2 style={{ color:'#4ADE80', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🏪 Marketplace Income</h2>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              List your Rocket Mode digital products on the Z2B Marketplace. Set your own retail price. Builders keep <strong style={{color:'#4ADE80'}}>90%</strong> — Z2B takes 10% marketplace service fee only.
+              ALL builders from Starter tier and above can list digital products on the Z2B Marketplace. Set your own retail price. Builders keep <strong style={{color:'#4ADE80'}}>90%</strong> — Z2B takes 10% marketplace service fee only.
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px' }}>
               {[
-                { tier:'Silver (Rocket)', access:'List on Z2B Marketplace · 12 products/month', color:'#C0C0C0' },
+                { tier:'Silver (Rocket)', access:'List on Z2B Marketplace · Keep 90% of every sale', color:'#C0C0C0' },
                 { tier:'Gold (Rocket)',   access:'Z2B Marketplace + sell externally · 30 products/month', color:'#D4AF37' },
                 { tier:'Platinum (Rocket)', access:'Z2B Marketplace + own branded marketplace · Unlimited', color:'#E2E8F0' },
               ].map(row => (
