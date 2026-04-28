@@ -40,7 +40,7 @@ const VEHICLES = [
       { name:'Gold', price:'R24,000 once-off', features:'All Silver + Digital Twin (5 per PWA) · G2–G8 TSC · ISP 28% · Higher TLI · BFM: R3,200/month' },
       { name:'Platinum', price:'R50,000 once-off', features:'All Gold + Digital Twin (7) · Distribution License · G2–G10 TSC · ISP 30% · CEO Competition eligible · BFM: R5,800/month' },
     ],
-
+  },
   {
     icon:'🚀', name:'Rocket Mode', color:'#FF6B35',
     tiers:[
