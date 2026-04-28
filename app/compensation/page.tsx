@@ -11,12 +11,14 @@ const PURP = '#4C1D95'
 const W    = '#F0EEF8'
 
 const ISP_RATES: Record<string,number> = {
+  // Free and Starter: NO ISP on BFM or team upgrades
   free:5, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30,
   silver_rocket:25, gold_rocket:28, platinum_rocket:30,
 }
-// Note: Free tier earns 5% on Bronze+ sales (half rate). Starter earns 10%.`
+// Note: ISP (stream 2) is for Bronze+ only. Free/Starter ISP_RATES here are used for NSB calculation only.
 const BFM_AMOUNTS: Record<string,number> = {
-  starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800
+  starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800,
+  silver_rocket:2550, gold_rocket:5250, platinum_rocket:10500,
 }
 const TIER_PRICES: Record<string,number> = {
   starter:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
@@ -214,30 +216,39 @@ export default function CompensationPage() {
         {active === 'isp' && (
           <div style={card('#A78BFA30')}>
             <h2 style={{ color:'#A78BFA', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>💰 ISP — Individual Sales Profit</h2>
+            <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px', padding:'10px 14px', marginBottom:'10px' }}>
+              <div style={{ fontSize:'12px', fontWeight:700, color:'#FCA5A5', marginBottom:'3px' }}>⚠️ Bronze to Platinum Rocket ONLY</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>Free and Starter builders earn R0 ISP. ISP starts from Bronze tier (18%).</div>
+            </div>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'8px', lineHeight:1.8 }}>
-              ISP applies in TWO ways: (1) on monthly BFM payments after 60 days, and (2) on Bronze+ tier purchases/upgrades by yourself and your accessible team generations.
+              ISP applies in TWO ways: (1) on monthly BFM (Business Fuel Maintenance) payments after 60 days, and (2) on Bronze+ tier purchases/upgrades by yourself and your accessible team generations.
             </p>
             <div style={{ background:'rgba(167,139,250,0.08)', border:'1px solid rgba(167,139,250,0.2)', borderRadius:'10px', padding:'12px', marginBottom:'16px', fontSize:'12px', color:'rgba(255,255,255,0.7)', lineHeight:1.8 }}>
               Example: You are <strong style={{color:'#A78BFA'}}>Bronze (18%)</strong>.<br/>
               • Team member upgrades to Silver (R12,000) → you earn <strong style={{color:'#A78BFA'}}>18% = R2,160 ISP</strong><br/>
               • Team member pays Bronze BFM R1,050/month → you earn <strong style={{color:'#A78BFA'}}>18% = R189/month ISP</strong>
             </div>
-            {Object.entries(ISP_RATES).map(([tier, rate]) => (
-              <div key={tier} style={{ background:'rgba(167,139,250,0.05)', border:'1px solid rgba(167,139,250,0.12)', borderRadius:'10px', padding:'12px 14px', marginBottom:'8px' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
-                  <span style={{ fontSize:'14px', fontWeight:700, textTransform:'capitalize', color:W }}>{tier}</span>
-                  <span style={{ fontSize:'16px', fontWeight:900, color:'#A78BFA' }}>{rate}% ISP</span>
+            {Object.entries(ISP_RATES).map(([tier, rate]) => {
+              const noISP = tier === 'free' || tier === 'starter'
+              return (
+              <div key={tier} style={{ background: noISP ? 'rgba(255,255,255,0.02)' : 'rgba(167,139,250,0.05)', border:`1px solid ${noISP ? 'rgba(255,255,255,0.06)' : 'rgba(167,139,250,0.12)'}`, borderRadius:'10px', padding:'12px 14px', marginBottom:'8px', opacity: noISP ? 0.6 : 1 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom: noISP ? 0 : '8px' }}>
+                  <span style={{ fontSize:'14px', fontWeight:700, textTransform:'capitalize', color: noISP ? 'rgba(255,255,255,0.4)' : W }}>{tier.replace(/_/g,' ')}</span>
+                  <span style={{ fontSize:'16px', fontWeight:900, color: noISP ? 'rgba(255,0,0,0.6)' : '#A78BFA' }}>{noISP ? 'R0 — No ISP' : `${rate}% ISP`}</span>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'6px' }}>
-                  {Object.entries(BFM_AMOUNTS).map(([t, bfm]) => (
-                    <div key={t} style={{ textAlign:'center', background:'rgba(167,139,250,0.08)', borderRadius:'8px', padding:'6px' }}>
-                      <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'capitalize' }}>{t}</div>
-                      <div style={{ fontSize:'12px', fontWeight:700, color:'#A78BFA' }}>R{Math.round(rate/100*bfm)}/mo</div>
-                    </div>
-                  ))}
-                </div>
+                {!noISP && (
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'6px' }}>
+                    {Object.entries(BFM_AMOUNTS).map(([t, bfm]) => (
+                      <div key={t} style={{ textAlign:'center', background:'rgba(167,139,250,0.08)', borderRadius:'8px', padding:'6px' }}>
+                        <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'capitalize' }}>{t.replace(/_/g,' ')}</div>
+                        <div style={{ fontSize:'12px', fontWeight:700, color:'#A78BFA' }}>R{Math.round(rate/100*bfm).toLocaleString()}/mo</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
 
@@ -527,197 +538,7 @@ export default function CompensationPage() {
               <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', marginTop:'8px' }}>
                 ⚡ Free builder: first R500 accumulated → auto-upgrade to Starter · Free builders earn NSB only
               </div>
-            </div>/compensation/page.tsx
-// Z2B 4M Compensation Plan — 9 Income Streams Interactive Explorer
-
-import { useState } from 'react'
-import Link from 'next/link'
-
-const BG   = '#0D0820'
-const GOLD = '#D4AF37'
-const PURP = '#4C1D95'
-const W    = '#F0EEF8'
-
-const ISP_RATES: Record<string,number> = {
-  free:10, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30,
-  silver_rocket:25, gold_rocket:28, platinum_rocket:30,
-}
-const BFM_AMOUNTS: Record<string,number> = {
-  starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800
-}
-const TIER_PRICES: Record<string,number> = {
-  starter:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
-  silver_rocket:17000, gold_rocket:35000, platinum_rocket:70000,
-}
-
-const NEXT_TIER: Record<string,{name:string,price:number}> = {
-  starter:      { name:'Bronze',           price:2500  },
-  bronze:       { name:'Copper',           price:5000  },
-  copper:       { name:'Silver',           price:12000 },
-  silver:       { name:'Silver Rocket',    price:17000 },
-  silver_rocket:{ name:'Gold',             price:24000 },
-  gold:         { name:'Gold Rocket',      price:35000 },
-  gold_rocket:  { name:'Platinum',         price:50000 },
-  platinum:     { name:'Platinum Rocket',  price:70000 },
-  platinum_rocket:{ name:'Max Tier Reached', price:0   },
-}
-const TLI_LEVELS = [
-  { level:1,  name:'Table Starter',        amount:3000,      req:'30 builders · 4 Silver leaders' },
-  { level:2,  name:'Table Builder',        amount:8000,      req:'80 builders · 4 Silver + 2 at L1' },
-  { level:3,  name:'Team Activator',       amount:20000,     req:'200 builders · 4 Gold + 3 at L2' },
-  { level:4,  name:'Legacy Builder',       amount:45000,     req:'500 builders · 4 Gold at L3' },
-  { level:5,  name:'Income Architect',     amount:90000,     req:'1,200 builders · 4 Gold at L4' },
-  { level:6,  name:'Wealth Multiplier',    amount:180000,    req:'3,000 builders · 4 Platinum at L5' },
-  { level:7,  name:'Empire Maker',         amount:380000,    req:'7,500 builders · 4 Platinum at L6' },
-  { level:8,  name:'Dynasty Leader',       amount:750000,    req:'20,000 builders · 4 Platinum at L7' },
-  { level:9,  name:'Kingdom Architect',    amount:1500000,   req:'50,000 builders · 4 Platinum at L8' },
-  { level:10, name:'Z2B Billionaire Table',amount:3500000,   req:'100,000 builders · 4 Platinum at L9' },
-]
-
-const STREAMS = [
-  { id:'nsb',  name:'NSB',              full:'New Sale Bonus',              color:'#6EE7B7', icon:'🎯' },
-  { id:'isp',  name:'ISP',              full:'Individual Sales Profit',     color:'#A78BFA', icon:'💰' },
-  { id:'qpb',  name:'QPB',              full:'Quick Performance Bonus',     color:'#FCD34D', icon:'⭐' },
-  { id:'tsc',  name:'TSC',              full:'Team Sales Commission',       color:'#38BDF8', icon:'🔗' },
-  { id:'tli',  name:'TLI',              full:'Team Leadership Income',      color:GOLD,      icon:'🏆' },
-  { id:'ceoC', name:'CEO Competition', full:'CEO Competition Income',      color:'#F472B6', icon:'🏅' },
-  { id:'ceoA',  name:'CEO Awards',        full:'CEO Special Achievement',          color:'#E879F9', icon:'👑' },
-  { id:'mkt',   name:'Marketplace',     full:'Marketplace Income (keep 90%)',    color:'#4ADE80', icon:'🏪' },
-  { id:'dist',  name:'Distribution',    full:'Distribution Rights (Platinum+)',  color:'#818CF8', icon:'🌐' },
-  { id:'safe',  name:'Safe',             full:'Tier Upgrade Safe (Savings)',      color:'#FCD34D', icon:'💰' },
-]
-
-// NSB: R100 + ISP% of R500 — ALWAYS calculated on R500 regardless of sale tier
-// NSB applies on personal sales only. Same amount no matter what tier the buyer purchased.
-function calcNSB(builderTier: string, _saleTier?: string): number {
-  const rate = ISP_RATES[builderTier] || 10
-  return Math.round(100 + (rate/100 * 500))
-}
-
-// ISP on Bronze+ upgrades: ISP% of tier price — personal + accessible team generations
-function calcISPUpgrade(builderTier: string, saleTier: string): number {
-  if (['free','starter'].includes(builderTier)) return 0
-  if (saleTier === 'starter') return 0
-  const rate = ISP_RATES[builderTier] || 10
-  return Math.round(rate/100 * (TIER_PRICES[saleTier] || 0))
-}
-
-export default function CompensationPage() {
-  const [active,   setActive]   = useState<string>('nsb')
-  const [simTier,  setSimTier]  = useState('bronze')
-  const [simSale,  setSimSale]  = useState('bronze')
-
-  const card = (border = 'rgba(255,255,255,0.08)') => ({
-    background:'rgba(255,255,255,0.03)', border:`1px solid ${border}`,
-    borderRadius:'16px', padding:'20px', marginBottom:'8px',
-  })
-
-  const sel: React.CSSProperties = {
-    background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)',
-    borderRadius:'8px', color:W, fontSize:'13px', padding:'8px 12px',
-    fontFamily:'Georgia,serif', width:'100%',
-  }
-
-  return (
-    <div style={{ minHeight:'100vh', background:BG, color:W, fontFamily:'Georgia,serif' }}>
-
-      {/* Nav */}
-      <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', gap:'12px', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-        <Link href="/" style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>← Home</Link>
-        <span style={{ color:'rgba(255,255,255,0.2)' }}>|</span>
-        <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>Compensation Plan</span>
-      </div>
-
-      <div style={{ maxWidth:'680px', margin:'0 auto', padding:'28px 16px 60px' }}>
-
-        {/* Header */}
-        <div style={{ textAlign:'center', marginBottom:'24px' }}>
-          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:W, margin:'0 0 6px' }}>
-            9 Income Streams
-          </h1>
-          <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', margin:0 }}>
-            Tap any stream to explore the full details
-          </p>
-        </div>
-
-        {/* Stream tabs */}
-        <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'20px', justifyContent:'center' }}>
-          {STREAMS.map(s => (
-            <button key={s.id} onClick={() => setActive(s.id)}
-              style={{ padding:'8px 14px', borderRadius:'20px', border:`1px solid ${active===s.id ? s.color : 'rgba(255,255,255,0.1)'}`,
-                background: active===s.id ? `${s.color}18` : 'transparent',
-                color: active===s.id ? s.color : 'rgba(255,255,255,0.5)',
-                fontSize:'12px', fontWeight:700, cursor:'pointer' }}>
-              {s.icon} {s.name}
-            </button>
-          ))}
-        </div>
-
-        {/* ── NSB ── */}
-        {active === 'nsb' && (
-          <div style={card('#6EE7B730')}>
-            <h2 style={{ color:'#6EE7B7', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🎯 NSB — New Sale Bonus</h2>
-            {/* Free Builder Special Rules */}
-            <div style={{ background:'rgba(110,231,183,0.08)', border:'1px solid rgba(110,231,183,0.25)', borderRadius:'12px', padding:'14px', marginBottom:'12px' }}>
-              <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7', marginBottom:'6px' }}>🆓 Free Builder — Special Rules</div>
-              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.7)', lineHeight:1.8 }}>
-                Free builders earn <strong style={{color:'#6EE7B7'}}>ONLY NSB</strong> (R100 + 10%) on their personal sales — from Starter to Platinum Rocket. No ISP, TSC, QPB, TLI, CEO or Marketplace income.
-              </div>
-              <div style={{ marginTop:'8px', padding:'8px 12px', background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', borderRadius:'8px', fontSize:'12px', color:'#FCD34D', lineHeight:1.7 }}>
-                🚀 <strong>Auto-Upgrade:</strong> When a Free builder accumulates R500 in NSB earnings, the system automatically uses that R500 to upgrade them to Starter Pack. They instantly unlock all 9 income streams.
-              </div>
             </div>
-            <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              <strong style={{color:'#6EE7B7'}}>For Starter+ builders:</strong> NSB is paid to the builder who personally generated the sale. R100 flat + your ISP% of the sale tier price.
-            </p>
-            <div style={{ background:'rgba(110,231,183,0.06)', border:'1px solid rgba(110,231,183,0.2)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
-              <div style={{ fontSize:'12px', fontWeight:700, color:'#6EE7B7', marginBottom:'10px' }}>💡 NSB Calculator</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'12px' }}>
-                <div>
-                  <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'4px' }}>YOUR tier</label>
-                  <select value={simTier} onChange={e => setSimTier(e.target.value)} style={sel}>
-                    {Object.keys(ISP_RATES).map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                </div>
-                <div style={{ background:'rgba(110,231,183,0.06)', border:'1px solid rgba(110,231,183,0.15)', borderRadius:'8px', padding:'8px 12px', display:'flex', alignItems:'center' }}>
-                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)', lineHeight:1.6 }}>
-                    💡 NSB is the same regardless of which tier the buyer purchases
-                  </div>
-                </div>
-              </div>
-              <div style={{ textAlign:'center', padding:'14px', background:'rgba(110,231,183,0.1)', borderRadius:'10px' }}>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.5)', marginBottom:'4px' }}>
-                  {`R100 + ${ISP_RATES[simTier]}% of R500 = R${calcNSB(simTier).toLocaleString()}`}
-                </div>
-                <div style={{ fontSize:'30px', fontWeight:900, color:'#6EE7B7' }}>R{calcNSB(simTier, simSale).toLocaleString()}</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>NSB earned · once-off</div>
-              </div>
-            </div>
-            <div style={{ overflowX:'auto' }}>
-              <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'11px' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding:'6px 4px', textAlign:'left', color:GOLD }}>You ↓ / Sale →</th>
-                    {Object.keys(TIER_PRICES).map(s => <th key={s} style={{ padding:'6px 4px', textAlign:'center', color:'rgba(255,255,255,0.5)', textTransform:'capitalize' }}>{s}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.keys(ISP_RATES).map(builder => (
-                    <tr key={builder} style={{ borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding:'6px 4px', fontWeight:700, textTransform:'capitalize', color:'#A78BFA' }}>{builder}</td>
-                      {Object.keys(TIER_PRICES).map(sale => (
-                        <td key={sale} style={{ padding:'6px 4px', textAlign:'center', color:'#6EE7B7', fontWeight:700 }}>
-                          R{calcNSB(builder, 'starter').toLocaleString()}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
         {/* ── ISP ── */}
         {active === 'isp' && (
           <div style={card('#A78BFA30')}>

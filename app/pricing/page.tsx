@@ -65,7 +65,7 @@ const MACHINE_POWERS = [
     bg:    '#FFF7F5',
     border:'#FF6B35',
     tiers: ['silver_rocket','gold_rocket','platinum_rocket'],
-    truth: 'The world's most powerful digital product engine. AI scans markets, creates products, builds websites and promotion strategies. You press Publish. You earn 90%.',
+    truth: "The world's most powerful digital product engine. AI scans markets, creates products, builds websites and promotion strategies. You press Publish. You earn 90%.",
     cta:   'Launch Rocket Mode',
   },
 ]
