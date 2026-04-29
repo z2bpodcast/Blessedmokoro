@@ -1,4 +1,4 @@
-// FILE: app/api/coach-manlaw/route.ts
+// FILE: app/api/coach-manlaw/route.ts // v20260429_065945
 // Coach Manlaw — Z2B AI Business Coach
 // Upgraded: World-Class Copywriter + Digital Product Creator + Multi-AI Brains
 
