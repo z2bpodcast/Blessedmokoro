@@ -1,4 +1,4 @@
-// FILE: app/api/coach-manlaw/route.ts // v20260429_065945
+// FILE: app/api/coach-manlaw/route.ts // v20260429_065945 // fixed 071636
 // Coach Manlaw — Z2B AI Business Coach
 // Upgraded: World-Class Copywriter + Digital Product Creator + Multi-AI Brains
 
@@ -578,19 +578,3 @@ Build the following (all complete, ready to use):
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
-      try {
-        const key = process.env.OPENAI_API_KEY || ''
-        if (key) {
-          const res = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-            body: JSON.stringify({
-              model: 'gpt-4o-mini',
-              max_tokens: 1000,
-              messages: [{ role:'system', content: MANLAW_SYSTEM }, ...body.messages.slice(-10)],
-            }),
-          })
-          const data = await res.json()
-          return NextResponse.json({ reply: data.choices?.[0]?.message?.content || 'Coach Manlaw is thinking...', brain:'fallback' })
-        }
-
