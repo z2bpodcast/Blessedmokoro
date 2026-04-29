@@ -137,7 +137,46 @@ const FORMATS = [
   { id:'printable',   icon:'🖨️', label:'Printable Pack',     brain:'GPT-4o' },
 ]
 
-const MARKETS = ['South Africa','Nigeria','Kenya','Global','Africa','United Kingdom','United States']
+const MARKETS = [
+  // 🌍 Global
+  'Global (All Markets)',
+  // 🌍 Africa
+  'South Africa','Nigeria','Kenya','Ghana','Ethiopia','Tanzania','Uganda','Zambia',
+  'Zimbabwe','Senegal','Cameroon','Ivory Coast','Rwanda','Botswana','Namibia',
+  // 🇬🇧 Europe
+  'United Kingdom','Germany','Netherlands','France','Spain','Italy','Sweden','Portugal',
+  // 🇺🇸 Americas
+  'United States','Canada','Brazil','Mexico','Jamaica','Trinidad and Tobago',
+  // 🌏 Asia Pacific
+  'India','Philippines','Australia','New Zealand','Singapore','Malaysia',
+  // 🌍 Middle East
+  'UAE','Saudi Arabia','Qatar',
+]
+
+const DEMOGRAPHICS = [
+  'All demographics',
+  // Employment
+  'Employees (any sector)','Corporate employees','Government employees','Healthcare workers',
+  'Teachers and educators','Nurses and doctors','Engineers','Accountants and finance',
+  // Business
+  'Small business owners','Solopreneurs','Freelancers','Side-hustlers',
+  // Life stage
+  'Young adults (18-30)','Parents','Single mothers','Single fathers','Couples',
+  'University students','Recent graduates','Retirees (50+)',
+  // Income
+  'Low-income earners','Middle-income earners','High-income earners',
+  // Gender
+  'Women','Men',
+  // Aspiration
+  'First-time entrepreneurs','Network marketers','Digital creators','Coaches',
+]
+
+const INDUSTRIES = [
+  'All industries','Education','Healthcare','Finance and banking','Real estate',
+  'Food and hospitality','Retail and e-commerce','Technology','Creative arts',
+  'Sports and fitness','Faith and ministry','Legal','Agriculture','Construction',
+  'Beauty and fashion','Automotive','Travel and tourism',
+]
 
 type Mode = 'chat'|'offer'|'product'|'objections'|'research'|'system'|'audit'|'formula'|'brutal'|'iterate'
 
@@ -165,15 +204,15 @@ function ManLawInner() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const [product,     setProduct]     = useState('')
-  const [audience,    setAudience]    = useState('')
+  const [audience,    setAudience]    = useState('All demographics')
   const [price,       setPrice]       = useState('R199')
   const [platform,    setPlatform]    = useState('WhatsApp')
   const [painPoints,  setPainPoints]  = useState('')
   const [selTriggers, setSelTriggers] = useState<string[]>([])
   const [topic,       setTopic]       = useState('')
   const [format,      setFormat]      = useState('guide')
-  const [market,      setMarket]      = useState('South Africa')
-  const [resCategory, setResCategory] = useState('')
+  const [market,      setMarket]      = useState('Global (All Markets)')
+  const [resCategory, setResCategory] = useState('All industries')
   const [auditCopy,   setAuditCopy]   = useState('')
   const [wsPerson,    setWsPerson]    = useState('')
   const [wsProblem,   setWsProblem]   = useState('')
@@ -189,15 +228,17 @@ function ManLawInner() {
     })
     setMessages([{ role:'assistant', content:`## Welcome, Builder
 
-I am Coach Manlaw — Z2B's enforcement-grade AI business coach.
+I am Coach Manlaw — the AI business coach for Z2B Legacy Builders.
 
-**My enforcement rules are active:**
-- Banned phrases are auto-rejected
-- Generic outputs are rewritten internally before reaching you
-- Every offer must score 80+ out of 100 before I submit it
-- SA skeptic test runs on every output
+**Z2B is a global platform.** I work with builders across South Africa, Nigeria, Kenya, the UK, USA, Canada, Australia and beyond. Tell me your market and I adapt everything — currency, payment methods, cultural references, platform strategy.
 
-**Choose a mode above to begin.** What are we building today?` }])
+**My enforcement engine is active:**
+- Banned generic phrases auto-rejected
+- Every offer scores 80+/100 before reaching you
+- Copy adapts to YOUR specific market and demographic
+- No American internet marketing templates
+
+**Set your market first, then choose a mode.** What are we building today?` }])
   }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages, output])
@@ -288,6 +329,22 @@ I am Coach Manlaw — Z2B's enforcement-grade AI business coach.
           </button>
         ))}
       </div>
+
+      {/* ── Global Market Selector — persists across all modes ── */}
+      {mode !== 'chat' && (
+        <div style={{ padding:'10px 12px', background:'rgba(255,255,255,0.02)', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap', flexShrink:0 }}>
+          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>🌍 Market:</div>
+          <select value={market} onChange={e => setMarket(e.target.value)}
+            style={{ flex:1, minWidth:'140px', padding:'5px 8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif' }}>
+            {MARKETS.map(m => <option key={m}>{m}</option>)}
+          </select>
+          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>👥 Who:</div>
+          <select value={audience} onChange={e => setAudience(e.target.value)}
+            style={{ flex:1, minWidth:'140px', padding:'5px 8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif' }}>
+            {DEMOGRAPHICS.map(d => <option key={d}>{d}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* ── CHAT ── */}
       {mode === 'chat' && (
@@ -386,7 +443,7 @@ I am Coach Manlaw — Z2B's enforcement-grade AI business coach.
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', marginBottom:'14px' }}>20 product types · Complete content · Launch copy included</div>
           <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'14px' }}>
             <div><Lbl>Product topic / pain point</Lbl><input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. How to start a spaza shop and make R8,000/month" style={inp} /></div>
-            <div><Lbl>Who is it for?</Lbl><input value={audience} onChange={e => setAudience(e.target.value)} placeholder="e.g. Unemployed person in a township, no business experience" style={inp} /></div>
+            <div><Lbl>Who is it for?</Lbl><input value={audience} onChange={e => setAudience(e.target.value)} placeholder="e.g. Unemployed person in a community, no business experience" style={inp} /></div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
               <div><Lbl>Market</Lbl><select value={market} onChange={e => setMarket(e.target.value)} style={inp}>{MARKETS.map(m => <option key={m}>{m}</option>)}</select></div>
               <div><Lbl>Price</Lbl><input value={price} onChange={e => setPrice(e.target.value)} placeholder="R299" style={inp} /></div>
@@ -429,7 +486,18 @@ I am Coach Manlaw — Z2B's enforcement-grade AI business coach.
               <div><Lbl>Market</Lbl><select value={market} onChange={e => setMarket(e.target.value)} style={inp}>{MARKETS.map(m => <option key={m}>{m}</option>)}</select></div>
               <div><Lbl>Category</Lbl><input value={resCategory} onChange={e => setResCategory(e.target.value)} placeholder="Education, Health, Business..." style={inp} /></div>
             </div>
-            <div><Lbl>Demographic</Lbl><input value={audience} onChange={e => setAudience(e.target.value)} placeholder="e.g. Women aged 30-50, township residents..." style={inp} /></div>
+            <div>
+              <Lbl>Demographic (already set above or customise here)</Lbl>
+              <select value={audience} onChange={e => setAudience(e.target.value)} style={inp}>
+                {DEMOGRAPHICS.map(d => <option key={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <Lbl>Industry / Category</Lbl>
+              <select value={resCategory} onChange={e => setResCategory(e.target.value)} style={inp}>
+                {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
+              </select>
+            </div>
           </div>
           <button onClick={() => callAPI('research_pain_points', { market, category:resCategory, demographic:audience })}
             disabled={loading}
