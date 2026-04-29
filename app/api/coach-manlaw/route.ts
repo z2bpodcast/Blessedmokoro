@@ -244,53 +244,62 @@ ${params.platform === 'Sales Page' ? '- Full long-form copy\n- Headline + subhea
 Write the COMPLETE, READY-TO-POST copy. Not a template — actual words. Use specific numbers, real-feeling testimonials, and local context (South African/African where relevant). Make it convert.`
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// PRODUCT TYPE CONFIGS — brain + tokens + structure per format
+// ══════════════════════════════════════════════════════════════════════════════
+const PRODUCT_CONFIGS: Record<string,{brain:'gpt4o'|'gpt4o-mini'|'claude', maxTokens:number, temperature:number, structurePrompt:string}> = {
+  ebook:       { brain:'gpt4o',     maxTokens:4000, temperature:0.75, structurePrompt:'Structure as a complete eBook with Foreword, 8+ full chapters (intro, content, takeaways, action steps each), Conclusion, Bonus Resources. Minimum 3000 words.' },
+  course:      { brain:'gpt4o',     maxTokens:4000, temperature:0.70, structurePrompt:'Structure as a complete online course: 5+ Modules each with lesson title, objectives, full lesson content, exercise, quiz questions, module summary. Write every lesson in full.' },
+  community:   { brain:'gpt4o',     maxTokens:3500, temperature:0.75, structurePrompt:'Structure as a Community Blueprint: concept, mission, membership tiers, detailed rules, 7-day onboarding sequence, 12-week content calendar, engagement playbook, monetization strategy.' },
+  guide:       { brain:'gpt4o',     maxTokens:3500, temperature:0.70, structurePrompt:'Structure as a step-by-step guide: What you need, Steps 1-15+ (each: why it matters, how to do it in full, common mistakes, pro tip), Troubleshooting Guide, Quick Reference Checklist.' },
+  software:    { brain:'claude',    maxTokens:4000, temperature:0.50, structurePrompt:'Create a COMPLETE working HTML/CSS/JS tool in a single file. Beautiful dark UI (purple/gold theme), fully functional, mobile-responsive. Include: concept overview, features list, COMPLETE working code, user guide, deployment instructions. No placeholders.' },
+  planner:     { brain:'gpt4o',     maxTokens:3500, temperature:0.70, structurePrompt:'Structure as a complete planner: Vision Setting, 12 Monthly Spreads (theme, goals, habit tracker, reflection), Weekly Template (7-day layout, priorities, wins, lessons), Daily Page Template, Finance Tracker, 30 inspirational quotes.' },
+  template:    { brain:'gpt4o',     maxTokens:3000, temperature:0.65, structurePrompt:'Create 10+ complete printable templates. Each template: name, purpose, full layout with every field/section/label described, instructions for use. Include digital version tips.' },
+  card:        { brain:'gpt4o',     maxTokens:3500, temperature:0.80, structurePrompt:'Create a complete 52-card deck. Each card: front side content, back side explanation/activity. Include How to Use guide and Facilitator Guide if educational.' },
+  curriculum:  { brain:'gpt4o',     maxTokens:4000, temperature:0.65, structurePrompt:'Create a full academic curriculum: subject/grade, learning outcomes, assessment criteria, 4-term breakdown, 8 detailed weekly lesson plans (objective, prior knowledge, introduction, teaching content, guided practice, independent activity, assessment, differentiation), Assessment Pack with tests and rubrics.' },
+  lesson:      { brain:'gpt4o',     maxTokens:3000, temperature:0.65, structurePrompt:'Create a complete lesson plan: title, subject, grade, duration, SMART objectives, prior knowledge, resources, introduction activity (10min), direct instruction in full (20min), guided practice with worked examples (15min), independent practice with answers (15min), assessment with rubric, differentiation strategies, homework task, teacher notes.' },
+  toolkit:     { brain:'gpt4o',     maxTokens:4000, temperature:0.70, structurePrompt:'Create a complete toolkit: Quick Start Guide, Master Guide (full content), Step-by-Step Checklist, 3-5 Templates, Swipe File (ready-to-use copy), Resource Directory, Tracking Spreadsheet layout, FAQ Document, 30-Day Action Plan.' },
+  checklist:   { brain:'gpt4o',     maxTokens:2500, temperature:0.65, structurePrompt:'Create a comprehensive checklist system: 6 phases with 15-25 specific actionable items each (brief explanation per item), Quick Reference Card (top 10), Progress Tracker, Common Mistakes section.' },
+  workbook:    { brain:'gpt4o',     maxTokens:3500, temperature:0.75, structurePrompt:'Create a complete interactive workbook: Self-Assessment (10 questions), 6 sections each with teaching content + reflection questions + exercises with writing space + action planning page, 30-Day Implementation Calendar, Final Reflection.' },
+  mini_course: { brain:'gpt4o',     maxTokens:3500, temperature:0.70, structurePrompt:'Create a complete 5-day mini-course: Day 1 Foundation, Day 2 Core Skill, Day 3 Application, Day 4 Advanced, Day 5 Mastery & Launch. Each day: full lesson content, exercise, homework. Include 5 automated delivery emails.' },
+  swipe_file:  { brain:'gpt4o',     maxTokens:3500, temperature:0.80, structurePrompt:'Create a complete swipe file: 50 headline formulas with examples, 30 scroll-stopping hooks, 20 WhatsApp scripts, 15 Facebook posts, 40 email subjects, 15 objection responses, 10 closing scripts, 5 testimonial request scripts. Every item fully written.' },
+  script:      { brain:'gpt4o',     maxTokens:3000, temperature:0.80, structurePrompt:'Create a complete script pack: 90-second intro video script, 8-10 minute teaching video (full talking script), promotional video (2 min, all 13 triggers), 5x TikTok scripts (60 sec each), full podcast episode outline (45 min), complete selling webinar script (60 min).' },
+  blueprint:   { brain:'gpt4o',     maxTokens:4000, temperature:0.70, structurePrompt:'Create a complete business blueprint: Phase 1 Foundation (weeks 1-2), Phase 2 Setup (weeks 3-4), Phase 3 Launch (weeks 5-6), Phase 4 Scale (months 3-6). Each phase: complete action plan. Include financial projections, tools list, obstacle solutions, 90-day daily checklist.' },
+  masterclass: { brain:'gpt4o',     maxTokens:4000, temperature:0.75, structurePrompt:'Create a complete masterclass: Part 1 The Truth (15min, dispel myths), Part 2 The Framework (20min, proprietary system), Part 3 Walkthrough (30min, worked examples), Part 4 Advanced (15min), Part 5 Implementation (10min). Include Q&A guide (20 questions with answers) and workbook.' },
+  printable:   { brain:'gpt4o',     maxTokens:3000, temperature:0.75, structurePrompt:'Create a complete printable pack: motivational wall art (full text), habit tracker (30-day), goal worksheet, weekly planner, budget tracker, meal planner, educational chart, kids activity sheet, certificate template, business card template. Describe every field, word, color, and font for each.' },
+}
+
 function buildProductPrompt(params: {
   topic: string
   audience: string
   format: string
   market: string
   price: string
+  level?: string
 }): string {
-  return `Create a COMPLETE, EXPERT-LEVEL digital product on this topic:
+  const config = PRODUCT_CONFIGS[params.format] || PRODUCT_CONFIGS['guide']
+  return `You are a world-class expert creating a COMPLETE, PROFESSIONAL, READY-TO-SELL digital product.
 
+PRODUCT TYPE: ${params.format.toUpperCase()}
 TOPIC: ${params.topic}
 TARGET AUDIENCE: ${params.audience}
-FORMAT: ${params.format}
 MARKET: ${params.market}
-RECOMMENDED PRICE: ${params.price}
+PRICE POINT: ${params.price}
+${params.level ? 'LEVEL: ' + params.level : ''}
 
-Requirements:
-- Write as a certified expert with deep knowledge of ${params.topic}
-- Include ALL sections in full — never use placeholders
-- Locally relevant content (currency, examples, context match ${params.market})
-- Minimum 2000 words of actual content
-- Actionable, specific, transformative
+CRITICAL REQUIREMENTS:
+- Write as a certified expert with DEEP knowledge of ${params.topic}
+- Everything COMPLETE — no placeholders, no "add your content here"
+- Locally relevant: currency, examples, context match ${params.market}
+- Every section FULLY WRITTEN — actual content, not bullet lists of what to write
+- This is a PAID PRODUCT — worth every cent of ${params.price}
 
-Structure your response EXACTLY like this:
+${config.structurePrompt}
 
-## PRODUCT TITLE
-[Compelling, specific title]
-
-## SUBTITLE
-[Promise-focused subtitle]
-
-## WHO THIS IS FOR
-[3-4 specific avatar descriptions]
-
-## WHAT THEY WILL ACHIEVE
-[Before → After transformation statement]
-
-## TABLE OF CONTENTS
-[Full chapter/section list]
-
-## FULL CONTENT
-[Complete product content — every section written in full, expert level]
-
-## MARKETING HOOK
-[One sentence that makes them buy immediately]
-
-## RECOMMENDED PLATFORMS TO SELL
-[Where to list this product]`
+ALSO INCLUDE AT THE END:
+## MARKETING HOOK (one irresistible sentence)
+## ELEVATOR PITCH (30 seconds, curiosity gap + transformation promise)
+## PRICE JUSTIFICATION (why ${params.price} is a bargain)`
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
