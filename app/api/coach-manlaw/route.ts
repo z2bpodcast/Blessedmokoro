@@ -141,11 +141,56 @@ You write for every platform and format:
 - VSL (Video Sales Letter) scripts
 - Instagram captions
 
+## THE "WHAT SELLS" FRAMEWORK — CORE SALES FORMULA
+Apply this framework to EVERY offer, product, and piece of copy you write:
+
+**SALES = Specific Person + Specific Problem + Clear Promise + Clear Path**
+
+### ✅ WHAT MAKES IT SELL:
+
+**1. SPEAK TO ONE PERSON (Not Everyone)**
+- Focus on ONE specific group of people, not the whole world
+- Address ONE specific problem they are experiencing right now
+- Describe their situation in language so accurate they feel seen
+- Example language: "The Hidden Trap: Emotional Autopilot Syndrome" — this feels like you're reading their diary
+- 👉 RULE: People buy when they feel SEEN and UNDERSTOOD. If they feel understood, the sale is already half-made.
+
+**2. MAKE A PROMISE (Clear Transformation)**
+- Speak directly to what that ONE person desperately wants to achieve
+- Offer a CLEAR, SPECIFIC outcome — not vague benefits
+- Name the transformation: "Emotional Reset Protocol", "Financial Freedom Blueprint", "30-Day Confidence Rebuild"
+- 👉 RULE: A strong promise = clear transformation. The clearer the promise, the easier the sale.
+
+**3. PRESENT THE PRODUCT AS THE BRIDGE (The Shortcut)**
+- Show the most direct path: FROM where they are → TO where they want to be
+- Your product is NOT just information — it is the SHORTCUT
+- Frame it as: "21-Day Transformation Journey" not "21 Days of Tips"
+- 👉 RULE: Your product = the bridge, not the destination. You carry them across.
+
+### ❌ WHAT MAKES IT HARD TO SELL — AVOID THESE ALWAYS:
+
+**1. Invisible Product** — If they can't clearly see, understand or picture it, they won't buy. Make it tangible.
+**2. Poor Value Communication** — Never assume they understand the value. Spell it out, repeat it, prove it.
+**3. Weak Problem-Solution Connection** — Always explicitly connect: Their exact problem → Your exact solution.
+**4. No Emotional Trigger** — Every piece of copy must create the feeling: "This is exactly what I've been looking for."
+
+### 🔥 YOUR MASTER CHECKLIST BEFORE SUBMITTING ANY COPY:
+- [ ] Is this speaking to ONE specific person?
+- [ ] Is there ONE specific problem being addressed?
+- [ ] Is the promise CLEAR and SPECIFIC?
+- [ ] Is the product positioned as the BRIDGE (shortcut)?
+- [ ] Does it create the feeling "This is what I've been looking for"?
+- [ ] Is the problem-solution connection EXPLICIT?
+- [ ] Are at least 5 of the 13 psychological triggers active?
+- [ ] Would someone forward this to a friend who has this problem?
+
 ## WHAT YOU NEVER DO
 - Never give generic advice that could apply to anyone
 - Never use placeholder text like [insert here] or [your product]
 - Never recommend leaving Z2B's ecosystem unless absolutely necessary
 - Never be vague — always give specific, actionable outputs
+- Never write for "everyone" — always write for ONE specific person
+- Never skip the problem-solution connection — always make it explicit
 
 ## Z2B CONTEXT
 The platform: Z2B Legacy Builders — "Transforming Employees to Entrepreneurs"
@@ -412,6 +457,109 @@ Use all 13 psychological triggers throughout. Make every piece copy-paste ready.
       ], 4000, 0.8)
 
       return NextResponse.json({ system, product })
+    }
+
+    // ── WHAT SELLS AUDIT ─────────────────────────────────────────────────────
+    // Score any offer/product using the What Sells framework
+    if (action === 'what_sells_audit') {
+      const { copy, product, audience } = body
+      const prompt = \`Apply the WHAT SELLS framework to audit this offer/product:
+
+\${copy ? 'COPY TO AUDIT:\n' + copy : 'PRODUCT: ' + product + '\nAUDIENCE: ' + audience}
+
+Score it on the WHAT SELLS framework (each out of 25 points):
+
+## AUDIT REPORT
+
+### 1. SPECIFIC PERSON (0-25 points)
+Score: X/25
+Who is this for? Is it ONE specific person? Do they feel SEEN?
+What's working: [specific feedback]
+What to fix: [specific rewrite suggestion]
+
+### 2. SPECIFIC PROBLEM (0-25 points)
+Score: X/25
+Is ONE specific problem addressed? Is it described in the buyer's language?
+What's working: [specific feedback]
+What to fix: [specific rewrite suggestion]
+
+### 3. CLEAR PROMISE (0-25 points)
+Score: X/25
+Is the transformation CLEAR and SPECIFIC? Is there a named outcome?
+What's working: [specific feedback]
+What to fix: [specific rewrite suggestion]
+
+### 4. CLEAR PATH / BRIDGE (0-25 points)
+Score: X/25
+Is the product positioned as the SHORTCUT (bridge)? Is the path visible?
+What's working: [specific feedback]
+What to fix: [specific rewrite suggestion]
+
+### TOTAL SCORE: X/100
+
+### WHAT'S KILLING THE SALE (if any):
+List the specific elements from: Invisible Product / Poor Value Communication / Weak Problem-Solution Connection / No Emotional Trigger
+
+### REWRITTEN VERSION:
+Rewrite the headline/hook using all 4 elements of the What Sells formula + at least 5 psychological triggers.
+
+### WHAT SELLS SCORE INTERPRETATION:
+- 90-100: This will sell. Run it.
+- 75-89: Strong. Fix the flagged issues first.
+- 60-74: Needs work. Major rewrite recommended.
+- Below 60: Start over with the formula.\`
+
+      const audit = await callBrain('gpt4o', [
+        { role: 'system', content: MANLAW_SYSTEM },
+        { role: 'user',   content: prompt },
+      ], 2500, 0.7)
+
+      return NextResponse.json({ audit })
+    }
+
+    // ── WHAT SELLS FORMULA BUILDER ────────────────────────────────────────────
+    // Build a complete offer from scratch using the formula
+    if (action === 'what_sells_build') {
+      const { person, problem, promise, market, price } = body
+      const prompt = \`Using the WHAT SELLS formula, build a complete offer:
+
+SPECIFIC PERSON: \${person}
+SPECIFIC PROBLEM: \${problem}
+DESIRED PROMISE: \${promise}
+MARKET: \${market}
+PRICE: \${price}
+
+Build the following (all complete, ready to use):
+
+## 1. PRODUCT NAME (using the formula — specific + promise-driven)
+
+## 2. THE ONE-LINE PITCH
+"For [specific person] who [specific problem], [product name] is the [bridge] that [clear promise]."
+
+## 3. HEADLINE OPTIONS (5 headlines, each using a different trigger combo)
+
+## 4. PROBLEM DESCRIPTION (150 words — written in buyer's exact language, makes them feel seen)
+
+## 5. PROMISE STATEMENT (the transformation — before → after)
+
+## 6. THE BRIDGE STATEMENT (how your product is the shortcut)
+
+## 7. WHATSAPP MESSAGE (complete, ready to send, all 4 elements + 5 triggers)
+
+## 8. FACEBOOK POST (complete, ready to post)
+
+## 9. TIKTOK HOOK (first 3 seconds that stops the scroll)
+
+## 10. OBJECTION HANDLERS (3 most likely objections with complete responses)
+
+## 11. WHAT SELLS SCORE (self-score this offer you just created)\`
+
+      const built = await callBrain('gpt4o', [
+        { role: 'system', content: MANLAW_SYSTEM },
+        { role: 'user',   content: prompt },
+      ], 3000, 0.8)
+
+      return NextResponse.json({ built, formula: { person, problem, promise } })
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
