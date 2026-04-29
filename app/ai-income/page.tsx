@@ -1,4 +1,4 @@
-'use client'
+'use client' // regex-fix-173740
 // FILE: app/ai-income/page.tsx
 // 4M Machine — Fully unique experience per tier, step-by-step focused UX
 
@@ -158,9 +158,7 @@ THEN ask: "Should I start creating this now?"
 
     // Check if product idea was found
     if (reply.includes('PRODUCT IDEA FOUND:')) {
-      const ideaMatch = reply.match(/PRODUCT IDEA FOUND:\s*
-([^
-]+)/)
+      const ideaMatch = reply.match(/PRODUCT IDEA FOUND:[\s\S]*?\n([^\n]+)/)
       if (ideaMatch) setIdea(ideaMatch[1])
     }
 
