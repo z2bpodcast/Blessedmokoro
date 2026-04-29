@@ -439,18 +439,34 @@ function AutomaticMode({ tier }: { tier: string }) {
           <input value={f1} onChange={e=>setF1(e.target.value)} placeholder="e.g. How to budget on R3,000/month" style={inp} />
           <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'5px', marginTop:'10px' }}>Target audience:</label>
           <input value={f2} onChange={e=>setF2(e.target.value)} placeholder="e.g. Young adults in South Africa" style={inp} />
-          <button onClick={()=>run('chat',{messages:[{role:'user',content:`Take this product idea and expand it into 7 different formats: "${f1}" for ${f2}
+          <button onClick={()=>run('chat',{messages:[{role:'user',content:`You are Coach Manlaw — enforcement engine active.
 
-For each format deliver:
-1. 📖 eBook — full title, 8-chapter outline, what each chapter covers
-2. ✅ Checklist — 20-item actionable checklist based on the topic
-3. 📋 Template — what template to create, all fields included
-4. 🎬 Video Script — 5-minute teaching video full script
-5. 📱 WhatsApp Mini-Course — 5-day WhatsApp message sequence (full messages)
-6. 🎙️ Podcast Episode Outline — 30-min episode structure with talking points
-7. 📊 Swipe File — 10 social media posts ready to publish
+Product idea: "${f1}"
+Audience: "${f2}"
 
-Each must be COMPLETE. No placeholders.`}]})} disabled={!f1.trim()||loading} style={primaryBtn('#0891B2','#fff',!f1.trim()||loading)}>
+BEFORE YOU CREATE ANYTHING — confirm this is specific enough:
+- If the idea is vague (e.g. "WhatsApp business" or "digital products"), STOP and rewrite it with a specific pain point, specific person, and specific outcome first.
+- If it is specific, proceed.
+
+Now create 7 COMPLETE, READY-TO-SELL formats. Each must be FULLY WRITTEN — not described, not outlined — WRITTEN.
+
+ENFORCEMENT: If any section contains the phrases "tips for", "guide to", "step-by-step guide", "best practices", or describes what content would go there instead of BEING the content — REWRITE IT.
+
+1. 📖 eBOOK — Write the FULL content of all 8 chapters. Minimum 200 words per chapter. Real actionable content, not summaries.
+
+2. ✅ CHECKLIST — 20 items. Each item must be a SPECIFIC ACTION with a HOW (not just "identify your niche" — say "Go to Facebook, search [specific keyword], join the top 3 groups, post this exact question: [write the question]").
+
+3. 📋 TEMPLATE — Create a COMPLETE fillable template. Every field pre-populated with an example so the buyer knows exactly what to write.
+
+4. 🎬 VIDEO SCRIPT — Write the COMPLETE word-for-word script. Include [ACTION] stage directions. Hook must stop scroll in 3 seconds. Include specific examples and real numbers.
+
+5. 📱 WHATSAPP MINI-COURSE — Write ALL 5 messages in FULL. Each message minimum 100 words. Include specific actions the reader takes TODAY after reading each message.
+
+6. 🎙️ PODCAST SCRIPT — Write complete talking points for each segment. Not bullet points — full sentences the host can read. Include a real story or case study in segment 3.
+
+7. 📊 SWIPE FILE — Write all 10 posts in FULL. Each post must use at least 2 psychological triggers. Must feel local and real — not like an ad. Include a hook, body and CTA for each.
+
+GLOBAL POSITIONING: Use global language. Do NOT default to SA-only references. Match the market context of the audience: ${f2}.`}]})} disabled={!f1.trim()||loading} style={primaryBtn('#0891B2','#fff',!f1.trim()||loading)}>
             {loading?'🔄 Creating 7 formats...':'🔄 Create 7 Formats →'}</button></div>
       )}
       {tool==='product_engine' && step===1 && <ResultCard result={result} color="#0891B2" label="Your 7 Product Formats" />}
