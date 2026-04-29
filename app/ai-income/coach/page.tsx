@@ -1,4 +1,4 @@
-'use client'
+'use client' // clean-171548 // market-fix-113323
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -116,25 +116,25 @@ const TRIGGERS = [
 const PLATFORMS = ['WhatsApp','Facebook','TikTok','Email','DM','Sales Page','Instagram','LinkedIn']
 
 const FORMATS = [
-  { id:'ebook',       icon:'📖', label:'eBook',             brain:'GPT-4o' },
-  { id:'course',      icon:'🎓', label:'Online Course',      brain:'GPT-4o' },
-  { id:'community',   icon:'👥', label:'Community Blueprint',brain:'GPT-4o' },
-  { id:'guide',       icon:'🗺️', label:'Step-by-Step Guide', brain:'GPT-4o' },
-  { id:'software',    icon:'💻', label:'Software / App',     brain:'Claude Sonnet' },
-  { id:'planner',     icon:'📅', label:'Planner / Journal',  brain:'GPT-4o' },
-  { id:'template',    icon:'📋', label:'Printable Template', brain:'GPT-4o' },
-  { id:'card',        icon:'🃏', label:'Card Deck',          brain:'GPT-4o' },
-  { id:'curriculum',  icon:'🏫', label:'Curriculum',         brain:'GPT-4o' },
-  { id:'lesson',      icon:'📚', label:'Lesson Plan',        brain:'GPT-4o' },
-  { id:'toolkit',     icon:'🧰', label:'Toolkit Bundle',     brain:'GPT-4o' },
-  { id:'checklist',   icon:'✅', label:'Checklist',          brain:'GPT-4o' },
-  { id:'workbook',    icon:'📓', label:'Workbook',           brain:'GPT-4o' },
-  { id:'mini_course', icon:'⚡', label:'Mini-Course',        brain:'GPT-4o' },
-  { id:'swipe_file',  icon:'📂', label:'Swipe File',         brain:'GPT-4o' },
-  { id:'script',      icon:'🎬', label:'Video Scripts',      brain:'GPT-4o' },
-  { id:'blueprint',   icon:'🏗️', label:'Blueprint',          brain:'GPT-4o' },
-  { id:'masterclass', icon:'🏆', label:'Masterclass',        brain:'GPT-4o' },
-  { id:'printable',   icon:'🖨️', label:'Printable Pack',     brain:'GPT-4o' },
+  { id:'ebook',       icon:'📖', label:'eBook',             brain:'Z2B AI' },
+  { id:'course',      icon:'🎓', label:'Online Course',      brain:'Z2B AI' },
+  { id:'community',   icon:'👥', label:'Community Blueprint',brain:'Z2B AI' },
+  { id:'guide',       icon:'🗺️', label:'Step-by-Step Guide', brain:'Z2B AI' },
+  { id:'software',    icon:'💻', label:'Software / App',     brain:'Z2B AI Engine' },
+  { id:'planner',     icon:'📅', label:'Planner / Journal',  brain:'Z2B AI' },
+  { id:'template',    icon:'📋', label:'Printable Template', brain:'Z2B AI' },
+  { id:'card',        icon:'🃏', label:'Card Deck',          brain:'Z2B AI' },
+  { id:'curriculum',  icon:'🏫', label:'Curriculum',         brain:'Z2B AI' },
+  { id:'lesson',      icon:'📚', label:'Lesson Plan',        brain:'Z2B AI' },
+  { id:'toolkit',     icon:'🧰', label:'Toolkit Bundle',     brain:'Z2B AI' },
+  { id:'checklist',   icon:'✅', label:'Checklist',          brain:'Z2B AI' },
+  { id:'workbook',    icon:'📓', label:'Workbook',           brain:'Z2B AI' },
+  { id:'mini_course', icon:'⚡', label:'Mini-Course',        brain:'Z2B AI' },
+  { id:'swipe_file',  icon:'📂', label:'Swipe File',         brain:'Z2B AI' },
+  { id:'script',      icon:'🎬', label:'Video Scripts',      brain:'Z2B AI' },
+  { id:'blueprint',   icon:'🏗️', label:'Blueprint',          brain:'Z2B AI' },
+  { id:'masterclass', icon:'🏆', label:'Masterclass',        brain:'Z2B AI' },
+  { id:'printable',   icon:'🖨️', label:'Printable Pack',     brain:'Z2B AI' },
 ]
 
 const MARKETS = [
@@ -312,7 +312,7 @@ I am Coach Manlaw — the AI business coach for Z2B Legacy Builders.
         <span style={{ color:'rgba(255,255,255,0.2)' }}>|</span>
         <span style={{ fontSize:'14px', fontWeight:900, color:GOLD, fontFamily:'Cinzel,Georgia,serif' }}>Coach Manlaw</span>
         <span style={{ marginLeft:'auto', fontSize:'10px', color:'rgba(255,255,255,0.35)', background:'rgba(255,255,255,0.05)', padding:'3px 8px', borderRadius:'10px' }}>
-          GPT-4o · Enforcement Engine
+          Z2B AI · Enforcement Engine
         </span>
       </div>
 
@@ -330,21 +330,28 @@ I am Coach Manlaw — the AI business coach for Z2B Legacy Builders.
         ))}
       </div>
 
-      {/* ── Global Market Selector — persists across all modes ── */}
-      {mode !== 'chat' && (
-        <div style={{ padding:'10px 12px', background:'rgba(255,255,255,0.02)', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap', flexShrink:0 }}>
-          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>🌍 Market:</div>
-          <select value={market} onChange={e => setMarket(e.target.value)}
-            style={{ flex:1, minWidth:'140px', padding:'5px 8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif' }}>
-            {MARKETS.map(m => <option key={m}>{m}</option>)}
-          </select>
-          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', flexShrink:0 }}>👥 Who:</div>
-          <select value={audience} onChange={e => setAudience(e.target.value)}
-            style={{ flex:1, minWidth:'140px', padding:'5px 8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif' }}>
-            {DEMOGRAPHICS.map(d => <option key={d}>{d}</option>)}
-          </select>
+      {/* ── Global Market + Demographic Selector — always visible ── */}
+      <div style={{ padding:'10px 14px', background:'rgba(212,175,55,0.06)', borderBottom:'1px solid rgba(212,175,55,0.15)', flexShrink:0 }}>
+        <div style={{ fontSize:'10px', fontWeight:700, color:GOLD, letterSpacing:'1px', textTransform:'uppercase', marginBottom:'7px' }}>
+          🌍 Target Market — Coach Manlaw adapts everything to your selection
         </div>
-      )}
+        <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+          <div style={{ flex:'1 1 160px' }}>
+            <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginBottom:'3px' }}>🌍 Market / Country</div>
+            <select value={market} onChange={e => setMarket(e.target.value)}
+              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD}40`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
+              {MARKETS.map(m => <option key={m} style={{ background:'#1E1245' }}>{m}</option>)}
+            </select>
+          </div>
+          <div style={{ flex:'1 1 160px' }}>
+            <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginBottom:'3px' }}>👥 Demographic</div>
+            <select value={audience} onChange={e => setAudience(e.target.value)}
+              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD}40`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
+              {DEMOGRAPHICS.map(d => <option key={d} style={{ background:'#1E1245' }}>{d}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
 
       {/* ── CHAT ── */}
       {mode === 'chat' && (

@@ -89,6 +89,148 @@ function ResultCard({ result, color, label }: { result: string; color: string; l
   )
 }
 
+
+// ════════════════════════════════════════════════════════════════════
+// 🧠 BRAINSTORM CHAT — Conversational product discovery
+// Used across all vehicles and tiers
+// ════════════════════════════════════════════════════════════════════
+function BrainstormChat({ vehicle, tier, onProductFound }: {
+  vehicle: string
+  tier: string
+  onProductFound?: (idea: string) => void
+}) {
+  const [msgs,    setMsgs]    = useState<{role:string,content:string}[]>([])
+  const [input,   setInput]   = useState('')
+  const [loading, setLoading] = useState(false)
+  const [idea,    setIdea]    = useState('')
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Start with an easy, friendly opening question
+    setMsgs([{ role:'assistant', content:`Hey! Before we create something, let me help you find the right idea. 🧠
+
+No pressure — this is just a conversation.
+
+**First question:** What did you spend most of your day doing today? (Could be your job, chores, helping someone — anything.)
+
+Just type it like you would text a friend.` }])
+  }, [])
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs])
+
+  const send = async () => {
+    if (!input.trim() || loading) return
+    const newMsgs = [...msgs, { role:'user', content: input }]
+    setMsgs(newMsgs)
+    setInput('')
+    setLoading(true)
+
+    const history = newMsgs.map(m => ({ role: m.role as 'user'|'assistant', content: m.content }))
+    const systemNote = `You are Coach Manlaw running a brainstorming session to help a ${tier} tier Z2B builder discover what digital product to create.
+
+RULES FOR THIS SESSION:
+- Ask ONE question at a time. Never list multiple questions.
+- Questions should feel like texting a friend — short, warm, curious.
+- Build on their previous answer. Reference what they said.
+- Guide them from: what they do → what they know → what others ask them → what problem they solve → product idea
+- After 4-6 exchanges, you will have enough to suggest ONE specific product idea.
+- When you have enough info, say: "I think I have your product idea — want to hear it?" and on their yes, output:
+
+PRODUCT IDEA FOUND:
+[Specific title — e.g. "How to Start a Food Business from Your Kitchen with R1,000 — A Step-by-Step Guide for [their city] Residents"]
+Format: [ebook/guide/template/checklist/course]
+Price: [R__ or $__ based on their market]
+Who it's for: [one sentence]
+Why it will sell: [one sentence]
+
+THEN ask: "Should I start creating this now?"
+
+- Never use "digital product", "passive income", "financial freedom" — use plain language
+- Maximum 60 words per response
+- Vehicle context: ${vehicle} mode`
+
+    const res = await fetch('/api/coach-manlaw', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'chat', builderTier:tier, messages:[{ role:'system', content:systemNote }, ...history] })
+    })
+    const data = await res.json()
+    const reply = data.reply || ''
+
+    // Check if product idea was found
+    if (reply.includes('PRODUCT IDEA FOUND:')) {
+      const ideaMatch = reply.match(/PRODUCT IDEA FOUND:\s*
+([^
+]+)/)
+      if (ideaMatch) setIdea(ideaMatch[1])
+    }
+
+    setMsgs(prev => [...prev, { role:'assistant', content: reply }])
+    setLoading(false)
+  }
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
+      <div style={{ background:'rgba(212,175,55,0.06)', border:`1px solid ${GOLD}25`, borderRadius:'12px', padding:'10px 14px', marginBottom:'12px', display:'flex', gap:'8px', alignItems:'center' }}>
+        <span style={{ fontSize:'18px' }}>🧠</span>
+        <div>
+          <div style={{ fontSize:'12px', fontWeight:700, color:GOLD }}>Brainstorm Session</div>
+          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)' }}>AI will guide you to your product idea through conversation</div>
+        </div>
+      </div>
+
+      {/* Chat */}
+      <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'12px', maxHeight:'400px', overflowY:'auto' }}>
+        {msgs.map((m, i) => (
+          <div key={i} style={{ display:'flex', justifyContent: m.role==='user'?'flex-end':'flex-start', gap:'8px' }}>
+            {m.role==='assistant' && (
+              <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:`linear-gradient(135deg,${GOLD},#B8860B)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', flexShrink:0 }}>M</div>
+            )}
+            <div style={{ maxWidth:'85%', padding:'10px 14px',
+              borderRadius: m.role==='user'?'16px 16px 4px 16px':'4px 16px 16px 16px',
+              background: m.role==='user'?`linear-gradient(135deg,${PURP},#4C1D95)`:'rgba(255,255,255,0.06)',
+              fontSize:'13px', lineHeight:1.75, color:W, whiteSpace:'pre-wrap' }}>
+              {m.content}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div style={{ display:'flex', gap:'6px', alignItems:'center', padding:'8px 14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', width:'fit-content' }}>
+            <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:`linear-gradient(135deg,${GOLD},#B8860B)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px' }}>M</div>
+            <div style={{ display:'flex', gap:'4px' }}>
+              {[0,1,2].map(i => <div key={i} style={{ width:'6px', height:'6px', borderRadius:'50%', background:GOLD, animation:`pulse 1.2s ${i*0.3}s infinite` }} />)}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Product idea found — create button */}
+      {idea && onProductFound && (
+        <div style={{ background:`${GOLD}10`, border:`1px solid ${GOLD}40`, borderRadius:'12px', padding:'14px', marginBottom:'10px' }}>
+          <div style={{ fontSize:'12px', fontWeight:700, color:GOLD, marginBottom:'6px' }}>✅ Product Idea Found!</div>
+          <div style={{ fontSize:'12px', color:W, lineHeight:1.7, marginBottom:'10px' }}>{idea}</div>
+          <button onClick={() => onProductFound(idea)}
+            style={{ ...primaryBtn(GOLD,'#1E1245'), marginBottom:0 }}>
+            ⚡ Start Creating This Product →
+          </button>
+        </div>
+      )}
+
+      {/* Input */}
+      <div style={{ display:'flex', gap:'8px' }}>
+        <input value={input} onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send() }}}
+          placeholder="Type your answer here..."
+          style={{ ...inp, flex:1 }} />
+        <button onClick={send} disabled={loading||!input.trim()}
+          style={{ padding:'0 16px', borderRadius:'10px', border:'none', background:`linear-gradient(135deg,${GOLD},#B8860B)`, color:'#1E1245', fontWeight:900, cursor:'pointer', opacity:loading||!input.trim()?0.5:1 }}>
+          →
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ════════════════════════════════════════════════════════════════════
 // 🚗 MANUAL MODE
 // ════════════════════════════════════════════════════════════════════
@@ -142,6 +284,7 @@ function ManualMode({ tier }: { tier: string }) {
 
   // STARTER / BRONZE / COPPER — tool menu
   const TOOLS: Record<string,{icon:string,name:string,desc:string,tiers:string[],steps:string[]}> = {
+    brainstorm:{ icon:'🧠', name:'Brainstorm with AI',  desc:'Not sure what to sell? AI interviews you and finds your idea', tiers:['starter','bronze','copper'], steps:['Chat with AI'] },
     offer:     { icon:'✍️', name:'Offer Generator',     desc:'Create a converting offer for any product',  tiers:['starter','bronze','copper'], steps:['Your product','Your buyer','Generate'] },
     finder:    { icon:'🔍', name:'Customer Finder',      desc:'Find exactly where your buyers are online',   tiers:['starter','bronze','copper'], steps:['Your niche','Platform','Find buyers'] },
     post:      { icon:'📱', name:'Post Creator',         desc:'WhatsApp, Facebook and TikTok posts ready',   tiers:['starter','bronze','copper'], steps:['Product','Platform','Generate'] },
@@ -241,6 +384,11 @@ function ManualMode({ tier }: { tier: string }) {
         </div>
       )}
       {tool==='post' && step===2 && <ResultCard result={result} color={PURP} label="Your Post — Copy and paste" />}
+
+      {/* ── BRAINSTORM SESSION ── */}
+      {tool==='brainstorm' && (
+        <BrainstormChat vehicle="manual" tier={tier} onProductFound={(idea) => { setTool('offer'); setF1(idea); setStep(0) }} />
+      )}
 
       {/* Closing Script */}
       {tool==='closing' && step===0 && (
@@ -394,6 +542,7 @@ function AutomaticMode({ tier }: { tier: string }) {
   const back = () => { setTool(null); setStep(0); setResult(''); setF1(''); setF2(''); setF3('') }
 
   const TOOLS = [
+    { key:'brainstorm',     icon:'🧠', name:'Brainstorm with AI',  desc:'Not sure what to create? AI finds your idea through conversation', steps:['Chat'] },
     { key:'product_engine', icon:'🔄', name:'7-Product Engine',    desc:'Turn 1 product into 7 formats automatically',          steps:['Your product','Formats','Generate'] },
     { key:'auto_followup',  icon:'📩', name:'Auto Follow-Up System',desc:'Follow-up sequences that close without you',           steps:['Product','Buyer type','Generate'] },
     { key:'content_machine',icon:'📅', name:'Content Machine',      desc:'30 days of content created in one click',              steps:['Your niche','Platforms','Generate'] },
@@ -432,6 +581,11 @@ function AutomaticMode({ tier }: { tier: string }) {
       <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'17px', fontWeight:900, color:W, marginBottom:'4px' }}>{t.icon} {t.name}</div>
       <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)', marginBottom:'16px' }}>{t.desc}</div>
       <StepBar steps={t.steps} current={step} color="#0891B2" />
+
+      {/* ── BRAINSTORM ── */}
+      {tool==='brainstorm' && (
+        <BrainstormChat vehicle="automatic" tier={tier} onProductFound={(idea) => { setTool('product_engine'); setF1(idea); setStep(0) }} />
+      )}
 
       {/* 7-Product Engine */}
       {tool==='product_engine' && step===0 && (
@@ -614,7 +768,7 @@ function ElectricMode({ tier }: { tier: string }) {
     { icon:'📋', type:'Template / Planner',        fmt:'template',    example:'e.g. Business plan template · 90-day income planner' },
     { icon:'🧰', type:'Toolkit / Swipe File',      fmt:'toolkit',     example:'e.g. Sales scripts toolkit · Content creation kit' },
     { icon:'🎬', type:'Masterclass / Video Course',fmt:'masterclass', example:'e.g. Property investment masterclass · Fitness coaching program' },
-    { icon:'💻', type:'Software / Tool (Claude)',  fmt:'software',    example:'e.g. Budget calculator app · Business proposal generator' },
+    { icon:'💻', type:'Software / Tool (Z2B AI)',  fmt:'software',    example:'e.g. Budget calculator app · Business proposal generator' },
     { icon:'🃏', type:'Card Deck',                fmt:'card',        example:'e.g. Daily affirmation cards · Business strategy cards' },
     { icon:'🏫', type:'Academic Curriculum',       fmt:'curriculum',  example:'e.g. Grade 10 Maths curriculum · English literacy program' },
     { icon:'🔁', type:'Mini-Course (5 days)',       fmt:'mini_course', example:'e.g. 5-day money reset · 5-day productivity sprint' },
@@ -622,6 +776,15 @@ function ElectricMode({ tier }: { tier: string }) {
       { icon:'📦', type:'Bulk Product Bundle (Platinum)',fmt:'toolkit', example:'e.g. 5-product business starter bundle' },
     ] : []),
   ]
+
+  const [showBrainstorm, setShowBrainstorm] = useState(false)
+
+  if (showBrainstorm) return (
+    <div>
+      <button onClick={()=>setShowBrainstorm(false)} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'13px', padding:0, marginBottom:'16px' }}>← Back</button>
+      <BrainstormChat vehicle="electric" tier={tier} onProductFound={(idea) => { setTopic(idea); setShowBrainstorm(false); setStep(1) }} />
+    </div>
+  )
 
   if (step === 0) return (
     <div>
@@ -638,7 +801,13 @@ function ElectricMode({ tier }: { tier: string }) {
           ))}
         </div>
       )}
-      <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)', marginBottom:'10px' }}>What do you want to create?</div>
+      <div style={{ display:'flex', gap:'8px', alignItems:'center', marginBottom:'12px' }}>
+        <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)', flex:1 }}>What do you want to create?</div>
+        <button onClick={()=>setShowBrainstorm(true)}
+          style={{ padding:'7px 14px', borderRadius:'20px', border:`1px solid ${GOLD}40`, background:`${GOLD}10`, color:GOLD, fontSize:'11px', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+          🧠 Not sure? Brainstorm
+        </button>
+      </div>
       <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
         {TYPES.map(p => (
           <button key={p.type} onClick={() => { setProductType(p.fmt); setStep(1) }}
