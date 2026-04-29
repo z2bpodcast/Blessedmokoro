@@ -1,4 +1,4 @@
-'use client'
+'use client' // fix-113347
 // FILE: app/ai-income/choose-plan/page.tsx
 
 import { useState, Suspense } from 'react'
@@ -15,11 +15,11 @@ const TIERS = [
   { id:'free',             name:'Free',             price:0,     label:'R0',        badge:'🚀 FREE',            color:'#6EE7B7', rocket:false,
     features:['Offer Generator','Customer Finder','Post Generator','Basic Coach Manlaw'], cta:'Start Free Now →', highlight:false },
   { id:'starter',          name:'Starter Pack',     price:500,   label:'R500',      badge:'⭐ STARTER',         color:'#A78BFA', rocket:false,
-    features:['All Free features','Reply System','Closing Assistant','Daily Engine','NSB: R150 on Starter sales','BFM: R850/month'], cta:'Get Starter Pack →', highlight:false },
+    features:['All Free features','Reply System','Closing Assistant','Daily Engine','NSB: R150 on Starter sales','Z2B Marketplace listing (keep 90%) (keep 90%)','BFM: R850/month'], cta:'Get Starter Pack →', highlight:false },
   { id:'bronze',           name:'Bronze',           price:2500,  label:'R2,500',    badge:'🥉 BRONZE',          color:'#CD7F32', rocket:false,
-    features:['All Starter','2-Product Engine','TSC G2-G3','ISP 18%','BFM: R1,050/month'], cta:'Upgrade to Bronze →', highlight:false },
+    features:['All Starter','2-Product Engine','TSC G2-G3','ISP 18%','Z2B Marketplace listing (keep 90%) (keep 90%)','BFM: R1,050/month'], cta:'Upgrade to Bronze →', highlight:false },
   { id:'copper',           name:'Copper',           price:5000,  label:'R5,000',    badge:'🔶 COPPER',          color:'#B87333', rocket:false,
-    features:['All Bronze','5-Product Engine','Self-Discovery','TSC G2-G4','ISP 22%','BFM: R1,300/month'], cta:'Upgrade to Copper →', highlight:false },
+    features:['All Bronze','5-Product Engine','Self-Discovery','TSC G2-G4','ISP 22%','Z2B Marketplace listing (keep 90%) (keep 90%)','BFM: R1,300/month'], cta:'Upgrade to Copper →', highlight:false },
   { id:'silver',           name:'Silver',           price:12000, label:'R12,000',   badge:'⚙️ SILVER',         color:'#C0C0C0', rocket:false,
     features:['All Copper','7-Product Engine','Digital Twin (1)','TSC G2-G6','ISP 25%','TLI eligible','BFM: R2,000/month'], cta:'Upgrade to Silver →', highlight:true },
   { id:'silver_rocket',    name:'Silver Rocket',    price:17000, label:'R17,000',   badge:'🚀⚙️ SILVER ROCKET', color:'#FF6B35', rocket:true,
@@ -59,14 +59,14 @@ function ChoosePlanInner() {
 
       {/* Nav */}
       <div style={{ padding:'12px 20px', display:'flex', alignItems:'center', gap:'12px', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-        <button onClick={() => router.back()}
-          style={{ background:'none', border:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'13px', padding:0 }}>
+        <Link href="/ai-income"
+          style={{ fontSize:'13px', color:'rgba(255,255,255,0.5)', textDecoration:'none' }}>
           ← Back
-        </button>
+        </Link>
         <span style={{ color:'rgba(255,255,255,0.2)' }}>|</span>
         <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:700, color:GOLD }}>Choose Your Power Level</span>
         <Link href="/login?redirect=/ai-income/choose-plan"
-          style={{ marginLeft:'auto', padding:'5px 14px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'20px', fontSize:'12px', color:'rgba(255,255,255,0.6)', textDecoration:'none', fontWeight:700 }}>
+          style={{ marginLeft:'auto', padding:'7px 16px', background:`linear-gradient(135deg,${GOLD}20,${GOLD}10)`, border:`1px solid ${GOLD}50`, borderRadius:'20px', fontSize:'12px', color:GOLD, textDecoration:'none', fontWeight:700 }}>
           Sign In →
         </Link>
       </div>
@@ -162,7 +162,7 @@ function ChoosePlanInner() {
         </div>
 
         <div style={{ textAlign:'center', marginTop:'12px', fontSize:'11px', color:'rgba(255,255,255,0.3)', lineHeight:1.7 }}>
-          All prices in ZAR · BFM activates after 60 days · Cancel anytime<br/>
+          All prices in your local currency · BFM activates after 60 days · Cancel anytime<br/>
           <Link href="/compensation" style={{ color:'rgba(255,255,255,0.4)', textDecoration:'underline' }}>View full compensation plan →</Link>
         </div>
       </div>
