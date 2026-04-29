@@ -711,7 +711,7 @@ What do you want to build today?` }])
             <div style={{ padding:'12px', background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'10px' }}>
               <div style={{ fontSize:'11px', fontWeight:700, color:'#FCA5A5', marginBottom:'4px' }}>2. SPECIFIC PROBLEM — Their exact pain</div>
               <textarea value={wsProblem} onChange={e => setWsProblem(e.target.value)} rows={2}
-                placeholder='e.g. "She works 2 jobs but still can't save money because she has no system for managing her income"'
+                placeholder="e.g. She works 2 jobs but cannot save money - no system for managing her income"
                 style={{ ...inp, resize:'none' }} />
             </div>
             <div style={{ padding:'12px', background:'rgba(110,231,183,0.06)', border:'1px solid rgba(110,231,183,0.2)', borderRadius:'10px' }}>
