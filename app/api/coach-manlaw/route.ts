@@ -463,7 +463,7 @@ Use all 13 psychological triggers throughout. Make every piece copy-paste ready.
     // Score any offer/product using the What Sells framework
     if (action === 'what_sells_audit') {
       const { copy, product, audience } = body
-      const prompt = \`Apply the WHAT SELLS framework to audit this offer/product:
+      const prompt = `Apply the WHAT SELLS framework to audit this offer/product:
 
 \${copy ? 'COPY TO AUDIT:\n' + copy : 'PRODUCT: ' + product + '\nAUDIENCE: ' + audience}
 
@@ -507,7 +507,7 @@ Rewrite the headline/hook using all 4 elements of the What Sells formula + at le
 - 90-100: This will sell. Run it.
 - 75-89: Strong. Fix the flagged issues first.
 - 60-74: Needs work. Major rewrite recommended.
-- Below 60: Start over with the formula.\`
+- Below 60: Start over with the formula.`
 
       const audit = await callBrain('gpt4o', [
         { role: 'system', content: MANLAW_SYSTEM },
@@ -521,7 +521,7 @@ Rewrite the headline/hook using all 4 elements of the What Sells formula + at le
     // Build a complete offer from scratch using the formula
     if (action === 'what_sells_build') {
       const { person, problem, promise, market, price } = body
-      const prompt = \`Using the WHAT SELLS formula, build a complete offer:
+      const prompt = `Using the WHAT SELLS formula, build a complete offer:
 
 SPECIFIC PERSON: \${person}
 SPECIFIC PROBLEM: \${problem}
@@ -552,7 +552,7 @@ Build the following (all complete, ready to use):
 
 ## 10. OBJECTION HANDLERS (3 most likely objections with complete responses)
 
-## 11. WHAT SELLS SCORE (self-score this offer you just created)\`
+## 11. WHAT SELLS SCORE (self-score this offer you just created)`
 
       const built = await callBrain('gpt4o', [
         { role: 'system', content: MANLAW_SYSTEM },
