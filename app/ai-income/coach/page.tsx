@@ -1,5 +1,5 @@
 'use client'
-// FILE: app/ai-income/coach/page.tsx
+// FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
