@@ -575,9 +575,9 @@ Build the following (all complete, ready to use):
 
   } catch (e: any) {
     console.error('[CoachManlaw] ERROR:', e.message)
-
-    // Fallback to gpt-4o-mini if primary fails
-    if (body?.action === 'chat' && body?.messages) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
+}
       try {
         const key = process.env.OPENAI_API_KEY || ''
         if (key) {
@@ -593,9 +593,4 @@ Build the following (all complete, ready to use):
           const data = await res.json()
           return NextResponse.json({ reply: data.choices?.[0]?.message?.content || 'Coach Manlaw is thinking...', brain:'fallback' })
         }
-      } catch (fallbackErr) {}
-    }
 
-    return NextResponse.json({ error: e.message }, { status: 500 })
-  }
-}
