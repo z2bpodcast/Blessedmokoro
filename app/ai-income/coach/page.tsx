@@ -1,4 +1,4 @@
-'use client'
+'use client' // rebuilt 20260429_090324
 // FILE: app/ai-income/coach/page.tsx
 // Coach Manlaw — World-Class AI Business Coach + Copywriter + Product Creator
 
