@@ -2,7 +2,7 @@
 // FILE: app/ai-income/page.tsx
 // 4M Machine — Fully unique experience per tier, step-by-step focused UX
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
