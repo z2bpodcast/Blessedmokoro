@@ -1,4 +1,4 @@
-'use client' // welcome-112750
+'use client' // outcard-fix-135234
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -40,7 +40,7 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
       flush(`f${i}`)
       els.push(
         <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', margin:'16px 0 6px',
-          padding:'10px 14px', background:`${accent}14`, border:`1px solid ${accent}35`,
+          padding:'10px 14px', background:`${accent + "14"}`, border:`1px solid ${accent + '35'}`,
           borderRadius:'10px', fontSize:'13px', fontWeight:900, color:accent, fontFamily:'Cinzel,Georgia,serif' }}>
           {t.replace(/^##\s*/, '')}
         </div>
@@ -292,18 +292,20 @@ The world is waiting for what you know.\` }])
     <label style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', display:'block', marginBottom:'4px' }}>{children}</label>
   )
 
+  const hex = (color: string, opacity: string) => color + opacity
   const OutCard = ({ accent = GOLD, label }: { accent?: string; label: string }) => !output ? null : (
-    <div style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${accent}25`, borderRadius:'14px', padding:'16px' }}>
+    <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid ' + accent + '25', borderRadius:'14px', padding:'16px' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
         <div style={{ fontSize:'12px', fontWeight:700, color:accent }}>{label}</div>
         <button onClick={() => copyText(output)}
-          style={{ padding:'5px 12px', background:`${accent}20`, border:`1px solid ${accent}40`, borderRadius:'8px', color:accent, fontSize:'11px', cursor:'pointer', fontWeight:700 }}>
+          style={{ padding:'5px 12px', background:accent+'20', border:'1px solid '+accent+'40', borderRadius:'8px', color:accent, fontSize:'11px', cursor:'pointer', fontWeight:700 }}>
           {copied ? '✅ Copied' : '📋 Copy All'}
         </button>
       </div>
       <MarkdownOutput text={output} accent={accent} />
     </div>
   )
+
 
   return (
     <div style={{ minHeight:'100vh', background:BG, color:W, fontFamily:'Georgia,serif', display:'flex', flexDirection:'column' }}>
@@ -324,7 +326,7 @@ The world is waiting for what you know.\` }])
           <button key={m.id} onClick={() => { setMode(m.id); setOutput('') }}
             style={{ padding:'6px 11px', borderRadius:'20px', cursor:'pointer', whiteSpace:'nowrap',
               border:`1px solid ${mode===m.id ? GOLD : 'rgba(255,255,255,0.1)'}`,
-              background: mode===m.id ? `${GOLD}18` : 'transparent',
+              background: mode===m.id ? `${GOLD + '18'}` : 'transparent',
               color: mode===m.id ? GOLD : 'rgba(255,255,255,0.5)',
               fontSize:'11px', fontWeight:700 }}>
             {m.icon} {m.label}
@@ -341,14 +343,14 @@ The world is waiting for what you know.\` }])
           <div style={{ flex:'1 1 160px' }}>
             <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginBottom:'3px' }}>🌍 Market / Country</div>
             <select value={market} onChange={e => setMarket(e.target.value)}
-              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD}40`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
+              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD + '40'}`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
               {MARKETS.map(m => <option key={m} style={{ background:'#1E1245' }}>{m}</option>)}
             </select>
           </div>
           <div style={{ flex:'1 1 160px' }}>
             <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.4)', marginBottom:'3px' }}>👥 Demographic</div>
             <select value={audience} onChange={e => setAudience(e.target.value)}
-              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD}40`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
+              style={{ width:'100%', padding:'7px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${GOLD + '40'}`, borderRadius:'8px', color:W, fontSize:'12px', fontFamily:'Georgia,serif', outline:'none' }}>
               {DEMOGRAPHICS.map(d => <option key={d} style={{ background:'#1E1245' }}>{d}</option>)}
             </select>
           </div>
@@ -426,7 +428,7 @@ The world is waiting for what you know.\` }])
                   <button key={t.id} onClick={() => setSelTriggers(prev => sel ? prev.filter(x=>x!==t.id) : [...prev, t.id])}
                     style={{ padding:'5px 10px', borderRadius:'16px', fontSize:'10px', fontWeight:700, cursor:'pointer',
                       border:`1px solid ${sel ? GOLD : 'rgba(255,255,255,0.12)'}`,
-                      background: sel ? `${GOLD}20` : 'transparent', color: sel ? GOLD : 'rgba(255,255,255,0.45)' }}>
+                      background: sel ? `${GOLD + '20'}` : 'transparent', color: sel ? GOLD : 'rgba(255,255,255,0.45)' }}>
                     {t.label}
                   </button>
                 )
@@ -464,7 +466,7 @@ The world is waiting for what you know.\` }])
                   <button key={f.id} onClick={() => setFormat(f.id)}
                     style={{ padding:'8px 10px', borderRadius:'8px', cursor:'pointer', textAlign:'left', display:'flex', gap:'6px', alignItems:'center',
                       border:`1px solid ${format===f.id ? GOLD : 'rgba(255,255,255,0.1)'}`,
-                      background: format===f.id ? `${GOLD}18` : 'rgba(255,255,255,0.03)',
+                      background: format===f.id ? `${GOLD + '18'}` : 'rgba(255,255,255,0.03)',
                       color: format===f.id ? GOLD : 'rgba(255,255,255,0.5)' }}>
                     <span>{f.icon}</span>
                     <div>
@@ -585,7 +587,7 @@ The world is waiting for what you know.\` }])
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:900, color:W, marginBottom:'4px' }}>🔥 Build from the Formula</div>
           <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.4)', marginBottom:'14px' }}>Person + Problem + Promise + Path = Irresistible Offer</div>
           <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'14px' }}>
-            <div style={{ padding:'12px', background:`${GOLD}08`, border:`1px solid ${GOLD}20`, borderRadius:'10px' }}>
+            <div style={{ padding:'12px', background:`${GOLD + '08'}`, border:`1px solid ${GOLD + '20'}`, borderRadius:'10px' }}>
               <div style={{ fontSize:'11px', fontWeight:700, color:GOLD, marginBottom:'5px' }}>1. WHO FEELS SEEN?</div>
               <input value={wsPerson} onChange={e => setWsPerson(e.target.value)}
                 placeholder="Single mother in Johannesburg struggling to make rent every month" style={inp} />
