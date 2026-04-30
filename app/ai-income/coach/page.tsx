@@ -1,4 +1,4 @@
-'use client' // notemplate-142732
+'use client' // jsxfix-144800
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -439,7 +439,7 @@ The world is waiting for what you know.\` }])
               })}
             </div>
             <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', marginTop:'5px' }}>
-              {selTriggers.length === 0 ? '🔥 All 13 active — maximum power' : `${selTriggers.length} selected`}
+              {selTriggers.length === 0 ? '🔥 All 13 active — maximum power' : selTriggers.length + ' selected'}
             </div>
           </div>
           <button onClick={() => callAPI('write_offer', { product, audience, price, platform, painPoints, format:'full offer', triggers: selTriggers.length ? selTriggers : undefined })}
@@ -670,9 +670,9 @@ The world is waiting for what you know.\` }])
           <button onClick={() => callAPI('iterate', { offer:auditCopy, rounds:iterRounds })}
             disabled={loading || !auditCopy.trim()}
             style={submitBtn('linear-gradient(135deg,#7C3AED,#4C1D95)', '#fff', loading || !auditCopy.trim())}>
-            {loading ? `🔁 Iterating ${iterRounds}x...` : `🔁 Iterate ${iterRounds}x — Force 85+ →`}
+            {loading ? '🔁 Iterating ' + iterRounds + 'x...' : '🔁 Iterate ' + iterRounds + 'x — Force 85+ →'}
           </button>
-          <OutCard label={`Final Offer — ${iterRounds}x Iterated`} accent="#A78BFA" />
+          <OutCard label={'Final Offer — ' + iterRounds + 'x Iterated'} accent="#A78BFA" />
         </div>
       )}
 
