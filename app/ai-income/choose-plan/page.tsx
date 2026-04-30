@@ -9,6 +9,7 @@ const BG    = '#050A18'
 const SURF  = '#0D1629'
 const SURF2 = '#111D35'
 const GOLD  = '#F59E0B'
+const GOLD2 = '#FCD34D'
 const BLUE  = '#3B82F6'
 const CYAN  = '#06B6D4'
 const VIO   = '#8B5CF6'
@@ -58,14 +59,14 @@ function ChoosePlanInner() {
         <Link href="/ai-income" style={{ fontSize:'12px', color:MUTED }}>← 4M Machine</Link>
         <span style={{ color:BORDER }}>|</span>
         <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:900, color:GOLD }}>Your Deployment Starts Here</span>
-        <Link href="/login?redirect=/ai-income/choose-plan" style={{ marginLeft:'auto', padding:'7px 16px', background:`${GOLD}15`, border:`1px solid ${GOLD}40`, borderRadius:'20px', color:GOLD, fontSize:'12px', fontWeight:700 }}>
+        <Link href="/login?redirect=/ai-income/choose-plan" style={{ marginLeft:'auto', padding:'7px 16px', background:`${GOLD + '15'}`, border:`1px solid ${GOLD + '40'}`, borderRadius:'20px', color:GOLD, fontSize:'12px', fontWeight:700 }}>
           Sign In →
         </Link>
       </nav>
 
       {/* Hero */}
       <div style={{ textAlign:'center', padding:'48px 20px 32px', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD}08 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD + '08'} 0%,transparent 70%)`, pointerEvents:'none' }} />
         <div style={{ position:'relative', zIndex:1 }}>
           <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'12px' }}>⚡ Deploy Yourself</div>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,4vw,42px)', fontWeight:900, color:W, marginBottom:'12px' }}>
@@ -90,7 +91,7 @@ function ChoosePlanInner() {
         ].map(group => (
           <div key={group.vehicle} style={{ marginBottom:'48px' }}>
             {/* Group header */}
-            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'20px', padding:'14px 20px', background:SURF, border:`1px solid ${group.color}30`, borderRadius:'14px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'20px', padding:'14px 20px', background:SURF, border:`1px solid ${group.color + '30'}`, borderRadius:'14px' }}>
               <span style={{ fontSize:'24px' }}>{group.icon}</span>
               <div>
                 <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'16px', fontWeight:900, color:group.color }}>{group.vehicle} Mode</div>
@@ -106,9 +107,9 @@ function ChoosePlanInner() {
                   style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`,
                     border:`2px solid ${selected===tier.id ? tier.color : BORDER}`,
                     borderRadius:'18px', padding:'24px', cursor:'pointer', transition:'all 0.2s', position:'relative', overflow:'hidden',
-                    boxShadow: selected===tier.id ? `0 0 30px ${tier.color}25` : 'none' }}>
+                    boxShadow: selected===tier.id ? `0 0 30px ${tier.color + '25'}` : 'none' }}>
 
-                  <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${tier.color}15 0%,transparent 70%)`, pointerEvents:'none' }} />
+                  <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${tier.color + '15'} 0%,transparent 70%)`, pointerEvents:'none' }} />
                   <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'2px', background:`linear-gradient(90deg,transparent,${tier.color},transparent)` }} />
 
                   <div style={{ fontSize:'10px', color:tier.color, letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>{tier.vehicle}</div>
@@ -134,9 +135,9 @@ function ChoosePlanInner() {
 
                   <button onClick={e => { e.stopPropagation(); pay(tier.id) }}
                     style={{ width:'100%', padding:'12px', borderRadius:'12px', border:'none', fontFamily:'Cinzel,Georgia,serif', fontWeight:900, fontSize:'13px', cursor:'pointer',
-                      background:`linear-gradient(135deg,${tier.color},${tier.color}BB)`,
+                      background:`linear-gradient(135deg,${tier.color},${tier.color + 'BB'})`,
                       color: tier.id==='gold'||tier.id==='gold_rocket'||tier.id==='silver_rocket' ? '#050A18' : '#fff',
-                      boxShadow: selected===tier.id ? `0 0 20px ${tier.color}40` : 'none' }}>
+                      boxShadow: selected===tier.id ? `0 0 20px ${tier.color + '40'}` : 'none' }}>
                     Deploy at {tier.label} →
                   </button>
                 </div>
@@ -146,7 +147,7 @@ function ChoosePlanInner() {
         ))}
 
         {/* Revenue reminder */}
-        <div style={{ background:`${GOLD}08`, border:`1px solid ${GOLD}25`, borderRadius:'16px', padding:'24px', textAlign:'center' }}>
+        <div style={{ background:`${GOLD + '08'}`, border:`1px solid ${GOLD + '25'}`, borderRadius:'16px', padding:'24px', textAlign:'center' }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:GOLD, marginBottom:'10px' }}>
             Every tier includes Marketplace access from Starter
           </div>
