@@ -1,4 +1,4 @@
-'use client' // jsxfix-144800
+'use client' // stylefix-150009
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -676,7 +676,7 @@ The world is waiting for what you know.\` }])
         </div>
       )}
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}`}</style>
+      <style dangerouslySetInnerHTML={{__html:"@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}"}} />
     </div>
   )
 }
