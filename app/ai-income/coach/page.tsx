@@ -1,4 +1,4 @@
-'use client' // welcomefix-153520
+'use client' // rebuilt-20260430_160616
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -38,10 +38,10 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
 
   lines.forEach((line, i) => {
     const t = line.trim()
-    if (!t) { flush(`f${i}`); return }
+    if (!t) { flush('f' + i); return }
 
     if (t.startsWith('## ')) {
-      flush(`f${i}`)
+      flush('f' + i)
       els.push(
         <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', margin:'16px 0 6px',
           padding:'10px 14px', background:(accent + "14"), border:'1px solid ' + (accent + '35'),
@@ -53,7 +53,7 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
     }
 
     if (t.startsWith('### ')) {
-      flush(`f${i}`)
+      flush('f' + i)
       els.push(<div key={i} style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'1px', textTransform:'uppercase', marginTop:'12px', marginBottom:'3px' }}>
         {t.replace(/^###\s*/, '')}</div>)
       return
@@ -65,7 +65,7 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
     }
 
     if (t.match(/\d+\s*\/\s*\d+/) && t.length < 80) {
-      flush(`f${i}`)
+      flush('f' + i)
       const score = t.match(/(\d+)\s*\/\s*(\d+)/)?.[0] || ''
       const [n, d] = score.split('/').map(Number)
       const col = Math.round(n/d*100) >= 80 ? '#6EE7B7' : Math.round(n/d*100) >= 60 ? '#FCD34D' : '#EF4444'
@@ -79,12 +79,12 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
     }
 
     if (t.startsWith('---') || t.startsWith('═══')) {
-      flush(`f${i}`)
+      flush('f' + i)
       els.push(<div key={i} style={{ height:'1px', background:'rgba(255,255,255,0.08)', margin:'12px 0' }} />)
       return
     }
 
-    flush(`f${i}`)
+    flush('f' + i)
     if (t.includes('**')) {
       const parts = t.split(/\*\*/)
       els.push(
@@ -232,6 +232,7 @@ function ManLawInner() {
     })
     setMessages([{ role:'assistant', content:'## You do not need their permission to build income.\n\nI am Coach Manlaw — your AI business coach for Z2B Legacy Builders.\n\nYou are here because you chose to deploy yourself. Let us make that deployment count.\n\n**I work with builders globally** — South Africa, Nigeria, Kenya, Ghana, UK, USA, Canada, Australia and beyond.\n\n**My enforcement engine is active:**\n→ Banned generic phrases auto-rejected\n→ Every offer scores 80+/100 or I rewrite internally\n→ No American templates\n→ SA Skeptic Test + Global Market Test on every output\n\n**Choose a mode above. Set your market. Tell me what you are building.**\n\nThe world is waiting for what you know.' }])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages, output])
+  useEffect(() => { const s = document.createElement('style'); s.innerHTML = '@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}'; document.head.appendChild(s); return () => { document.head.removeChild(s) } }, [])
 
   const callAPI = async (action: string, extra?: Record<string, unknown>) => {
     setLoading(true)
@@ -385,6 +386,7 @@ function ManLawInner() {
             </button>
           </div>
         </div>
+      </div>
       )}
 
       {/* ── OFFER WRITER ── */}
@@ -656,11 +658,11 @@ function ManLawInner() {
             style={submitBtn('linear-gradient(135deg,#7C3AED,#4C1D95)', '#fff', loading || !auditCopy.trim())}>
             {loading ? '🔁 Iterating ' + iterRounds + 'x...' : '🔁 Iterate ' + iterRounds + 'x — Force 85+ →'}
           </button>
-          <OutCard label={'Final Offer — ' + iterRounds + 'x Iterated'} accent="#A78BFA" />
+          <OutCard label={"Final Offer"} accent="#A78BFA" />
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{__html:"@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}"}} />
+      {/* keyframes injected via useEffect */}
     </div>
   )
 }
