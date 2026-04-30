@@ -1,4 +1,4 @@
-'use client' // stylefix-150009
+'use client' // welcomefix-153520
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -230,23 +230,7 @@ function ManLawInner() {
         setBuilderTier(prof?.paid_tier || 'starter')
       }
     })
-    setMessages([{ role:'assistant', content:`## You do not need their permission to build income.
-
-I am Coach Manlaw — your AI business coach for Z2B Legacy Builders.
-
-You are here because you chose to deploy yourself. Let us make that deployment count.
-
-**I work with builders globally** — South Africa, Nigeria, Kenya, Ghana, UK, USA, Canada, Australia and beyond. Tell me your market and I adapt everything.
-
-**My enforcement engine is active:**
-→ Banned generic phrases auto-rejected before they reach you
-→ Every offer scores 80+/100 or I rewrite it internally
-→ No American internet marketing templates
-→ SA Skeptic Test + Global Market Test on every output
-
-**Choose a mode above. Set your market. Tell me what you are building.**
-
-The world is waiting for what you know.\` }])
+    setMessages([{ role:'assistant', content:'## You do not need their permission to build income.\n\nI am Coach Manlaw — your AI business coach for Z2B Legacy Builders.\n\nYou are here because you chose to deploy yourself. Let us make that deployment count.\n\n**I work with builders globally** — South Africa, Nigeria, Kenya, Ghana, UK, USA, Canada, Australia and beyond.\n\n**My enforcement engine is active:**\n→ Banned generic phrases auto-rejected\n→ Every offer scores 80+/100 or I rewrite internally\n→ No American templates\n→ SA Skeptic Test + Global Market Test on every output\n\n**Choose a mode above. Set your market. Tell me what you are building.**\n\nThe world is waiting for what you know.' }])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages, output])
 
   const callAPI = async (action: string, extra?: Record<string, unknown>) => {
