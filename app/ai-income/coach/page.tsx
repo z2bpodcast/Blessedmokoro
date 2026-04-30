@@ -1,4 +1,4 @@
-'use client' // rebuilt-20260430_160616
+'use client' // boldify-162731
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -15,25 +15,35 @@ const PURP = '#7C3AED'
 const W    = '#F0EEF8'
 
 // ── Structured output renderer ────────────────────────────────────────────────
-function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string }) {
+function boldify(text: string): React.ReactNode[] {
+  const parts = text.split('**')
+  return parts.map((p, i) =>
+    i % 2 === 1
+      ? <strong key={i} style={{ color:'#F0F9FF' }}>{p}</strong>
+      : <span key={i}>{p}</span>
+  )
+}
+
+function MarkdownOutput({ text, accent = '#D4AF37' }: { text: string; accent?: string }) {
   if (!text) return null
+  const W = '#F0F9FF'
   const lines = text.split('\n')
   const els: React.ReactNode[] = []
-  let bullets: string[] = []
+  const bullets: string[] = []
 
-  const flush = (k: string) => {
+  const flush = (key: string) => {
     if (!bullets.length) return
     els.push(
-      <ul key={k} style={{ margin:'6px 0 12px', padding:0, listStyle:'none' }}>
-        {bullets.map((b, i) => (
-          <li key={i} style={{ display:'flex', gap:'8px', alignItems:'flex-start', marginBottom:'5px' }}>
-            <span style={{ color:accent, flexShrink:0, fontWeight:700, fontSize:'13px' }}>→</span>
-            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.82)', lineHeight:1.75 }}>{b}</span>
+      <ul key={key} style={{ margin:'6px 0', paddingLeft:'0', listStyle:'none' }}>
+        {bullets.map((b, bi) => (
+          <li key={bi} style={{ display:'flex', gap:'8px', marginBottom:'4px', fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.7 }}>
+            <span style={{ color:accent, flexShrink:0, marginTop:'2px' }}>→</span>
+            <span>{boldify(b)}</span>
           </li>
         ))}
       </ul>
     )
-    bullets = []
+    bullets.length = 0
   }
 
   lines.forEach((line, i) => {
@@ -42,11 +52,12 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
 
     if (t.startsWith('## ')) {
       flush('f' + i)
+      const heading = t.slice(3)
       els.push(
         <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', margin:'16px 0 6px',
-          padding:'10px 14px', background:(accent + "14"), border:'1px solid ' + (accent + '35'),
+          padding:'10px 14px', background:(accent + '14'), border:'1px solid ' + (accent + '35'),
           borderRadius:'10px', fontSize:'13px', fontWeight:900, color:accent, fontFamily:'Cinzel,Georgia,serif' }}>
-          {t.replace(/^##\s*/, '')}
+          {heading}
         </div>
       )
       return
@@ -54,148 +65,59 @@ function MarkdownOutput({ text, accent = GOLD }: { text: string; accent?: string
 
     if (t.startsWith('### ')) {
       flush('f' + i)
-      els.push(<div key={i} style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'1px', textTransform:'uppercase', marginTop:'12px', marginBottom:'3px' }}>
-        {t.replace(/^###\s*/, '')}</div>)
+      const heading = t.slice(4)
+      els.push(<div key={i} style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'1px', textTransform:'uppercase', margin:'12px 0 4px' }}>{heading}</div>)
       return
     }
 
-    if (t.match(/^[-*•]\s/)) {
-      bullets.push(t.replace(/^[-*•]\s/, ''))
+    if (t.startsWith('- ') || t.startsWith('* ') || t.startsWith('• ')) {
+      bullets.push(t.slice(2))
       return
     }
 
-    if (t.match(/\d+\s*\/\s*\d+/) && t.length < 80) {
-      flush('f' + i)
-      const score = t.match(/(\d+)\s*\/\s*(\d+)/)?.[0] || ''
-      const [n, d] = score.split('/').map(Number)
-      const col = Math.round(n/d*100) >= 80 ? '#6EE7B7' : Math.round(n/d*100) >= 60 ? '#FCD34D' : '#EF4444'
-      els.push(
-        <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 10px', background:'rgba(255,255,255,0.04)', borderRadius:'8px', marginBottom:'4px' }}>
-          <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>{t.replace(/\d+\s*\/\s*\d+/, '').trim()}</span>
-          <span style={{ fontSize:'13px', fontWeight:900, color:col }}>{score}</span>
-        </div>
-      )
-      return
-    }
-
-    if (t.startsWith('---') || t.startsWith('═══')) {
+    if (t.startsWith('---') || t.startsWith('===')) {
       flush('f' + i)
       els.push(<div key={i} style={{ height:'1px', background:'rgba(255,255,255,0.08)', margin:'12px 0' }} />)
       return
     }
 
+    // Score pattern: number/number
+    const slashIdx = t.indexOf('/')
+    if (slashIdx > 0 && slashIdx < t.length - 1 && t.length < 80) {
+      const before = t.slice(0, slashIdx)
+      const after  = t.slice(slashIdx + 1)
+      const nNum = parseInt(before.trim().split(' ').pop() || '0')
+      const dNum = parseInt(after.trim().split(' ')[0] || '0')
+      if (!isNaN(nNum) && !isNaN(dNum) && dNum > 0) {
+        flush('f' + i)
+        const pct = Math.round(nNum / dNum * 100)
+        const col = pct >= 80 ? '#6EE7B7' : pct >= 60 ? '#FCD34D' : '#FCA5A5'
+        const label = t.slice(0, slashIdx - String(nNum).length).trim()
+        els.push(
+          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>{label || t}</span>
+            <span style={{ fontSize:'13px', fontWeight:900, color:col }}>{nNum}/{dNum}</span>
+          </div>
+        )
+        return
+      }
+    }
+
     flush('f' + i)
     if (t.includes('**')) {
-      const parts = t.split(/\*\*/)
       els.push(
-        <p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}>
-          {parts.map((p, j) => j % 2 === 1 ? <strong key={j} style={{ color:W }}>{p}</strong> : <span key={j}>{p}</span>)}
-        </p>
+        <p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}
+          dangerouslySetInnerHTML={{__html: t.split('**').map((s,i) => i%2===1 ? '<strong style="color:#F0F9FF">' + s + '</strong>' : s).join('')}}
       )
     } else {
-      els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.75)', lineHeight:1.85, margin:'3px 0' }}>{t}</p>)
+      els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}>{t}</p>)
     }
   })
+
   flush('final')
-  return <div style={{ display:'flex', flexDirection:'column', gap:'2px' }}>{els}</div>
+  return <div style={{ lineHeight:1.8 }}>{els}</div>
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const TRIGGERS = [
-  { id:'fomo',      label:'FOMO' },
-  { id:'social',    label:'Social Proof' },
-  { id:'authority', label:'Authority' },
-  { id:'scarcity',  label:'Scarcity' },
-  { id:'recip',     label:'Reciprocity' },
-  { id:'curiosity', label:'Curiosity Gap' },
-  { id:'pain',      label:'Pain Agitation' },
-  { id:'transform', label:'Transformation' },
-  { id:'specific',  label:'Specificity' },
-  { id:'relate',    label:'Relatability' },
-  { id:'risk',      label:'Risk Reversal' },
-  { id:'anchor',    label:'Anchoring' },
-  { id:'identity',  label:'Identity' },
-]
-
-const PLATFORMS = ['WhatsApp','Facebook','TikTok','Email','DM','Sales Page','Instagram','LinkedIn']
-
-const FORMATS = [
-  { id:'ebook',       icon:'📖', label:'eBook',             brain:'Z2B AI' },
-  { id:'course',      icon:'🎓', label:'Online Course',      brain:'Z2B AI' },
-  { id:'community',   icon:'👥', label:'Community Blueprint',brain:'Z2B AI' },
-  { id:'guide',       icon:'🗺️', label:'Step-by-Step Guide', brain:'Z2B AI' },
-  { id:'software',    icon:'💻', label:'Software / App',     brain:'Z2B AI Engine' },
-  { id:'planner',     icon:'📅', label:'Planner / Journal',  brain:'Z2B AI' },
-  { id:'template',    icon:'📋', label:'Printable Template', brain:'Z2B AI' },
-  { id:'card',        icon:'🃏', label:'Card Deck',          brain:'Z2B AI' },
-  { id:'curriculum',  icon:'🏫', label:'Curriculum',         brain:'Z2B AI' },
-  { id:'lesson',      icon:'📚', label:'Lesson Plan',        brain:'Z2B AI' },
-  { id:'toolkit',     icon:'🧰', label:'Toolkit Bundle',     brain:'Z2B AI' },
-  { id:'checklist',   icon:'✅', label:'Checklist',          brain:'Z2B AI' },
-  { id:'workbook',    icon:'📓', label:'Workbook',           brain:'Z2B AI' },
-  { id:'mini_course', icon:'⚡', label:'Mini-Course',        brain:'Z2B AI' },
-  { id:'swipe_file',  icon:'📂', label:'Swipe File',         brain:'Z2B AI' },
-  { id:'script',      icon:'🎬', label:'Video Scripts',      brain:'Z2B AI' },
-  { id:'blueprint',   icon:'🏗️', label:'Blueprint',          brain:'Z2B AI' },
-  { id:'masterclass', icon:'🏆', label:'Masterclass',        brain:'Z2B AI' },
-  { id:'printable',   icon:'🖨️', label:'Printable Pack',     brain:'Z2B AI' },
-]
-
-const MARKETS = [
-  // 🌍 Global
-  'Global (All Markets)',
-  // 🌍 Africa
-  'South Africa','Nigeria','Kenya','Ghana','Ethiopia','Tanzania','Uganda','Zambia',
-  'Zimbabwe','Senegal','Cameroon','Ivory Coast','Rwanda','Botswana','Namibia',
-  // 🇬🇧 Europe
-  'United Kingdom','Germany','Netherlands','France','Spain','Italy','Sweden','Portugal',
-  // 🇺🇸 Americas
-  'United States','Canada','Brazil','Mexico','Jamaica','Trinidad and Tobago',
-  // 🌏 Asia Pacific
-  'India','Philippines','Australia','New Zealand','Singapore','Malaysia',
-  // 🌍 Middle East
-  'UAE','Saudi Arabia','Qatar',
-]
-
-const DEMOGRAPHICS = [
-  'All demographics',
-  // Employment
-  'Employees (any sector)','Corporate employees','Government employees','Healthcare workers',
-  'Teachers and educators','Nurses and doctors','Engineers','Accountants and finance',
-  // Business
-  'Small business owners','Solopreneurs','Freelancers','Side-hustlers',
-  // Life stage
-  'Young adults (18-30)','Parents','Single mothers','Single fathers','Couples',
-  'University students','Recent graduates','Retirees (50+)',
-  // Income
-  'Low-income earners','Middle-income earners','High-income earners',
-  // Gender
-  'Women','Men',
-  // Aspiration
-  'First-time entrepreneurs','Network marketers','Digital creators','Coaches',
-]
-
-const INDUSTRIES = [
-  'All industries','Education','Healthcare','Finance and banking','Real estate',
-  'Food and hospitality','Retail and e-commerce','Technology','Creative arts',
-  'Sports and fitness','Faith and ministry','Legal','Agriculture','Construction',
-  'Beauty and fashion','Automotive','Travel and tourism',
-]
-
-type Mode = 'chat'|'offer'|'product'|'objections'|'research'|'system'|'audit'|'formula'|'brutal'|'iterate'
-
-const MODES: { id: Mode; icon: string; label: string }[] = [
-  { id:'chat',       icon:'💬', label:'Coach' },
-  { id:'offer',      icon:'✍️', label:'Write Offer' },
-  { id:'product',    icon:'📦', label:'Create Product' },
-  { id:'research',   icon:'🔍', label:'Research' },
-  { id:'objections', icon:'💪', label:'Objections' },
-  { id:'system',     icon:'📢', label:'Sales System' },
-  { id:'audit',      icon:'📊', label:'Audit Offer' },
-  { id:'formula',    icon:'🔥', label:'Formula Builder' },
-  { id:'brutal',     icon:'🔴', label:'Brutal Audit' },
-  { id:'iterate',    icon:'🔁', label:'Iterate' },
-]
 
 function ManLawInner() {
   const [mode,        setMode]        = useState<Mode>('chat')
