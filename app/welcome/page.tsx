@@ -1,181 +1,156 @@
 'use client'
-// FILE: app/welcome/page.tsx
-// Post-registration onboarding — shown after new builder registers
-// Explains Torch Challenge + Unlock System + first steps
+// FILE: app/welcome/page.tsx — Onboarding — "You have officially deployed yourself"
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-const STEPS = [
-  {
-    id: 'welcome',
-    icon: '🔥',
-    title: 'Welcome to the Banquet Table',
-    subtitle: 'You are in the right place at the right time.',
-    content: `You have just joined the Z2B Table Banquet — a platform built for ordinary employed people who want to build extraordinary legacies.
-
-This is not another network marketing scheme. This is an education platform first. You get 9 free sessions before you pay a single cent.
-
-Coach Manlaw — our AI business coach — will guide you through every session personally.
-
-Let us show you how to get the most out of this platform.`,
-    cta: 'Show me how →',
-    color: '#D4AF37',
-  },
-  {
-    id: 'workshop',
-    icon: '📚',
-    title: 'Start with the Workshop',
-    subtitle: 'Sessions 1-9 are completely free.',
-    content: `The Entrepreneurial Consumer Workshop is 99 sessions of transformation.
-
-Sessions 1-9 are free — no card, no upgrade needed. Just read, listen and grow.
-
-After each session Coach Manlaw checks in with you personally. Answer honestly. The coaching gets better the more honest you are.
-
-Your progress is saved automatically. You can start, stop and continue anytime.`,
-    cta: 'Got it →',
-    color: '#7C3AED',
-  },
-  {
-    id: 'torch',
-    icon: '⚡',
-    title: 'The Daily Torch Challenge',
-    subtitle: 'Earn better commissions through consistent action.',
-    content: `Every day you have a simple challenge:
-
-Get 4 people to click your referral link.
-
-Do that for 5 consecutive days and you earn Torch Bearer status.
-
-Torch Bearer removes the 90-day QPB time limit and the 4-sale minimum. You earn QPB on every single sale — forever — for that month.
-
-It resets monthly. Earn it every month by staying consistent.`,
-    cta: 'Understood →',
-    color: '#FB923C',
-  },
-  {
-    id: 'invite',
-    icon: '🎴',
-    title: 'Invite 1 Person First',
-    subtitle: 'One invitation unlocks Coach Manlaw personal mode.',
-    content: `Your first unlock is simple:
-
-Invite one person. When they register using your referral link — Coach Manlaw activates in personal mode. He will know your name, your tier, your progress.
-
-Invite 4 people who complete Session 1 and all the social features unlock — Builders Table, Echo Wall, Leaderboard, Bonfire Circle.
-
-The more you invite, the more the platform opens up for you.`,
-    cta: 'Ready to invite →',
-    color: '#059669',
-  },
-  {
-    id: 'start',
-    icon: '🚀',
-    title: 'Your first 3 actions',
-    subtitle: 'Do these right now.',
-    content: '',
-    cta: 'Start Session 1 →',
-    color: '#D4AF37',
-    isLast: true,
-  },
-]
-
-const FIRST_ACTIONS = [
-  { icon:'📚', action:'Start Session 1 of the workshop', url:'/workshop',        color:'#7C3AED' },
-  { icon:'🎴', action:'Send your first invitation card', url:'/invite',           color:'#FB923C' },
-  { icon:'⚡', action:'Understand the Daily Spark',      url:'/daily-spark',      color:'#D4AF37' },
-]
+const BG    = '#050A18'
+const SURF  = '#0D1629'
+const SURF2 = '#111D35'
+const GOLD  = '#F59E0B'
+const CYAN  = '#06B6D4'
+const VIO   = '#8B5CF6'
+const VIO2  = '#A78BFA'
+const W     = '#F0F9FF'
+const MUTED = '#94A3B8'
+const GREEN = '#10B981'
+const BORDER= '#1E3A5F'
 
 export default function WelcomePage() {
-  const [profile, setProfile] = useState<any>(null)
-  const [step, setStep]       = useState(0)
   const router = useRouter()
+  const [profile,   setProfile]   = useState<any>(null)
+  const [step,      setStep]      = useState(0)
+  const [animating, setAnimating] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) { router.push('/signup'); return }
-      supabase.from('profiles').select('full_name,referral_code').eq('id', user.id).single()
-        .then(({ data }) => setProfile(data))
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { router.push('/login'); return }
+      const { data } = await supabase.from('profiles').select('full_name, referral_code, paid_tier').eq('id', user.id).single()
+      setProfile(data)
     })
   }, [])
 
-  const current = STEPS[step]
-  const isLast  = step === STEPS.length - 1
-  const refLink = `https://app.z2blegacybuilders.co.za/signup?ref=${profile?.referral_code || 'Z2BREF'}`
+  const firstName = profile?.full_name?.split(' ')[0] || 'Builder'
 
-  const handleNext = () => {
-    if (isLast) { router.push('/workshop'); return }
-    setStep(prev => prev + 1)
+  const next = () => {
+    setAnimating(true)
+    setTimeout(() => { setStep(s => s + 1); setAnimating(false) }, 300)
   }
 
-  return (
-    <div style={{ minHeight:'100vh', background:'linear-gradient(160deg,#0A0818,#0D0A1E,#0A0818)', fontFamily:'Georgia,serif', color:'#F5F3FF', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
-      <div style={{ maxWidth:'520px', width:'100%' }}>
+  const STEPS = [
+    // Step 0: Welcome
+    <div key="0" style={{ textAlign:'center' }}>
+      <div style={{ fontSize:'72px', marginBottom:'20px', animation:'float 2s ease-in-out infinite' }}>🚀</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,5vw,48px)', fontWeight:900, color:W, marginBottom:'12px', lineHeight:1.2 }}>
+        Welcome, {firstName}.<br/>
+        <span style={{ background:`linear-gradient(135deg,${GOLD},${CYAN})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
+          You have officially<br/>deployed yourself.
+        </span>
+      </div>
+      <p style={{ fontSize:'16px', color:MUTED, lineHeight:1.8, marginBottom:'32px', maxWidth:'480px', margin:'0 auto 32px' }}>
+        You are no longer waiting for a raise that may never come or a promotion that someone else will decide. You have chosen a different path.
+      </p>
+      <div style={{ padding:'16px 24px', background:`${GOLD}10`, border:`1px solid ${GOLD}30`, borderRadius:'16px', marginBottom:'32px', fontSize:'15px', fontStyle:'italic', color:W }}>
+        "If they underpay you and do not want to employ you, deploy yourself."
+      </div>
+      <button onClick={next} style={{ padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+        Begin My Journey →
+      </button>
+    </div>,
 
-        {/* Progress dots */}
-        <div style={{ display:'flex', justifyContent:'center', gap:'6px', marginBottom:'32px' }}>
-          {STEPS.map((_, i) => (
-            <div key={i} style={{ width: i === step ? '24px' : '8px', height:'8px', borderRadius:'4px', transition:'all 0.3s', background: i === step ? current.color : i < step ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)' }} />
+    // Step 1: The 4M Machine
+    <div key="1" style={{ textAlign:'center' }}>
+      <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'16px' }}>⚡ Your Deployment Engine</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:W, marginBottom:'20px' }}>The 4M Machine is your weapon.</div>
+      <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'28px', textAlign:'left' }}>
+        {[
+          { icon:'🚗', mode:'Manual',    color:VIO,  desc:'Start with your phone and WhatsApp. Make your first R500 in 14 days.' },
+          { icon:'⚙️', mode:'Automatic', color:'#3B82F6', desc:'Let AI automate your content and follow-ups. Earn while you work.' },
+          { icon:'⚡', mode:'Electric',  color:GOLD, desc:'Create digital products with AI. List on the Marketplace. Keep 90%.' },
+          { icon:'🚀', mode:'Rocket',    color:CYAN, desc:'Scale without limits. AI creates. World buys. No ceiling.' },
+        ].map(v => (
+          <div key={v.mode} style={{ display:'flex', gap:'14px', alignItems:'center', padding:'14px 16px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px' }}>
+            <span style={{ fontSize:'24px', flexShrink:0 }}>{v.icon}</span>
+            <div>
+              <div style={{ fontSize:'13px', fontWeight:700, color:v.color, marginBottom:'2px' }}>{v.mode} Mode</div>
+              <div style={{ fontSize:'12px', color:MUTED }}>{v.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={next} style={{ padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+        Show Me My First Steps →
+      </button>
+    </div>,
+
+    // Step 2: First steps
+    <div key="2" style={{ textAlign:'center' }}>
+      <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'16px' }}>◉ Your First 24 Hours</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:W, marginBottom:'20px' }}>
+        Here is exactly what to do first.
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'28px', textAlign:'left' }}>
+        {[
+          { n:1, action:'Open Coach Manlaw',            desc:'Chat with our AI coach. Tell it your skills. Get your first product idea.', href:'/ai-income/coach', cta:'Open Coach Manlaw', color:GOLD },
+          { n:2, action:'Start the 4M Machine',          desc:'Go to Manual Mode. Use the Offer Generator to write your first offer.', href:'/ai-income', cta:'Open 4M Machine', color:VIO },
+          { n:3, action:'Browse the Marketplace',        desc:'See what other builders are selling. Get inspired. Come back and list yours.', href:'/marketplace', cta:'Browse Marketplace', color:CYAN },
+          { n:4, action:'Get your affiliate link',       desc:'You can already earn 20% promoting any product on the marketplace.', href:'/marketplace/become-affiliate', cta:'Get My Link', color:GREEN },
+        ].map(s => (
+          <div key={s.n} style={{ display:'flex', gap:'14px', alignItems:'flex-start', padding:'14px 16px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px' }}>
+            <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:`${s.color}20`, border:`1px solid ${s.color}50`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', fontWeight:900, color:s.color, flexShrink:0 }}>{s.n}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:'13px', fontWeight:700, color:W, marginBottom:'3px' }}>{s.action}</div>
+              <div style={{ fontSize:'11px', color:MUTED, marginBottom:'8px' }}>{s.desc}</div>
+              <Link href={s.href} style={{ fontSize:'11px', fontWeight:700, color:s.color, padding:'4px 10px', background:`${s.color}15`, border:`1px solid ${s.color}30`, borderRadius:'20px' }}>
+                {s.cta} →
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={next} style={{ padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+        I am ready. Open my Dashboard →
+      </button>
+    </div>,
+
+    // Step 3: Final encouragement → dashboard
+    <div key="3" style={{ textAlign:'center' }}>
+      <div style={{ fontSize:'64px', marginBottom:'20px' }}>⚡</div>
+      <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(22px,4vw,40px)', fontWeight:900, color:W, marginBottom:'16px', lineHeight:1.3 }}>
+        Builders do not ask permission.<br/>
+        <span style={{ color:GOLD }}>They build.</span>
+      </div>
+      <p style={{ fontSize:'15px', color:MUTED, lineHeight:1.8, marginBottom:'12px' }}>
+        {profile?.referral_code && <>Your referral code: <strong style={{ color:GOLD }}>{profile.referral_code}</strong><br/></>}
+        Share it. When someone joins using your code, you earn NSB.
+      </p>
+      <p style={{ fontSize:'13px', color:MUTED, marginBottom:'32px' }}>
+        Every builder who joins after you increases the potential of your team. Every product you create reaches the world through the Marketplace.
+      </p>
+      <Link href="/dashboard" style={{ display:'inline-block', padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD}40` }}>
+        ⚡ Enter My Dashboard →
+      </Link>
+    </div>,
+  ]
+
+  return (
+    <div style={{ minHeight:'100vh', background:BG, color:W, fontFamily:'Georgia,serif', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
+      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}*{box-sizing:border-box}a{text-decoration:none}`}</style>
+
+      <div style={{ width:'100%', maxWidth:'560px' }}>
+        {/* Progress */}
+        <div style={{ display:'flex', gap:'6px', marginBottom:'40px', justifyContent:'center' }}>
+          {STEPS.map((_,i) => (
+            <div key={i} style={{ height:'3px', flex:1, borderRadius:'3px', background: i <= step ? GOLD : SURF2, transition:'all 0.3s' }} />
           ))}
         </div>
 
-        {/* Card */}
-        <div style={{ background:'rgba(255,255,255,0.04)', border:`1.5px solid ${current.color}33`, borderRadius:'24px', padding:'40px 32px', textAlign:'center' }}>
-          <div style={{ fontSize:'56px', marginBottom:'16px' }}>{current.icon}</div>
-          <h2 style={{ fontSize:'clamp(20px,4vw,28px)', fontWeight:700, color:'#fff', margin:'0 0 8px' }}>{current.title}</h2>
-          <p style={{ fontSize:'14px', color:current.color, fontWeight:700, marginBottom:'24px' }}>{current.subtitle}</p>
-
-          {current.content && (
-            <div style={{ textAlign:'left', marginBottom:'28px' }}>
-              {current.content.split('\n\n').map((para, i) => (
-                <p key={i} style={{ fontSize:'14px', color:'rgba(255,255,255,0.7)', lineHeight:1.8, marginBottom:'12px' }}>{para}</p>
-              ))}
-            </div>
-          )}
-
-          {/* Last step — action list */}
-          {current.isLast && (
-            <div style={{ textAlign:'left', marginBottom:'28px' }}>
-              <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.7)', marginBottom:'16px', lineHeight:1.7 }}>
-                Welcome to the table, {profile?.full_name?.split(' ')[0] || 'Builder'}. Here are your first three actions:
-              </p>
-              <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:'20px' }}>
-                {FIRST_ACTIONS.map((a, i) => (
-                  <Link key={i} href={a.url} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'14px 16px', background:`${a.color}10`, border:`1px solid ${a.color}30`, borderRadius:'12px', textDecoration:'none' }}>
-                    <span style={{ fontSize:'22px' }}>{a.icon}</span>
-                    <span style={{ fontSize:'13px', fontWeight:700, color:'#fff' }}>{a.action}</span>
-                    <span style={{ marginLeft:'auto', color:a.color, fontSize:'16px' }}>→</span>
-                  </Link>
-                ))}
-              </div>
-              {/* Referral link */}
-              <div style={{ background:'rgba(212,175,55,0.08)', border:'1px solid rgba(212,175,55,0.2)', borderRadius:'12px', padding:'14px' }}>
-                <div style={{ fontSize:'10px', fontWeight:700, color:'rgba(212,175,55,0.6)', letterSpacing:'1px', marginBottom:'6px' }}>YOUR REFERRAL LINK</div>
-                <div style={{ fontSize:'12px', color:'#F5D060', fontFamily:'monospace', wordBreak:'break-all' }}>{refLink}</div>
-              </div>
-            </div>
-          )}
-
-          {/* CTA Button */}
-          <button onClick={handleNext} style={{ width:'100%', padding:'16px', background:`linear-gradient(135deg,${current.color}cc,${current.color})`, border:'none', borderRadius:'14px', color: current.color === '#D4AF37' ? '#000' : '#fff', fontWeight:700, fontSize:'16px', cursor:'pointer', fontFamily:'Georgia,serif', transition:'all 0.2s' }}>
-            {current.cta}
-          </button>
-
-          {/* Skip */}
-          {!isLast && (
-            <button onClick={() => router.push('/workshop')} style={{ marginTop:'12px', background:'none', border:'none', color:'rgba(255,255,255,0.25)', fontSize:'12px', cursor:'pointer', fontFamily:'Georgia,serif', textDecoration:'underline' }}>
-              Skip intro — go straight to workshop
-            </button>
-          )}
+        {/* Step content */}
+        <div style={{ opacity: animating ? 0 : 1, transition:'opacity 0.3s' }}>
+          {STEPS[step]}
         </div>
-
-        {/* Step counter */}
-        <p style={{ textAlign:'center', fontSize:'11px', color:'rgba(255,255,255,0.2)', marginTop:'16px' }}>
-          Step {step + 1} of {STEPS.length} · Z2B Table Banquet
-        </p>
       </div>
     </div>
   )

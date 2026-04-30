@@ -1,4 +1,4 @@
-'use client' // clean-171548 // market-fix-113323
+'use client' // welcome-112750
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -226,21 +226,23 @@ function ManLawInner() {
         setBuilderTier(prof?.paid_tier || 'starter')
       }
     })
-    setMessages([{ role:'assistant', content:`## Welcome, Builder
+    setMessages([{ role:'assistant', content:`## You do not need their permission to build income.
 
-I am Coach Manlaw — the AI business coach for Z2B Legacy Builders.
+I am Coach Manlaw — your AI business coach for Z2B Legacy Builders.
 
-**Z2B is a global platform.** I work with builders across South Africa, Nigeria, Kenya, the UK, USA, Canada, Australia and beyond. Tell me your market and I adapt everything — currency, payment methods, cultural references, platform strategy.
+You are here because you chose to deploy yourself. Let us make that deployment count.
+
+**I work with builders globally** — South Africa, Nigeria, Kenya, Ghana, UK, USA, Canada, Australia and beyond. Tell me your market and I adapt everything.
 
 **My enforcement engine is active:**
-- Banned generic phrases auto-rejected
-- Every offer scores 80+/100 before reaching you
-- Copy adapts to YOUR specific market and demographic
-- No American internet marketing templates
+→ Banned generic phrases auto-rejected before they reach you
+→ Every offer scores 80+/100 or I rewrite it internally
+→ No American internet marketing templates
+→ SA Skeptic Test + Global Market Test on every output
 
-**Set your market first, then choose a mode.** What are we building today?` }])
-  }, [])
+**Choose a mode above. Set your market. Tell me what you are building.**
 
+The world is waiting for what you know.\` }])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages, output])
 
   const callAPI = async (action: string, extra?: Record<string, unknown>) => {
