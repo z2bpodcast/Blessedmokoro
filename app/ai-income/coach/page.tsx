@@ -1,4 +1,4 @@
-'use client' // boldify-162731
+'use client' // pfix-190206
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -105,10 +105,8 @@ function MarkdownOutput({ text, accent = '#D4AF37' }: { text: string; accent?: s
 
     flush('f' + i)
     if (t.includes('**')) {
-      els.push(
-        <p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}
-          dangerouslySetInnerHTML={{__html: t.split('**').map((s,i) => i%2===1 ? '<strong style="color:#F0F9FF">' + s + '</strong>' : s).join('')}}
-      )
+      els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}
+        dangerouslySetInnerHTML={{__html: t.split('**').map((s,j) => j%2===1 ? '<strong style="color:#F0F9FF">' + s + '</strong>' : s).join('')}} />)
     } else {
       els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}>{t}</p>)
     }
