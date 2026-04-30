@@ -1,4 +1,4 @@
-'use client' // finalfix-140539
+'use client' // notemplate-142732
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 const BG   = '#0D0820'
+// Pre-built gradient strings — avoids template literal parser errors in Turbopack
+const GRAD_GOLD   = 'linear-gradient(135deg,#D4AF37,#B8860B)'
+const GRAD_PURP   = 'linear-gradient(135deg,#7C3AED,#4C1D95)'
+const GRAD_GOLD_DARK = 'linear-gradient(135deg,#D4AF37,#B8860B)'
 const GOLD = '#D4AF37'
 const PURP = '#7C3AED'
 const W    = '#F0EEF8'
@@ -368,7 +372,7 @@ The world is waiting for what you know.\` }])
                 )}
                 <div style={{ maxWidth:'85%', padding:'12px 14px',
                   borderRadius: msg.role==='user' ? '16px 16px 4px 16px' : '4px 16px 16px 16px',
-                  background: msg.role==='user' ? `linear-gradient(135deg,${PURP},#4C1D95)` : 'rgba(255,255,255,0.06)' }}>
+                  background: msg.role==='user' ? GRAD_PURP : 'rgba(255,255,255,0.06)' }}>
                   {msg.role === 'user'
                     ? <div style={{ fontSize:'13px', lineHeight:1.8, color:W, whiteSpace:'pre-wrap' }}>{msg.content}</div>
                     : <MarkdownOutput text={msg.content} accent={GOLD} />
@@ -380,7 +384,7 @@ The world is waiting for what you know.\` }])
               <div style={{ display:'flex', gap:'8px', alignItems:'center', padding:'10px 14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', width:'fit-content' }}>
                 <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:'linear-gradient(135deg,' + (GOLD) + ',#B8860B)', display:'flex', alignItems:'center', justifyContent:'center' }}>M</div>
                 <div style={{ display:'flex', gap:'4px' }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width:'7px', height:'7px', borderRadius:'50%', background:GOLD, animation:`pulse 1.2s ${i*0.3}s infinite` }} />)}
+                  {[0,1,2].map(i => <div key={i} style={{ width:'7px', height:'7px', borderRadius:'50%', background:GOLD, animation:'pulse 1.2s ' + (i*0.3) + 's infinite' }} />)}
                 </div>
               </div>
             )}
@@ -440,7 +444,7 @@ The world is waiting for what you know.\` }])
           </div>
           <button onClick={() => callAPI('write_offer', { product, audience, price, platform, painPoints, format:'full offer', triggers: selTriggers.length ? selTriggers : undefined })}
             disabled={loading || !product.trim()}
-            style={submitBtn(`linear-gradient(135deg,${GOLD},#B8860B)`, '#1E1245', loading || !product.trim())}>
+            style={submitBtn(GRAD_GOLD, '#1E1245', loading || !product.trim())}>
             {loading ? '✍️ Writing — enforcement running...' : '🔥 Write My Offer →'}
           </button>
           <OutCard label="Your Offer — Structured Output" accent={GOLD} />
@@ -480,7 +484,7 @@ The world is waiting for what you know.\` }])
           </div>
           <button onClick={() => callAPI('create_product', { topic, audience, format, market, price })}
             disabled={loading || !topic.trim()}
-            style={submitBtn(`linear-gradient(135deg,#7C3AED,${PURP})`, '#fff', loading || !topic.trim())}>
+            style={submitBtn(GRAD_PURP, '#fff', loading || !topic.trim())}>
             {loading ? '🧠 Creating — 60-90 seconds...' : '📦 Create Complete Product →'}
           </button>
           <OutCard label="Your Complete Product" accent="#A78BFA" />
@@ -610,7 +614,7 @@ The world is waiting for what you know.\` }])
           </div>
           <button onClick={() => callAPI('what_sells_build', { person:wsPerson, problem:wsProblem, promise:wsPromise, market, price })}
             disabled={loading || !wsPerson.trim() || !wsProblem.trim() || !wsPromise.trim()}
-            style={submitBtn(`linear-gradient(135deg,${GOLD},#B8860B)`, '#1E1245', loading || !wsPerson.trim())}>
+            style={submitBtn(GRAD_GOLD, '#1E1245', loading || !wsPerson.trim())}>
             {loading ? '🔥 Building from the formula...' : '🔥 Build My Complete Offer →'}
           </button>
           <OutCard label="Your Offer — Built from the Formula" accent={GOLD} />
