@@ -1,4 +1,4 @@
-'use client' // pfix-190206
+'use client' // cleanfinal-193554
 // FILE: app/ai-income/coach/page.tsx // global-v20260429_101933
 
 import { useState, useRef, useEffect, Suspense } from 'react'
@@ -104,12 +104,7 @@ function MarkdownOutput({ text, accent = '#D4AF37' }: { text: string; accent?: s
     }
 
     flush('f' + i)
-    if (t.includes('**')) {
-      els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}
-        dangerouslySetInnerHTML={{__html: t.split('**').map((s,j) => j%2===1 ? '<strong style="color:#F0F9FF">' + s + '</strong>' : s).join('')}} />)
-    } else {
-      els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}>{t}</p>)
-    }
+    els.push(<p key={i} style={{ fontSize:'12px', color:'rgba(255,255,255,0.78)', lineHeight:1.85, margin:'3px 0' }}>{boldify(t)}</p>)
   })
 
   flush('final')
@@ -152,7 +147,7 @@ function ManLawInner() {
     })
     setMessages([{ role:'assistant', content:'## You do not need their permission to build income.\n\nI am Coach Manlaw — your AI business coach for Z2B Legacy Builders.\n\nYou are here because you chose to deploy yourself. Let us make that deployment count.\n\n**I work with builders globally** — South Africa, Nigeria, Kenya, Ghana, UK, USA, Canada, Australia and beyond.\n\n**My enforcement engine is active:**\n→ Banned generic phrases auto-rejected\n→ Every offer scores 80+/100 or I rewrite internally\n→ No American templates\n→ SA Skeptic Test + Global Market Test on every output\n\n**Choose a mode above. Set your market. Tell me what you are building.**\n\nThe world is waiting for what you know.' }])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages, output])
-  useEffect(() => { const s = document.createElement('style'); s.innerHTML = '@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}'; document.head.appendChild(s); return () => { document.head.removeChild(s) } }, [])
+  // keyframes removed — using inline animation
 
   const callAPI = async (action: string, extra?: Record<string, unknown>) => {
     setLoading(true)
@@ -289,7 +284,7 @@ function ManLawInner() {
               <div style={{ display:'flex', gap:'8px', alignItems:'center', padding:'10px 14px', background:'rgba(255,255,255,0.04)', borderRadius:'12px', width:'fit-content' }}>
                 <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:'linear-gradient(135deg,' + (GOLD) + ',#B8860B)', display:'flex', alignItems:'center', justifyContent:'center' }}>M</div>
                 <div style={{ display:'flex', gap:'4px' }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width:'7px', height:'7px', borderRadius:'50%', background:GOLD, animation:'pulse 1.2s ' + (i*0.3) + 's infinite' }} />)}
+                  {[0,1,2].map(i => <div key={i} style={{ width:'7px', height:'7px', borderRadius:'50%', background:GOLD, opacity: i===0 ? 1 : i===1 ? 0.6 : 0.3 }} />)}
                 </div>
               </div>
             )}
