@@ -8,9 +8,18 @@
   "theme_color": "#D4AF37",
   "orientation": "portrait",
   "icons": [
-    { "src": "/logo-z2b.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/logo-z2b.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/logo-z2b.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-z2b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
-  "categories": ["business", "productivity", "finance"],
-  "screenshots": []
+  "categories": ["business", "productivity", "finance"]
 }
