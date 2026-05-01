@@ -1,4 +1,4 @@
-'use client' // hreffix-011658
+'use client' // apos-013042 // hreffix-011658
 // FILE: app/invite/page.tsx — Invite page with platform diagram
 
 import { useState, useEffect, Suspense } from 'react'
@@ -107,7 +107,7 @@ function InviteInner() {
           {[
             { n:'9',    l:'Income Streams',    c:GOLD },
             { n:'20%',  l:'Affiliate Rate',    c:CYAN },
-            { n:'90%',  l:'Builder's Share',   c:'#A78BFA' },
+            { n:"90%",  l:"Builder Share",   c:"#A78BFA" },
             { n:'4M',   l:'Vehicle System',    c:GOLD },
             { n:'Free', l:'To Start',          c:CYAN },
             { n:'∞',    l:'No Earning Ceiling',c:'#A78BFA' },
