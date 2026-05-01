@@ -1,4 +1,4 @@
-'use client'
+'use client' // flowfix-100432
 // FILE: app/pay/page.tsx
 // Yoco payment page — creates checkout and redirects
 
@@ -8,11 +8,16 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const TIER_CONFIG: Record<string, { amount:number; label:string; color:string; emoji:string; features:string[] }> = {
-  bronze:   { amount:2500,  label:'Bronze',   color:'#CD7F32', emoji:'🥉', features:['All 99 sessions','ISP 18%','QPB bonus','Sales Funnel','Team commissions'] },
-  copper:   { amount:5000,  label:'Copper',   color:'#B87333', emoji:'🪙', features:['All 99 sessions','ISP 22%','QPB bonus','Sales Funnel','Team commissions'] },
-  silver:   { amount:12000, label:'Silver',   color:'#C0C0C0', emoji:'🥈', features:['All 99 sessions','ISP 25%','QPB bonus','Sales Funnel','Team commissions'] },
-  gold:     { amount:24000, label:'Gold',     color:'#D4AF37', emoji:'🥇', features:['All 99 sessions','ISP 28%','QPB bonus','Sales Funnel','Marketplace access'] },
-  platinum: { amount:50000, label:'Platinum', color:'#E5E4E2', emoji:'💎', features:['All 99 sessions','ISP 30%','QPB bonus','All features','Priority support'] },
+  fam:              { amount:500,   label:'Starter Pack',    color:'#6B7280', emoji:'🌱', features:['4M Machine access','Coach Manlaw','Marketplace listing','NSB income'] },
+  starter:          { amount:500,   label:'Starter Pack',    color:'#6B7280', emoji:'🌱', features:['4M Machine access','Coach Manlaw','Marketplace listing','NSB income'] },
+  bronze:           { amount:2500,  label:'Bronze',          color:'#CD7F32', emoji:'🥉', features:['All Manual tools','Team Builder Script','ISP Calculator','NSB + ISP'] },
+  copper:           { amount:5000,  label:'Copper',          color:'#B87333', emoji:'🪙', features:['All Bronze tools','Influencer Engine','Advanced Targeting','NSB + ISP + TSC'] },
+  silver:           { amount:12000, label:'Silver',          color:'#C0C0C0', emoji:'🥈', features:['7-Tool Automatic Dashboard','Content Machine','7-Day Launch System','All income streams'] },
+  gold:             { amount:24000, label:'Gold',            color:'#D4AF37', emoji:'🥇', features:['20 Product Creator','AI-powered products','Marketplace listing','All income streams'] },
+  platinum:         { amount:50000, label:'Platinum',        color:'#E5E4E2', emoji:'💎', features:['Unlimited products','Distribution Rights','CEO Competition','All income streams'] },
+  silver_rocket:    { amount:17000, label:'Silver Rocket',   color:'#F97316', emoji:'🚀', features:['12 products/month','Rocket Mode access','AI market research','All income streams'] },
+  gold_rocket:      { amount:35000, label:'Gold Rocket',     color:'#F97316', emoji:'🚀', features:['30 products/month','AI website builder','Global markets','All income streams'] },
+  platinum_rocket:  { amount:70000, label:'Platinum Rocket', color:'#F97316', emoji:'🚀', features:['Unlimited products','Own branded marketplace','Bulk AI creation','All income streams'] },
 }
 
 function PayPageInner() {

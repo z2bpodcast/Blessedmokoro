@@ -1,4 +1,4 @@
-'use client' // revert-064911 // pricefix-061109
+'use client' // flowfix-100554 // revert-064911 // pricefix-061109
 // FILE: app/ai-income/choose-plan/page.tsx
 
 import { useState, Suspense } from 'react'
@@ -46,8 +46,20 @@ function ChoosePlanInner() {
   const searchParams = useSearchParams()
   const [selected, setSelected] = useState<string|null>(null)
 
+  const AMOUNTS: Record<string,{amount:number,name:string}> = {
+    starter:         {amount:500,   name:'Starter Pack'},
+    bronze:          {amount:2500,  name:'Bronze'},
+    copper:          {amount:5000,  name:'Copper'},
+    silver:          {amount:12000, name:'Silver'},
+    gold:            {amount:24000, name:'Gold'},
+    platinum:        {amount:50000, name:'Platinum'},
+    silver_rocket:   {amount:17000, name:'Silver Rocket'},
+    gold_rocket:     {amount:35000, name:'Gold Rocket'},
+    platinum_rocket: {amount:70000, name:'Platinum Rocket'},
+  }
   const pay = (tierId: string) => {
-    router.push(`/pay?tier=${tierId}`)
+    const info = AMOUNTS[tierId] || {amount:500, name:'Starter'}
+    router.push('/ai-income/payment?tier=' + tierId + '&amount=' + info.amount + '&name=' + encodeURIComponent(info.name))
   }
 
   return (

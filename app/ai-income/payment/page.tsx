@@ -1,4 +1,4 @@
-'use client'
+'use client' // flowfix-100618
 // FILE: app/ai-income/payment/page.tsx
 // Payment processing — EFT, Direct Bank Deposit, Yoco Online
 
@@ -69,15 +69,14 @@ function PaymentInner() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount:    parseInt(amount) * 100,
-          currency:  'ZAR',
+          action:   'create_checkout',
           tier,
-          userId:    user?.id,
-          userEmail: user?.email,
+          user_id:  user?.id,
         }),
       })
       const data = await res.json()
-      if (data.redirectUrl) window.location.href = data.redirectUrl
+      if (data.checkoutUrl) window.location.href = data.checkoutUrl
+      else if (data.redirectUrl) window.location.href = data.redirectUrl
       else alert('Payment setup failed. Please try EFT or bank deposit.')
     } catch (e) {
       alert('Payment error. Please try EFT or bank deposit.')
