@@ -1,4 +1,4 @@
-// v2026-05-01 070308 070253 — marketplace nav
+// v2026-05-01 fix-072512 070308 070253 — marketplace nav
 'use client'
 
 // app/dashboard/page.tsx
@@ -228,19 +228,18 @@ function DashboardInner() {
 
   const copyReferralLink = () => {
     if (!profile) return
-    const link = `${window.location.origin}/invite?ref=${profile.referral_code}`
+    const link = window.location.origin + '/invite?ref=' + profile.referral_code
     navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
+  }
 
   const copy4MLink = () => {
     if (!profile) return
-    const link = `${window.location.origin}/4m?ref=${profile.referral_code}`
+    const link = window.location.origin + '/4m?ref=' + profile.referral_code
     navigator.clipboard.writeText(link)
     setCopied4M(true)
     setTimeout(() => setCopied4M(false), 2500)
-  }
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const saveProfile = async () => {
