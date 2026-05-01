@@ -1,4 +1,4 @@
-'use client'
+'use client' // revert-064911 // pricefix-061109
 // FILE: app/ai-income/choose-plan/page.tsx
 
 import { useState, Suspense } from 'react'
@@ -29,15 +29,15 @@ const TIERS = [
     features:['All Bronze tools','Advanced Targeting','Influencer Engine (3/mo)','Partnership proposals','DM outreach scripts','NSB + ISP + TSC'] },
   { id:'silver',   label:'Silver',           price:12000, currency:'R', color:'#C0C0C0', icon:'⚙️', vehicle:'Automatic', desc:'The system works with you — 7 automation tools.',
     features:['7-Tool Automatic Dashboard','Content Machine','Digital Twin setup','7-Day Launch System','Auto Follow-Up','Influencer Engine (5/mo)','All income streams'] },
-  { id:'gold',     label:'Gold',             price:32000, currency:'R', color:GOLD,   icon:'⚡', vehicle:'Electric', desc:'AI creates digital products. You list and earn.',
+  { id:'gold',     label:'Gold',             price:24000, currency:'R', color:GOLD,   icon:'⚡', vehicle:'Electric', desc:'AI creates digital products. You list and earn.',
     features:['20 Product Type Creator','AI-powered product creation','Z2B Marketplace listing','Influencer Engine (10/mo)','Product + Launch copy','All income streams'] },
-  { id:'platinum', label:'Platinum',         price:58000, currency:'R', color:CYAN,   icon:'⚡', vehicle:'Electric Pro', desc:'Unlimited creation. Distribution Rights unlocked.',
+  { id:'platinum', label:'Platinum',         price:50000, currency:'R', color:CYAN,   icon:'⚡', vehicle:'Electric Pro', desc:'Unlimited creation. Distribution Rights unlocked.',
     features:['Unlimited product creation','Distribution Rights','CEO Competition eligible','Own Marketplace','Bulk product creation','All income streams'] },
-  { id:'silver_rocket', label:'Silver Rocket', price:25500, currency:'R', color:ORANGE, icon:'🚀', vehicle:'Rocket', desc:'Rocket Mode — AI creates. Market distributes.',
+  { id:'silver_rocket', label:'Silver Rocket', price:17000, currency:'R', color:ORANGE, icon:'🚀', vehicle:'Rocket', desc:'Rocket Mode — AI creates. Market distributes.',
     features:['12 products/month','All Automatic tools','Rocket Mode access','AI market research','Marketplace + Affiliate','All income streams'] },
-  { id:'gold_rocket',   label:'Gold Rocket',   price:52500, currency:'R', color:ORANGE, icon:'🚀', vehicle:'Rocket Pro', desc:'Scale without limits across global markets.',
+  { id:'gold_rocket',   label:'Gold Rocket',   price:35000, currency:'R', color:ORANGE, icon:'🚀', vehicle:'Rocket Pro', desc:'Scale without limits across global markets.',
     features:['30 products/month','AI website builder','Sell anywhere externally','Global market targeting','Influencer Engine (10/mo)','All income streams'] },
-  { id:'platinum_rocket',label:'Platinum Rocket',price:105000,currency:'R',color:ORANGE,icon:'🚀', vehicle:'Rocket Max', desc:'Unlimited. Unstoppable. The full Z2B arsenal.',
+  { id:'platinum_rocket',label:'Platinum Rocket',price:70000,currency:'R',color:ORANGE,icon:'🚀', vehicle:'Rocket Max', desc:'Unlimited. Unstoppable. The full Z2B arsenal.',
     features:['Unlimited products','Own branded marketplace','Bulk AI creation','Full Distribution Rights','CEO Competition elite','All income streams'] },
 ]
 
@@ -119,7 +119,7 @@ function ChoosePlanInner() {
                   <div style={{ marginBottom:'16px' }}>
                     <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900,
                       background:`linear-gradient(135deg,${tier.color},${GOLD2})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
-                      {tier.currency}{(tier.price/100).toFixed(0)}
+                      {tier.currency}{tier.price.toLocaleString()}
                     </span>
                     <span style={{ fontSize:'12px', color:MUTED }}> /month</span>
                   </div>

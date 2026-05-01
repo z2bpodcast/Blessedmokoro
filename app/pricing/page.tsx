@@ -1,4 +1,4 @@
-'use client'
+'use client' // revert-064911 // pricefix-061233
 // FILE: app/pricing/page.tsx
 // Z2B Pricing — 4M Machine Power tiers
 // 🚗 Manual Power · ⚙️ Automatic Power · ⚡ Electric Power · 🚀 Rocket Mode
@@ -74,7 +74,7 @@ const MACHINE_POWERS = [
 const FOUR_M_OFFERS: Record<string, string[]> = {
   fam: [
     '🤖 Z2B 4M Machine — Manual Power (3 Features FREE to explore)',
-    '⬆️ Unlock ALL 7 features with R500 Starter Pack',
+    '⬆️ Unlock ALL 7 features with Starter Pack Pack',
     '🧠 AI Offer Generator — 3 uses',
     '📲 AI Customer Finder — 3 uses',
     '🎓 Workshop Sessions 1–9 free forever',
