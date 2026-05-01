@@ -1,9 +1,11 @@
-'use client'
+'use client' // diagram-211430
 // FILE: app/welcome/page.tsx — Onboarding — "You have officially deployed yourself"
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Z2BLogo } from '@/components/Z2BLogo'
+import Z2BPlatformDiagram from '@/components/Z2BPlatformDiagram'
 import Link from 'next/link'
 
 const BG    = '#050A18'
@@ -42,7 +44,9 @@ export default function WelcomePage() {
   const STEPS = [
     // Step 0: Welcome
     <div key="0" style={{ textAlign:'center' }}>
-      <div style={{ fontSize:'72px', marginBottom:'20px', animation:'float 2s ease-in-out infinite' }}>🚀</div>
+      <div style={{ marginBottom:'20px', display:'flex', justifyContent:'center' }}>
+        <Z2BLogo size='xl' showText={false} href='/' center={true} />
+      </div>
       <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,5vw,48px)', fontWeight:900, color:W, marginBottom:'12px', lineHeight:1.2 }}>
         Welcome, {firstName}.<br/>
         <span style={{ background:`linear-gradient(135deg,${GOLD},${CYAN})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
@@ -52,7 +56,7 @@ export default function WelcomePage() {
       <p style={{ fontSize:'16px', color:MUTED, lineHeight:1.8, marginBottom:'32px', maxWidth:'480px', margin:'0 auto 32px' }}>
         You are no longer waiting for a raise that may never come or a promotion that someone else will decide. You have chosen a different path.
       </p>
-      <div style={{ padding:'16px 24px', background:`${GOLD}10`, border:`1px solid ${GOLD}30`, borderRadius:'16px', marginBottom:'32px', fontSize:'15px', fontStyle:'italic', color:W }}>
+      <div style={{ padding:'16px 24px', background:`${GOLD + '10'}`, border:`1px solid ${GOLD + '30'}`, borderRadius:'16px', marginBottom:'32px', fontSize:'15px', fontStyle:'italic', color:W }}>
         "If they underpay you and do not want to employ you, deploy yourself."
       </div>
       <button onClick={next} style={{ padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
@@ -80,7 +84,11 @@ export default function WelcomePage() {
           </div>
         ))}
       </div>
-      <button onClick={next} style={{ padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+      <div style={{ marginTop:'20px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'14px', padding:'16px' }}>
+        <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'2px', textTransform:'uppercase', marginBottom:'12px', textAlign:'center' }}>⚡ How the platform works</div>
+        <Z2BPlatformDiagram />
+      </div>
+      <button onClick={next} style={{ marginTop:'20px', padding:'14px 36px', background:'linear-gradient(135deg,#F59E0B,#D97706)', borderRadius:'14px', border:'none', color:'#050A18', fontSize:'15px', fontWeight:900, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
         Show Me My First Steps →
       </button>
     </div>,
@@ -99,11 +107,11 @@ export default function WelcomePage() {
           { n:4, action:'Get your affiliate link',       desc:'You can already earn 20% promoting any product on the marketplace.', href:'/marketplace/become-affiliate', cta:'Get My Link', color:GREEN },
         ].map(s => (
           <div key={s.n} style={{ display:'flex', gap:'14px', alignItems:'flex-start', padding:'14px 16px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px' }}>
-            <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:`${s.color}20`, border:`1px solid ${s.color}50`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', fontWeight:900, color:s.color, flexShrink:0 }}>{s.n}</div>
+            <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:`${s.color + '20'}`, border:`1px solid ${s.color + '50'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', fontWeight:900, color:s.color, flexShrink:0 }}>{s.n}</div>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:'13px', fontWeight:700, color:W, marginBottom:'3px' }}>{s.action}</div>
               <div style={{ fontSize:'11px', color:MUTED, marginBottom:'8px' }}>{s.desc}</div>
-              <Link href={s.href} style={{ fontSize:'11px', fontWeight:700, color:s.color, padding:'4px 10px', background:`${s.color}15`, border:`1px solid ${s.color}30`, borderRadius:'20px' }}>
+              <Link href={s.href} style={{ fontSize:'11px', fontWeight:700, color:s.color, padding:'4px 10px', background:`${s.color + '15'}`, border:`1px solid ${s.color + '30'}`, borderRadius:'20px' }}>
                 {s.cta} →
               </Link>
             </div>
@@ -129,7 +137,7 @@ export default function WelcomePage() {
       <p style={{ fontSize:'13px', color:MUTED, marginBottom:'32px' }}>
         Every builder who joins after you increases the potential of your team. Every product you create reaches the world through the Marketplace.
       </p>
-      <Link href="/dashboard" style={{ display:'inline-block', padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD}40` }}>
+      <Link href="/dashboard" style={{ display:'inline-block', padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD + '40'}` }}>
         ⚡ Enter My Dashboard →
       </Link>
     </div>,

@@ -1,0 +1,16 @@
+{
+  "name": "Z2B Marketplace",
+  "short_name": "Z2B Market",
+  "description": "Digital products by Z2B Builders. Shop globally. Earn 20% as affiliate.",
+  "start_url": "/marketplace",
+  "display": "standalone",
+  "background_color": "#050A18",
+  "theme_color": "#06B6D4",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/logo-marketplace.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo-marketplace.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "business"],
+  "screenshots": []
+}

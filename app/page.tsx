@@ -1,10 +1,12 @@
-'use client'
+'use client' // logo-001325 // fixes-001230 // diagram-211326
 // FILE: app/page.tsx — Z2B Homepage — AI Era Redesign
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
+import { Z2BLogo } from '@/components/Z2BLogo'
+import Z2BPlatformDiagram from '@/components/Z2BPlatformDiagram'
 
 // ── AI Era Colors ─────────────────────────────────────────────────
 const BG    = '#050A18'
@@ -107,7 +109,7 @@ export default function Home() {
               <Link href="/login" style={{ padding:'8px 14px', border:`1px solid ${BORDER}`, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700 }}>
                 Sign In
               </Link>
-              <Link href="/register" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
+              <Link href="/signup" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
                 Deploy Yourself →
               </Link>
             </>
@@ -120,15 +122,20 @@ export default function Home() {
         <GridPattern />
 
         {/* Glow orbs */}
-        <div style={{ position:'absolute', top:'10%', left:'5%', width:'400px', height:'400px', background:`radial-gradient(circle,${BLUE}12 0%,transparent 70%)`, pointerEvents:'none' }} />
-        <div style={{ position:'absolute', bottom:'10%', right:'5%', width:'350px', height:'350px', background:`radial-gradient(circle,${VIO}10 0%,transparent 70%)`, pointerEvents:'none' }} />
-        <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', width:'600px', height:'300px', background:`radial-gradient(ellipse,${GOLD}06 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:'10%', left:'5%', width:'400px', height:'400px', background:`radial-gradient(circle,${BLUE + '12'} 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', bottom:'10%', right:'5%', width:'350px', height:'350px', background:`radial-gradient(circle,${VIO + '10'} 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', width:'600px', height:'300px', background:`radial-gradient(ellipse,${GOLD + '06'} 0%,transparent 70%)`, pointerEvents:'none' }} />
 
         <div style={{ position:'relative', zIndex:1, textAlign:'center', maxWidth:'800px', padding:'40px 20px', animation:'slide 0.8s ease' }}>
 
+          {/* Logo — centered above slogan */}
+          <div style={{ marginBottom:'28px', display:'flex', justifyContent:'center' }}>
+            <Z2BLogo size="xl" showText={true} href="/" center={true} />
+          </div>
+
           {/* Welcome badge for logged-in users */}
           {user && firstName && (
-            <div style={{ display:'inline-block', marginBottom:'20px', padding:'6px 20px', background:`${GOLD}15`, border:`1px solid ${GOLD}40`, borderRadius:'30px', fontSize:'13px', color:GOLD, fontWeight:700 }}>
+            <div style={{ display:'inline-block', marginBottom:'20px', padding:'6px 20px', background:`${GOLD + '15'}`, border:`1px solid ${GOLD + '40'}`, borderRadius:'30px', fontSize:'13px', color:GOLD, fontWeight:700 }}>
               ⚡ Welcome back, {firstName} — Builder
             </div>
           )}
@@ -157,7 +164,7 @@ export default function Home() {
           <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap', marginBottom:'40px' }}>
             {user ? (
               <>
-                <Link href="/ai-income" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD}40` }}>
+                <Link href="/ai-income" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
                   ⚡ Open 4M Machine →
                 </Link>
                 <Link href="/marketplace" style={{ padding:'14px 28px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'14px', fontWeight:700 }}>
@@ -166,8 +173,8 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Link href="/register" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD}40` }}>
-                  🚀 Deploy Yourself — Free →
+                <Link href="/signup" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
+                  🚀 Deploy Yourself — ✦ Earn your First R500 in 14 days
                 </Link>
                 <Link href="/marketplace" style={{ padding:'14px 28px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'14px', fontWeight:700 }}>
                   🏪 Browse Marketplace
@@ -229,7 +236,7 @@ export default function Home() {
                 promise:'Unlimited. Unstoppable.' },
             ].map(m => (
               <div key={m.mode} style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`, border:`1px solid ${BORDER}`, borderRadius:'20px', padding:'24px', position:'relative', overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:0, right:0, width:'120px', height:'120px', background:`radial-gradient(circle,${m.color}12 0%,transparent 70%)`, pointerEvents:'none' }} />
+                <div style={{ position:'absolute', top:0, right:0, width:'120px', height:'120px', background:`radial-gradient(circle,${m.color + '12'} 0%,transparent 70%)`, pointerEvents:'none' }} />
                 <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'2px', background:`linear-gradient(90deg,transparent,${m.color},transparent)` }} />
 
                 <div style={{ fontSize:'36px', marginBottom:'12px', animation:'float 3s ease-in-out infinite' }}>{m.icon}</div>
@@ -237,7 +244,7 @@ export default function Home() {
                 <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'20px', fontWeight:900, color:W, marginBottom:'8px' }}>{m.mode} Mode</div>
                 <div style={{ fontSize:'13px', fontWeight:700, color:m.color, marginBottom:'8px' }}>{m.headline}</div>
                 <div style={{ fontSize:'12px', color:MUTED, lineHeight:1.7, marginBottom:'14px' }}>{m.body}</div>
-                <div style={{ fontSize:'11px', padding:'5px 12px', background:`${m.color}15`, border:`1px solid ${m.color}30`, borderRadius:'20px', color:m.color, display:'inline-block', fontWeight:700 }}>
+                <div style={{ fontSize:'11px', padding:'5px 12px', background:`${m.color + '15'}`, border:`1px solid ${m.color + '30'}`, borderRadius:'20px', color:m.color, display:'inline-block', fontWeight:700 }}>
                   ✦ {m.promise}
                 </div>
               </div>
@@ -245,9 +252,27 @@ export default function Home() {
           </div>
 
           <div style={{ textAlign:'center', marginTop:'32px' }}>
-            <Link href={user ? '/ai-income' : '/register'} style={{ display:'inline-block', padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD}30` }}>
+            <Link href={user ? '/ai-income' : '/signup'} style={{ display:'inline-block', padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '30'}` }}>
               {user ? '⚡ Open My 4M Machine →' : '⚡ Start Your Deployment →'}
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLATFORM DIAGRAM ── */}
+      <section style={{ padding:'60px 20px', background:SURF }}>
+        <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'32px' }}>
+            <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'10px' }}>⚡ The Full Picture</div>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(22px,3.5vw,36px)', fontWeight:900, color:W, marginBottom:'12px' }}>
+              Everything in one view
+            </div>
+            <p style={{ fontSize:'14px', color:MUTED, maxWidth:'500px', margin:'0 auto', lineHeight:1.7 }}>
+              From employee to builder — here is how the entire Z2B platform works.
+            </p>
+          </div>
+          <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'20px', padding:'24px' }}>
+            <Z2BPlatformDiagram />
           </div>
         </div>
       </section>
@@ -288,7 +313,7 @@ export default function Home() {
                 <Link href="/marketplace" style={{ padding:'12px 24px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'12px', color:'#050A18', fontSize:'13px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
                   🏪 Browse Marketplace
                 </Link>
-                <Link href={user ? '/ai-income' : '/register'} style={{ padding:'12px 20px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
+                <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'12px 20px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
                   Create a Product →
                 </Link>
               </div>
@@ -326,14 +351,14 @@ export default function Home() {
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'24px', marginBottom:'48px' }}>
             <div style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`, border:`1px solid ${BORDER}`, borderRadius:'20px', padding:'28px', position:'relative', overflow:'hidden' }}>
-              <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${GOLD}15 0%,transparent 70%)` }} />
+              <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${GOLD + '15'} 0%,transparent 70%)` }} />
               <div style={{ fontSize:'11px', color:GOLD, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'10px' }}>👁️ Vision</div>
               <div style={{ fontSize:'15px', color:W, lineHeight:1.8, fontStyle:'italic' }}>
                 "A world where every employee has the tools, knowledge and income streams to deploy themselves — on their own terms, in any market, on any continent."
               </div>
             </div>
             <div style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`, border:`1px solid ${BORDER}`, borderRadius:'20px', padding:'28px', position:'relative', overflow:'hidden' }}>
-              <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${CYAN}12 0%,transparent 70%)` }} />
+              <div style={{ position:'absolute', top:0, right:0, width:'100px', height:'100px', background:`radial-gradient(circle,${CYAN + '12'} 0%,transparent 70%)` }} />
               <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'10px' }}>🎯 Mission</div>
               <div style={{ fontSize:'15px', color:W, lineHeight:1.8, fontStyle:'italic' }}>
                 "We equip ambitious employees with AI-powered tools to build digital products, earn recurring income and transition from employment to entrepreneurship — without quitting their job first."
@@ -380,7 +405,7 @@ export default function Home() {
               { n:'NSB',   l:'New Sale Bonus',          c:GREEN, d:'Every new member you bring in' },
               { n:'ISP',   l:'Individual Sales Profit',  c:BLUE,  d:'Monthly from your team — Bronze+' },
               { n:'QPB',   l:'Quick Performance Bonus',  c:VIO2,  d:'First 90 days accelerator' },
-              { n:'TSC',   l:'Team Sales Commission',    c:GOLD,  d:'6 generations deep — Bronze+' },
+              { n:'TSC',   l:'Team Sales Commission',    c:GOLD,  d:'Generations 2–10 — Bronze+' },
               { n:'TLI',   l:'Team Leadership Income',   c:CYAN,  d:'10 levels — up to R3.5M' },
               { n:'CEO',   l:'CEO Competition',          c:'#F97316', d:'Quarterly challenge prizes' },
               { n:'Awards',l:'CEO Awards',               c:VIO,   d:'Discretionary excellence awards' },
@@ -404,7 +429,7 @@ export default function Home() {
 
       {/* ── FINAL CTA ── */}
       <section style={{ padding:'100px 20px', position:'relative', overflow:'hidden', textAlign:'center' }}>
-        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD}08 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD + '08'} 0%,transparent 70%)`, pointerEvents:'none' }} />
         <GridPattern color={GOLD} opacity={0.04} />
         <div style={{ position:'relative', zIndex:1, maxWidth:'700px', margin:'0 auto' }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,52px)', fontWeight:900, lineHeight:1.2, marginBottom:'20px' }}>
@@ -421,8 +446,8 @@ export default function Home() {
             We built them.
           </p>
           <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' }}>
-            <Link href={user ? '/ai-income' : '/register'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD}40` }}>
-              {user ? '⚡ Open 4M Machine →' : '🚀 Deploy Yourself — Free →'}
+            <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD + '40'}` }}>
+              {user ? '⚡ Open 4M Machine →' : '🚀 Deploy Yourself — ✦ Earn your First R500 in 14 days'}
             </Link>
             <Link href="/marketplace" style={{ padding:'16px 28px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'15px', fontWeight:700 }}>
               🏪 Browse Marketplace
@@ -436,7 +461,7 @@ export default function Home() {
         <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:'24px', marginBottom:'24px' }}>
             <div>
-              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'15px', fontWeight:900, background:`linear-gradient(135deg,${GOLD},${CYAN})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', marginBottom:'10px' }}>Z2B Legacy Builders</div>
+              <Z2BLogo size='sm' showText={true} href='/' />
               <div style={{ fontSize:'12px', color:MUTED, lineHeight:1.8 }}>
                 Transforming Employees to Entrepreneurs — Globally
               </div>

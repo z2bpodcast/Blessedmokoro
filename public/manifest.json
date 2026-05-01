@@ -1,65 +1,16 @@
 {
-  "name": "Z2B Table Banquet",
-  "short_name": "Z2B",
-  "description": "Zero2Billionaires — The Entrepreneurial Consumer Platform. Free 18-session workshop, Content Studio, Type As You Feel and more.",
+  "name": "Z2B Legacy Builders",
+  "short_name": "Z2B Builders",
+  "description": "Deploy yourself. AI tools to build digital products and earn recurring income.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0D0A1E",
+  "background_color": "#050A18",
   "theme_color": "#D4AF37",
-  "orientation": "any",
-  "scope": "/",
-  "lang": "en-ZA",
-  "categories": ["education", "business", "productivity"],
+  "orientation": "portrait",
   "icons": [
-    {
-      "src": "/logo.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/logo.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    }
+    { "src": "/logo-z2b.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo-z2b.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": [
-    {
-      "src": "/logo.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "label": "Z2B Table Banquet Home"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Free Workshop",
-      "short_name": "Workshop",
-      "description": "Start the 18-session Entrepreneurial Consumer Workshop",
-      "url": "/workshop",
-      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
-    },
-    {
-      "name": "Type As You Feel",
-      "short_name": "Write",
-      "description": "Write in any African language — AI fixes it instantly",
-      "url": "/type-as-you-feel",
-      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
-    },
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Your Z2B Builder Dashboard",
-      "url": "/dashboard",
-      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
-    },
-    {
-      "name": "Marketplace",
-      "short_name": "Marketplace",
-      "description": "Z2B Apps, Tools and Services",
-      "url": "/marketplace",
-      "icons": [{ "src": "/logo.jpg", "sizes": "192x192" }]
-    }
-  ]
+  "categories": ["business", "productivity", "finance"],
+  "screenshots": []
 }

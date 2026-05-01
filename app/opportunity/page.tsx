@@ -1,9 +1,11 @@
-'use client'
+'use client' // diagram-211326
 // FILE: app/opportunity/page.tsx — Z2B Opportunity — AI Era Redesign
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { Z2BLogo } from '@/components/Z2BLogo'
+import Z2BPlatformDiagram from '@/components/Z2BPlatformDiagram'
 
 const BG    = '#050A18'
 const SURF  = '#0D1629'
@@ -68,7 +70,7 @@ export default function OpportunityPage() {
           The Z2B Opportunity
         </span>
         <div style={{ marginLeft:'auto' }}>
-          <Link href={user ? '/ai-income/choose-plan' : '/register'} style={{ padding:'8px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
+          <Link href={user ? '/ai-income/choose-plan' : '/signup'} style={{ padding:'8px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
             {user ? 'Upgrade Now →' : 'Deploy Yourself →'}
           </Link>
         </div>
@@ -77,8 +79,11 @@ export default function OpportunityPage() {
       {/* Hero */}
       <section style={{ position:'relative', overflow:'hidden', padding:'80px 20px 60px', textAlign:'center' }}>
         <GridBG />
-        <div style={{ position:'absolute', top:0, left:'20%', width:'400px', height:'400px', background:`radial-gradient(circle,${GOLD}10 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:0, left:'20%', width:'400px', height:'400px', background:`radial-gradient(circle,${GOLD + '10'} 0%,transparent 70%)`, pointerEvents:'none' }} />
         <div style={{ position:'relative', zIndex:1, maxWidth:'700px', margin:'0 auto' }}>
+          <div style={{ marginBottom:'24px', display:'flex', justifyContent:'center' }}>
+            <Z2BLogo size='lg' showText={true} href='/' center={true} />
+          </div>
           <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'16px' }}>⚡ The Opportunity</div>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(28px,5vw,52px)', fontWeight:900, lineHeight:1.2, marginBottom:'20px' }}>
             <span style={{ color:W }}>If they underpay you<br/>and do not want to employ you,</span><br/>
@@ -90,7 +95,7 @@ export default function OpportunityPage() {
             Z2B Legacy Builders gives every ambitious employee the AI tools, digital products platform and income community they need to build income alongside their job — and eventually beyond it.
           </p>
           <div style={{ display:'flex', gap:'10px', justifyContent:'center', flexWrap:'wrap' }}>
-            <Link href={user ? '/ai-income' : '/register'} style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD}40` }}>
+            <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
               🚀 Start for Free →
             </Link>
             <Link href="/marketplace" style={{ padding:'14px 24px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'14px', fontWeight:700 }}>
@@ -120,7 +125,7 @@ export default function OpportunityPage() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop:'32px', padding:'20px 28px', background:`${GOLD}10`, border:`1px solid ${GOLD}30`, borderRadius:'16px' }}>
+          <div style={{ marginTop:'32px', padding:'20px 28px', background:`${GOLD + '10'}`, border:`1px solid ${GOLD + '30'}`, borderRadius:'16px' }}>
             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', fontWeight:900, color:GOLD }}>
               The Z2B answer: Deploy yourself.
             </div>
@@ -158,14 +163,14 @@ export default function OpportunityPage() {
           {/* Active vehicle */}
           {VEHICLES.map((v, i) => i === step && (
             <div key={v.mode} style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', alignItems:'start' }}>
-              <div style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`, border:`1px solid ${v.color}40`, borderRadius:'20px', padding:'32px', position:'relative', overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:'-40px', right:'-40px', width:'160px', height:'160px', background:`radial-gradient(circle,${v.color}20 0%,transparent 70%)` }} />
+              <div style={{ background:`linear-gradient(145deg,${SURF},${SURF2})`, border:`1px solid ${v.color + '40'}`, borderRadius:'20px', padding:'32px', position:'relative', overflow:'hidden' }}>
+                <div style={{ position:'absolute', top:'-40px', right:'-40px', width:'160px', height:'160px', background:`radial-gradient(circle,${v.color + '20'} 0%,transparent 70%)` }} />
                 <div style={{ fontSize:'11px', color:v.color, letterSpacing:'2px', textTransform:'uppercase', marginBottom:'8px' }}>{v.tier}</div>
                 <div style={{ fontSize:'48px', marginBottom:'12px', animation:'float 3s ease-in-out infinite' }}>{v.icon}</div>
                 <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'24px', fontWeight:900, color:W, marginBottom:'8px' }}>{v.mode} Mode</div>
                 <div style={{ fontSize:'15px', fontWeight:700, color:v.color, marginBottom:'12px' }}>{v.headline}</div>
                 <p style={{ fontSize:'13px', color:MUTED, lineHeight:1.8, marginBottom:'20px' }}>{v.body}</p>
-                <Link href={user ? '/ai-income' : '/register'} style={{ display:'inline-block', padding:'11px 24px', background:`linear-gradient(135deg,${v.color},${v.color}AA)`, borderRadius:'12px', color: v.mode==='Electric'?'#050A18':'#fff', fontSize:'13px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
+                <Link href={user ? '/ai-income' : '/signup'} style={{ display:'inline-block', padding:'11px 24px', background:`linear-gradient(135deg,${v.color},${v.color + 'AA'})`, borderRadius:'12px', color: v.mode==='Electric'?'#050A18':'#fff', fontSize:'13px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
                   {user ? `Open ${v.mode} Mode →` : 'Get Started Free →'}
                 </Link>
               </div>
@@ -216,9 +221,22 @@ export default function OpportunityPage() {
             <Link href="/marketplace" style={{ padding:'13px 28px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'12px', color:'#050A18', fontSize:'14px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
               🏪 Browse Marketplace
             </Link>
-            <Link href={user ? '/ai-income' : '/register'} style={{ padding:'13px 24px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
+            <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'13px 24px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
               Create My First Product →
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Diagram */}
+      <section style={{ padding:'60px 20px' }}>
+        <div style={{ maxWidth:'1000px', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'28px' }}>
+            <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'8px' }}>⚡ The Full Picture</div>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'28px', fontWeight:900, color:W }}>Everything in one view</div>
+          </div>
+          <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'20px', padding:'20px' }}>
+            <Z2BPlatformDiagram />
           </div>
         </div>
       </section>
@@ -256,7 +274,7 @@ export default function OpportunityPage() {
 
       {/* Final CTA */}
       <section style={{ padding:'100px 20px', textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD}08 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at center,${GOLD + '08'} 0%,transparent 70%)`, pointerEvents:'none' }} />
         <GridBG color={GOLD} opacity={0.04} />
         <div style={{ position:'relative', zIndex:1, maxWidth:'600px', margin:'0 auto' }}>
           <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(26px,4.5vw,48px)', fontWeight:900, lineHeight:1.2, marginBottom:'16px' }}>
@@ -266,7 +284,7 @@ export default function OpportunityPage() {
           <p style={{ fontSize:'16px', color:MUTED, marginBottom:'8px' }}>You need the right tools.</p>
           <p style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'18px', color:W, fontWeight:700, marginBottom:'36px' }}>We built them.</p>
           <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' }}>
-            <Link href={user ? '/ai-income' : '/register'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD}40` }}>
+            <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD + '40'}` }}>
               {user ? '⚡ Open 4M Machine →' : '🚀 Deploy Yourself — Free →'}
             </Link>
           </div>

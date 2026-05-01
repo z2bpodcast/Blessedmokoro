@@ -1,10 +1,11 @@
-'use client'
+'use client' // logo-001325
 // FILE: app/marketplace/page.tsx
 // Z2B Marketplace — AI Era design, inspirational colors
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { MarketplaceLogo } from '@/components/Z2BLogo'
 import { supabase } from '@/lib/supabase'
 
 // ── AI Era Color System ───────────────────────────────────────────
@@ -100,9 +101,9 @@ function ProductCard({ p, refCode }: { p: Product; refCode: string }) {
         borderRadius:'20px', overflow:'hidden', transition:'all 0.25s', cursor:'pointer',
         boxShadow:`0 4px 24px rgba(0,0,0,0.4)` }}
         onMouseEnter={e => {
-          (e.currentTarget as HTMLDivElement).style.border = `1px solid ${fmt.color}60`
+          (e.currentTarget as HTMLDivElement).style.border = `1px solid ${fmt.color + '60'}`
           ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
-          ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 32px rgba(0,0,0,0.5), 0 0 20px ${fmt.color}15`
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 32px rgba(0,0,0,0.5), 0 0 20px ${fmt.color + '15'}`
         }}
         onMouseLeave={e => {
           (e.currentTarget as HTMLDivElement).style.border = `1px solid ${BORDER}`
@@ -111,7 +112,7 @@ function ProductCard({ p, refCode }: { p: Product; refCode: string }) {
         }}>
 
         {/* Image / Hero */}
-        <div style={{ height:'160px', background:`linear-gradient(135deg,${fmt.color}18,${BG})`, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
+        <div style={{ height:'160px', background:`linear-gradient(135deg,${fmt.color + '18'},${BG})`, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
 
           {/* Grid pattern */}
           <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity:0.07 }} viewBox="0 0 300 160">
@@ -123,14 +124,14 @@ function ProductCard({ p, refCode }: { p: Product; refCode: string }) {
             <img src={p.approved_photos[0]} alt={title} style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }} />
           ) : (
             <div style={{ textAlign:'center', zIndex:1 }}>
-              <div style={{ fontSize:'44px', marginBottom:'4px', filter:`drop-shadow(0 0 12px ${fmt.color}80)` }}>{fmt.icon}</div>
+              <div style={{ fontSize:'44px', marginBottom:'4px', filter:`drop-shadow(0 0 12px ${fmt.color + '80'})` }}>{fmt.icon}</div>
               <div style={{ fontSize:'10px', color:fmt.color, fontWeight:700, letterSpacing:'2px', textTransform:'uppercase' }}>{fmt.label}</div>
             </div>
           )}
 
           {/* Badges */}
           <div style={{ position:'absolute', top:'10px', left:'10px', display:'flex', gap:'4px', flexDirection:'column' }}>
-            <span style={{ fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${fmt.color}25`, border:`1px solid ${fmt.color}50`, borderRadius:'20px', color:fmt.color }}>
+            <span style={{ fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${fmt.color + '25'}`, border:`1px solid ${fmt.color + '50'}`, borderRadius:'20px', color:fmt.color }}>
               {fmt.icon} {fmt.label}
             </span>
             {p.partnership_id && (
@@ -141,12 +142,12 @@ function ProductCard({ p, refCode }: { p: Product; refCode: string }) {
           </div>
 
           {p.is_proven_seller && (
-            <div style={{ position:'absolute', top:'10px', right:'10px', fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${GOLD}25`, border:`1px solid ${GOLD}50`, borderRadius:'20px', color:GOLD }}>
+            <div style={{ position:'absolute', top:'10px', right:'10px', fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${GOLD + '25'}`, border:`1px solid ${GOLD + '50'}`, borderRadius:'20px', color:GOLD }}>
               ✦ Proven
             </div>
           )}
           {isNew && (
-            <div style={{ position:'absolute', top:'10px', right:'10px', fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${CYAN}20`, border:`1px solid ${CYAN}40`, borderRadius:'20px', color:CYAN }}>
+            <div style={{ position:'absolute', top:'10px', right:'10px', fontSize:'9px', fontWeight:700, padding:'3px 8px', background:`${CYAN + '20'}`, border:`1px solid ${CYAN + '40'}`, borderRadius:'20px', color:CYAN }}>
               ✨ New
             </div>
           )}
@@ -262,8 +263,8 @@ function MarketplaceInner() {
         <ParticleGrid />
 
         {/* Glow orbs */}
-        <div style={{ position:'absolute', top:'-60px', left:'10%', width:'300px', height:'300px', background:`radial-gradient(circle,${BLUE}15 0%,transparent 70%)`, pointerEvents:'none' }} />
-        <div style={{ position:'absolute', top:'-40px', right:'15%', width:'250px', height:'250px', background:`radial-gradient(circle,${VIO}12 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:'-60px', left:'10%', width:'300px', height:'300px', background:`radial-gradient(circle,${BLUE + '15'} 0%,transparent 70%)`, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', top:'-40px', right:'15%', width:'250px', height:'250px', background:`radial-gradient(circle,${VIO + '12'} 0%,transparent 70%)`, pointerEvents:'none' }} />
 
         <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'32px 20px 28px', position:'relative', zIndex:1 }}>
 
@@ -286,7 +287,7 @@ function MarketplaceInner() {
               {canList ? (
                 <>
                   <Link href="/marketplace/list"
-                    style={{ padding:'9px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontWeight:900, fontSize:'12px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 20px ${GOLD}40` }}>
+                    style={{ padding:'9px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontWeight:900, fontSize:'12px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 20px ${GOLD + '40'}` }}>
                     + List My Product
                   </Link>
                   <Link href="/marketplace/my-products"
@@ -314,19 +315,19 @@ function MarketplaceInner() {
 
       {/* Affiliate banner */}
       {affBanner && (
-        <div style={{ background:`linear-gradient(90deg,${GOLD}15,${CYAN}10)`, borderBottom:`1px solid ${GOLD}30`, padding:'8px 20px', textAlign:'center', fontSize:'12px', color:GOLD }}>
+        <div style={{ background:`linear-gradient(90deg,${GOLD + '15'},${CYAN + '10'})`, borderBottom:`1px solid ${GOLD + '30'}`, padding:'8px 20px', textAlign:'center', fontSize:'12px', color:GOLD }}>
           🔗 {affBanner} — shopping via their affiliate link · they earn 20% if you buy
         </div>
       )}
 
       {/* Become affiliate strip */}
-      <div style={{ background:`linear-gradient(90deg,${VIO}12,${BLUE}08)`, borderBottom:`1px solid ${BORDER}`, padding:'10px 20px' }}>
+      <div style={{ background:`linear-gradient(90deg,${VIO + '12'},${BLUE + '08'})`, borderBottom:`1px solid ${BORDER}`, padding:'10px 20px' }}>
         <div style={{ maxWidth:'1200px', margin:'0 auto', display:'flex', alignItems:'center', gap:'12px', flexWrap:'wrap' }}>
           <span style={{ fontSize:'14px' }}>💰</span>
           <span style={{ fontSize:'12px', color:W, fontWeight:700 }}>Earn 20% on every sale</span>
           <span style={{ fontSize:'12px', color:MUTED }}>Share any product with your unique affiliate link. No membership required.</span>
           <Link href="/marketplace/become-affiliate"
-            style={{ marginLeft:'auto', fontSize:'12px', fontWeight:700, color:CYAN, textDecoration:'none', border:`1px solid ${CYAN}40`, padding:'4px 12px', borderRadius:'20px' }}>
+            style={{ marginLeft:'auto', fontSize:'12px', fontWeight:700, color:CYAN, textDecoration:'none', border:`1px solid ${CYAN + '40'}`, padding:'4px 12px', borderRadius:'20px' }}>
             Get my affiliate link →
           </Link>
         </div>
@@ -359,9 +360,9 @@ function MarketplaceInner() {
         {/* Result count */}
         <div style={{ fontSize:'12px', color:MUTED, marginBottom:'20px', display:'flex', alignItems:'center', gap:'10px' }}>
           <span>{loading ? 'Loading...' : `${filtered.length} products`}</span>
-          {refCode && <span style={{ color:GOLD, padding:'2px 10px', background:`${GOLD}12`, border:`1px solid ${GOLD}30`, borderRadius:'20px' }}>Affiliate: {refCode.toUpperCase()}</span>}
+          {refCode && <span style={{ color:GOLD, padding:'2px 10px', background:`${GOLD + '12'}`, border:`1px solid ${GOLD + '30'}`, borderRadius:'20px' }}>Affiliate: {refCode.toUpperCase()}</span>}
           {!loading && !canList && user && (
-            <span style={{ color:CYAN, padding:'2px 10px', background:`${CYAN}10`, border:`1px solid ${CYAN}30`, borderRadius:'20px' }}>
+            <span style={{ color:CYAN, padding:'2px 10px', background:`${CYAN + '10'}`, border:`1px solid ${CYAN + '30'}`, borderRadius:'20px' }}>
               ⬆️ Upgrade to Starter to list your products
             </span>
           )}
@@ -424,7 +425,7 @@ function MarketplaceInner() {
             </div>
           </div>
           <div style={{ textAlign:'center', fontSize:'11px', color:MUTED, paddingTop:'16px', borderTop:`1px solid ${BORDER}` }}>
-            ⚡ Z2B Marketplace — Powered by Z2B Legacy Builders · Marketplace sales do not cascade to upline
+            🏪 Z2B Marketplace — Powered by Z2B Legacy Builders · Marketplace sales do not cascade to upline
           </div>
         </div>
       </div>
