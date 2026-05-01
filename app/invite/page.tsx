@@ -1,4 +1,4 @@
-'use client'
+'use client' // hreffix-011658
 // FILE: app/invite/page.tsx — Invite page with platform diagram
 
 import { useState, useEffect, Suspense } from 'react'
@@ -39,7 +39,7 @@ function InviteInner() {
         <Z2BLogo size='sm' showText={true} href='/' />
         <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
           <Link href='/login' style={{ padding:'8px 14px', border:'1px solid ' + BORDER, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700, textDecoration:'none' }}>Sign In</Link>
-          <Link href='/signup?ref=' + ref style={{ padding:'8px 16px', background:'linear-gradient(135deg,#F59E0B,#D97706)', borderRadius:'10px', color:'#050A18', fontWeight:900, fontSize:'12px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
+          <Link href={'/signup?ref=' + ref} style={{ padding:'8px 16px', background:'linear-gradient(135deg,#F59E0B,#D97706)', borderRadius:'10px', color:'#050A18', fontWeight:900, fontSize:'12px', textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
             Deploy Yourself →
           </Link>
         </div>
