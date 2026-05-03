@@ -339,7 +339,7 @@ export default function ProspectRegistrationGate({
             prospect_whatsapp: whatsapp.trim(),
             prospect_email:    email.trim().toLowerCase(),
             section_id:        1,
-            section_title:     "Workshop Registration",
+            section_title:     "Join Z2B Legacy Builders",
             status:            "new",
             read:              false,
             message:           `${name.trim()} just registered for the free workshop via your referral link.`,
@@ -400,7 +400,7 @@ export default function ProspectRegistrationGate({
         <div style={{ padding: "0 28px" }}>
           <div style={S.freeTag}>
             <div style={S.pill("#6EE7B7")}>
-              ✅ FREE<br />18 Sessions
+              ⚡ FREE<br />4M Machine Access
             </div>
             <div style={S.pill("#F5D060")}>
               🔑 R480 Once-Off<br />All 99 Sessions
