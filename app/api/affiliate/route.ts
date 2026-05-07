@@ -10,10 +10,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
+// ✅ FIXED: wrapped in function — called at runtime, not at build time
+const getSupabase = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
 export const dynamic = 'force-dynamic'
 
 function generateCode(seed: string): string {
@@ -26,6 +28,7 @@ function generateCode(seed: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase() // ✅ called here at runtime
   const body = await req.json()
   const { action } = body
 
@@ -34,7 +37,6 @@ export async function POST(req: NextRequest) {
     const { ref, product_slug, referrer } = body
     if (!ref) return NextResponse.json({ ok: false })
 
-    // Find affiliate by code
     const { data: aff } = await supabase
       .from('marketplace_affiliates')
       .select('id')
@@ -43,14 +45,12 @@ export async function POST(req: NextRequest) {
 
     if (!aff) return NextResponse.json({ ok: false })
 
-    // Find product
     const { data: product } = await supabase
       .from('marketplace_products')
       .select('id')
       .eq('slug', product_slug)
       .single()
 
-    // Log click
     await supabase.from('affiliate_clicks').insert({
       affiliate_id: aff.id,
       product_id: product?.id || null,
@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
       clicked_at: new Date().toISOString(),
     })
 
-    // Increment link clicks
     if (product?.id) {
       await supabase.from('affiliate_links')
         .update({ clicks: supabase.rpc('increment', { x: 1 }) })
@@ -73,7 +72,6 @@ export async function POST(req: NextRequest) {
   if (action === 'generate_link') {
     const { affiliateId, productId } = body
 
-    // Check if link already exists
     const { data: existing } = await supabase
       .from('affiliate_links')
       .select('*')
@@ -101,7 +99,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Create new affiliate link
     const { data: aff } = await supabase
       .from('marketplace_affiliates')
       .select('affiliate_code')
@@ -231,6 +228,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase() // ✅ called here at runtime
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
   const email = searchParams.get('email')
