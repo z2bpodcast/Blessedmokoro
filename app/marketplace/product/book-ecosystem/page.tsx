@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 
 const PACKAGES = [
   {
@@ -123,7 +123,6 @@ const SERVICES = [
 ]
 
 export default function BookEcosystemPage() {
-  const supabase = createClientComponentClient()
   const searchParams = useSearchParams()
   const router = useRouter()
 

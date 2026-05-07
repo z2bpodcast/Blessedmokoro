@@ -5,12 +5,11 @@
 // marketplace.z2blegacybuilders.co.za AND app.z2blegacybuilders.co.za
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export default function MarketplaceJoinPage() {
-  const supabase = createClientComponentClient()
   const router = useRouter()
   const searchParams = useSearchParams()
   const refCode = searchParams.get('ref') || ''

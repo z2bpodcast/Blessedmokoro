@@ -5,7 +5,7 @@
 // Shows: wallet, affiliate links, products to promote, NWM opportunity
 
 import { useEffect, useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -46,7 +46,6 @@ const PRODUCTS = [
 ]
 
 export default function MarketplaceDashboardPage() {
-  const supabase = createClientComponentClient()
   const router = useRouter()
 
   const [profile, setProfile] = useState<Profile | null>(null)

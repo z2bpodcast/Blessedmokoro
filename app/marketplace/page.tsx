@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 type Product = {
@@ -33,7 +33,6 @@ const CATEGORIES = [
 ]
 
 export default function MarketplacePage() {
-  const supabase = createClientComponentClient()
   const searchParams = useSearchParams()
 
   const [products, setProducts] = useState<Product[]>([])
