@@ -3,7 +3,7 @@
 // app/marketplace/page.tsx
 // FIXED: Categories visible on load, not hidden behind search
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -32,7 +32,7 @@ const CATEGORIES = [
   { id: 'Templates',        label: 'Templates',           icon: '📋' },
 ]
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const searchParams = useSearchParams()
 
   const [products, setProducts] = useState<Product[]>([])
@@ -332,5 +332,17 @@ export default function MarketplacePage() {
       </div>
 
     </div>
+  )
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#080608] flex items-center justify-center">
+        <div className="text-2xl animate-pulse">⚡</div>
+      </div>
+    }>
+      <MarketplaceContent />
+    </Suspense>
   )
 }

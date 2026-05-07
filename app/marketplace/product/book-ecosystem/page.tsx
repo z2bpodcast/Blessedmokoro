@@ -4,7 +4,7 @@
 // Clean URL: marketplace.z2blegacybuilders.co.za/book-ecosystem
 // Shareable by ALL members — referral code auto-attached for 20% commission
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -122,7 +122,7 @@ const SERVICES = [
   { icon: '📱', label: 'PWA Development' },
 ]
 
-export default function BookEcosystemPage() {
+function BookEcosystemContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -469,5 +469,17 @@ export default function BookEcosystemPage() {
       </div>
 
     </div>
+  )
+}
+
+export default function BookEcosystemPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#080608] flex items-center justify-center">
+        <div className="text-2xl animate-pulse">⚡</div>
+      </div>
+    }>
+      <BookEcosystemContent />
+    </Suspense>
   )
 }

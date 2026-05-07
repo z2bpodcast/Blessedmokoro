@@ -4,12 +4,12 @@
 // New affiliate signup — creates ONE account that works on both
 // marketplace.z2blegacybuilders.co.za AND app.z2blegacybuilders.co.za
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function MarketplaceJoinPage() {
+function MarketplaceJoinContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const refCode = searchParams.get('ref') || ''
@@ -282,5 +282,17 @@ export default function MarketplaceJoinPage() {
 
       </div>
     </div>
+  )
+}
+
+export default function MarketplaceJoinPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#080608] flex items-center justify-center">
+        <div className="text-2xl animate-pulse">⚡</div>
+      </div>
+    }>
+      <MarketplaceJoinContent />
+    </Suspense>
   )
 }
