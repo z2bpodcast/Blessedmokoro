@@ -375,11 +375,11 @@ export default function MarketplaceDashboardPage() {
                         FREE AFFILIATE
                       </div>
                       <div className="text-xl text-[rgba(255,255,255,0.5)] mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                        20%
+                        20% MKT
                       </div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">Per sale you refer</div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">No team earnings</div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">No network income</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">10% Legacy Builders</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">No 4M Machine access</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.3)]">No PWA Apps built</div>
                     </div>
                     <div className="p-4 rounded-sm text-center"
                       style={{ background: 'rgba(45,27,105,0.25)', border: '1px solid #c9a227' }}>
@@ -389,16 +389,16 @@ export default function MarketplaceDashboardPage() {
                       <div className="text-xl text-[#f0c040] mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                         9 STREAMS
                       </div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">Affiliate + NSB + ISP</div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">TSC + QPB + TLI</div>
-                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">+ CEO Awards</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">4M Machine FULL</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">PWA Apps Built for You</div>
+                      <div className="text-[10px] text-[rgba(255,255,255,0.6)]">R200/referral + Pools</div>
                     </div>
                   </div>
 
                   <Link href="https://app.z2blegacybuilders.co.za/pricing"
                     className="block w-full py-3.5 text-center rounded-sm font-bold tracking-widest text-sm"
                     style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '4px', background: 'linear-gradient(135deg,#c9a227,#f0c040)', color: '#080608' }}>
-                    🚀 START WITH BRONZE — R480/MONTH
+                    🚀 VIEW ALL PACKAGES — FROM R500
                   </Link>
                 </div>
               </div>
@@ -413,20 +413,20 @@ export default function MarketplaceDashboardPage() {
               <div className="space-y-4">
                 {[
                   {
-                    step: '01', title: 'You Join as Bronze (R480/month)',
-                    desc: 'Get full access to the 4M Machine, Entrepreneurial Consumer Workshop, and all Z2B tools. Your referral code is active on everything.'
+                    step: '01', title: 'Starter Pack — R500 once-off',
+                    desc: 'Unlocks 4M Manual Power FULL (7 features), Coach Manlaw AI unlimited, all 99 Workshop Sessions, 5 Digital Products, 1 PWA App built for you. R850/month BFM after 60 days.'
                   },
                   {
-                    step: '02', title: 'You Build a Team',
-                    desc: 'Every person you bring in earns you NSB (New Starter Bonus) immediately. Your team\'s monthly activity earns you TSC commissions across 10 generations.'
+                    step: '02', title: 'Bronze — R2,500 · Copper — R5,000',
+                    desc: 'Bronze: AI Offer Generator, Customer Finder, Post Generator, Reply System, Closing Assistant, Daily R300/Day Engine + R200/referral income. Copper adds 10 Bonus Products, 2 PWA Apps, Full Sales Funnel.'
                   },
                   {
-                    step: '03', title: 'Your Team Builds a Team',
-                    desc: 'When your team members bring in their teams, you earn from those too. This is the network multiplier — your income grows without your direct effort.'
+                    step: '03', title: 'Silver — R12,000 · Gold — R24,000',
+                    desc: 'Silver: Automatic Power — Product Multiplication Engine, 1-Click Launch Pack, AI automation. Gold: Electric Power FULL — AI Video Avatar, daily automated sequences, 5 PWA Apps, 1-on-1 Coaching, Gold Pool Profit Sharing.'
                   },
                   {
-                    step: '04', title: 'You Upgrade as You Grow',
-                    desc: 'Bronze → Copper → Silver → Gold → Platinum. Each tier unlocks more income streams, higher commission rates, and more 4M Machine power modes.'
+                    step: '04', title: 'Platinum — R50,000',
+                    desc: 'The ultimate tier. Electric Power MAX, 7 PWA Apps built, Distribution License, CEO Mastermind Access, Platinum Pool Profit Sharing, 3 months 1-on-1 Coaching, Weekend Bootcamp.'
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
