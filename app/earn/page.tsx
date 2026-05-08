@@ -24,10 +24,13 @@ const LEGACY_PRODUCTS = [
     category: '4M Machine',
     icon: '⚡',
     items: [
-      { id: '4m-manual', name: '4M Manual Engine', price: 500, commission: 10, tag: 'R500', desc: 'Included in Book System — Create your first digital product', url: '/ai-income' },
-      { id: '4m-auto', name: '4M Automatic Engine', price: 2500, commission: 10, tag: 'R2,500', desc: 'Bronze tier — AI creates products automatically', url: '/pricing' },
-      { id: '4m-electric', name: '4M Electric Engine', price: 5000, commission: 10, tag: 'R5,000', desc: 'Silver tier — Multiple automated income streams', url: '/pricing' },
-      { id: '4m-rocket', name: '4M Rocket Engine', price: 10000, commission: 10, tag: 'R10,000+', desc: 'Gold/Platinum — Full automation + team duplication', url: '/pricing' },
+      { id: '4m-flipbook', name: '4M Manual — 3 Features (Flipbook)', price: 200, commission: 10, tag: 'R200', desc: 'R200 Flipbook buyers get access to the first 3 features of the 4M Manual Engine as part of their Flipbook package.', url: '/pricing' },
+      { id: '4m-starter', name: '4M Manual — Starter Pack (Full)', price: 500, commission: 10, tag: 'R500', desc: 'R500 Book System — ALL 7 Manual Power features unlocked. Coach Manlaw AI + all 99 Workshop Sessions + 1 PWA App built for you.', url: '/pricing' },
+      { id: '4m-bronze', name: '4M Manual Power FULL — Bronze', price: 2500, commission: 10, tag: 'R2,500', desc: 'Bronze once-off. AI Offer Generator, Customer Finder, Post Generator, Reply System, Closing Assistant, Daily R300/Day Engine. 5 Digital Products. R200/referral.', url: '/pricing' },
+      { id: '4m-copper', name: '4M Manual Power FULL — Copper', price: 5000, commission: 10, tag: 'R5,000', desc: 'Copper once-off. Everything in Bronze + 10 Bonus Products, 2 PWA Apps Built for You, Household Expenses Programme, Full Sales Funnel.', url: '/pricing' },
+      { id: '4m-silver', name: '4M Automatic Power — Silver', price: 12000, commission: 10, tag: 'R12,000', desc: 'Silver once-off. Product Multiplication Engine, 1-Click Launch Pack, 5-Day Follow-Up Sequences, 15 Bonus Products, 2 PWA Apps, Full AI automation.', url: '/pricing' },
+      { id: '4m-gold', name: '4M Electric Power — Gold', price: 24000, commission: 10, tag: 'R24,000', desc: 'Gold once-off. AI Video Avatar, Full Automation Blueprints, 20 Bonus Products, 5 PWA Apps Built, 1-on-1 Coaching, Weekend Bootcamp, Gold Pool Profit Sharing.', url: '/pricing' },
+      { id: '4m-platinum', name: '4M Electric Power MAX — Platinum', price: 50000, commission: 10, tag: 'R50,000', desc: 'Platinum once-off. All systems active, 7 PWA Apps Built, Distribution License, CEO Mastermind, Platinum Pool Profit Sharing, 3 months 1-on-1 Coaching.', url: '/pricing' },
     ]
   },
   // ── MEMBERSHIP ─────────────────────────────────────────────
@@ -35,11 +38,12 @@ const LEGACY_PRODUCTS = [
     category: 'Membership Tiers',
     icon: '👑',
     items: [
-      { id: 'bronze', name: 'Bronze Membership', price: 480, commission: 10, tag: 'R480/mo', desc: 'Full Z2B platform access — 9 income streams activated', url: '/pricing' },
-      { id: 'copper', name: 'Copper Membership', price: 980, commission: 10, tag: 'R980/mo', desc: 'Expanded tools + automation blueprints', url: '/pricing' },
-      { id: 'silver', name: 'Silver Membership', price: 1980, commission: 10, tag: 'R1,980/mo', desc: 'AI video avatar + full automation sequences', url: '/pricing' },
-      { id: 'gold', name: 'Gold Membership', price: 3980, commission: 10, tag: 'R3,980/mo', desc: '5 PWA Apps built + 1-on-1 coaching + Gold Pool', url: '/pricing' },
-      { id: 'platinum', name: 'Platinum Membership', price: 7980, commission: 10, tag: 'R7,980/mo', desc: 'White-label license + CEO Mastermind + everything', url: '/pricing' },
+      { id: 'starter-bfm', name: 'Starter BFM', price: 850, commission: 10, tag: 'R850/mo', desc: 'BFM after 60 days on Starter Pack. Keeps your 4M Manual Full access and all Starter benefits active.', url: '/pricing' },
+      { id: 'bronze-bfm', name: 'Bronze BFM', price: 1050, commission: 10, tag: 'R1,050/mo', desc: 'BFM after Bronze once-off. Keeps all Bronze benefits, AI tools and referral income active.', url: '/pricing' },
+      { id: 'copper-bfm', name: 'Copper BFM', price: 1300, commission: 10, tag: 'R1,300/mo', desc: 'BFM after Copper once-off. Keeps all Copper benefits and 2 PWA Apps active.', url: '/pricing' },
+      { id: 'silver-bfm', name: 'Silver BFM', price: 2000, commission: 10, tag: 'R2,000/mo', desc: 'BFM after Silver once-off. Keeps Automatic Power and all Silver automation active.', url: '/pricing' },
+      { id: 'gold-bfm', name: 'Gold BFM', price: 3200, commission: 10, tag: 'R3,200/mo', desc: 'BFM after Gold once-off. Keeps Electric Power, AI Video Avatar and Gold Pool Profit Sharing active.', url: '/pricing' },
+      { id: 'platinum-bfm', name: 'Platinum BFM', price: 5800, commission: 10, tag: 'R5,800/mo', desc: 'BFM after Platinum once-off. Keeps all Platinum benefits, Distribution License and CEO Mastermind active.', url: '/pricing' },
     ]
   },
   // ── WORKSHOPS ──────────────────────────────────────────────
