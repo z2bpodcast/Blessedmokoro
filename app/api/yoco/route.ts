@@ -18,15 +18,12 @@ const YOCO_WEBHOOK_SECRET = process.env.YOCO_WEBHOOK_SECRET || ''
 const APP_URL             = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
 
 const AMOUNT_TO_TIER: Record<number, string> = {
-  500:   'starter',
+  500:   'fam',
   2500:  'bronze',
   5000:  'copper',
   12000: 'silver',
   24000: 'gold',
   50000: 'platinum',
-  17000: 'silver_rocket',
-  35000: 'gold_rocket',
-  70000: 'platinum_rocket',
 }
 
 function tierFromAmount(amountRands: number): string {
@@ -89,7 +86,7 @@ async function processCommissions(
   const ispAmount = amountRands * ispRate
 
   await supabase.from('comp_earnings').insert({
-    builder_id:       sponsor.id,
+    builder_id:       sponsor.id,E 
     earning_type:     'ISP',
     amount:           ispAmount,
     rate:             ispRate,
@@ -294,9 +291,7 @@ export async function POST(req: NextRequest) {
     if (body.action === 'create_checkout') {
       const { user_id, ref_code, tier } = body
       const tierAmounts: Record<string,number> = {
-        fam:500, starter:500,
-        bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
-        silver_rocket:17000, gold_rocket:35000, platinum_rocket:70000,
+        fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
         ce_starter: 400, ce_pro: 900,
         ai_income: 500,
       }
