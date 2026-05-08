@@ -86,7 +86,7 @@ async function processCommissions(
   const ispAmount = amountRands * ispRate
 
   await supabase.from('comp_earnings').insert({
-    builder_id:       sponsor.id,E 
+    builder_id:       sponsor.id,
     earning_type:     'ISP',
     amount:           ispAmount,
     rate:             ispRate,
