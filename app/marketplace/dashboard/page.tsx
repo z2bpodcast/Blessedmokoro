@@ -398,7 +398,7 @@ export default function MarketplaceDashboardPage() {
                   <Link href="https://app.z2blegacybuilders.co.za/pricing"
                     className="block w-full py-3.5 text-center rounded-sm font-bold tracking-widest text-sm"
                     style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '4px', background: 'linear-gradient(135deg,#c9a227,#f0c040)', color: '#080608' }}>
-                    🚀 VIEW MEMBERSHIP PLANS
+                    🚀 START WITH BRONZE — R480/MONTH
                   </Link>
                 </div>
               </div>
@@ -413,7 +413,7 @@ export default function MarketplaceDashboardPage() {
               <div className="space-y-4">
                 {[
                   {
-                    step: '01', title: 'You Join as Bronze (R480)',
+                    step: '01', title: 'You Join as Bronze (R480/month)',
                     desc: 'Get full access to the 4M Machine, Entrepreneurial Consumer Workshop, and all Z2B tools. Your referral code is active on everything.'
                   },
                   {
