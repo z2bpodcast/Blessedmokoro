@@ -46,6 +46,7 @@ export default function ReaderPage() {
           <Link href="/flipbook" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'rgba(201,162,39,0.15)', color:'#f0c040', border:'1px solid rgba(201,162,39,0.3)' }}>📖 FLIPBOOK</Link>
           <Link href="/audio-reader" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'rgba(201,162,39,0.15)', color:'#f0c040', border:'1px solid rgba(201,162,39,0.3)' }}>🎧 AUDIO</Link>
           <Link href="/workbook" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'rgba(201,162,39,0.15)', color:'#f0c040', border:'1px solid rgba(201,162,39,0.3)' }}>📓 WORKBOOK</Link>
+          <a href="/Zero2Billionaires_eBook.pdf" download="Zero2Billionaires_eBook.pdf" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'linear-gradient(135deg,#c9a227,#f0c040)', color:'#080608', border:'none' }}>⬇️ PDF</a>
           <Link href="/dashboard" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'rgba(201,162,39,0.1)', color:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.1)' }}>DASHBOARD</Link>
         </div>
       </div>
