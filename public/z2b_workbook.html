@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zero2Billionaires — Action Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0a;--purple:#2d1b69;--purple-mid:#3d2285;--gold:#c9a227;
+  --gold-bright:#f0c040;--gold-pale:#e8d48b;--gold-dim:#7a6118;
+  --white:#f5f0e8;--cream:#faf6ee;--text:#1a1208;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;background:var(--cream);font-family:'Lato',sans-serif;color:var(--text);}
+
+/* ── TOPBAR ── */
+#topbar{
+  background:var(--black);padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100;
+}
+.wb-logo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gold-bright);}
+.wb-logo span{color:rgba(255,255,255,0.4);font-size:0.75em;}
+.wb-tag{font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:3px;color:var(--gold-dim);}
+.wb-progress-wrap{display:flex;align-items:center;gap:10px;}
+.wb-prog-track{width:140px;height:4px;background:rgba(201,162,39,0.15);border-radius:2px;}
+.wb-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:2px;transition:width 0.5s ease;width:0%;}
+.wb-prog-pct{font-family:'Bebas Neue',sans-serif;font-size:0.7rem;color:var(--gold);min-width:32px;}
+
+/* ── LAYOUT ── */
+#shell{display:flex;min-height:calc(100vh - 54px);}
+#sidebar{
+  width:220px;flex-shrink:0;background:var(--black);
+  border-right:1px solid rgba(201,162,39,0.12);
+  padding:16px 0;overflow-y:auto;position:sticky;top:54px;height:calc(100vh - 54px);
+}
+#sidebar::-webkit-scrollbar{width:3px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--gold-dim);}
+.sb-sec{font-family:'Bebas Neue',sans-serif;font-size:0.55rem;letter-spacing:3px;color:var(--gold-dim);padding:12px 16px 4px;}
+.sb-item{
+  display:flex;align-items:center;gap:8px;padding:8px 16px;
+  cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;
+}
+.sb-item:hover{background:rgba(201,162,39,0.05);border-left-color:var(--gold-dim);}
+.sb-item.done{border-left-color:var(--gold);}
+.sb-num{font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--gold-dim);min-width:22px;}
+.sb-item.done .sb-num{color:var(--gold-bright);}
+.sb-title{font-size:0.68rem;color:rgba(255,255,255,0.4);line-height:1.3;}
+.sb-item.done .sb-title{color:var(--gold-pale);}
+.sb-check{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:0.5rem;flex-shrink:0;margin-left:auto;}
+.sb-item.done .sb-check{background:var(--gold-bright);border-color:var(--gold-bright);color:var(--black);}
+
+/* ── MAIN CONTENT ── */
+#main{flex:1;max-width:740px;margin:0 auto;padding:32px 32px 60px;}
+
+/* ── COVER PAGE ── */
+.wb-cover{
+  background:linear-gradient(160deg,var(--black) 0%,#1a0d35 45%,#0a0608 100%);
+  border-radius:8px;padding:48px 40px;text-align:center;margin-bottom:32px;
+  position:relative;overflow:hidden;
+}
+.wb-cover::before{content:'';position:absolute;top:-80px;left:-80px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(45,27,105,0.4) 0%,transparent 70%);pointer-events:none;}
+.wb-cover::after{content:'';position:absolute;bottom:-60px;right:-60px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(201,162,39,0.1) 0%,transparent 70%);pointer-events:none;}
+.wb-cover-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:0.65rem;letter-spacing:5px;color:var(--gold-dim);margin-bottom:16px;}
+.wb-cover-title{font-family:'Bebas Neue',sans-serif;line-height:0.9;margin-bottom:4px;}
+.wb-cover-title .l1{display:block;font-size:3.5rem;letter-spacing:6px;color:var(--white);}
+.wb-cover-title .l2{display:block;font-size:2.5rem;letter-spacing:8px;color:var(--gold-bright);}
+.wb-cover-div{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto;}
+.wb-cover-sub{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-style:italic;color:var(--gold-pale);margin-bottom:20px;line-height:1.6;}
+.wb-cover-author{font-family:'Playfair Display',serif;font-size:0.9rem;font-style:italic;color:rgba(255,255,255,0.5);}
+.wb-cover-note{
+  margin-top:24px;background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);
+  border-radius:4px;padding:12px 16px;
+  font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--gold-pale);line-height:1.6;
+}
+
+/* ── CHAPTER WORKBOOK PAGE ── */
+.wb-chapter{
+  background:var(--white);border-radius:6px;margin-bottom:24px;
+  overflow:hidden;border:1px solid rgba(45,27,105,0.1);
+  box-shadow:0 2px 20px rgba(0,0,0,0.06);
+}
+.wb-ch-header{
+  background:linear-gradient(135deg,var(--purple) 0%,var(--purple-mid) 100%);
+  padding:20px 28px;position:relative;overflow:hidden;
+}
+.wb-ch-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));}
+.wb-ch-num-bg{
+  position:absolute;right:16px;top:8px;
+  font-family:'Bebas Neue',sans-serif;font-size:5rem;
+  color:rgba(255,255,255,0.05);line-height:1;
+}
+.wb-ch-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:0.58rem;letter-spacing:3px;color:var(--gold-dim);margin-bottom:4px;}
+.wb-ch-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:4px;}
+.wb-ch-subtitle{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-style:italic;color:var(--gold-pale);}
+
+.wb-ch-body{padding:24px 28px 28px;}
+
+/* ── SCRIPTURE ANCHOR ── */
+.wb-scripture{
+  background:#1a1030;border:1px solid rgba(201,162,39,0.25);
+  border-radius:4px;padding:14px 18px;margin-bottom:20px;position:relative;
+}
+.wb-scripture::before{content:'❝';position:absolute;top:-6px;left:12px;
+  font-size:2.5rem;color:rgba(201,162,39,0.12);font-family:'Playfair Display',serif;line-height:1;}
+.wb-scripture-text{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-style:italic;color:var(--gold-pale);margin-bottom:4px;}
+.wb-scripture-ref{font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:3px;color:var(--gold-dim);}
+
+/* ── REFLECTION SECTION ── */
+.wb-section{margin-bottom:20px;}
+.wb-section-label{
+  font-family:'Bebas Neue',sans-serif;font-size:0.62rem;letter-spacing:3px;
+  color:var(--purple);border-bottom:1px solid rgba(45,27,105,0.15);
+  padding-bottom:6px;margin-bottom:12px;
+}
+.wb-question{margin-bottom:14px;}
+.wb-q-text{font-size:0.82rem;color:var(--text);font-weight:700;margin-bottom:6px;line-height:1.5;}
+.wb-q-hint{font-size:0.72rem;color:rgba(26,18,8,0.5);font-style:italic;margin-bottom:6px;}
+.wb-answer{
+  width:100%;border:1px solid rgba(45,27,105,0.15);border-radius:3px;
+  padding:10px 12px;font-family:'Lato',sans-serif;font-size:0.82rem;
+  color:var(--text);background:rgba(45,27,105,0.02);resize:vertical;min-height:64px;
+  line-height:1.65;transition:border-color 0.2s;
+}
+.wb-answer:focus{outline:none;border-color:var(--purple);}
+.wb-answer::placeholder{color:rgba(26,18,8,0.25);}
+
+/* ── COMMITMENT BOX ── */
+.wb-commit{
+  background:linear-gradient(135deg,rgba(45,27,105,0.06),rgba(201,162,39,0.04));
+  border:1px solid rgba(201,162,39,0.2);border-radius:4px;
+  padding:16px 20px;margin-top:20px;
+}
+.wb-commit-label{font-family:'Bebas Neue',sans-serif;font-size:0.62rem;letter-spacing:3px;color:var(--gold-dim);margin-bottom:8px;}
+.wb-commit-text{font-family:'Cormorant Garamond',serif;font-size:0.88rem;font-style:italic;color:var(--purple);line-height:1.6;margin-bottom:10px;}
+.wb-commit-action{
+  width:100%;border:1px solid rgba(45,27,105,0.2);border-radius:3px;
+  padding:8px 12px;font-family:'Lato',sans-serif;font-size:0.8rem;
+  color:var(--text);background:rgba(255,255,255,0.6);resize:none;height:48px;
+}
+.wb-commit-action:focus{outline:none;border-color:var(--purple);}
+
+/* ── DONE BUTTON ── */
+.wb-done-wrap{display:flex;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid rgba(45,27,105,0.1);}
+.wb-done-btn{
+  background:linear-gradient(135deg,var(--purple),var(--purple-mid));
+  border:1px solid var(--gold-dim);color:var(--gold-bright);
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:3px;
+  padding:10px 24px;cursor:pointer;border-radius:3px;transition:all 0.2s;
+}
+.wb-done-btn:hover{background:linear-gradient(135deg,var(--purple-mid),#5a35b8);}
+.wb-done-btn.marked{background:linear-gradient(135deg,#1a5a28,#228a38);border-color:#3aaa50;color:#fff;}
+
+/* ── COACH MANLAW LOCKED ── */
+.wb-coach-locked{
+  background:linear-gradient(135deg,#0a0608,#1a0d35);
+  border:1px solid rgba(201,162,39,0.2);border-radius:4px;
+  padding:16px 20px;margin-top:16px;text-align:center;
+}
+.wb-coach-locked .lock-icon{font-size:1.4rem;margin-bottom:6px;}
+.wb-coach-locked p{font-family:'Cormorant Garamond',serif;font-size:0.82rem;font-style:italic;color:rgba(201,162,39,0.5);line-height:1.5;margin-bottom:10px;}
+.wb-coach-locked-btn{
+  display:inline-block;background:none;border:1px solid rgba(201,162,39,0.2);
+  color:var(--gold-dim);font-family:'Bebas Neue',sans-serif;font-size:0.62rem;
+  letter-spacing:3px;padding:8px 18px;cursor:pointer;border-radius:2px;transition:all 0.2s;
+}
+.wb-coach-locked-btn:hover{border-color:var(--gold);color:var(--gold-pale);}
+
+/* ── CELEBRATION TOAST ── */
+#wb-toast{
+  display:none;position:fixed;bottom:24px;right:24px;
+  background:linear-gradient(135deg,#1a1008,#0a0608);
+  border:1px solid var(--gold-bright);border-radius:4px;
+  padding:14px 20px;z-index:200;
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:2px;color:var(--gold-bright);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  animation:toastIn 0.3s ease;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div>
+    <div class="wb-logo">ZERO<span>2</span>BILLIONAIRES <span style="color:rgba(201,162,39,0.3)">·</span> ACTION WORKBOOK</div>
+    <div class="wb-tag">R200 Edition · No Coach Manlaw · Complete at Your Own Pace</div>
+  </div>
+  <div class="wb-progress-wrap">
+    <div class="wb-prog-track"><div class="wb-prog-fill" id="prog-fill"></div></div>
+    <div class="wb-prog-pct" id="prog-pct">0%</div>
+  </div>
+</div>
+
+<div id="shell">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-sec">Workbook Chapters</div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- COVER -->
+    <div class="wb-cover">
+      <div class="wb-cover-eyebrow">Zero2Billionaires · Official Action Workbook</div>
+      <div class="wb-cover-title">
+        <span class="l1">ACTION</span>
+        <span class="l2">WORKBOOK</span>
+      </div>
+      <div class="wb-cover-div"></div>
+      <div class="wb-cover-sub">Your chapter-by-chapter execution companion to the Zero2Billionaires eBook</div>
+      <div class="wb-cover-author">By Rev Mokoro Manana · Zero2Billionaires Legacy Builders</div>
+      <div class="wb-cover-note">
+        📌 <strong>How to use this workbook:</strong> Read each chapter in the flipbook first, then return here to complete your reflection questions, commitments, and actions. Your answers save automatically in your browser. Work at your own pace — there is no rush, only progress.
+        <br><br>
+        🔒 <strong>Coach Manlaw check-ins are available in the R500 Full System Upgrade.</strong>
+      </div>
+    </div>
+
+    <!-- WORKBOOK CHAPTERS — injected by JS -->
+    <div id="chapters-container"></div>
+
+  </div>
+</div>
+
+<div id="wb-toast"></div>
+
+<script>
+const WORKBOOK_DATA = [
+  {
+    id:'intro', num:'INT', section:'FRONT MATTER',
+    title:'Introduction', subtitle:'The Open Door',
+    scripture:'"For I know the plans I have for you… plans to give you hope and a future." — Jeremiah 29:11',
+    keyInsight:'This book is not in your hands by accident. It is part of your plan.',
+    questions:[
+      {q:'What made you pick up this book? What are you really hoping to change in your financial life?', hint:'Be honest. No one is watching.'},
+      {q:'What has stopped you from creating income outside your job before today?', hint:'Name the real reason — fear, time, knowledge, or something else?'},
+      {q:'Write one sentence describing the financial life you want to be living 12 months from today.', hint:'Make it specific. Not vague. A real picture.'},
+    ],
+    commit:'The knowledge I am about to receive is not just information — it is an open door. I choose to walk through it.',
+    action:'My first commitment to this journey is...'
+  },
+  {
+    id:'ch1', num:'01', section:'SECTION 1 — FOUNDATION',
+    title:'The Awakening', subtitle:'"The Moment You Realise It Was Never Just You"',
+    scripture:'"Before I formed you in the womb I knew you… I ordained you." — Jeremiah 1:5',
+    keyInsight:'That discomfort you have been feeling is not failure — it is purpose pressing against the boundaries of where you are.',
+    questions:[
+      {q:'Describe the moment you realised your current financial path is not working. When did it happen?', hint:'Was it a bill, a rejection, a quiet moment at night?'},
+      {q:'What question have you been avoiding asking yourself about your financial situation?', hint:'"Is this really my life or am I just surviving it?"'},
+      {q:'What is the one thing you now see differently about your situation after reading this chapter?', hint:'The problem was never your ability — it was your starting point.'},
+    ],
+    commit:'My awakening is intentional. My next step is not random — it is ordered.',
+    action:'Because of this chapter, I will stop telling myself...'
+  },
+  {
+    id:'ch2', num:'02', section:'SECTION 1 — FOUNDATION',
+    title:'Breaking the Salary Mindset', subtitle:'"Hard Work Alone Is Not the Solution"',
+    scripture:'"And you shall remember the Lord your God, for it is He who gives you power to get wealth…" — Deuteronomy 8:18',
+    keyInsight:'The power to create income was placed in you before you ever knew you needed it.',
+    questions:[
+      {q:'Which of the three salary mindset rules have you been living by? Work first get paid later / Time equals money / Security from one source.', hint:'Which one hits hardest and why?'},
+      {q:'What does "hard work without ownership" look like in your current life right now?', hint:'Think about where your effort goes every month and what it builds for YOU.'},
+      {q:'What would it look like if your job was simply a "temporary stability tool" — not your full financial strategy?', hint:'What would you do differently this week?'},
+    ],
+    commit:'I do not break the salary mindset by quitting my job. I break it by building something that exists without it.',
+    action:'This month I will start building...'
+  },
+  {
+    id:'ch3', num:'03', section:'SECTION 1 — FOUNDATION',
+    title:'The Identity Shift', subtitle:'"You Don't Build Income Beyond Who You Believe You Are"',
+    scripture:'"As a man thinks in his heart, so is he." — Proverbs 23:7',
+    keyInsight:'You must see yourself differently before your results can look different.',
+    questions:[
+      {q:'Which identity stage are you honestly at right now? Worker / Creator / Owner? Explain why.', hint:'No shame. Just truth. This is your starting point.'},
+      {q:'What is one belief about yourself that has kept you in the Worker identity longer than necessary?', hint:'Example: "I'm not tech-savvy" / "I don't know enough yet"'},
+      {q:'Write three sentences that describe who you are becoming — not who you have been.', hint:'Start each sentence with "I am..."'},
+    ],
+    commit:'I am not trying to become someone else. I am upgrading how I see myself.',
+    action:'One action I will take TODAY from my new identity is...'
+  },
+  {
+    id:'ch4', num:'04', section:'SECTION 1 — FOUNDATION',
+    title:'Thinking in Digital Assets', subtitle:'"The Modern Economy Rewards What You Build"',
+    scripture:'"A good man leaves an inheritance to his children's children…" — Proverbs 13:22',
+    keyInsight:'Your past is not wasted — it is raw material for your first digital asset.',
+    questions:[
+      {q:'Name 3 things you know, have experienced, or have done that other people struggle with.', hint:'Think skills, industries, life experience, problems you have solved.'},
+      {q:'If you could create ONE digital product from the list above — what would it be? Why?', hint:'A guide, checklist, template, mini-course, eBook on that topic.'},
+      {q:'What has stopped you from packaging your knowledge into a digital product before now?', hint:'Time? Doubt? Not knowing how? Be specific.'},
+    ],
+    commit:'What I build can outlive my effort. My knowledge has value beyond what I have been paid for it.',
+    action:'My digital asset idea right now is...'
+  },
+  {
+    id:'ch5', num:'05', section:'SECTION 1 — FOUNDATION',
+    title:'The Power of Ownership', subtitle:'"Stop Renting Your Income"',
+    scripture:'"Be fruitful and multiply; fill the earth and subdue it…" — Genesis 1:28',
+    keyInsight:'The moment you create something once that can be sold repeatedly — you step out of labor income and into ownership.',
+    questions:[
+      {q:'If you stopped working today — what in your life would still generate income? Be honest.', hint:'Most people answer: nothing. That is the problem this chapter solves.'},
+      {q:'What is the difference between how you currently earn and how you WANT to earn 2 years from now?', hint:'Think ownership vs labour. Assets vs time.'},
+      {q:'Write the description of your first digital product. What is it? Who is it for? What problem does it solve?', hint:'Use this: "A [format] that helps [person] to [outcome]"'},
+    ],
+    commit:'I am shifting from worker → creator → owner. It does not happen instantly — but it starts today.',
+    action:'My first ownership asset will be...'
+  },
+  {
+    id:'ch69', num:'06–09', section:'SECTION 2 — MARKET',
+    title:'Market & Positioning Clarity', subtitle:'"Who You Serve and What They Need"',
+    scripture:'"Let each of you look not only for his own interests, but also for the interests of others." — Philippians 2:4',
+    keyInsight:'Serve with clarity and your value will become clear.',
+    questions:[
+      {q:'Describe your ideal customer in one paragraph. Are they employed or unemployed? What keeps them up at night financially?', hint:'The more specific, the better your product will be.'},
+      {q:'What is the ONE real pain point your product solves? Not 5. Not 3. ONE.', hint:'Clarity of problem = clarity of solution.'},
+      {q:'Why is YOUR solution simpler or more accessible than what already exists?', hint:'You don't need to be the best in the world — just the most accessible for your person.'},
+    ],
+    commit:'I serve with clarity. I build for a specific person with a specific problem.',
+    action:'My customer is... and their biggest problem is...'
+  },
+  {
+    id:'ch1013', num:'10–13', section:'SECTION 3 — DIGITAL ESTATE',
+    title:'Build Your Digital Estate', subtitle:'"Your Income System Foundation"',
+    scripture:'"What is that in your hand?" — Exodus 4:2',
+    keyInsight:'Start with what you have. Build from there.',
+    questions:[
+      {q:'What does your Digital Estate look like 3 years from now? Name at least 3 digital products or income streams.', hint:'Think: eBooks, guides, courses, templates, memberships, coaching.'},
+      {q:'Write the full title of your first digital product using this formula: "How to help [person] solve [problem]"', hint:'This should feel real and specific — not generic.'},
+      {q:'What knowledge or skill qualifies you to create this product? You don't need a certificate — you need experience.', hint:'What have you done, survived, learned, or mastered?'},
+    ],
+    commit:'My Digital Estate begins with ONE product. Not ten. Not perfect. Just real.',
+    action:'I will start creating my first product by [date]...'
+  },
+  {
+    id:'ch1417', num:'14–17', section:'SECTION 3 — DIGITAL ESTATE',
+    title:'Create, Package & Sell', subtitle:'"From Idea to Your First Income"',
+    scripture:'"The worker deserves his wages." — Luke 10:7',
+    keyInsight:'Offer your value confidently and clearly. You deserve to be paid.',
+    questions:[
+      {q:'Write your product title, one-line promise, and 3 bullet points of what the buyer will receive.', hint:'This IS your product description — make it compelling.'},
+      {q:'What is your price? Why? (Do not underprice your value)', hint:'R50–R500 for a beginner digital product is realistic.'},
+      {q:'Write your full sales message using this template: "I have created a [format] that helps [person] to [outcome]. Price: R[X]. Message me START."', hint:'This is what you will actually send. Make it real.'},
+    ],
+    commit:'Selling is not begging. It is offering value to someone who needs it.',
+    action:'I will send my first offer to these 5 people: 1.__ 2.__ 3.__ 4.__ 5.__'
+  },
+  {
+    id:'ch1821', num:'18–21', section:'SECTION 4 — EMPIRE',
+    title:'Scale & Multiply', subtitle:'"How You Multiply Income Beyond Yourself"',
+    scripture:'"While the earth remains, seedtime and harvest… shall not cease." — Genesis 8:22',
+    keyInsight:'Build systems that allow your efforts to keep producing.',
+    questions:[
+      {q:'How can your first product be delivered automatically without you doing it manually each time?', hint:'Think: PDF download link, automated email, Gumroad, Payhip, etc.'},
+      {q:'What is your second product idea — even if rough? What comes after your first one?', hint:'Product 1 leads to Product 2. Product 2 leads to a system.'},
+      {q:'What would 10 sales per month of your first product mean for your life? Calculate it.', hint:'10 sales × R[price] = R[X] extra income. Write it out. Make it real.'},
+    ],
+    commit:'I am not just building a product. I am building a system that produces while I sleep.',
+    action:'My income system 6 months from now will include...'
+  },
+  {
+    id:'ch2225', num:'22–25', section:'SECTION 4 — EMPIRE',
+    title:'Community, Campaigns & Multiplication', subtitle:'"People Multiply Your Reach"',
+    scripture:'"Two are better than one…" — Ecclesiastes 4:9',
+    keyInsight:'Your network is your net worth in this journey.',
+    questions:[
+      {q:'Name 5 people in your network who would genuinely benefit from the Zero2Billionaires system.', hint:'Not just anyone — people who are hungry to change their financial situation.'},
+      {q:'What campaign can you run this week to put your product in front of more people?', hint:'A WhatsApp broadcast, Instagram post, Facebook group share, or email blast.'},
+      {q:'What community are you plugging into as part of your Z2B journey?', hint:'Community = accountability + reach + support. Are you in the Z2B group?'},
+    ],
+    commit:'I do not build alone. I grow through connection, collaboration, and community.',
+    action:'This week I will reach out to these 3 people about Z2B: 1.__ 2.__ 3.__'
+  },
+  {
+    id:'ch2627', num:'26–27', section:'SECTION 5 — LEGACY',
+    title:'Strategic Mediation & Systems', subtitle:'"You Don't Rise Alone"',
+    scripture:'"Your income grows to the level of your connections and corrections." — Z2B Wealth Equation',
+    keyInsight:'You are connected, guided, and positioned correctly when you understand mediation.',
+    questions:[
+      {q:'Name one person for each of the 5 Mediator roles in your life right now: Leader / Coach / Mentor / Sponsor / Companion.', hint:'If a role is empty — that is a gap to fill intentionally.'},
+      {q:'What ONE system can you build this month that earns without your daily presence?', hint:'An automated product delivery, a referral loop, a content pipeline.'},
+      {q:'Who do YOU mediate for? Who looks to you for direction, guidance, or connection?', hint:'Mediation flows both ways. At some point, you become the bridge.'},
+    ],
+    commit:'I do not rise by effort alone. I rise through strategic mediation — the right people, knowledge, networks, and systems.',
+    action:'The gap I will fill in my mediator network this month is...'
+  },
+  {
+    id:'ch2829', num:'28–29', section:'SECTION 5 — LEGACY',
+    title:'Ownership & Impact', subtitle:'"Building What Outlives You"',
+    scripture:'"We are blessed to be a blessing." — Zero2Billionaires Kingdom Mandate',
+    keyInsight:'Income is entry-level. Ownership is the real goal.',
+    questions:[
+      {q:'Write your 3-year ownership vision. What specific assets do you want to own?', hint:'Land, property, digital products, businesses — be specific about what you are building toward.'},
+      {q:'How does your business create impact beyond your own income? Who does it serve beyond you?', hint:'Jobs, communities, families, mentees — think bigger than yourself.'},
+      {q:'What does it mean for YOU to "live forever through what you build"?', hint:'What systems, products, or platforms will continue to serve people after you are gone?'},
+    ],
+    commit:'I do not just earn — I own. I do not just build for myself — I build for those who come after me.',
+    action:'The first asset I will acquire with my digital product income is...'
+  },
+  {
+    id:'ch30', num:'30', section:'🏆 BONUS',
+    title:'7-Day Challenge — Your Execution Worksheet', subtitle:'"From Zero to Your First Product in One Week"',
+    scripture:'"Well done, good and faithful servant… I will make you ruler over many things." — Matthew 25:21',
+    keyInsight:'Action creates clarity. Clarity creates income.',
+    questions:[
+      {q:'DAY 1 — Write your product idea: "How to help [person] solve [problem]"', hint:'One idea. Your first instinct. Write it now.'},
+      {q:'DAY 3 — After creating your content draft, write 3 key lessons your product teaches.', hint:'These become your sales bullet points.'},
+      {q:'DAY 7 — After making your first offer, write exactly what happened. Responses, questions, sales, silence.', hint:'Every outcome is data. Data creates growth.'},
+    ],
+    commit:'I take what I now know and act. Multiplication begins with what I do next.',
+    action:'I am committing to complete the 7-Day Challenge starting on [date]...'
+  },
+];
+
+const TOTAL = WORKBOOK_DATA.length;
+const completedSet = new Set(JSON.parse(localStorage.getItem('z2b_wb_done') || '[]'));
+
+function save() {
+  localStorage.setItem('z2b_wb_done', JSON.stringify([...completedSet]));
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = Math.round((completedSet.size / TOTAL) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  // Update sidebar checks
+  WORKBOOK_DATA.forEach(ch => {
+    const item = document.getElementById('sb-' + ch.id);
+    if (item) item.classList.toggle('done', completedSet.has(ch.id));
+  });
+}
+
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  let currentSec = '';
+  WORKBOOK_DATA.forEach(ch => {
+    if (ch.section !== currentSec) {
+      currentSec = ch.section;
+      const sec = document.createElement('div');
+      sec.className = 'sb-sec';
+      sec.textContent = ch.section;
+      sb.appendChild(sec);
+    }
+    const item = document.createElement('div');
+    item.className = 'sb-item' + (completedSet.has(ch.id) ? ' done' : '');
+    item.id = 'sb-' + ch.id;
+    item.innerHTML = `<div class="sb-num">${ch.num}</div><div class="sb-title">${ch.title}</div><div class="sb-check">${completedSet.has(ch.id)?'✓':''}</div>`;
+    item.onclick = () => document.getElementById('wbch-' + ch.id).scrollIntoView({behavior:'smooth', block:'start'});
+    sb.appendChild(item);
+  });
+}
+
+function buildChapters() {
+  const container = document.getElementById('chapters-container');
+  WORKBOOK_DATA.forEach(ch => {
+    const done = completedSet.has(ch.id);
+    const qhtml = ch.questions.map((qObj, i) => `
+      <div class="wb-question">
+        <div class="wb-q-text">Q${i+1}. ${qObj.q}</div>
+        ${qObj.hint ? `<div class="wb-q-hint">💡 ${qObj.hint}</div>` : ''}
+        <textarea class="wb-answer" id="ans-${ch.id}-${i}" placeholder="Write your answer here..."
+          onchange="saveAnswer('${ch.id}', ${i}, this.value)">${getAnswer(ch.id, i)}</textarea>
+      </div>`).join('');
+
+    const div = document.createElement('div');
+    div.className = 'wb-chapter';
+    div.id = 'wbch-' + ch.id;
+    div.innerHTML = `
+      <div class="wb-ch-header">
+        <div class="wb-ch-num-bg">${ch.num}</div>
+        <div class="wb-ch-eyebrow">Zero2Billionaires · Workbook · ${ch.section}</div>
+        <div class="wb-ch-title">${ch.title}</div>
+        <div class="wb-ch-subtitle">${ch.subtitle}</div>
+      </div>
+      <div class="wb-ch-body">
+        <div class="wb-scripture">
+          <div class="wb-scripture-text">${ch.scripture}</div>
+          <div class="wb-scripture-ref">Kingdom Anchor · Zero2Billionaires</div>
+        </div>
+        <div class="wb-section">
+          <div class="wb-section-label">💡 Key Insight to Carry</div>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-style:italic;color:var(--purple);line-height:1.65;padding:10px 14px;background:rgba(45,27,105,0.04);border-left:3px solid var(--purple);border-radius:0 3px 3px 0;">${ch.keyInsight}</p>
+        </div>
+        <div class="wb-section">
+          <div class="wb-section-label">✍️ Reflection Questions</div>
+          ${qhtml}
+        </div>
+        <div class="wb-commit">
+          <div class="wb-commit-label">🔑 My Commitment Declaration</div>
+          <div class="wb-commit-text">"${ch.commit}"</div>
+          <textarea class="wb-commit-action" id="act-${ch.id}" placeholder="${ch.action}"
+            onchange="saveAction('${ch.id}', this.value)">${getAction(ch.id)}</textarea>
+        </div>
+        <div class="wb-coach-locked">
+          <div class="lock-icon">⚡🔒</div>
+          <p>Coach Manlaw accountability check-in for this chapter is available in the Full System Upgrade. Coach Manlaw will review your answers, challenge your thinking, and push you to the next level.</p>
+          <button class="wb-coach-locked-btn" onclick="alert('Upgrade to R500 Full System to unlock Coach Manlaw check-ins.')">🔓 UPGRADE TO UNLOCK COACH MANLAW</button>
+        </div>
+        <div class="wb-done-wrap">
+          <button class="wb-done-btn ${done?'marked':''}" id="done-${ch.id}" onclick="markDone('${ch.id}')">
+            ${done ? '✅ CHAPTER COMPLETE' : '✅ MARK CHAPTER COMPLETE'}
+          </button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function getAnswer(chId, idx) {
+  const key = 'z2b_wb_ans_' + chId + '_' + idx;
+  return localStorage.getItem(key) || '';
+}
+function saveAnswer(chId, idx, val) {
+  localStorage.setItem('z2b_wb_ans_' + chId + '_' + idx, val);
+}
+function getAction(chId) {
+  return localStorage.getItem('z2b_wb_act_' + chId) || '';
+}
+function saveAction(chId, val) {
+  localStorage.setItem('z2b_wb_act_' + chId, val);
+}
+function markDone(chId) {
+  completedSet.add(chId);
+  save();
+  const btn = document.getElementById('done-' + chId);
+  btn.textContent = '✅ CHAPTER COMPLETE';
+  btn.classList.add('marked');
+  const sbItem = document.getElementById('sb-' + chId);
+  if (sbItem) { sbItem.classList.add('done'); sbItem.querySelector('.sb-check').textContent = '✓'; }
+  showToast('Chapter complete! Keep building. 🔥');
+}
+function showToast(msg) {
+  const t = document.getElementById('wb-toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+buildSidebar();
+buildChapters();
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zero2Billionaires — Audio Reader</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#080608;--deep:#0f0d18;--purple:#2d1b69;--purple-mid:#3d2285;
+  --purple-light:#5a35b8;--gold:#c9a227;--gold-bright:#f0c040;
+  --gold-pale:#e8d48b;--gold-dim:#5a4510;--white:#f5f0e8;
+  --cream:#faf6ee;--text:#1a1208;--card:#14111f;--scripture:#1a1030;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--black);font-family:'Lato',sans-serif;color:var(--white);overflow:hidden;}
+
+/* ── SHELL ── */
+#shell{display:flex;flex-direction:column;height:100vh;}
+
+/* ── TOPBAR ── */
+#topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:var(--black);
+  border-bottom:1px solid rgba(201,162,39,0.2);flex-shrink:0;position:relative;
+}
+.ar-logo{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--gold-bright);}
+.ar-logo-sub{font-size:0.55rem;letter-spacing:2px;color:var(--gold-dim);font-family:'Bebas Neue',sans-serif;}
+.ar-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:3px;
+  padding:4px 12px;border:1px solid rgba(201,162,39,0.3);
+  color:var(--gold-dim);border-radius:2px;
+}
+#topbar-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(201,162,39,0.1);}
+#topbar-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));transition:width 0.4s;}
+
+/* ── MAIN ── */
+#main{display:flex;flex:1;overflow:hidden;}
+
+/* ── CHAPTER SIDEBAR ── */
+#sidebar{
+  width:220px;flex-shrink:0;background:#060408;
+  border-right:1px solid rgba(201,162,39,0.1);
+  overflow-y:auto;padding:12px 0;
+}
+#sidebar::-webkit-scrollbar{width:3px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+.sb-sec{font-family:'Bebas Neue',sans-serif;font-size:0.55rem;letter-spacing:3px;color:var(--gold-dim);padding:12px 14px 4px;}
+.sb-ch{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;
+  cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;
+}
+.sb-ch:hover{background:rgba(201,162,39,0.04);border-left-color:var(--gold-dim);}
+.sb-ch.active{background:rgba(201,162,39,0.1);border-left-color:var(--gold-bright);}
+.sb-ch.played{border-left-color:rgba(42,122,58,0.5);}
+.sb-num{font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--gold-dim);min-width:22px;}
+.sb-ch.active .sb-num{color:var(--gold-bright);}
+.sb-label{font-size:0.68rem;color:rgba(255,255,255,0.35);line-height:1.3;flex:1;}
+.sb-ch.active .sb-label{color:var(--gold-pale);}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:rgba(42,122,58,0.6);flex-shrink:0;display:none;}
+.sb-ch.played .sb-dot{display:block;}
+
+/* ── READER AREA ── */
+#reader-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── NOW PLAYING CARD ── */
+#now-playing{
+  background:linear-gradient(135deg,var(--purple) 0%,var(--purple-mid) 55%,var(--black) 100%);
+  padding:20px 28px 16px;flex-shrink:0;position:relative;overflow:hidden;
+}
+#now-playing::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));}
+.np-section{font-family:'Bebas Neue',sans-serif;font-size:0.58rem;letter-spacing:3px;color:var(--gold-dim);margin-bottom:3px;}
+.np-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:4px;line-height:1.2;}
+.np-sub{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-style:italic;color:var(--gold-pale);}
+.np-ghost{
+  position:absolute;right:20px;top:8px;font-family:'Bebas Neue',sans-serif;
+  font-size:5.5rem;color:rgba(255,255,255,0.04);line-height:1;letter-spacing:-2px;
+}
+
+/* ── PLAYER CONTROLS ── */
+#player-controls{
+  background:#0a0810;border-bottom:1px solid rgba(201,162,39,0.12);
+  padding:14px 28px;flex-shrink:0;
+}
+.progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.time-label{font-family:'Bebas Neue',sans-serif;font-size:0.7rem;color:var(--gold-dim);min-width:36px;}
+#progress-bar-wrap{
+  flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;
+  cursor:pointer;position:relative;
+}
+#progress-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:3px;transition:width 0.1s;width:0%;}
+#progress-thumb{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:14px;height:14px;border-radius:50%;background:var(--gold-bright);
+  border:2px solid var(--black);box-shadow:0 0 6px rgba(240,192,64,0.5);
+  left:0%;transition:left 0.1s;cursor:grab;
+}
+.controls-row{display:flex;align-items:center;gap:16px;}
+.ctrl-btn{
+  background:none;border:none;cursor:pointer;color:var(--gold-pale);
+  font-size:1.2rem;transition:all 0.15s;padding:4px;
+}
+.ctrl-btn:hover{color:var(--gold-bright);transform:scale(1.1);}
+#btn-play-pause{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  border:none;cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;box-shadow:0 4px 16px rgba(201,162,39,0.3);
+  color:var(--black);flex-shrink:0;
+}
+#btn-play-pause:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(201,162,64,0.4);}
+.speed-wrap{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.speed-label{font-family:'Bebas Neue',sans-serif;font-size:0.58rem;letter-spacing:2px;color:var(--gold-dim);}
+.speed-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:0.65rem;letter-spacing:1px;
+  padding:4px 8px;border:1px solid rgba(201,162,39,0.2);
+  background:none;color:var(--gold-dim);cursor:pointer;border-radius:2px;transition:all 0.15s;
+}
+.speed-btn.active{background:rgba(201,162,39,0.15);border-color:var(--gold);color:var(--gold-bright);}
+.voice-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.voice-label{font-family:'Bebas Neue',sans-serif;font-size:0.58rem;letter-spacing:2px;color:var(--gold-dim);}
+#voice-select{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:var(--gold-pale);font-family:'Lato',sans-serif;font-size:0.78rem;
+  padding:4px 10px;border-radius:2px;cursor:pointer;flex:1;max-width:220px;
+}
+#voice-select option{background:var(--deep);color:var(--white);}
+
+/* ── READ-ALONG TEXT ── */
+#text-area{
+  flex:1;overflow-y:auto;padding:24px 28px 32px;
+  background:var(--deep);
+}
+#text-area::-webkit-scrollbar{width:5px;}
+#text-area::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
+
+.sentence{
+  font-family:'Lato',sans-serif;font-size:0.92rem;line-height:1.9;
+  color:rgba(255,255,255,0.45);display:inline;
+  padding:1px 2px;border-radius:2px;
+  transition:color 0.3s,background 0.3s;cursor:pointer;
+}
+.sentence:hover{color:rgba(255,255,255,0.7);}
+.sentence.active{
+  color:var(--white);background:rgba(201,162,39,0.18);
+  border-radius:3px;padding:1px 4px;
+}
+.sentence.spoken{color:rgba(255,255,255,0.6);}
+
+/* Para spacers */
+.para-break{display:block;height:14px;}
+
+/* Scripture block inside text */
+.audio-scripture{
+  display:block;background:var(--scripture);
+  border-left:3px solid var(--gold);border-radius:0 4px 4px 0;
+  padding:12px 16px;margin:14px 0;
+}
+.audio-scripture .scr-bridge{font-size:0.78rem;color:var(--gold-dim);margin-bottom:6px;display:block;}
+.audio-scripture .scr-verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:var(--gold-pale);display:block;margin-bottom:4px;}
+.audio-scripture .scr-ref{font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:3px;color:var(--gold-dim);display:block;margin-bottom:6px;}
+.audio-scripture .scr-app{font-size:0.8rem;color:rgba(255,255,255,0.5);font-style:italic;display:block;}
+
+/* Chapter end divider */
+.ch-divider{
+  display:flex;align-items:center;gap:12px;
+  margin:28px 0 20px;
+}
+.ch-divider-line{flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent);}
+.ch-divider-text{font-family:'Bebas Neue',sans-serif;font-size:0.58rem;letter-spacing:3px;color:var(--gold-dim);white-space:nowrap;}
+
+/* ── KEYBOARD HINT ── */
+#kbd-hint{
+  padding:6px 28px;background:rgba(0,0,0,0.3);flex-shrink:0;
+  display:flex;gap:18px;border-top:1px solid rgba(255,255,255,0.04);
+}
+.kbd-item{display:flex;align-items:center;gap:5px;font-size:0.62rem;color:rgba(255,255,255,0.2);}
+.kbd{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
+  padding:1px 5px;border-radius:2px;font-size:0.55rem;color:rgba(255,255,255,0.3);}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  #sidebar{display:none;}
+  #now-playing{padding:14px 16px 12px;}
+  #player-controls{padding:10px 16px;}
+  #text-area{padding:16px 16px 24px;}
+  #kbd-hint{display:none;}
+}
+</style>
+</head>
+<body>
+<div id="shell">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div>
+      <div class="ar-logo">ZERO2BILLIONAIRES</div>
+      <div class="ar-logo-sub">Audio Reader · Paid Edition · Rev Mokoro Manana</div>
+    </div>
+    <div class="ar-badge">🎧 AUDIO READER</div>
+    <div id="topbar-progress"><div id="topbar-progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" id="sidebar"></div>
+
+    <!-- READER AREA -->
+    <div id="reader-area">
+
+      <!-- NOW PLAYING -->
+      <div id="now-playing">
+        <div class="np-ghost" id="np-ghost">INT</div>
+        <div class="np-section" id="np-section">Zero2Billionaires · Audio Reader</div>
+        <div class="np-title" id="np-title">Introduction</div>
+        <div class="np-sub" id="np-sub">The Open Door</div>
+      </div>
+
+      <!-- PLAYER CONTROLS -->
+      <div id="player-controls">
+        <!-- Progress -->
+        <div class="progress-wrap">
+          <span class="time-label" id="time-current">0:00</span>
+          <div id="progress-bar-wrap">
+            <div id="progress-bar"></div>
+            <div id="progress-thumb"></div>
+          </div>
+          <span class="time-label" id="time-total">0:00</span>
+        </div>
+        <!-- Controls Row -->
+        <div class="controls-row">
+          <button class="ctrl-btn" id="btn-prev" onclick="prevChapter()" title="Previous chapter">⏮</button>
+          <button class="ctrl-btn" onclick="skipBack()" title="Back 10s">⏪</button>
+          <button id="btn-play-pause" onclick="togglePlay()">▶</button>
+          <button class="ctrl-btn" onclick="skipForward()" title="Forward 10s">⏩</button>
+          <button class="ctrl-btn" id="btn-next" onclick="nextChapter()" title="Next chapter">⏭</button>
+          <div class="speed-wrap">
+            <span class="speed-label">SPEED</span>
+            <button class="speed-btn" onclick="setSpeed(0.75)">0.75×</button>
+            <button class="speed-btn active" onclick="setSpeed(1)">1×</button>
+            <button class="speed-btn" onclick="setSpeed(1.25)">1.25×</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5×</button>
+            <button class="speed-btn" onclick="setSpeed(2)">2×</button>
+          </div>
+        </div>
+        <!-- Voice Row -->
+        <div class="voice-wrap">
+          <span class="voice-label">🎙 VOICE</span>
+          <select id="voice-select" onchange="changeVoice()">
+            <option value="">Loading voices…</option>
+          </select>
+          <button class="speed-btn" onclick="testVoice()" style="white-space:nowrap">TEST ▶</button>
+        </div>
+      </div>
+
+      <!-- READ-ALONG TEXT -->
+      <div id="text-area"></div>
+
+      <!-- KEYBOARD HINTS -->
+      <div id="kbd-hint">
+        <div class="kbd-item"><span class="kbd">Space</span> Play / Pause</div>
+        <div class="kbd-item"><span class="kbd">←</span> Back 10s</div>
+        <div class="kbd-item"><span class="kbd">→</span> Forward 10s</div>
+        <div class="kbd-item"><span class="kbd">[</span> Prev Chapter</div>
+        <div class="kbd-item"><span class="kbd">]</span> Next Chapter</div>
+        <div class="kbd-item"><span class="kbd">+</span> Speed Up</div>
+        <div class="kbd-item"><span class="kbd">-</span> Speed Down</div>
+      </div>
+    </div><!-- /reader-area -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER DATA
+// ═══════════════════════════════════════════════════════════════
+const CHAPTERS = [
+{
+  id:'intro', num:'INT', section:'FRONT MATTER',
+  title:'Introduction', sub:'The Open Door',
+  paragraphs:[
+    'For most people, life feels like a cycle: work a job that barely covers expenses, look for opportunities that never come, feel stuck between survival and uncertainty.',
+    'The real problem is not lack of effort. The real problem is lack of access to a simple, practical starting point for income creation.',
+    'We are living in a new economy. A world where you do not need a physical shop to sell, a degree to create value, or a big audience to earn income. Income is now created through digital products, simple systems, and AI-powered tools.',
+    'The biggest gap in society today is not education. It is execution knowledge. People know they need more income — but they do not know where to start simply, safely, and realistically. This book closes that gap.',
+    {type:'scripture', bridge:'What has been withheld from most people is not ability — it is access to a starting point that actually works. You were not created to wander without direction.', verse:'"My people are destroyed for lack of knowledge…"', ref:'— Hosea 4:6', app:'The knowledge you are about to receive is not just information. It is an open door.'},
+    'Zero2Billionaires is not designed to inspire you only. It is designed to guide you into action. It will show you how to shift your thinking, create digital products using AI, and move from consuming information to creating income.',
+    'Inside this book, you will be guided through The 7-Day First Digital Product Challenge — a step-by-step process to create your first digital product and attempt to sell it. In 7 days, you move from reader to creator.',
+    {type:'scripture', bridge:'You were not designed to remain at the starting line. What has been placed inside you was always meant to become more than you imagined.', verse:'"Now to Him who is able to do exceedingly abundantly above all that we ask or think, according to the power that works in us…"', ref:'— Ephesians 3:20', app:'What you are about to build was already prepared for you. Step in.'},
+    'Welcome to Zero2Billionaires — not as a dream, but as a starting point. From Salary Struggles or No Income, to Building a Digital Estate That Creates and Sells AI-Powered Digital Products.',
+  ]
+},
+{
+  id:'ch1', num:'01', section:'SECTION 1 — FOUNDATION',
+  title:'The Awakening', sub:'"The Moment You Realise It Was Never Just You"',
+  paragraphs:[
+    'There is a moment in almost everyone\'s life that nobody talks about. It usually happens quietly — not in public, not in celebration.',
+    'It happens late at night after checking your bank balance, or on your way to work when you realise nothing is changing, or when you sit alone and ask yourself: "Is this really my life… or am I just surviving it?"',
+    'And in that moment, something uncomfortable begins to surface. Not failure. Not laziness. But awareness.',
+    'If you are reading this book while feeling stuck financially, there is something important you need to understand: you are not alone. Millions of people wake up every day and still feel like they are running in circles. Not because they are incapable. But because they were never shown a simple starting point for building income outside the system they depend on.',
+    'But then a frustration builds. A question appears: "There must be another way." Not a perfect way. Not an overnight way. But a simple starting point that does not require permission, capital, or status. That question is the awakening.',
+    {type:'scripture', bridge:'Every great turning point begins not with a plan, but with a question. That discomfort you have been feeling is not failure — it is purpose pressing against the boundaries of where you are.', verse:'"Before I formed you in the womb I knew you… I ordained you."', ref:'— Jeremiah 1:5', app:'You were not created to stay asleep to your potential. The awakening you are experiencing right now is intentional.'},
+    'This book is not here to motivate you. It is here to redirect you. In today\'s world, income is no longer limited to jobs, degrees, or physical businesses. A new reality exists — one where ordinary people can create income using digital products, simple systems, and AI-powered tools. But only if they start.',
+    {type:'scripture', bridge:'Starting is an act of faith. It requires you to move before everything is clear, before everything is perfect, and before everyone agrees.', verse:'"Faith is the substance of things hoped for, the evidence of things not yet seen."', ref:'— Hebrews 11:1', app:'You do not need the full picture to take the first step. You only need enough light for the step in front of you.'},
+    {type:'scripture', bridge:'What is awakening inside you right now is not an accident. It is alignment.', verse:'"The steps of a good man are ordered by the Lord…"', ref:'— Psalm 37:23', app:'Your next step is not random. It is ordered.'},
+    'Welcome to Zero2Billionaires — not as a dream, but as a starting point. From salary dependence and uncertainty… to building simple digital income systems that you control.',
+  ]
+},
+{
+  id:'ch2', num:'02', section:'SECTION 1 — FOUNDATION',
+  title:'Breaking the Salary Mindset', sub:'"Why Hard Work Alone Is Not the Solution"',
+  paragraphs:[
+    'You wake up early. You show up on time. You work hard. And still… something does not change.',
+    'The money comes in, but it disappears just as fast. The effort is real, but the progress feels invisible. The responsibility increases, but the freedom does not.',
+    'And slowly, without you noticing, something dangerous begins to form: you start believing that this is normal.',
+    {type:'scripture', bridge:'What feels normal is not always what is true. Generations of people have accepted limitation not because it is their destiny — but because no one showed them a different way.', verse:'"Do not conform to the pattern of this world, but be transformed by the renewing of your mind…"', ref:'— Romans 12:2', app:'Your mind is the first thing that must change before your income can.'},
+    'A salary is not evil. A job is not the enemy. But the mindset built around it can quietly become a limitation. The salary mindset teaches you three silent rules: work first, get paid later; time equals money; security comes from one source.',
+    'On the surface, this sounds responsible. But underneath, it creates dependence — because your income is tied to one employer, one schedule, one system you do not control.',
+    'Hard work without ownership does not automatically create freedom. Many people are working harder every year… but still living the same financial life. Not because they are failing — but because they are using a system designed for stability, not scale.',
+    {type:'scripture', bridge:'Effort without structure produces exhaustion. Effort with ownership produces increase. You were not created to labour without inheritance.', verse:'"A good man leaves an inheritance to his children\'s children…"', ref:'— Proverbs 13:22', app:'The goal is not just to work harder. The goal is to build something that remains.'},
+    'What if your job was never meant to be your only income source? What if it was simply a starting point, a learning environment, a temporary stability tool — but not your full financial strategy?',
+    'You do not break the salary mindset by quitting your job. You break it by building something that can exist without your job.',
+    {type:'scripture', bridge:'This shift — from relying to creating — is not just a business decision. It is a Kingdom mindset. You were given the ability to produce, not merely to receive.', verse:'"And you shall remember the Lord your God, for it is He who gives you power to get wealth…"', ref:'— Deuteronomy 8:18', app:'The power to create income was placed in you before you ever knew you needed it.'},
+    'From relying on income… to creating income. That is where transformation begins.',
+  ]
+},
+{
+  id:'ch3', num:'03', section:'SECTION 1 — FOUNDATION',
+  title:'The Identity Shift', sub:'"You Don\'t Build Income Beyond Who You Believe You Are"',
+  paragraphs:[
+    'Most people think their financial situation is the problem. But the deeper truth is this: your income rarely rises beyond your identity. Not your dreams. Not your goals. Your identity.',
+    'The way you see yourself quietly determines what you believe is possible, what you attempt, what you stop before finishing, and what you never even try.',
+    'Many people want more income, better opportunities, financial freedom — but they still see themselves as just an employee or someone waiting for a break.',
+    'You cannot build a new financial life using an old identity.',
+    {type:'scripture', bridge:'Identity is the foundation of everything that follows. What you believe about yourself determines what you attempt, what you complete, and what you walk away from.', verse:'"As a man thinks in his heart, so is he."', ref:'— Proverbs 23:7', app:'You must see yourself differently before your results can look different.'},
+    'There are three identities that define your financial future. Stage one: the Worker Identity — I exchange time for money. Stage two: the Creator Identity — I can create value that people will pay for. Stage three: the Owner Identity — I build systems that generate income beyond my direct effort.',
+    'The shift is not technical. It is emotional. Because identity change requires letting go of comfort, accepting uncertainty, and trying something new without guarantees.',
+    'You do not become a creator first — you become a creator by creating. Your first digital product is not just a product. It is proof that your identity is shifting.',
+    {type:'scripture', bridge:'Transformation begins when identity changes — what you consistently do flows from who you believe you are. You were not created to remain in one form, but to grow into greater capacity.', verse:'"Be transformed by the renewing of your mind…"', ref:'— Romans 12:2', app:'Change who you see yourself as, and your actions will follow.'},
+    {type:'scripture', bridge:'The person you are becoming through this process is not a stranger — it is the version of you that was always meant to emerge.', verse:'"Therefore, if anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new."', ref:'— 2 Corinthians 5:17', app:'You are not just changing a mindset. You are stepping into the fullness of who you were created to be.'},
+    'You will never permanently change your income without first changing your identity. You do not rise to the level of your goals. You fall or rise to the level of your identity.',
+  ]
+},
+{
+  id:'ch4', num:'04', section:'SECTION 1 — FOUNDATION',
+  title:'Thinking in Digital Assets', sub:'"The Modern Economy Rewards What You Build"',
+  paragraphs:[
+    'Most people are not poor because they do not work. They are poor because everything they earn depends on their presence. If they stop working — income stops.',
+    'A digital asset is something you create once that can be sold repeatedly, accessed online, and generate value without your constant presence.',
+    'Examples include eBooks, guides, templates, online courses, AI-assisted content products. Unlike a job where you are paid for time — a digital asset pays you for what you already created.',
+    {type:'scripture', bridge:'What is built with intention has the ability to produce beyond the moment it was created. True increase comes from what continues to give, not what is consumed once.', verse:'"A good man leaves an inheritance…"', ref:'— Proverbs 13:22', app:'Focus on building what remains and continues to produce.'},
+    'Your past experience is not wasted — it is raw material. You already have something valuable. Even if you do not see it yet.',
+    'If you begin thinking in digital assets — you start measuring your value by what you build. And what you build can outlive your effort. That is creation freedom.',
+  ]
+},
+{
+  id:'ch5', num:'05', section:'SECTION 1 — FOUNDATION',
+  title:'The Power of Ownership', sub:'"Stop Renting Your Income"',
+  paragraphs:[
+    'If you stopped working today… what would still be earning you money?',
+    'For most people, the honest answer is: nothing. And that is not a motivation problem. It is an ownership problem.',
+    {type:'scripture', bridge:'Dominion begins where responsibility is accepted. What you do not own, you cannot fully control or multiply.', verse:'"Be fruitful and multiply; fill the earth and subdue it…"', ref:'— Genesis 1:28', app:'Take ownership of what you build, so you can grow it.'},
+    'Ownership does not start with a company or a large investment. It starts with your first digital product.',
+    'Because the moment you create something once that can be sold repeatedly — you step out of pure labor income and into ownership thinking.',
+    'The moment you create even one digital asset that can be sold repeatedly, you begin to shift from worker to creator to owner. Not instantly. But permanently.',
+  ]
+},
+{
+  id:'ch6', num:'06', section:'SECTION 2 — MARKET',
+  title:'Defining Your Customer', sub:'"Speak Clearly to Someone"',
+  paragraphs:[
+    'If you try to sell to everyone… you sell to no one. Not because your idea is bad. But because your message becomes too vague to connect.',
+    'Before you create a digital product — you must answer one question clearly: who am I helping? Because income is not created from products. Income is created from understanding a specific person\'s pain.',
+    'Customer one: the Salary Struggler. Employed, but financially stressed. Earns a salary that disappears too quickly. Core pain: they depend on one income source that cannot grow with their needs.',
+    'Customer two: the Unemployed but Hungry Individual. Not formally employed. Motivated but unsure where to start. Core pain: they lack a starting point to create income independently.',
+    {type:'scripture', bridge:'Purpose is always connected to people. What you are building is not for everyone, but for those you are assigned to serve.', verse:'"Let each of you look not only for his own interests, but also for the interests of others."', ref:'— Philippians 2:4', app:'Serve with clarity, and your value will become clear.'},
+    'You are not building for everyone. You are building for the person struggling with salary pressure and the person trying to start from nothing. When you speak directly to them — your message becomes powerful enough to convert attention into action.',
+  ]
+},
+{
+  id:'ch7', num:'07', section:'SECTION 2 — MARKET',
+  title:'Understanding Real Pain Points', sub:'"People Buy Relief From Pain"',
+  paragraphs:[
+    'Nobody wakes up wanting a digital product. People wake up with problems — financial stress, uncertainty about income, fear of the future, feeling stuck with no direction.',
+    'Every buying decision in the world is driven by one thing: pain that needs relief or a desire that needs fulfilment.',
+    'The Salary Struggler feels constant financial pressure before month-end, fear of unexpected expenses, feeling trapped in a cycle they cannot escape. Core pain: financially active but economically stuck.',
+    'The Unemployed Individual feels dependence on others, loss of confidence over time, feeling forgotten or left behind. Core pain: willing but directionless.',
+    {type:'scripture', bridge:'True solutions begin with seeing beyond the surface. When you understand the real need, you position yourself to bring meaningful change.', verse:'"Hope deferred makes the heart sick…"', ref:'— Proverbs 13:12', app:'Solve real problems, and your work will carry real value.'},
+    'You are not selling information. You are selling relief from struggle. The deeper you understand your customer\'s pain… the easier it becomes to create something they will actually buy.',
+  ]
+},
+{
+  id:'ch8', num:'08', section:'SECTION 2 — MARKET',
+  title:'The Digital Opportunity Gap', sub:'"Why Most People Are Still Missing It"',
+  paragraphs:[
+    'We live in a time where anyone can create and sell online. Anyone can access global markets. Anyone can use powerful tools like AI.',
+    'And yet… millions of people still feel stuck, excluded, left behind. This is not because opportunity does not exist. It is because of the Digital Opportunity Gap.',
+    'It is the gap between people who understand how to use digital tools to create income, and people who are still waiting for traditional opportunities to come to them.',
+    'This gap exists for three reasons: lack of simplicity — most online information is too complex. Information overload — too many strategies create paralysis. Fear of starting wrong — people wait, prepare, delay. And opportunity passes quietly.',
+    {type:'scripture', bridge:'Opportunities exist, but they are not always recognized. What is available must be seen before it can be accessed.', verse:'"My people are destroyed for lack of knowledge…"', ref:'— Hosea 4:6', app:'Seek understanding so you can step into what is already available.'},
+    'Opportunity is no longer limited. Access is no longer restricted. The only difference now is: who chooses to act… and who continues to wait.',
+  ]
+},
+{
+  id:'ch9', num:'09', section:'SECTION 2 — MARKET',
+  title:'Why Simplicity Wins', sub:'"Start the Simplest"',
+  paragraphs:[
+    'Most people are not failing because they lack intelligence. They are failing because everything they try feels too complicated, too technical, too overwhelming.',
+    'The digital world creates a dangerous illusion: I need to understand everything before I start anything. So people watch tutorials, take courses, follow experts — but never build anything real.',
+    {type:'scripture', bridge:'Clarity brings progress, but confusion delays action. What is simple can be repeated, and what is repeated produces results.', verse:'"God is not the author of confusion…"', ref:'— 1 Corinthians 14:33', app:'Keep your process clear so you can move consistently.'},
+    'Simplicity removes fear — when something feels simple, it feels possible. It creates momentum — small actions lead to visible progress. It builds confidence — completion creates belief faster than learning.',
+    'Your goal is not to build a perfect system. Your goal is to get your first win. Your first idea, product, offer, attempt at selling. Because that first win proves: this is possible for me.',
+    'You do not need more information. You need simple action that leads to real experience. Simplicity creates speed. Speed creates experience. Experience creates income.',
+  ]
+},
+{
+  id:'ch1013', num:'10–13', section:'SECTION 3 — DIGITAL ESTATE',
+  title:'Build Your Digital Estate', sub:'"Own Systems That Produce Income"',
+  paragraphs:[
+    'A Digital Estate is not a website. It is not a social media page. A Digital Estate is a collection of digital assets and simple systems that work together to create and generate income for you — repeatedly.',
+    'Your first Digital Estate has three simple parts: value — your digital product that solves a problem; access — a simple way for people to receive your product; exchange — the moment value is exchanged for money. That is your first system.',
+    {type:'scripture', bridge:'What is established with structure can continue beyond your presence. True building creates something that stands and produces over time.', verse:'"The wise man built his house on the rock…"', ref:'— Matthew 7:24', app:'Build with structure so what you create can last.'},
+    'A digital product is just information or a solution packaged in a format people can access online. No complexity. No hidden system. Just value, packaged simply.',
+    'You do not need to be an expert. You only need to be one step ahead of someone else. If you can explain something clearly, help someone solve a small problem, simplify something confusing — you can create a digital product.',
+    'Your first idea will come from what you know, what you\'ve experienced, or what you\'ve solved. Use the formula: "How to help a specific person solve a specific problem in a simple way."',
+    {type:'scripture', bridge:'Everything begins with what is already within reach. You do not need everything — just the willingness to use what you have.', verse:'"What is that in your hand?"', ref:'— Exodus 4:2', app:'Start with what you have, and build from there.'},
+    'A Digital Estate does not begin when everything is perfect. It begins when you decide: I will create something simple that someone can pay for. And then you do it.',
+  ]
+},
+{
+  id:'ch1417', num:'14–17', section:'SECTION 3 — DIGITAL ESTATE',
+  title:'Create, Package & Sell', sub:'"From Idea to Income"',
+  paragraphs:[
+    'AI removes the biggest barrier in creation: time and complexity. AI does not replace your thinking — it enhances it.',
+    'The five-step creation process: first, clear your idea. Second, ask AI to structure it — "Create a simple step-by-step guide outline for my idea for beginners." Third, expand each section. Fourth, simplify and personalise. Fifth, format your product as a PDF guide or eBook, five to fifteen pages.',
+    {type:'scripture', bridge:'Tools increase capacity, but they do not replace responsibility. What you produce still depends on your intention and direction.', verse:'"The plans of the diligent lead surely to plenty…"', ref:'— Proverbs 21:5', app:'Use tools wisely, but remain intentional in what you build.'},
+    'Packaging your product: your title must clearly state who it is for and what problem it solves. Your promise states what result the customer will get. Your solution lists what is inside, kept simple. Your format tells them what they receive.',
+    'You can have a great product and still make zero sales — not because the product is bad, but because it is not packaged in a way people can understand quickly.',
+    'Selling is simply making an offer. You are not begging people. You are not disturbing people. You are offering a solution to someone who already has a problem.',
+    {type:'scripture', bridge:'Exchange is part of provision — value is given, and value is received. When what you offer helps others, there is no need for hesitation.', verse:'"The worker deserves his wages."', ref:'— Luke 10:7', app:'Offer your value confidently and clearly.'},
+    'Your first sales system has three simple steps: attention — let people know your product exists. Interest — explain clearly who it is for and what problem it solves. Action — tell them exactly what to do next. Send me a message or comment "START."',
+    'You do not need a perfect system to make money. You need a simple product, a clear message, a direct offer, and the courage to act.',
+  ]
+},
+{
+  id:'ch1821', num:'18–21', section:'SECTION 4 — EMPIRE',
+  title:'Scale & Multiply', sub:'"How You Multiply Income Beyond Yourself"',
+  paragraphs:[
+    'Your first digital product is not your business. It is the seed of your Digital Estate. One product becomes improved, expanded, multiplied — not by doing everything at once, but by growing step by step.',
+    'If your system depends entirely on your time — it cannot scale. The shift is from manual effort to assisted execution to automated flow. If you repeat something more than twice — systemise it.',
+    {type:'scripture', bridge:'Wisdom seeks ways to multiply effort without increasing strain. What can be structured once should not require rebuilding every time.', verse:'"The wise store up knowledge…"', ref:'— Proverbs 10:14', app:'Build in a way that preserves and multiplies your effort.'},
+    'Your repeatable income system has three parts: a clear offer that solves one problem; a consistent message — one clear message repeated consistently; and a simple sales flow — where people see your offer, how they respond, how they receive the product.',
+    'Distribution is simply visibility with intention. Most people spend eighty percent of time creating and twenty percent showing. But results come from the opposite. Visibility creates opportunity. Opportunity creates income.',
+    {type:'scripture', bridge:'What is meant to bring value must not remain hidden. Visibility is part of impact.', verse:'"No one lights a lamp and puts it under a basket…"', ref:'— Matthew 5:15', app:'Make what you build visible so it can serve others.'},
+    'You do not build wealth by doing many things once. You build wealth by doing one thing, improving it, and turning it into a system.',
+  ]
+},
+{
+  id:'ch2225', num:'22–25', section:'SECTION 4 — EMPIRE',
+  title:'Community, Campaigns & Multiplication', sub:'"People Multiply What Systems Begin"',
+  paragraphs:[
+    'Growth does not explode because of effort alone. It expands when other people begin to participate. Community is a group of people moving in the same direction with shared value.',
+    'When someone benefits from your product, they can recommend it, share it, introduce others. This creates organic growth. Trust multiplies through people faster than marketing.',
+    'Income Thinking asks: how do I make money today? Wealth Thinking asks: what can I build that produces money repeatedly? Start asking: can this be reused? Can this work without me every time?',
+    {type:'scripture', bridge:'Multiplication is the natural outcome of what is structured and sustained. What is built correctly will increase beyond its starting point.', verse:'"And God blessed them, and God said to them, Be fruitful and multiply…"', ref:'— Genesis 1:28', app:'Build with multiplication in mind from the beginning.'},
+    'Campaigns create momentum. There are times to act with focus and intensity. When effort is concentrated, results accelerate. Recognize your moment and move with intention.',
+    'Systems multiply effort. One product reaches many. One message reaches many. One system serves many. You are not just building income — you are engineering multiplication.',
+    'Income is what you make. Wealth is what continues without you. Alone you can earn. Together you can expand. Through systems — you can multiply.',
+  ]
+},
+{
+  id:'ch2629', num:'26–29', section:'SECTION 5 — LEGACY',
+  title:'Strategic Mediation, Systems, Ownership & Impact', sub:'"You Don\'t Rise Alone — Build What Outlives You"',
+  paragraphs:[
+    'No one rises alone. Behind every visible breakthrough is an invisible system of connections, corrections, and interventions.',
+    'The four levels of strategic mediation: knowledge mediators — books, courses, education that transforms your mindset. Human mediators — leaders who show the map, coaches who navigate with you, mentors who share road wisdom, sponsors who speak for you in rooms you cannot enter, companions who journey with you.',
+    'Network mediators — communities, partnerships, referral ecosystems that expand your reach. System mediators — business systems, digital platforms, automated income structures that scale your results.',
+    'Hard work can feed you. A system can free you. Stop asking: how can I work more? Start asking: how can this work without me? Build systems that earn without you, grow beyond you, and outlive you.',
+    {type:'scripture', bridge:'The highest level of building is not income — it is impact that continues after you.', verse:'"No one lights a lamp and puts it under a basket…"', ref:'— Matthew 5:15', app:'Make what you build visible so it can serve others — long after you are gone.'},
+    'Income feeds you. Ownership frees you. The Z2B Land Strategy: Digital Products generate income, which acquires land, which develops systems, which transforms lives. We are blessed to be a blessing.',
+    'To live forever is not about escaping death. It is about designing systems, people, and structures that continue to produce value after you are no longer present.',
+    'You live forever because what you built continues to produce life. When your knowledge is taught, your systems are running, your assets are working — you have moved beyond success… into legacy.',
+  ]
+},
+{
+  id:'ch30', num:'30', section:'🏆 BONUS',
+  title:'The 7-Day First Digital Product Challenge', sub:'"From Zero to Your First Product in One Week"',
+  paragraphs:[
+    'This is where everything changes. Now comes the only thing that matters: execution.',
+    'The rules of this challenge: no overthinking. No perfection. No delay. Your only focus: complete your first digital product and attempt to sell it.',
+    'Day one — define your idea. Use the formula: "How to help a specific person solve a specific problem." ONE clear idea. Not five. ONE.',
+    'Day two — create your outline. Open AI and type: "Create a simple step-by-step guide for my idea for beginners." Copy the outline. That is your structure.',
+    'Day three — create your content. Expand each section using AI. Keep it simple. Target five to fifteen pages. You are not writing a novel — you are solving a problem.',
+    'Day four — simplify and finalise. Remove anything confusing. Add two to three practical steps at the end. If a complete beginner cannot follow it — simplify it.',
+    'Day five — package your product. Give it a clear title, one promise sentence, a short description, and a list of what is inside. That is your sales package. Done.',
+    'Day six — prepare your sales message. "I have created a simple guide to help a specific person solve a specific problem. Message me START." That is your entire sales message.',
+    'Day seven — make your first offer. Share your message. Send it to at least ten people. Post in at least two groups. The result does not matter as much as the action. Go.',
+    'You do not need more time. You need seven days of focused execution. Action creates clarity. And clarity creates income.',
+  ]
+},
+{
+  id:'conclusion', num:'END', section:'CONCLUSION',
+  title:'From Zero to Legacy', sub:'Final Activation',
+  paragraphs:[
+    'Your entire journey in Zero2Billionaires is built on five foundational sections.',
+    'Section one: Awakening and Financial Mind Shift — who you become before you earn.',
+    'Section two: Understanding Wealth and The Money Game — who you serve and what they need.',
+    'Section three: Becoming a Creator in the Digital Economy — how you build income using digital products.',
+    'Section four: Wealth Systems, Discipline and Growth Principles — how you multiply beyond yourself.',
+    'Section five: Legacy Building Systems — how to live forever through what you build.',
+    'You are no longer a passive reader. You are no longer a passive learner. You are no longer a passive observer. You are now a Creator, a Builder, a System Thinker, a Legacy Architect.',
+    {type:'scripture', bridge:'You were never designed to depend on systems that limit you, but to build, expand, and multiply what has been placed in your hands. What you have learned is not just a method — it is a responsibility.', verse:'"Well done, good and faithful servant; you were faithful over a few things, I will make you ruler over many things."', ref:'— Matthew 25:21', app:'Take what you now know and act — multiplication begins with what you do next.'},
+    'You started at Zero. But you were never meant to stay there. You are now equipped to build income, systems, ownership, and impact. And through what you build… others will rise.',
+    'You Will Testify!',
+  ]
+},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const playedSet = new Set(JSON.parse(localStorage.getItem('z2b_audio_played')||'[]'));
+let currentChIdx = 0;
+let synth = window.speechSynthesis;
+let utterance = null;
+let isPlaying = false;
+let isPaused = false;
+let selectedVoice = null;
+let playbackRate = 1;
+let sentences = [];
+let sentenceIdx = 0;
+let progressTimer = null;
+let elapsedSeconds = 0;
+let totalEstimatedSeconds = 0;
+
+function saveState() {
+  localStorage.setItem('z2b_audio_played', JSON.stringify([...playedSet]));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BUILD UI
+// ═══════════════════════════════════════════════════════════════
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  let currentSec = '';
+  CHAPTERS.forEach((ch, i) => {
+    if (ch.section !== currentSec) {
+      currentSec = ch.section;
+      const sec = document.createElement('div');
+      sec.className = 'sb-sec'; sec.textContent = ch.section;
+      sb.appendChild(sec);
+    }
+    const item = document.createElement('div');
+    item.className = 'sb-ch' + (playedSet.has(ch.id) ? ' played' : '');
+    item.id = 'sb-' + ch.id;
+    item.innerHTML = `<span class="sb-num">${ch.num}</span><span class="sb-label">${ch.title}</span><span class="sb-dot"></span>`;
+    item.onclick = () => loadChapter(i);
+    sb.appendChild(item);
+  });
+}
+
+function loadChapter(idx) {
+  if (stopSpeech() === false) {} // stop any current
+  currentChIdx = idx;
+  const ch = CHAPTERS[idx];
+
+  // Update now-playing
+  document.getElementById('np-ghost').textContent = ch.num;
+  document.getElementById('np-section').textContent = `Zero2Billionaires · ${ch.section}`;
+  document.getElementById('np-title').textContent = ch.title;
+  document.getElementById('np-sub').textContent = ch.sub;
+
+  // Update sidebar
+  document.querySelectorAll('.sb-ch').forEach(el => el.classList.remove('active'));
+  const sbItem = document.getElementById('sb-' + ch.id);
+  if (sbItem) { sbItem.classList.add('active'); sbItem.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+
+  // Build text area
+  buildTextArea(ch);
+
+  // Extract all sentences
+  extractSentences(ch);
+
+  // Reset player state
+  sentenceIdx = 0;
+  elapsedSeconds = 0;
+  isPlaying = false; isPaused = false;
+  document.getElementById('btn-play-pause').textContent = '▶';
+  updateProgressUI();
+
+  // Estimate total time
+  const wordCount = sentences.reduce((n,s)=>n+s.split(' ').length,0);
+  totalEstimatedSeconds = Math.round((wordCount / 150) * 60 / playbackRate);
+  document.getElementById('time-total').textContent = formatTime(totalEstimatedSeconds);
+
+  // Overall book progress
+  const pct = ((idx) / (CHAPTERS.length - 1)) * 100;
+  document.getElementById('topbar-progress-fill').style.width = pct + '%';
+}
+
+function buildTextArea(ch) {
+  const area = document.getElementById('text-area');
+  area.innerHTML = '';
+  ch.paragraphs.forEach((p, i) => {
+    if (typeof p === 'string') {
+      // Split into sentences for highlighting
+      const sentenceTexts = p.match(/[^.!?]+[.!?]*/g) || [p];
+      sentenceTexts.forEach((st, si) => {
+        const span = document.createElement('span');
+        span.className = 'sentence';
+        span.dataset.pIdx = i;
+        span.dataset.sIdx = si;
+        span.textContent = st.trim() + ' ';
+        span.onclick = () => jumpToSentence(span);
+        area.appendChild(span);
+      });
+      const br = document.createElement('span');
+      br.className = 'para-break';
+      area.appendChild(br);
+    } else if (p.type === 'scripture') {
+      const box = document.createElement('div');
+      box.className = 'audio-scripture';
+      box.innerHTML = `
+        <span class="scr-bridge">${p.bridge}</span>
+        <span class="scr-verse">${p.verse}</span>
+        <span class="scr-ref">${p.ref}</span>
+        <span class="scr-app">${p.app}</span>`;
+      area.appendChild(box);
+    }
+  });
+}
+
+function extractSentences(ch) {
+  sentences = [];
+  ch.paragraphs.forEach(p => {
+    if (typeof p === 'string') {
+      const parts = p.match(/[^.!?]+[.!?]*/g) || [p];
+      parts.forEach(s => { if (s.trim()) sentences.push(s.trim()); });
+    } else if (p.type === 'scripture') {
+      sentences.push(p.bridge);
+      sentences.push(p.verse.replace(/["""]/g,''));
+      sentences.push(p.ref);
+      sentences.push(p.app);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPEECH SYNTHESIS
+// ═══════════════════════════════════════════════════════════════
+function speakFrom(idx) {
+  if (!sentences.length) return;
+  if (idx >= sentences.length) {
+    // Chapter complete
+    isPlaying = false;
+    document.getElementById('btn-play-pause').textContent = '▶';
+    playedSet.add(CHAPTERS[currentChIdx].id);
+    saveState();
+    document.querySelectorAll('.sb-ch').forEach((el,i)=>{
+      if(i===currentChIdx) el.classList.add('played');
+    });
+    clearInterval(progressTimer);
+    // Auto-advance to next chapter
+    if (currentChIdx < CHAPTERS.length - 1) {
+      setTimeout(() => { loadChapter(currentChIdx + 1); togglePlay(); }, 1500);
+    }
+    return;
+  }
+  sentenceIdx = idx;
+  const text = sentences[idx];
+
+  utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = playbackRate;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  if (selectedVoice) utterance.voice = selectedVoice;
+
+  // Highlight current sentence
+  highlightSentence(idx);
+
+  utterance.onend = () => {
+    if (isPlaying) speakFrom(idx + 1);
+  };
+  utterance.onerror = (e) => {
+    if (e.error !== 'interrupted') speakFrom(idx + 1);
+  };
+
+  synth.speak(utterance);
+}
+
+function highlightSentence(idx) {
+  // Clear all highlights
+  document.querySelectorAll('.sentence').forEach((el,i) => {
+    if (i < idx) el.classList.add('spoken');
+    else el.classList.remove('spoken');
+    el.classList.remove('active');
+  });
+  // Highlight current
+  const allSentenceEls = document.querySelectorAll('.sentence');
+  if (allSentenceEls[idx]) {
+    allSentenceEls[idx].classList.add('active');
+    allSentenceEls[idx].scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  // Update progress bar
+  const pct = (idx / Math.max(sentences.length - 1, 1)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-thumb').style.left = pct + '%';
+}
+
+function jumpToSentence(span) {
+  const allSpans = [...document.querySelectorAll('.sentence')];
+  const idx = allSpans.indexOf(span);
+  if (idx === -1) return;
+  stopSpeech();
+  isPlaying = true;
+  document.getElementById('btn-play-pause').textContent = '⏸';
+  speakFrom(idx);
+  startProgressTimer();
+}
+
+function togglePlay() {
+  if (!sentences.length) return;
+  if (isPlaying) {
+    // Pause
+    synth.pause();
+    isPlaying = false; isPaused = true;
+    document.getElementById('btn-play-pause').textContent = '▶';
+    clearInterval(progressTimer);
+  } else if (isPaused) {
+    // Resume
+    synth.resume();
+    isPlaying = true; isPaused = false;
+    document.getElementById('btn-play-pause').textContent = '⏸';
+    startProgressTimer();
+  } else {
+    // Start fresh
+    isPlaying = true;
+    document.getElementById('btn-play-pause').textContent = '⏸';
+    speakFrom(sentenceIdx);
+    startProgressTimer();
+  }
+}
+
+function stopSpeech() {
+  synth.cancel();
+  isPlaying = false; isPaused = false;
+  clearInterval(progressTimer);
+  document.getElementById('btn-play-pause').textContent = '▶';
+}
+
+function skipBack() {
+  const newIdx = Math.max(0, sentenceIdx - 2);
+  if (isPlaying) { synth.cancel(); speakFrom(newIdx); }
+  else { sentenceIdx = newIdx; highlightSentence(newIdx); }
+}
+
+function skipForward() {
+  const newIdx = Math.min(sentences.length - 1, sentenceIdx + 2);
+  if (isPlaying) { synth.cancel(); speakFrom(newIdx); }
+  else { sentenceIdx = newIdx; highlightSentence(newIdx); }
+}
+
+function prevChapter() {
+  if (currentChIdx > 0) { stopSpeech(); loadChapter(currentChIdx - 1); }
+}
+function nextChapter() {
+  if (currentChIdx < CHAPTERS.length - 1) { stopSpeech(); loadChapter(currentChIdx + 1); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROGRESS TIMER
+// ═══════════════════════════════════════════════════════════════
+function startProgressTimer() {
+  clearInterval(progressTimer);
+  progressTimer = setInterval(() => {
+    elapsedSeconds++;
+    document.getElementById('time-current').textContent = formatTime(elapsedSeconds);
+  }, 1000 / playbackRate);
+}
+
+function updateProgressUI() {
+  document.getElementById('time-current').textContent = formatTime(0);
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('progress-thumb').style.left = '0%';
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPEED & VOICE
+// ═══════════════════════════════════════════════════════════════
+function setSpeed(rate) {
+  playbackRate = rate;
+  document.querySelectorAll('.speed-btn').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.textContent) === rate);
+  });
+  if (utterance) utterance.rate = rate;
+  if (isPlaying) {
+    const idx = sentenceIdx;
+    synth.cancel();
+    setTimeout(() => speakFrom(idx), 100);
+  }
+}
+
+function loadVoices() {
+  const voices = synth.getVoices();
+  const sel = document.getElementById('voice-select');
+  sel.innerHTML = '';
+  // Prefer English voices
+  const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+  const otherVoices = voices.filter(v => !v.lang.startsWith('en'));
+  const allVoices = [...englishVoices, ...otherVoices];
+  if (!allVoices.length) {
+    sel.innerHTML = '<option>No voices available</option>';
+    return;
+  }
+  allVoices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})`;
+    sel.appendChild(opt);
+  });
+  // Default to a good English voice
+  const preferred = englishVoices.find(v =>
+    v.name.includes('Daniel') || v.name.includes('Google UK') ||
+    v.name.includes('Samantha') || v.name.includes('Alex')
+  );
+  if (preferred) {
+    selectedVoice = preferred;
+    const idx = allVoices.indexOf(preferred);
+    sel.value = idx;
+  } else if (englishVoices.length) {
+    selectedVoice = englishVoices[0];
+    sel.value = 0;
+  }
+}
+
+function changeVoice() {
+  const voices = synth.getVoices();
+  const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+  const otherVoices = voices.filter(v => !v.lang.startsWith('en'));
+  const allVoices = [...englishVoices, ...otherVoices];
+  const idx = parseInt(document.getElementById('voice-select').value);
+  selectedVoice = allVoices[idx] || null;
+}
+
+function testVoice() {
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance('Zero2Billionaires. Building your Digital Estate starts now.');
+  u.rate = playbackRate;
+  if (selectedVoice) u.voice = selectedVoice;
+  synth.speak(u);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROGRESS BAR CLICK
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('progress-bar-wrap').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const targetIdx = Math.floor(pct * sentences.length);
+  if (isPlaying) { synth.cancel(); speakFrom(targetIdx); }
+  else { sentenceIdx = targetIdx; highlightSentence(targetIdx); }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT') return;
+  switch(e.key) {
+    case ' ': e.preventDefault(); togglePlay(); break;
+    case 'ArrowLeft': skipBack(); break;
+    case 'ArrowRight': skipForward(); break;
+    case '[': prevChapter(); break;
+    case ']': nextChapter(); break;
+    case '+': case '=': {
+      const speeds = [0.75,1,1.25,1.5,2];
+      const ci = speeds.indexOf(playbackRate);
+      if(ci < speeds.length-1) setSpeed(speeds[ci+1]); break;
+    }
+    case '-': {
+      const speeds = [0.75,1,1.25,1.5,2];
+      const ci = speeds.indexOf(playbackRate);
+      if(ci > 0) setSpeed(speeds[ci-1]); break;
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+buildSidebar();
+loadChapter(0);
+
+// Load voices (may be async on some browsers)
+if (synth.onvoiceschanged !== undefined) {
+  synth.onvoiceschanged = loadVoices;
+}
+loadVoices();
+setTimeout(loadVoices, 500); // Fallback
+</script>
+</body>
+</html>
