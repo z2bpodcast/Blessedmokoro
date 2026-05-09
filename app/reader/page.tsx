@@ -50,7 +50,17 @@ export default function ReaderPage() {
           <Link href="/dashboard" className="text-xs px-3 py-1 rounded-sm" style={{ fontFamily:'Bebas Neue,sans-serif', letterSpacing:'2px', background:'rgba(201,162,39,0.1)', color:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.1)' }}>DASHBOARD</Link>
         </div>
       </div>
-      <iframe src="/z2b_reader.html" className="w-full" style={{ height:'calc(100vh - 44px)', border:'none' }} title="Zero2Billionaires Reader"/>
+      <iframe 
+        src="/z2b_reader.html"
+        className="w-full" 
+        style={{ height:'calc(100vh - 44px)', border:'none' }} 
+        title="Zero2Billionaires Reader"
+        onLoad={(e) => {
+          // Tell the reader iframe to auto-enter paid mode
+          const iframe = e.target as HTMLIFrameElement
+          iframe.contentWindow?.postMessage('PAID_ACCESS', '*')
+        }}
+      />
     </div>
   )
 }
