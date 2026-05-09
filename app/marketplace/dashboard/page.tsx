@@ -137,7 +137,7 @@ export default function MarketplaceDashboardPage() {
             <div className="text-xs text-white font-medium">{profile?.full_name}</div>
             <div className="text-[10px] text-[#5a4510] uppercase tracking-wide"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              {isFam && !profile?.is_paid_member ? 'Free Affiliate' : isFam && profile?.is_paid_member ? 'Starter Pack' : profile?.paid_tier?.toUpperCase()}
+              {isFam ? 'Free Affiliate' : profile?.paid_tier?.toUpperCase()}
             </div>
           </div>
           <Link href="/marketplace"
