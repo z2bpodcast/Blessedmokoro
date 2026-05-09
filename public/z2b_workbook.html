@@ -221,7 +221,7 @@ html,body{min-height:100%;background:var(--cream);font-family:'Lato',sans-serif;
       <div class="wb-cover-note">
         📌 <strong>How to use this workbook:</strong> Read each chapter in the flipbook first, then return here to complete your reflection questions, commitments, and actions. Your answers save automatically in your browser. Work at your own pace — there is no rush, only progress.
         <br><br>
-        🔒 <strong>Coach Manlaw check-ins are available in the R500 Full System Upgrade.</strong>
+        🔒 <strong>Coach Manlaw check-ins are available in the R700 Full Book System.</strong>
       </div>
     </div>
 
@@ -502,7 +502,7 @@ function buildChapters() {
         <div class="wb-coach-locked">
           <div class="lock-icon">⚡🔒</div>
           <p>Coach Manlaw accountability check-in for this chapter is available in the Full System Upgrade. Coach Manlaw will review your answers, challenge your thinking, and push you to the next level.</p>
-          <button class="wb-coach-locked-btn" onclick="alert('Upgrade to R500 Full System to unlock Coach Manlaw check-ins.')">🔓 UPGRADE TO UNLOCK COACH MANLAW</button>
+          <button class="wb-coach-locked-btn" onclick="window.location.href='/book?buy=r700'">🔓 UPGRADE TO R700 FULL SYSTEM — UNLOCK COACH MANLAW</button>
         </div>
         <div class="wb-done-wrap">
           <button class="wb-done-btn ${done?'marked':''}" id="done-${ch.id}" onclick="markDone('${ch.id}')">

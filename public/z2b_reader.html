@@ -256,7 +256,7 @@ html,body{height:100%;font-family:'Lato',sans-serif;}
       <p>Unlock all 30 chapters plus the complete Zero2Billionaires Business System</p>
     </div>
     <div class="gate-body">
-      <div class="gate-price">R500</div>
+      <div class="gate-price">R700</div>
       <div class="gate-price-label">ONE-TIME · EVERYTHING INCLUDED</div>
       <ul class="gate-features">
         <li><span>📖</span> Full eBook — All 30 Chapters in-app</li>
@@ -266,7 +266,7 @@ html,body{height:100%;font-family:'Lato',sans-serif;}
         <li><span>🎧</span> Audio Reader — Learn on the go</li>
         <li><span>🌐</span> Full Z2B Business System Access</li>
       </ul>
-      <button class="btn-gate" onclick="alert('Payment integration live on app.z2blegacybuilders.co.za')">🔓 UNLOCK NOW — R500</button>
+      <button class="btn-gate" onclick="window.location.href='/book?buy=r700'">🔓 UNLOCK FULL SYSTEM — R700</button>
       <button class="btn-gate-demo" onclick="enterReader()">DEMO: Enter as Paid Reader →</button>
     </div>
   </div>
@@ -797,6 +797,26 @@ function toggleMode() {
   document.body.classList.toggle('light-mode', lightMode);
   document.getElementById('btn-mode').textContent = lightMode ? '🌙' : '☀';
 }
+</script>
+
+<script>
+// Auto-unlock full access — skip demo mode
+(function() {
+  // Remove any demo/paywall overlays
+  var demoEls = document.querySelectorAll('[class*="demo"],[class*="paywall"],[class*="locked"],[id*="demo"],[id*="paywall"]');
+  demoEls.forEach(function(el) { el.style.display = 'none'; });
+  
+  // Fix upgrade buttons to point to book landing page
+  var links = document.querySelectorAll('a[href*="upgrade"],a[href*="pay"],a[href*="pricing"],a[href*="coming"]');
+  links.forEach(function(el) { el.href = '/book?buy=r700'; });
+  
+  // Fix onclick upgrade actions
+  document.querySelectorAll('button').forEach(function(btn) {
+    if (btn.textContent && btn.textContent.match(/upgrade|unlock|pay|buy/i)) {
+      btn.onclick = function() { window.location.href = '/book?buy=r700'; };
+    }
+  });
+})();
 </script>
 </body>
 </html>
