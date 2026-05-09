@@ -127,9 +127,7 @@ function FlipbookContent() {
           <span style={{ color: '#5a4510', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
             FLIPBOOK ACCESS · R200 PACKAGE · FIRST 3 FEATURES OF 4M MACHINE INCLUDED
           </span>
-          <Link href="/pricing" className="ml-4 text-yellow-400 underline">
-            Upgrade to Full System →
-          </Link>
+          <a href="/book?buy=r700" className="ml-4 text-yellow-400 underline">Upgrade to Full System →</a>
         </div>
         <iframe
           src="/z2b_flipbook_v2.html"
