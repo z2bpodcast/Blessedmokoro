@@ -590,12 +590,112 @@ var Z2B_PKGS = {
 };
 var Z2B_BANK = {name:'Zero2billionaires Amavulandlela',num:'1318257727',bank:'NEDBANK'};
 var Z2B_URLS = {
-  return_url:'https://app.z2blegacybuilders.co.za/dashboard?upgraded=starter',
+  return_url:'https://app.z2blegacybuilders.co.za/dashboard?upgraded=starter&from=book',
   cancel_url:'https://book.z2blegacybuilders.co.za',
   notify_url:'https://app.z2blegacybuilders.co.za/api/payfast'
 };
 
+
+// ── Check if user is already logged in ──────────────────────
+async function z2bCheckAuth() {
+  try {
+    const res = await fetch('/api/auth/session');
+    const data = await res.json();
+    return data?.user || null;
+  } catch { return null; }
+}
+
+// ── Open modal with light registration first ─────────────────
 function z2bOpenModal(pkg){
+  var p=Z2B_PKGS[pkg];
+  document.getElementById('z2b-modal-content').innerHTML=
+    '<div class="z2b-m-tier">'+p.tier+'</div>'+
+    '<div class="z2b-m-name">'+p.name+'</div>'+
+    '<div class="z2b-m-price">'+p.price+'</div>'+
+    '<div class="z2b-m-div"></div>'+
+
+    // Light registration form
+    '<div id="z2b-reg-form">'+
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:0.6rem;letter-spacing:3px;color:#5a4510;margin-bottom:12px;">YOUR DETAILS — CREATE YOUR FREE ACCOUNT</div>'+
+      '<input id="z2b-reg-name" type="text" placeholder="Full Name" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:#f5f0e8;font-size:0.85rem;margin-bottom:8px;outline:none;">'+
+      '<input id="z2b-reg-email" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:#f5f0e8;font-size:0.85rem;margin-bottom:8px;outline:none;">'+
+      '<input id="z2b-reg-phone" type="tel" placeholder="WhatsApp Number (+27...)" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:#f5f0e8;font-size:0.85rem;margin-bottom:16px;outline:none;">'+
+      '<div id="z2b-reg-error" style="color:#f87171;font-size:0.75rem;margin-bottom:8px;display:none;"></div>'+
+      '<button onclick="z2bProceedToPayment(''+pkg+'')" style="width:100%;padding:14px;background:linear-gradient(135deg,#c9a227,#f0c040);color:#080608;font-family:Bebas Neue,sans-serif;font-size:0.8rem;letter-spacing:4px;border:none;border-radius:2px;cursor:pointer;">'+
+        'CONTINUE TO PAYMENT — '+p.price+' →'+
+      '</button>'+
+      '<p style="font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;margin-top:10px;font-style:italic;">'+
+        'Your account is created free. You get your own referral link after payment.'+
+      '</p>'+
+    '</div>'+
+
+    // PayFast form (hidden until registration complete)
+    '<form id="z2b-pf-form" action="https://www.payfast.co.za/eng/process" method="post" style="display:none">'+
+      '<input type="hidden" name="merchant_id" value="'+Z2B_PF_MERCHANT_ID+'">'+
+      '<input type="hidden" name="merchant_key" value="'+Z2B_PF_MERCHANT_KEY+'">'+
+      '<input type="hidden" name="return_url" value="'+Z2B_URLS.return_url+'">'+
+      '<input type="hidden" name="cancel_url" value="'+Z2B_URLS.cancel_url+'">'+
+      '<input type="hidden" name="notify_url" value="'+Z2B_URLS.notify_url+'">'+
+      '<input type="hidden" name="amount" id="z2b-pf-amount" value="'+p.amount+'">'+
+      '<input type="hidden" name="item_name" id="z2b-pf-item" value="'+p.item+'">'+
+      '<input type="hidden" name="name_first" id="z2b-pf-fname" value="">'+
+      '<input type="hidden" name="email_address" id="z2b-pf-email" value="">'+
+      '<input type="hidden" name="custom_str1" id="z2b-pf-phone" value="">'+
+    '</form>';
+
+  document.getElementById('z2bPayModal').classList.add('open');
+}
+
+async function z2bProceedToPayment(pkg) {
+  var name  = document.getElementById('z2b-reg-name').value.trim();
+  var email = document.getElementById('z2b-reg-email').value.trim();
+  var phone = document.getElementById('z2b-reg-phone').value.trim();
+  var errEl = document.getElementById('z2b-reg-error');
+
+  if (!name || !email || !phone) {
+    errEl.textContent = 'Please fill in all fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!email.includes('@')) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  errEl.style.display = 'none';
+
+  // Register as FAM member via API
+  try {
+    var res = await fetch('/api/auth/marketplace-signup', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        fullName: name,
+        email: email,
+        whatsapp: phone,
+        password: Math.random().toString(36).slice(2,10) + 'Z2B!',
+        referralCode: new URLSearchParams(window.location.search).get('ref') || '',
+        joinedVia: 'book_landing_' + pkg
+      })
+    });
+    var data = await res.json();
+
+    // Set PayFast form fields
+    document.getElementById('z2b-pf-fname').value  = name.split(' ')[0];
+    document.getElementById('z2b-pf-email').value  = email;
+    document.getElementById('z2b-pf-phone').value  = phone;
+
+    // Submit to PayFast
+    document.getElementById('z2b-pf-form').submit();
+
+  } catch(err) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function z2bOpenModal_old(pkg){
   var p=Z2B_PKGS[pkg];
   document.getElementById('z2b-modal-content').innerHTML=
     '<div class="z2b-m-tier">'+p.tier+'</div>'+

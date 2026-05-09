@@ -479,11 +479,20 @@ function DashboardInner() {
 
           {/* ── QUICK NAV BUTTONS — on profile card ── */}
           <div className="flex gap-2 flex-wrap pt-4 border-t-2 border-gray-100">
-            <a href="/marketplace/product/book-ecosystem"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black border-2 hover:scale-105 transition-transform"
-              style={{ background:'linear-gradient(135deg,#1a0d35,#2d1b69)', borderColor:'#c9a227', color:'#f0c040' }}>
-              📖 Z2B Book
-            </a>
+            {/* Book access — direct for paid members, prospecting for FAM */}
+            {isStarterPaid ? (
+              <a href="/reader"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black border-2 hover:scale-105 transition-transform"
+                style={{ background:'linear-gradient(135deg,#1a0d35,#2d1b69)', borderColor:'#c9a227', color:'#f0c040' }}>
+                ⚡ My Book System
+              </a>
+            ) : (
+              <a href="/marketplace/product/book-ecosystem"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black border-2 hover:scale-105 transition-transform"
+                style={{ background:'linear-gradient(135deg,#1a0d35,#2d1b69)', borderColor:'#c9a227', color:'#f0c040' }}>
+                📖 Z2B Book
+              </a>
+            )}
             <a href="/ai-income"
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black border-2 hover:scale-105 transition-transform"
               style={{ background:'linear-gradient(135deg,#064E3B,#065F46)', borderColor:'#059669', color:'#6EE7B7' }}>
