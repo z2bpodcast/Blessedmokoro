@@ -1,0 +1,2370 @@
+<!-- Z2B FLIPBOOK V2 - ZERO2BILLIONAIRES BY REV MOKORO MANANA -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zero2Billionaires — Digital Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Bebas+Neue&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --deep: #0f0d08;
+    --purple: #2d1b69;
+    --purple-mid: #3d2285;
+    --purple-light: #5a35b8;
+    --gold: #c9a227;
+    --gold-bright: #f0c040;
+    --gold-pale: #e8d48b;
+    --gold-dim: #7a6118;
+    --white: #f5f0e8;
+    --white-pure: #ffffff;
+    --cream: #faf6ee;
+    --text-body: #1a1208;
+    --scripture-bg: #1a1030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    font-family: 'Lato', sans-serif;
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* ── SHELL ── */
+  #shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+  }
+
+  /* ── TOP BAR ── */
+  #topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--black);
+    border-bottom: 1px solid var(--gold-dim);
+    z-index: 100;
+    flex-shrink: 0;
+  }
+  #topbar .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    color: var(--gold-bright);
+  }
+  #topbar .logo span { color: var(--white); }
+  #topbar .logo .logo-two { color: var(--gold-bright); }
+  #page-counter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    color: var(--gold-pale);
+    letter-spacing: 2px;
+  }
+  #progress-bar-wrap {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: rgba(201,162,39,0.15);
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── MAIN AREA ── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 240px;
+    background: #080608;
+    border-right: 1px solid rgba(201,162,39,0.15);
+    overflow-y: auto;
+    flex-shrink: 0;
+    padding: 16px 0;
+  }
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+  .sidebar-section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    padding: 12px 16px 4px;
+    text-transform: uppercase;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .sidebar-item:hover {
+    background: rgba(201,162,39,0.06);
+    border-left-color: var(--gold-dim);
+  }
+  .sidebar-item.active {
+    background: rgba(201,162,39,0.12);
+    border-left-color: var(--gold-bright);
+  }
+  .sidebar-item .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    color: var(--gold);
+    min-width: 22px;
+    letter-spacing: 1px;
+  }
+  .sidebar-item .title {
+    font-size: 0.72rem;
+    color: #bba870;
+    line-height: 1.3;
+  }
+  .sidebar-item.active .title { color: var(--gold-pale); }
+
+  /* ── BOOK VIEWPORT ── */
+  #book-viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* grain overlay */
+  #book-viewport::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  /* ── PAGE CONTAINER ── */
+  #page-container {
+    width: min(680px, calc(100% - 40px));
+    height: min(920px, calc(100vh - 120px));
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── PAGES ── */
+  .page {
+    display: none;
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    border-radius: 2px;
+  }
+  .page::-webkit-scrollbar { width: 5px; }
+  .page::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+  .page::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+  .page.active {
+    display: block;
+    animation: pageIn 0.4s ease forwards;
+  }
+  .page.exit-right {
+    display: block;
+    animation: pageOutRight 0.35s ease forwards;
+  }
+  .page.exit-left {
+    display: block;
+    animation: pageOutLeft 0.35s ease forwards;
+  }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pageInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pageOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(40px); }
+  }
+  @keyframes pageOutLeft {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(-40px); }
+  }
+
+  /* ── COVER PAGE ── */
+  #page-cover {
+    background: linear-gradient(160deg, #0a0608 0%, #1a0d35 40%, #0f0a05 80%, #0a0608 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    min-height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  #page-cover::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(45,27,105,0.5) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #page-cover::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(201,162,39,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 5px;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .cover-main-title {
+    font-family: 'Bebas Neue', sans-serif;
+    line-height: 0.9;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+    width: 100%;
+    max-width: 380px;
+  }
+  .cover-main-title .line1 {
+    display: block;
+    font-size: clamp(2.6rem, 8.5vw, 4.4rem);
+    letter-spacing: 8px;
+  }
+  .cover-main-title .line2 {
+    display: block;
+    font-size: clamp(2rem, 7vw, 3.6rem);
+    letter-spacing: 5px;
+  }
+  .cover-main-title .zero  { color: var(--white-pure); }
+  .cover-main-title .two   { color: var(--gold-bright); }
+  .cover-main-title .bill  { color: var(--gold-bright); }
+  .cover-main-title .aires { color: var(--white-pure); }
+  
+  .cover-main-title .zero  { color: var(--white-pure); }
+  .cover-main-title .two   { color: var(--gold-bright); }
+  .cover-main-title .bill  { color: var(--gold-bright); }
+  .cover-main-title .aires { color: var(--white-pure); }
+
+  .cover-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--gold-pale);
+    text-align: center;
+    max-width: 380px;
+    line-height: 1.6;
+    margin: 18px 0 28px;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .cover-divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 4px auto 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.65s forwards;
+  }
+  .cover-author {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--gold-pale);
+    text-align: center;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .cover-pillars {
+    display: flex;
+    gap: 20px;
+    margin: 32px 0 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+  .cover-pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .pillar-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: rgba(201,162,39,0.06);
+  }
+  .pillar-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+    color: var(--gold-dim);
+    text-align: center;
+    max-width: 60px;
+    line-height: 1.2;
+  }
+  .cover-badge {
+    border: 1px solid var(--gold);
+    padding: 10px 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--gold-bright);
+    text-align: center;
+    margin-top: 8px;
+    background: rgba(201,162,39,0.06);
+    opacity: 0;
+    animation: fadeUp 0.8s 1.2s forwards;
+  }
+
+  /* ── CONTENT PAGE BASE ── */
+  .content-page {
+    background: var(--cream);
+    color: var(--text-body);
+    padding: 0;
+    min-height: 100%;
+  }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 60%, var(--black) 100%);
+    padding: 28px 36px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--gold));
+  }
+  .page-header-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+  .page-header-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    color: rgba(255,255,255,0.06);
+    position: absolute;
+    right: 28px;
+    top: 12px;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .page-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--white-pure);
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .page-header-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--gold-pale);
+    line-height: 1.4;
+  }
+
+  .page-body {
+    padding: 28px 36px 40px;
+  }
+
+  /* ── SECTION HEADERS inside page ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 10px;
+  }
+  .section-label-icon {
+    font-size: 1rem;
+    min-width: 22px;
+  }
+  .section-label-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--purple);
+    text-transform: uppercase;
+  }
+  .section-label-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+
+  /* ── BODY TEXT ── */
+  .body-text {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: #2a2010;
+    margin-bottom: 12px;
+  }
+  .body-text strong { color: var(--purple); font-weight: 700; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--gold);
+    margin: 20px 0;
+    padding: 12px 20px;
+    background: rgba(45,27,105,0.05);
+    border-radius: 0 4px 4px 0;
+  }
+  .pull-quote p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--purple);
+    line-height: 1.55;
+  }
+
+  /* ── BULLET LIST ── */
+  .z2b-list {
+    list-style: none;
+    margin: 8px 0 14px;
+    padding: 0;
+  }
+  .z2b-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.86rem;
+    color: #2a2010;
+    line-height: 1.65;
+    margin-bottom: 6px;
+  }
+  .z2b-list li::before {
+    content: '◆';
+    color: var(--gold);
+    font-size: 0.5rem;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── IDENTITY CARD ── */
+  .identity-card {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--black) 100%);
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .identity-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--gold));
+  }
+  .identity-card-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    margin-bottom: 4px;
+  }
+  .identity-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold-bright);
+    margin-bottom: 6px;
+  }
+  .identity-card-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 8px;
+  }
+  .identity-card-traits {
+    list-style: none;
+    padding: 0;
+  }
+  .identity-card-traits li {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    padding: 2px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .identity-card-traits li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* ── SCRIPTURE BOX ── */
+  .scripture-box {
+    background: var(--scripture-bg);
+    border: 1px solid rgba(201,162,39,0.3);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .scripture-box::before {
+    content: '❝';
+    position: absolute;
+    top: -8px; left: 14px;
+    font-size: 3rem;
+    color: rgba(201,162,39,0.15);
+    line-height: 1;
+    font-family: 'Playfair Display', serif;
+  }
+  .scripture-bridge {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(201,162,39,0.7);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .scripture-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--gold-pale);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .scripture-ref {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+  }
+  .scripture-application {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.65);
+    margin-top: 10px;
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* ── FINAL TRUTH BOX ── */
+  .final-truth {
+    background: linear-gradient(135deg, #1a1008 0%, #0f0d08 100%);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 24px 0 8px;
+    position: relative;
+  }
+  .final-truth::before {
+    content: 'FINAL TRUTH';
+    position: absolute;
+    top: -10px; left: 20px;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    padding: 2px 10px;
+  }
+  .final-truth p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--gold-pale);
+    line-height: 1.65;
+    font-style: italic;
+  }
+  .final-truth p strong {
+    color: var(--gold-bright);
+    font-style: normal;
+  }
+
+  /* ── CHAPTER END STAMP ── */
+  .chapter-end {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(45,27,105,0.2);
+  }
+  .chapter-end-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+  .chapter-end-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    white-space: nowrap;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.82rem;
+  }
+  .compare-table th {
+    padding: 8px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .compare-table th:first-child {
+    background: #3a2010;
+    color: #f08080;
+    text-align: left;
+    border-radius: 3px 0 0 0;
+  }
+  .compare-table th:last-child {
+    background: var(--purple);
+    color: var(--gold-pale);
+    text-align: left;
+    border-radius: 0 3px 0 0;
+  }
+  .compare-table td {
+    padding: 7px 14px;
+    font-family: 'Lato', sans-serif;
+    color: #2a2010;
+    border-bottom: 1px solid rgba(45,27,105,0.08);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .compare-table td:first-child { color: #7a3020; }
+  .compare-table td:last-child { color: var(--purple); font-weight: 600; }
+
+  /* ── NAV CONTROLS ── */
+  #nav-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 20px;
+    background: var(--black);
+    border-top: 1px solid var(--gold-dim);
+    flex-shrink: 0;
+  }
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    padding: 8px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) {
+    background: rgba(201,162,39,0.1);
+    border-color: var(--gold-bright);
+    color: var(--gold-bright);
+  }
+  .nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .nav-btn.primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-mid));
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .nav-btn.primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-light));
+  }
+  .chapter-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot.active { background: var(--gold-bright); transform: scale(1.3); }
+
+  /* ── INTRO PAGE SPECIAL ── */
+  .intro-opening {
+    background: linear-gradient(180deg, rgba(45,27,105,0.08) 0%, transparent 100%);
+    border-left: 3px solid var(--purple-light);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+  }
+  .intro-opening p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--purple);
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  /* ── TOC ── */
+  .toc-section {
+    margin-bottom: 18px;
+  }
+  .toc-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--purple);
+    padding: 6px 0 8px;
+    border-bottom: 1px solid rgba(45,27,105,0.15);
+    margin-bottom: 8px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toc-item:hover .toc-item-title { color: var(--purple); }
+  .toc-item-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    color: var(--gold);
+    min-width: 28px;
+  }
+  .toc-item-title {
+    flex: 1;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    color: #4a3820;
+    padding: 0 10px;
+    line-height: 1.3;
+  }
+  .toc-item-dots {
+    flex: 1;
+    height: 1px;
+    border-bottom: 1px dotted rgba(45,27,105,0.2);
+    margin: 0 8px;
+    min-width: 20px;
+  }
+
+  /* ── WARNING/TRUTH BLOCKS ── */
+  .warning-block {
+    background: rgba(180,60,30,0.06);
+    border-left: 3px solid #c04020;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 3px 3px 0;
+  }
+  .warning-block .label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #c04020;
+    margin-bottom: 4px;
+  }
+  .warning-block p {
+    font-size: 0.84rem;
+    color: #4a1a10;
+    line-height: 1.6;
+  }
+
+  .highlight-block {
+    background: rgba(45,27,105,0.06);
+    border-left: 3px solid var(--purple-light);
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 3px 3px 0;
+  }
+  .highlight-block p {
+    font-size: 0.86rem;
+    color: var(--purple);
+    line-height: 1.65;
+    font-weight: 600;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 700px) {
+    #sidebar { display: none; }
+    #page-container { width: calc(100% - 20px); height: calc(100vh - 120px); }
+    .page-header { padding: 20px 20px 18px; }
+    .page-body { padding: 18px 20px 28px; }
+    .page-header-title { font-size: 1.3rem; }
+  }
+
+  /* ── UPGRADE CTA BLOCK ── */
+  .upgrade-cta {
+    background: linear-gradient(135deg, #0a0608 0%, #1a0d35 50%, #0f0a05 100%);
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin: 28px 0 8px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .upgrade-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--gold));
+  }
+  .upgrade-cta::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,162,39,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+  }
+  .cta-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--white-pure);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .cta-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--gold-pale);
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .cta-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    text-align: left;
+    display: inline-block;
+  }
+  .cta-features li {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cta-features li span.icon { font-size: 0.95rem; min-width: 20px; }
+  .btn-upgrade {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    padding: 14px 36px;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+  .btn-upgrade:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(201,162,39,0.3);
+  }
+  .cta-signin {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--gold-dim);
+    cursor: pointer;
+    margin-top: 6px;
+    transition: color 0.2s;
+  }
+  .cta-signin:hover { color: var(--gold-pale); }
+
+  /* ── LOCKED CHAPTER BUTTON ── */
+  .locked-chapter-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(45,27,105,0.15), rgba(10,6,8,0.4));
+    border: 1px solid rgba(201,162,39,0.2);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 20px 0 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+  }
+  .locked-chapter-btn:hover {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(45,27,105,0.25), rgba(10,6,8,0.5));
+  }
+  .locked-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  .locked-info { flex: 1; }
+  .locked-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 3px;
+  }
+  .locked-desc {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+  }
+  .locked-pill {
+    background: rgba(201,162,39,0.1);
+    border: 1px solid rgba(201,162,39,0.25);
+    color: var(--gold-dim);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* ── UPGRADE MODAL ── */
+  #upgrade-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #upgrade-modal.open { display: flex; }
+  .upgrade-modal-box {
+    background: linear-gradient(160deg, #0a0608 0%, #1a0d35 50%, #0f0a05 100%);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+    animation: modalIn 0.35s ease;
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform: translateY(24px) scale(0.97); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+  .modal-top {
+    background: linear-gradient(135deg, var(--purple), #1a0d35);
+    padding: 28px 32px 24px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    border-bottom: 2px solid var(--gold);
+  }
+  .modal-top::after {
+    content: 'Z2B';
+    position: absolute;
+    right: -10px; bottom: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 8rem;
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+  }
+  .modal-top .badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+  }
+  .modal-top h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--white-pure);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .modal-top p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--gold-pale);
+  }
+  .modal-price {
+    text-align: center;
+    padding: 18px 32px 0;
+  }
+  .price-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--gold-bright);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+  .price-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+  .modal-features {
+    padding: 16px 32px;
+  }
+  .modal-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.8);
+  }
+  .modal-feature .f-icon { font-size: 1rem; min-width: 24px; }
+  .modal-feature strong { color: var(--gold-pale); }
+  .modal-actions {
+    padding: 16px 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-modal-upgrade {
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    padding: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .btn-modal-upgrade:hover {
+    box-shadow: 0 6px 28px rgba(201,162,39,0.35);
+    transform: translateY(-1px);
+  }
+  .btn-modal-signin {
+    background: none;
+    border: 1px solid rgba(201,162,39,0.2);
+    color: var(--gold-dim);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    padding: 11px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .btn-modal-signin:hover { border-color: var(--gold-pale); color: var(--gold-pale); }
+  .btn-modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.2);
+    font-size: 1.1rem;
+    cursor: pointer;
+    position: absolute;
+    top: 14px; right: 16px;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .btn-modal-close:hover { color: rgba(255,255,255,0.6); }
+
+</style>
+</head>
+<body>
+<div id="shell">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">ZERO<span class="logo-two">2</span>BILLIONAIRES</div>
+    <div id="page-counter">COVER · OF 5</div>
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-section-label">Front Matter</div>
+      <div class="sidebar-item active" onclick="goTo(0)">
+        <span class="num">—</span><span class="title">Cover</span>
+      </div>
+      <div class="sidebar-item" onclick="goTo(1)">
+        <span class="num">TOC</span><span class="title">Contents</span>
+      </div>
+      <div class="sidebar-item" onclick="goTo(2)">
+        <span class="num">INT</span><span class="title">Introduction</span>
+      </div>
+
+      <div class="sidebar-section-label" style="margin-top:10px">Section 1 — Foundation</div>
+      <div class="sidebar-item" onclick="goTo(3)">
+        <span class="num">01</span><span class="title">The Awakening</span>
+      </div>
+      <div class="sidebar-item" onclick="goTo(4)">
+        <span class="num">02</span><span class="title">Breaking the Salary Mindset</span>
+      </div>
+      <div class="sidebar-item" onclick="goTo(5)">
+        <span class="num">03</span><span class="title">The Identity Shift</span>
+      </div>
+
+      <div class="sidebar-section-label" style="margin-top:10px">Section 1 cont.</div>
+      <div class="sidebar-item" onclick="goTo(6)"><span class="num">04</span><span class="title">Thinking in Digital Assets</span></div>
+      <div class="sidebar-item" onclick="goTo(7)"><span class="num">05</span><span class="title">The Power of Ownership</span></div>
+      <div class="sidebar-section-label" style="margin-top:10px">Section 2</div>
+      <div class="sidebar-item" onclick="goTo(8)"><span class="num">06–09</span><span class="title">Market &amp; Positioning</span></div>
+      <div class="sidebar-section-label" style="margin-top:10px">Section 3</div>
+      <div class="sidebar-item" onclick="goTo(9)"><span class="num">10–13</span><span class="title">Build Your Digital Estate</span></div>
+      <div class="sidebar-item" onclick="goTo(10)"><span class="num">14–17</span><span class="title">Create, Package &amp; Sell</span></div>
+      <div class="sidebar-section-label" style="margin-top:10px">Section 4</div>
+      <div class="sidebar-item" onclick="goTo(11)"><span class="num">18–21</span><span class="title">Scale &amp; Multiply</span></div>
+      <div class="sidebar-item" onclick="goTo(12)"><span class="num">22–25</span><span class="title">Community &amp; Campaigns</span></div>
+      <div class="sidebar-section-label" style="margin-top:10px">Section 5 — Legacy</div>
+      <div class="sidebar-item" onclick="goTo(13)"><span class="num">26–27</span><span class="title">Mediation &amp; Systems</span></div>
+      <div class="sidebar-item" onclick="goTo(14)"><span class="num">28–29</span><span class="title">Ownership &amp; Impact</span></div>
+      <div class="sidebar-section-label" style="margin-top:10px">🏆 Bonus</div>
+      <div class="sidebar-item" onclick="goTo(15)" style="border-left:2px solid var(--gold-dim)"><span class="num" style="color:var(--gold-bright)">30</span><span class="title" style="color:var(--gold-pale)">7-Day Challenge</span></div>
+      <div class="sidebar-item" onclick="goTo(16)"><span class="num">END</span><span class="title">Conclusion — Legacy</span></div>
+    </div>
+
+    <!-- BOOK VIEWPORT -->
+    <div id="book-viewport">
+      <div id="page-container">
+
+        <!-- ═══════════════════════════════ PAGE 0 — COVER ═══════════════════════════════ -->
+        <div class="page active" id="p0">
+          <div id="page-cover">
+            <div class="cover-eyebrow">Your Roadmap From Salary Struggles To Digital Ownership &amp; Financial Freedom</div>
+
+            <div class="cover-main-title">
+              <span class="line1"><span class="zero">ZERO</span><span class="two">2</span></span>
+              <span class="line2"><span class="bill">BILLION</span><span class="aires">AIRES</span></span>
+            </div>
+
+            <div class="cover-subtitle">
+              From Salary Struggles or No Income →<br>
+              <strong style="color:var(--gold-bright);font-style:normal">Build a Digital Estate with AI</strong><br>
+              and Create Lasting Income
+            </div>
+
+            <div class="cover-divider"></div>
+
+            <div class="cover-author">Rev Mokoro Manana</div>
+
+            <div class="cover-pillars">
+              <div class="cover-pillar">
+                <div class="pillar-icon">💡</div>
+                <div class="pillar-label">Shift Your Mindset</div>
+              </div>
+              <div class="cover-pillar">
+                <div class="pillar-icon">📦</div>
+                <div class="pillar-label">Create Digital Products</div>
+              </div>
+              <div class="cover-pillar">
+                <div class="pillar-icon">📈</div>
+                <div class="pillar-label">Build Income Systems</div>
+              </div>
+              <div class="cover-pillar">
+                <div class="pillar-icon">🏛️</div>
+                <div class="pillar-label">Own Your Future</div>
+              </div>
+            </div>
+
+            <div class="cover-badge">No Capital · No Experience · No Problem · Just Action · Real Results</div>
+              <div class="upgrade-cta">
+                <div class="cta-eyebrow">🔒 Preview Edition</div>
+                <div class="cta-headline">This Is Just The Preview</div>
+                <div class="cta-sub">You are reading a preview of the Zero2Billionaires Business System. Upgrade to unlock everything.</div>
+                <ul class="cta-features">
+                  <li><span class="icon">📖</span> Read the Complete eBook — All 30 Chapters</li>
+                  <li><span class="icon">🛠️</span> Access the Z2B 4M Mobile Money Making Machine</li>
+                  <li><span class="icon">⚡</span> Coach Manlaw — Your AI Business Executioner</li>
+                  <li><span class="icon">📄</span> Downloadable PDF — Your Business Blueprint</li>
+                  <li><span class="icon">🎧</span> Audio Reader — Learn On The Go</li>
+                  <li><span class="icon">🌐</span> Unlock the Whole Zero2Billionaires Business System</li>
+                </ul>
+                <button class="btn-upgrade" onclick="openUpgradeModal()">🔓 UNLOCK THE SYSTEM — R500</button>
+                <span class="cta-signin" onclick="openUpgradeModal()">Already a member? Sign In →</span>
+              </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════ PAGE 1 — TOC ═══════════════════════════════ -->
+        <div class="page" id="p1">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Zero2Billionaires</div>
+              <div class="page-header-num">TOC</div>
+              <div class="page-header-title">Table of Contents</div>
+              <div class="page-header-subtitle">Your complete journey from Zero to Legacy</div>
+            </div>
+            <div class="page-body">
+              <div class="toc-section">
+                <div class="toc-section-title">🔷 Section 1 — Foundation of Transformation</div>
+                <div class="toc-item" onclick="goTo(3)"><span class="toc-item-num">01</span><span class="toc-item-title">The Awakening</span></div>
+                <div class="toc-item" onclick="goTo(4)"><span class="toc-item-num">02</span><span class="toc-item-title">Breaking the Salary Mindset</span></div>
+                <div class="toc-item" onclick="goTo(5)"><span class="toc-item-num">03</span><span class="toc-item-title">The Identity Shift</span></div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">04</span><span class="toc-item-title">Thinking in Digital Assets</span></div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">05</span><span class="toc-item-title">The Power of Ownership</span></div>
+              </div>
+              <div class="toc-section">
+                <div class="toc-section-title">🔷 Section 2 — Market &amp; Positioning Clarity</div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">06</span><span class="toc-item-title">Defining Your Customer</span></div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">07</span><span class="toc-item-title">Understanding Real Pain Points</span></div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">08</span><span class="toc-item-title">The Digital Opportunity Gap</span></div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">09</span><span class="toc-item-title">Why Simplicity Wins</span></div>
+              </div>
+              <div class="toc-section">
+                <div class="toc-section-title">🔷 Section 3 — The Digital Estate Wealth Engine</div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">10–17</span><span class="toc-item-title">Build · Create · Package · Sell</span></div>
+              </div>
+              <div class="toc-section">
+                <div class="toc-section-title">🔷 Section 4 — Scale, Systems &amp; Digital Empire</div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">18–25</span><span class="toc-item-title">Multiply · Automate · Expand</span></div>
+              </div>
+              <div class="toc-section">
+                <div class="toc-section-title">🔷 Section 5 — Legacy Architecture</div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">26–29</span><span class="toc-item-title">Mediation · Systems · Ownership · Impact</span></div>
+              </div>
+              <div class="toc-section">
+                <div class="toc-section-title">🏆 Bonus Chapter 30</div>
+                <div class="toc-item" style="opacity:0.5"><span class="toc-item-num">30</span><span class="toc-item-title">7-Day First Digital Product Challenge</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════ PAGE 2 — INTRODUCTION ═══════════════════════════════ -->
+        <div class="page" id="p2">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Zero2Billionaires — Digital Edition</div>
+              <div class="page-header-num">INT</div>
+              <div class="page-header-title">Introduction</div>
+              <div class="page-header-subtitle">From Salary Struggles to Building a Digital Estate</div>
+            </div>
+            <div class="page-body">
+
+              <div class="intro-opening">
+                <p>For most people, life feels like a cycle: work a job that barely covers expenses, look for opportunities that never come, feel stuck between survival and uncertainty.</p>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔥</span>
+                <span class="section-label-text">Why This Book Exists</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">The real problem is not lack of effort. <strong>The real problem is lack of access to a simple, practical starting point for income creation.</strong></p>
+
+              <!-- ✦ SURGICAL INSERTION 1 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">What has been withheld from most people is not ability — it is access to a starting point that actually works. You were not created to wander without direction.</div>
+                <div class="scripture-text">"My people are destroyed for lack of knowledge…"</div>
+                <div class="scripture-ref">— Hosea 4:6</div>
+                <div class="scripture-application">The knowledge you are about to receive is not just information. It is an open door.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">The Shift The World Is Not Teaching Fast Enough</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">We are living in a new economy. A world where you don't need a physical shop to sell, you don't need capital to start, you don't need a degree to create value, you don't even need to be famous to earn income.</p>
+              <p class="body-text">Income is now created through <strong>digital products, simple systems, and AI-powered tools.</strong> But most people overthink it… so they never start.</p>
+
+              <div class="warning-block">
+                <div class="label">⚠ The Real Gap</div>
+                <p>The biggest gap in society today is not education. It is <strong>execution knowledge</strong>. People know they need more income — but they don't know where to start simply, safely, and realistically. <strong>This book closes that gap.</strong></p>
+              </div>
+
+              <!-- ✦ SURGICAL INSERTION 2 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Gaps exist not to define you, but to be crossed. What separates you from where you are going is not talent or timing — it is a step taken in the right direction.</div>
+                <div class="scripture-text">"For I know the plans I have for you… plans to give you hope and a future."</div>
+                <div class="scripture-ref">— Jeremiah 29:11</div>
+                <div class="scripture-application">This book is not a coincidence in your hands. It is part of your plan.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🚀</span>
+                <span class="section-label-text">What This Book Will Do For You</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">Zero2Billionaires is not designed to inspire you only. It is designed to <strong>guide you into action.</strong> It will show you how to shift your thinking, create digital products using AI, package and prepare something people can actually buy, and move from consuming information to creating income.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">⚡</span>
+                <span class="section-label-text">The 7-Day Turning Point</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">Inside this book, you will be guided through <strong>The 7-Day First Digital Product Challenge</strong> — a simple step-by-step process to create your first digital product, understand your first customer, package your knowledge, and prepare for your first sale. In 7 days, you move from: <strong>reader → creator.</strong></p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔑</span>
+                <span class="section-label-text">Final Truth Before You Begin</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">You do not need perfect conditions to start. You do not need more time. You do not need permission. You only need a starting point that actually works. And that is what this book gives you.</p>
+
+              <!-- ✦ SURGICAL INSERTION 3 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">You were not designed to remain at the starting line. What has been placed inside you — your knowledge, your experience, your story — was always meant to become more than you imagined.</div>
+                <div class="scripture-text">"Now to Him who is able to do exceedingly abundantly above all that we ask or think, according to the power that works in us…"</div>
+                <div class="scripture-ref">— Ephesians 3:20</div>
+                <div class="scripture-application">What you are about to build was already prepared for you. Step in.</div>
+              </div>
+
+              <div class="final-truth">
+                <p>Welcome to <strong>Zero2Billionaires</strong> — not as a dream, but as a starting point. From Salary Struggles or No Income, to Building a Digital Estate That Creates and Sells AI-Powered Digital Products.</p>
+              </div>
+
+              <div class="chapter-end">
+                <span class="chapter-end-line"></span>
+                
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Introduction — Full Chapter</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Introduction</span>
+                <span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════ PAGE 3 — CHAPTER 1 ═══════════════════════════════ -->
+        <div class="page" id="p3">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 1 — Foundation of Transformation</div>
+              <div class="page-header-num">01</div>
+              <div class="page-header-title">The Awakening</div>
+              <div class="page-header-subtitle">"The Moment You Realise It Was Never Just You"</div>
+            </div>
+            <div class="page-body">
+
+              <div class="pull-quote"><p>🔥 Read this slowly.</p></div>
+
+              <p class="body-text">There is a moment in almost everyone's life that nobody talks about. It usually happens quietly. Not in public. Not in celebration. Not in success. It happens late at night after checking your bank balance, or on your way to work when you realise nothing is changing, or when you sit alone and ask yourself a question you avoid too often:</p>
+
+              <div class="pull-quote"><p>"Is this really my life… or am I just surviving it?"</p></div>
+
+              <p class="body-text">And in that moment, something uncomfortable begins to surface. Not failure. Not laziness. But <strong>awareness.</strong></p>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">The Truth Most People Never Say Out Loud</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">If you are reading this book while feeling stuck financially, there is something important you need to understand: <strong>You are not alone.</strong> Millions of people wake up every day, go to work, apply for jobs, or search for opportunities — and still feel like they are running in circles. Not because they are incapable. But because they were never shown a simple starting point for building income outside the system they depend on.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">⚠️</span>
+                <span class="section-label-text">The Real Problem Is Not What You Think</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">Most people believe their financial situation is caused by lack of education, lack of opportunity, or lack of connections. But the deeper truth is this: They were never taught how to create income from what they already have. So they wait. They apply. They hope. They survive. And slowly, they start believing that this is just how life is supposed to be.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🧠</span>
+                <span class="section-label-text">The Moment Everything Starts To Shift</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">But then something happens. A frustration builds. A question appears: <em>"There must be another way."</em> Not a perfect way. Not an overnight way. But a simple starting point that does not require permission, capital, or status. That question is the beginning of everything. <strong>That question is the awakening.</strong></p>
+
+              <!-- ✦ SURGICAL INSERTION 1 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Every great turning point begins not with a plan, but with a question. That discomfort you have been feeling is not failure — it is purpose pressing against the boundaries of where you are.</div>
+                <div class="scripture-text">"Before I formed you in the womb I knew you… I ordained you."</div>
+                <div class="scripture-ref">— Jeremiah 1:5</div>
+                <div class="scripture-application">You were not created to stay asleep to your potential. The awakening you are experiencing right now is intentional.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔥</span>
+                <span class="section-label-text">What If The Problem Was Never You?</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">What if the real issue was not your ability… but your starting point? What if the reason you feel stuck is not because you are failing… but because you were never shown how to turn what you know, what you've experienced, and what you already have — into something that creates income?</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">This Is Where Your Journey Begins</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">This book is not here to motivate you. It is here to <strong>redirect you.</strong> Because in today's world, income is no longer limited to jobs, degrees, or physical businesses. A new reality exists — one where ordinary people can create income using digital products, simple systems, and AI-powered tools. But only if they start.</p>
+
+              <!-- ✦ SURGICAL INSERTION 2 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Starting is an act of faith. It requires you to move before everything is clear, before everything is perfect, and before everyone agrees.</div>
+                <div class="scripture-text">"Faith is the substance of things hoped for, the evidence of things not yet seen."</div>
+                <div class="scripture-ref">— Hebrews 11:1</div>
+                <div class="scripture-application">You do not need the full picture to take the first step. You only need enough light for the step in front of you.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔑</span>
+                <span class="section-label-text">The Shift You Are About To Make</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">As you continue reading this book, something will start to change: You will stop thinking like someone who is stuck. You will start thinking like someone who can create value. And slowly, you will begin to see opportunity where you once saw limitation — not because your life changed overnight, but because your thinking did.</p>
+
+              <!-- ✦ SURGICAL INSERTION 3 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">What is awakening inside you right now is not an accident. It is alignment. The awareness you feel is the beginning of a shift that was already designed for your life.</div>
+                <div class="scripture-text">"The steps of a good man are ordered by the Lord…"</div>
+                <div class="scripture-ref">— Psalm 37:23</div>
+                <div class="scripture-application">Your next step is not random. It is ordered.</div>
+              </div>
+
+              <div class="final-truth">
+                <p>Welcome to Zero2Billionaires — <strong>not as a dream, but as a starting point.</strong> From salary dependence and uncertainty… to building simple digital income systems that you control.</p>
+              </div>
+
+              <div class="chapter-end">
+                <span class="chapter-end-line"></span>
+                
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 1 — The Awakening</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapter 1 · The Awakening</span>
+                <span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════ PAGE 4 — CHAPTER 2 ═══════════════════════════════ -->
+        <div class="page" id="p4">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 1 — Foundation of Transformation</div>
+              <div class="page-header-num">02</div>
+              <div class="page-header-title">Breaking the Salary Mindset</div>
+              <div class="page-header-subtitle">"Why Hard Work Alone Is Not the Problem… But It's Also Not the Solution"</div>
+            </div>
+            <div class="page-body">
+
+              <p class="body-text">You wake up early. You show up on time. You work hard. And still… something doesn't change. The money comes in, but it disappears just as fast. The effort is real, but the progress feels invisible. The responsibility increases, but the freedom does not. And slowly, without you noticing, something dangerous begins to form: <strong>You start believing that this is normal.</strong></p>
+
+              <!-- ✦ SURGICAL INSERTION 1 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">What feels normal is not always what is true. Generations of people have accepted limitation not because it is their destiny — but because no one showed them a different way.</div>
+                <div class="scripture-text">"Do not conform to the pattern of this world, but be transformed by the renewing of your mind…"</div>
+                <div class="scripture-ref">— Romans 12:2</div>
+                <div class="scripture-application">Your mind is the first thing that must change before your income can.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">⚠️</span>
+                <span class="section-label-text">The Salary Trap Is Not What You Think</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">A salary is not evil. A job is not the enemy. But the mindset built around it can quietly become a limitation. The salary mindset teaches you three silent rules:</p>
+              <ul class="z2b-list">
+                <li>Work first, get paid later</li>
+                <li>Time equals money</li>
+                <li>Security comes from one source</li>
+              </ul>
+              <p class="body-text">On the surface, this sounds responsible. But underneath, it creates dependence. Because your income is tied to one employer, one schedule, one system you do not control.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">The Real Shift You Need To Understand</span>
+                <span class="section-label-line"></span>
+              </div>
+              <div class="highlight-block">
+                <p>Hard work without ownership does not automatically create freedom.</p>
+              </div>
+              <p class="body-text">Many people are working harder every year… but still living the same financial life. Not because they are failing. But because they are using a system designed for stability — not scale.</p>
+
+              <!-- ✦ SURGICAL INSERTION 2 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Effort without structure produces exhaustion. Effort with ownership produces increase. You were not created to labour without inheritance.</div>
+                <div class="scripture-text">"A good man leaves an inheritance to his children's children…"</div>
+                <div class="scripture-ref">— Proverbs 13:22</div>
+                <div class="scripture-application">The goal is not just to work harder. The goal is to build something that remains.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🧠</span>
+                <span class="section-label-text">The Question That Changes Everything</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">What if your job was never meant to be your only income source? What if it was simply: a starting point, a learning environment, a temporary stability tool — but not your full financial strategy?</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🚀</span>
+                <span class="section-label-text">The New Way of Thinking</span>
+                <span class="section-label-line"></span>
+              </div>
+              <table class="compare-table">
+                <tr><th>❌ Old Thinking</th><th>✅ New Thinking</th></tr>
+                <tr><td>"How can I survive this month?"</td><td>"How can I create something that pays me beyond this month?"</td></tr>
+                <tr><td>"Who will employ me?"</td><td>"What can I create that people will pay for?"</td></tr>
+                <tr><td>Waiting for permission to earn</td><td>Building income that doesn't need permission</td></tr>
+              </table>
+
+              <div class="section-label">
+                <span class="section-label-icon">🧭</span>
+                <span class="section-label-text">This Is Where Digital Products Enter The Story</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">Once your mindset shifts from earning money → creating income, you need a starting point that is simple, affordable, low-risk, and actionable. Digital products allow you to start without capital, create without permission, sell without physical infrastructure, and learn by doing — not waiting.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔑</span>
+                <span class="section-label-text">Final Truth of This Chapter</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">You do not break the salary mindset by quitting your job. You break it by <strong>building something that can exist without your job.</strong> Because the real shift is this: from relying on income… to creating income.</p>
+
+              <!-- ✦ SURGICAL INSERTION 3 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">This shift — from relying to creating — is not just a business decision. It is a Kingdom mindset. You were given the ability to produce, not merely to receive.</div>
+                <div class="scripture-text">"And you shall remember the Lord your God, for it is He who gives you power to get wealth…"</div>
+                <div class="scripture-ref">— Deuteronomy 8:18</div>
+                <div class="scripture-application">The power to create income was placed in you before you ever knew you needed it.</div>
+              </div>
+
+              <div class="chapter-end">
+                <span class="chapter-end-line"></span>
+                
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 2 — Breaking the Salary Mindset</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapter 2 · Breaking the Salary Mindset</span>
+                <span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════ PAGE 5 — CHAPTER 3 ═══════════════════════════════ -->
+        <div class="page" id="p5">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 1 — Foundation of Transformation</div>
+              <div class="page-header-num">03</div>
+              <div class="page-header-title">The Identity Shift</div>
+              <div class="page-header-subtitle">"You Don't Build Income Beyond the Person You Still Believe You Are"</div>
+            </div>
+            <div class="page-body">
+
+              <p class="body-text">Most people think their financial situation is the problem. But the deeper truth is this: <strong>Your income rarely rises beyond your identity.</strong> Not your dreams. Not your goals. Not your potential. Your <em>identity.</em></p>
+
+              <div class="section-label">
+                <span class="section-label-icon">⚠️</span>
+                <span class="section-label-text">The Hard Reality Most People Avoid</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">Many people want more income, better opportunities, financial freedom — but they still see themselves as <em>"Just an employee"</em> or <em>"Someone waiting for a break."</em> And here is the conflict: <strong>You cannot build a new financial life using an old identity.</strong></p>
+
+              <!-- ✦ SURGICAL INSERTION 1 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Identity is the foundation of everything that follows. What you believe about yourself determines what you attempt, what you complete, and what you walk away from.</div>
+                <div class="scripture-text">"As a man thinks in his heart, so is he."</div>
+                <div class="scripture-ref">— Proverbs 23:7</div>
+                <div class="scripture-application">You must see yourself differently before your results can look different.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">Three Identities That Define Your Financial Future</span>
+                <span class="section-label-line"></span>
+              </div>
+
+              <div class="identity-card">
+                <div class="identity-card-label">Stage 1</div>
+                <div class="identity-card-title">🔨 The Worker Identity</div>
+                <div class="identity-card-quote">"I exchange time for money"</div>
+                <ul class="identity-card-traits">
+                  <li>Focused on salary or survival income</li>
+                  <li>Dependent on external opportunities</li>
+                  <li>Measures success by monthly pay</li>
+                  <li>Income is capped by your time</li>
+                </ul>
+              </div>
+
+              <div class="identity-card">
+                <div class="identity-card-label">Stage 2</div>
+                <div class="identity-card-title">✨ The Creator Identity</div>
+                <div class="identity-card-quote">"I can create value that people will pay for"</div>
+                <ul class="identity-card-traits">
+                  <li>You don't need permission to create income</li>
+                  <li>You already have knowledge, experience, or skills</li>
+                  <li>Value can be packaged into something others need</li>
+                  <li>This is where digital products begin to make sense</li>
+                </ul>
+              </div>
+
+              <div class="identity-card">
+                <div class="identity-card-label">Stage 3</div>
+                <div class="identity-card-title">👑 The Owner Identity</div>
+                <div class="identity-card-quote">"I build systems that generate income beyond my direct effort"</div>
+                <ul class="identity-card-traits">
+                  <li>Digital products &amp; automated sales systems</li>
+                  <li>AI-supported creation &amp; scalable assets</li>
+                  <li>This is where your Digital Estate is born</li>
+                </ul>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">🧠</span>
+                <span class="section-label-text">Why Most People Never Shift</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">The shift is not technical. It is emotional. Because identity change requires letting go of comfort, accepting uncertainty, and trying something new without guarantees. So people delay it with <em>"I'm still learning"</em> or <em>"I need more time."</em> But underneath it all is one silent belief: <em>"Maybe I'm not that type of person."</em> And that belief keeps everything unchanged.</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔥</span>
+                <span class="section-label-text">You Must Become a Different Person</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">The shift begins when you accept this: You are not trying to become someone else. You are upgrading how you see yourself. You are a potential creator, a potential builder, a potential digital asset owner — but only if you start acting from that identity.</p>
+
+              <!-- ✦ SURGICAL INSERTION 2 — Original from Rev's surgical insertions -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">Transformation begins when identity changes — what you consistently do flows from who you believe you are. You were not created to remain in one form, but to grow into greater capacity.</div>
+                <div class="scripture-text">"Be transformed by the renewing of your mind…"</div>
+                <div class="scripture-ref">— Romans 12:2</div>
+                <div class="scripture-application">Change who you see yourself as, and your actions will follow.</div>
+              </div>
+
+              <div class="section-label">
+                <span class="section-label-icon">💡</span>
+                <span class="section-label-text">Identity Follows Action, Not The Other Way Around</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">You do not become a creator first — you become a creator by creating. You do not become an owner first — you become an owner by building something you control. Even something small. Even something imperfect. Even something simple like your first digital product. Your first digital product is not just a product. <strong>It is proof that your identity is shifting.</strong> From "I consume value" to "I create value."</p>
+
+              <div class="section-label">
+                <span class="section-label-icon">🔑</span>
+                <span class="section-label-text">Final Truth of This Chapter</span>
+                <span class="section-label-line"></span>
+              </div>
+              <p class="body-text">You will never permanently change your income without first changing your identity. Because you do not rise to the level of your goals. <strong>You fall or rise to the level of your identity.</strong> And this book is not just teaching you how to earn. It is guiding you into becoming someone who can.</p>
+
+              <!-- ✦ SURGICAL INSERTION 3 -->
+              <div class="scripture-box">
+                <div class="scripture-bridge">The person you are becoming through this process is not a stranger — it is the version of you that was always meant to emerge. Identity does not change overnight. It changes through decision, action, and repetition.</div>
+                <div class="scripture-text">"Therefore, if anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new."</div>
+                <div class="scripture-ref">— 2 Corinthians 5:17</div>
+                <div class="scripture-application">You are not just changing a mindset. You are stepping into the fullness of who you were created to be.</div>
+              </div>
+
+              <div class="chapter-end">
+                <span class="chapter-end-line"></span>
+                
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 3 — The Identity Shift</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapter 3 · The Identity Shift Begins</span>
+                <span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- PAGE 6 — CHAPTER 4 -->
+        <div class="page" id="p6">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 1 — Foundation of Transformation</div>
+              <div class="page-header-num">04</div>
+              <div class="page-header-title">Thinking in Digital Assets</div>
+              <div class="page-header-subtitle">"Why the Modern Economy Rewards What You Build, Not What You Trade Time For"</div>
+            </div>
+            <div class="page-body">
+              <p class="body-text">Most people are not poor because they don't work. They are poor because <strong>everything they earn depends on their presence.</strong> If they stop working → income stops. If they take a break → income pauses. They are living inside a system of constant effort with no lasting ownership.</p>
+              <div class="section-label"><span class="section-label-icon">💡</span><span class="section-label-text">What Is a Digital Asset?</span><span class="section-label-line"></span></div>
+              <p class="body-text">A digital asset is something you create once that can be sold repeatedly, accessed online, and generate value without your constant presence — eBooks, guides, templates, online courses, digital tools, AI-assisted content products.</p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">What is built with intention has the ability to produce beyond the moment it was created. True increase comes from what continues to give, not what is consumed once.</div>
+                <div class="scripture-text">"A good man leaves an inheritance…"</div>
+                <div class="scripture-ref">— Proverbs 13:22</div>
+                <div class="scripture-application">Focus on building what remains and continues to produce.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">🧠</span><span class="section-label-text">Old Way vs New Way</span><span class="section-label-line"></span></div>
+              <table class="compare-table">
+                <tr><th>❌ Old Way (Salary)</th><th>✅ New Way (Digital Assets)</th></tr>
+                <tr><td>Time → Money</td><td>Create once → Earn repeatedly</td></tr>
+                <tr><td>Effort → Paycheck</td><td>Build value → Sell continuously</td></tr>
+                <tr><td>Presence → Income</td><td>Use systems → Reduce effort over time</td></tr>
+              </table>
+              <div class="section-label"><span class="section-label-icon">💥</span><span class="section-label-text">Why Digital Assets Work for Beginners</span><span class="section-label-line"></span></div>
+              <p class="body-text">You do NOT need a business degree, a large budget, a physical shop, a big audience, or advanced technical skills. You only need a simple idea, a problem to solve, and the willingness to start. Your past experience is not wasted — <strong>it is raw material.</strong></p>
+              <div class="final-truth"><p>If you continue thinking in salary terms, you will always measure your value by time. But if you begin thinking in digital assets — you start measuring your value by what you build. And what you build can outlive your effort. That is <strong>creation freedom.</strong></p></div>
+              
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 4 — Thinking in Digital Assets</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <div class="chapter-end"><span class="chapter-end-line"></span><span class="chapter-end-text">Zero2Billionaires · Chapter 4 · Thinking in Digital Assets</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 7 — CHAPTER 5 -->
+        <div class="page" id="p7">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 1 — Foundation of Transformation</div>
+              <div class="page-header-num">05</div>
+              <div class="page-header-title">The Power of Ownership</div>
+              <div class="page-header-subtitle">"Why Freedom Begins the Moment You Stop Renting Your Income"</div>
+            </div>
+            <div class="page-body">
+              <div class="pull-quote"><p>If you stopped working today… what would still be earning you money?</p></div>
+              <p class="body-text">For most people, the honest answer is: Nothing. And that is not a motivation problem. <strong>It is an ownership problem.</strong></p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">Dominion begins where responsibility is accepted. What you do not own, you cannot fully control or multiply.</div>
+                <div class="scripture-text">"Be fruitful and multiply; fill the earth and subdue it…"</div>
+                <div class="scripture-ref">— Genesis 1:28</div>
+                <div class="scripture-application">Take ownership of what you build, so you can grow it.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">🧠</span><span class="section-label-text">Renting vs Owning</span><span class="section-label-line"></span></div>
+              <table class="compare-table">
+                <tr><th>🔴 Renting Mindset</th><th>🟢 Owning Mindset</th></tr>
+                <tr><td>Trade time for money</td><td>Build something once that keeps generating</td></tr>
+                <tr><td>Depend on one income source</td><td>Own multiple income streams</td></tr>
+                <tr><td>Restart every month</td><td>Build and scale over time</td></tr>
+              </table>
+              <div class="section-label"><span class="section-label-icon">🚀</span><span class="section-label-text">Your First Step Into Ownership</span><span class="section-label-line"></span></div>
+              <p class="body-text">Ownership does NOT start with a company or a large investment. It starts with <strong>your first digital product.</strong> Because the moment you create something once that can be sold repeatedly — you have stepped out of pure labor income and into ownership thinking. Even if it is small. Even if it is simple.</p>
+              <div class="final-truth"><p>If you do not own anything that generates income while you sleep… you are still inside the limits of labor-based living. But the moment you create even one digital asset that can be sold repeatedly — you begin to shift from <strong>worker → creator → owner.</strong> Not instantly. But permanently.</p></div>
+              
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 5 — The Power of Ownership</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <div class="upgrade-cta">
+                <div class="cta-eyebrow">🔒 Preview Edition</div>
+                <div class="cta-headline">Ready To Go Deeper?</div>
+                <div class="cta-sub">Everything you are reading is a taste of the full Zero2Billionaires Business System.</div>
+                <ul class="cta-features">
+                  <li><span class="icon">📖</span> Read the Complete eBook — All 30 Chapters</li>
+                  <li><span class="icon">🛠️</span> Access the Z2B 4M Mobile Money Making Machine</li>
+                  <li><span class="icon">⚡</span> Coach Manlaw — Your AI Business Executioner</li>
+                  <li><span class="icon">📄</span> Downloadable PDF — Your Business Blueprint</li>
+                  <li><span class="icon">🎧</span> Audio Reader — Learn On The Go</li>
+                  <li><span class="icon">🌐</span> Unlock the Whole Zero2Billionaires Business System</li>
+                </ul>
+                <button class="btn-upgrade" onclick="openUpgradeModal()">🔓 UNLOCK THE SYSTEM — R500</button>
+                <span class="cta-signin" onclick="openUpgradeModal()">Already a member? Sign In →</span>
+              </div>
+              <div class="chapter-end"><span class="chapter-end-line"></span><span class="chapter-end-text">Zero2Billionaires · Chapter 5 · The First Step Into Ownership</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 8 — CHAPTERS 6-9 SUMMARY -->
+        <div class="page" id="p8">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 2 — Market &amp; Positioning Clarity</div>
+              <div class="page-header-num">06–09</div>
+              <div class="page-header-title">Who You Serve &amp; What They Need</div>
+              <div class="page-header-subtitle">"Clarity of who you serve determines your success"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">👤</span><span class="section-label-text">Ch. 6 — Defining Your Customer</span><span class="section-label-line"></span></div>
+              <p class="body-text">There are two customers in the Z2B world: the <strong>salary struggler</strong> (employed, financially stuck) and the <strong>unemployed hustler</strong> (searching for direction). Both need the same starting point — a simple digital income path. Clarity of who you serve determines your success.</p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">Purpose is always connected to people. What you are building is not for everyone, but for those you are assigned to serve.</div>
+                <div class="scripture-text">"Let each of you look not only for his own interests, but also for the interests of others."</div>
+                <div class="scripture-ref">— Philippians 2:4</div>
+                <div class="scripture-application">Serve with clarity, and your value will become clear.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">💔</span><span class="section-label-text">Ch. 7 — Understanding Real Pain Points</span><span class="section-label-line"></span></div>
+              <p class="body-text">The real pain your customer feels is financial stress, dependency, and lack of direction. You must understand the real problem beneath the surface to position your solution with meaning. <strong>Solve real problems, and your work will carry real value.</strong></p>
+              <div class="section-label"><span class="section-label-icon">🌐</span><span class="section-label-text">Ch. 8 — The Digital Opportunity Gap</span><span class="section-label-line"></span></div>
+              <p class="body-text">Most people are not participating in the digital economy — not because they cannot, but because they do not know the entry point exists. <em>"My people are destroyed for lack of knowledge…" — Hosea 4:6.</em> The gap is not talent. It is access to the right starting point.</p>
+              <div class="section-label"><span class="section-label-icon">✂️</span><span class="section-label-text">Ch. 9 — Why Simplicity Wins</span><span class="section-label-line"></span></div>
+              <p class="body-text">Complexity kills execution. The simpler your product, your message, and your system — the faster you move. What is simple can be repeated, and what is repeated produces results. <em>"God is not the author of confusion…" — 1 Corinthians 14:33.</em></p>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 6–9 — Market & Positioning</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 6–9 · Section 2</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 9 — CHAPTERS 10-13 -->
+        <div class="page" id="p9">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 3 — The Digital Estate Wealth Engine</div>
+              <div class="page-header-num">10–13</div>
+              <div class="page-header-title">Build Your Digital Estate</div>
+              <div class="page-header-subtitle">"How You Build Income Using Digital Products + AI"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🏛️</span><span class="section-label-text">Ch. 10 — Introduction to the Digital Estate</span><span class="section-label-line"></span></div>
+              <p class="body-text">A Digital Estate is your system of income — a collection of digital assets that work for you continuously. Not a single product. Not a single sale. A <strong>structured income system</strong> that compounds over time.</p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">What is established with structure can continue beyond your presence. True building creates something that stands and produces over time.</div>
+                <div class="scripture-text">"The wise man built his house on the rock…"</div>
+                <div class="scripture-ref">— Matthew 7:24</div>
+                <div class="scripture-application">Build with structure so what you create can last.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">📦</span><span class="section-label-text">Ch. 11 — Digital Products Explained Simply</span><span class="section-label-line"></span></div>
+              <p class="body-text">Digital products solve problems. They are created once and sold many times. Examples: eBooks, guides, templates, courses, checklists, AI-assisted content packs. <em>"A man's gift makes room for him…" — Proverbs 18:16.</em> Use what is in your hands to create value for others.</p>
+              <div class="section-label"><span class="section-label-icon">🚪</span><span class="section-label-text">Ch. 12 — Why Digital Products Are the Best Entry Point</span><span class="section-label-line"></span></div>
+              <p class="body-text">Low capital. Low risk. Scalable income. No physical infrastructure. Beginner-friendly. AI-powered. <em>"See, I have set before you an open door…" — Revelation 3:8.</em> This is your open door — but only for those who step through it now.</p>
+              <div class="section-label"><span class="section-label-icon">💡</span><span class="section-label-text">Ch. 13 — Finding Your First Product Idea</span><span class="section-label-line"></span></div>
+              <p class="body-text">Your first product starts with what you know. Your experience, your story, the problems you have already lived through — this is your raw material. <em>"What is that in your hand?" — Exodus 4:2.</em> Start with what you have. Build from there.</p>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 10–13 — Build Your Estate</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 10–13 · Section 3</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 10 — CHAPTERS 14-17 -->
+        <div class="page" id="p10">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 3 — The Digital Estate Wealth Engine</div>
+              <div class="page-header-num">14–17</div>
+              <div class="page-header-title">Create, Package &amp; Sell</div>
+              <div class="page-header-subtitle">"From idea to income — your first product journey"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🤖</span><span class="section-label-text">Ch. 14 — Creating Digital Products Using AI</span><span class="section-label-line"></span></div>
+              <p class="body-text">AI helps you create faster — turning your idea into a structured guide, eBook, or template in hours instead of weeks. But tools increase capacity, they do not replace responsibility. <em>"The plans of the diligent lead surely to plenty…" — Proverbs 21:5.</em> Use AI wisely. Remain intentional.</p>
+              <div class="section-label"><span class="section-label-icon">🎁</span><span class="section-label-text">Ch. 15 — Packaging Your Digital Product for Sale</span><span class="section-label-line"></span></div>
+              <p class="body-text">Presentation affects perception. What is valuable must also be made visible. A great product poorly packaged is a hidden product. Give your product: a clear title, a promise, a description, and a professional appearance. <em>"Let all things be done decently and in order." — 1 Corinthians 14:40.</em></p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">Exchange is part of provision — value is given, and value is received. When what you offer helps others, there is no need for hesitation.</div>
+                <div class="scripture-text">"The worker deserves his wages."</div>
+                <div class="scripture-ref">— Luke 10:7</div>
+                <div class="scripture-application">Offer your value confidently and clearly.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">💰</span><span class="section-label-text">Ch. 16 — Basic Selling Strategy for Beginners</span><span class="section-label-line"></span></div>
+              <p class="body-text">Selling is simply making an offer. No complexity. No jargon. One simple message: <em>"I've created a guide that helps [person] solve [problem]. If you're interested, message me 'START'."</em> That is your first sales system.</p>
+              <div class="section-label"><span class="section-label-icon">🏆</span><span class="section-label-text">Ch. 17 — Building Your First Income Stream</span><span class="section-label-line"></span></div>
+              <p class="body-text">Your first sale creates your first confidence. Your first confidence builds your first system. <em>"Cast your bread upon the waters…" — Ecclesiastes 11:1.</em> Keep showing up. Results follow consistent action. First sale → first confidence → first system.</p>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 14–17 — Create, Package & Sell</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 14–17 · Section 3</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 11 — CHAPTERS 18-21 -->
+        <div class="page" id="p11">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 4 — Scale, Systems &amp; Digital Empire</div>
+              <div class="page-header-num">18–21</div>
+              <div class="page-header-title">Scale &amp; Multiply</div>
+              <div class="page-header-subtitle">"How You Multiply Income Beyond Yourself"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🏗️</span><span class="section-label-text">Ch. 18 — From One Product to a Digital Estate</span><span class="section-label-line"></span></div>
+              <p class="body-text">Your first product is the beginning — not the destination. <em>"Though your beginning was small, yet your latter end would increase abundantly." — Job 8:7.</em> One product becomes two. Two becomes a system. A system becomes an estate. Do not stop at one — build and expand.</p>
+              <div class="section-label"><span class="section-label-icon">⚙️</span><span class="section-label-text">Ch. 19 — Automation and AI Leverage</span><span class="section-label-line"></span></div>
+              <p class="body-text">Automation reduces manual effort. Wisdom seeks ways to multiply effort without increasing strain. What can be structured once should not require rebuilding every time. <em>"The wise store up knowledge…" — Proverbs 10:14.</em> Build in a way that preserves and multiplies your effort.</p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">What is planted and managed well continues to produce. Increase is sustained through structure, not chance.</div>
+                <div class="scripture-text">"While the earth remains, seedtime and harvest… shall not cease."</div>
+                <div class="scripture-ref">— Genesis 8:22</div>
+                <div class="scripture-application">Build systems that allow your efforts to keep producing.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">🔁</span><span class="section-label-text">Ch. 20 — Building Repeatable Income Systems</span><span class="section-label-line"></span></div>
+              <p class="body-text">Repeatable systems create consistency. One-time effort becomes recurring income. You stop starting from zero every month. The system runs. You optimize. You scale.</p>
+              <div class="section-label"><span class="section-label-icon">📡</span><span class="section-label-text">Ch. 21 — The Power of Distribution</span><span class="section-label-line"></span></div>
+              <p class="body-text">Your product must be seen. What is meant to bring value must not remain hidden. Visibility is part of impact. <em>"No one lights a lamp and puts it under a basket…" — Matthew 5:15.</em> Make what you build visible so it can serve others.</p>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 18–21 — Scale & Multiply</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 18–21 · Section 4</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 12 — CHAPTERS 22-25 -->
+        <div class="page" id="p12">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 4 — Scale, Systems &amp; Digital Empire</div>
+              <div class="page-header-num">22–25</div>
+              <div class="page-header-title">Community, Campaigns &amp; Multiplication</div>
+              <div class="page-header-subtitle">"From income to wealth thinking"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🤝</span><span class="section-label-text">Ch. 22 — Community &amp; Network Effect</span><span class="section-label-line"></span></div>
+              <p class="body-text">People multiply reach. Increase is strengthened through unity. What one cannot do alone, can be achieved together. <em>"Two are better than one…" — Ecclesiastes 4:9.</em> The Z2B Community is not just support — it is your network multiplier.</p>
+              <div class="section-label"><span class="section-label-icon">🔄</span><span class="section-label-text">Ch. 23 — The Invisible Sales Machine</span><span class="section-label-line"></span></div>
+              <p class="body-text">Follow-up drives conversion. Persistence creates results where initial effort may not. <em>"Let us not grow weary while doing good…" — Galatians 6:9.</em> Stay consistent. The sale you almost gave up on is the one that changes your trajectory.</p>
+              <div class="section-label"><span class="section-label-icon">🚀</span><span class="section-label-text">Ch. 24 — The Campaign Engine</span><span class="section-label-line"></span></div>
+              <p class="body-text">Campaigns create momentum. There are times to act with focus and intensity. When effort is concentrated, results accelerate. <em>"To everything there is a season…" — Ecclesiastes 3:1.</em> Recognize your moment and move with intention.</p>
+              <div class="scripture-box">
+                <div class="scripture-bridge">Multiplication is the natural outcome of what is structured and sustained. What is built correctly will increase beyond its starting point.</div>
+                <div class="scripture-text">"And God blessed them, and God said to them, 'Be fruitful and multiply…'"</div>
+                <div class="scripture-ref">— Genesis 1:28</div>
+                <div class="scripture-application">Build with multiplication in mind from the beginning.</div>
+              </div>
+              <div class="section-label"><span class="section-label-icon">✖️</span><span class="section-label-text">Ch. 25 — The Digital Multiplier</span><span class="section-label-line"></span></div>
+              <p class="body-text">Systems multiply effort. One product reaches many. One message reaches many. One system serves many. You are not just building income — you are engineering multiplication.</p>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 22–25 — Community & Campaigns</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <div class="upgrade-cta">
+                <div class="cta-eyebrow">🔒 Preview Edition</div>
+                <div class="cta-headline">Ready To Go Deeper?</div>
+                <div class="cta-sub">Everything you are reading is a taste of the full Zero2Billionaires Business System.</div>
+                <ul class="cta-features">
+                  <li><span class="icon">📖</span> Read the Complete eBook — All 30 Chapters</li>
+                  <li><span class="icon">🛠️</span> Access the Z2B 4M Mobile Money Making Machine</li>
+                  <li><span class="icon">⚡</span> Coach Manlaw — Your AI Business Executioner</li>
+                  <li><span class="icon">📄</span> Downloadable PDF — Your Business Blueprint</li>
+                  <li><span class="icon">🎧</span> Audio Reader — Learn On The Go</li>
+                  <li><span class="icon">🌐</span> Unlock the Whole Zero2Billionaires Business System</li>
+                </ul>
+                <button class="btn-upgrade" onclick="openUpgradeModal()">🔓 UNLOCK THE SYSTEM — R500</button>
+                <span class="cta-signin" onclick="openUpgradeModal()">Already a member? Sign In →</span>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 22–25 · Section 4</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 13 — CHAPTERS 26-27 LEGACY -->
+        <div class="page" id="p13">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 5 — From Builder to Legacy Architect</div>
+              <div class="page-header-num">26–27</div>
+              <div class="page-header-title">Strategic Mediation &amp; Systems</div>
+              <div class="page-header-subtitle">"You don't rise alone — you rise through aligned people, knowledge, and networks"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🌉</span><span class="section-label-text">Ch. 26 — The Power of Strategic Mediation</span><span class="section-label-line"></span></div>
+              <p class="body-text">No one rises alone. Behind every visible breakthrough is an invisible system of connections, corrections, and interventions. Strategic mediation operates at <strong>4 levels:</strong></p>
+              <ul class="z2b-list">
+                <li><strong>Level 1 — Knowledge Mediators:</strong> Books, courses, financial education. They transform your mindset.</li>
+                <li><strong>Level 2 — Human Mediators:</strong> Leaders (show the map), Coaches (navigate the journey), Mentors (share the road wisdom), Sponsors (speak for you in rooms you can't enter), Companions (celebrate and cry with you).</li>
+                <li><strong>Level 3 — Network Mediators:</strong> Communities, partnerships, referral ecosystems. They expand your reach.</li>
+                <li><strong>Level 4 — System Mediators:</strong> Business systems, digital platforms, automated income structures. They scale your results.</li>
+              </ul>
+              <div class="pull-quote"><p>"Your income grows to the level of your connections and corrections." — Z2B Wealth Equation</p></div>
+              <div class="section-label"><span class="section-label-icon">⚙️</span><span class="section-label-text">Ch. 27 — The Power of Systems</span><span class="section-label-line"></span></div>
+              <p class="body-text">Hard work can feed you. A system can <strong>free you.</strong> Stop asking "How can I work more?" Start asking "How can this work without me?" The 4 wealth systems: Income Systems, Marketing Systems, Operations Systems, Growth Systems. Systems outlive you — and that is how wealth becomes generational.</p>
+              <div class="final-truth"><p>You do not just work — you build systems that <strong>earn without you, grow beyond you, and outlive you.</strong></p></div>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 26–27 — Mediation & Systems</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 26–27 · Section 5</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 14 — CHAPTERS 28-29 LEGACY -->
+        <div class="page" id="p14">
+          <div class="content-page">
+            <div class="page-header">
+              <div class="page-header-eyebrow">Section 5 — From Builder to Legacy Architect</div>
+              <div class="page-header-num">28–29</div>
+              <div class="page-header-title">Ownership &amp; Impact</div>
+              <div class="page-header-subtitle">"You don't just earn — you own assets that outlive you and serve others"</div>
+            </div>
+            <div class="page-body">
+              <div class="section-label"><span class="section-label-icon">🏛️</span><span class="section-label-text">Ch. 28 — The Power of Ownership</span><span class="section-label-line"></span></div>
+              <p class="body-text">Income feeds you. <strong>Ownership frees you.</strong> The Zero2Billionaires journey calls you to Level 3 — not just earning or managing money, but <em>owning assets that produce money.</em> The Z2B Land Strategy: Digital Products → Generate Income → Acquire Land → Develop Systems → Transform Lives.</p>
+              <ul class="z2b-list">
+                <li><strong>Agricultural Land</strong> — Feeding nations, creating jobs, community sustainability</li>
+                <li><strong>Industrial Land</strong> — Production power, manufacturing, economic independence</li>
+                <li><strong>Commercial Property</strong> — Controlling economic activity, rental income</li>
+                <li><strong>Human Settlement Land</strong> — The highest calling: free housing for seniors, employment for the middle-aged, education for disadvantaged children</li>
+              </ul>
+              <div class="pull-quote"><p>"We are blessed to be a blessing." — Zero2Billionaires Kingdom Mandate</p></div>
+              <div class="section-label"><span class="section-label-icon">♾️</span><span class="section-label-text">Ch. 29 — The Power of Impact — How to Live Forever</span><span class="section-label-line"></span></div>
+              <p class="body-text">To live forever is not about escaping death. It is about designing systems, people, and structures that <strong>continue to produce value after you are no longer present.</strong> The 4 Channels of Impact: Knowledge Transfer, Opportunity Creation, Resource Distribution, System Inheritance.</p>
+              <div class="final-truth"><p>You live forever because what you built <strong>continues to produce life.</strong> When your knowledge is taught, your systems are running, your assets are working, and your impact is expanding — you have moved beyond success… into <strong>legacy.</strong></p></div>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapters 28–29 — Ownership & Impact</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Chapters 28–29 · Section 5</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 15 — BONUS CHAPTER 30: 7-DAY CHALLENGE -->
+        <div class="page" id="p15">
+          <div class="content-page">
+            <div class="page-header" style="background:linear-gradient(135deg,#1a0820 0%,#3d0550 60%,#0a0608 100%);">
+              <div class="page-header-eyebrow">Bonus Chapter 30 — The Execution Chapter</div>
+              <div class="page-header-num" style="color:rgba(240,192,64,0.2)">30</div>
+              <div class="page-header-title">The 7-Day First Digital Product Challenge</div>
+              <div class="page-header-subtitle">"From Zero to Your First Product — In One Week of Focused Action"</div>
+            </div>
+            <div class="page-body">
+              <div class="warning-block" style="border-color:var(--gold);background:rgba(201,162,39,0.06)">
+                <div class="label" style="color:var(--gold)">🔥 THE RULES</div>
+                <p style="color:#3a2808">No overthinking. No perfection. No delay. Your only focus: <strong>Complete your first digital product and attempt to sell it.</strong></p>
+              </div>
+              <div class="section-label"><span class="section-label-icon">📅</span><span class="section-label-text">Day-by-Day Execution Plan</span><span class="section-label-line"></span></div>
+              <div class="identity-card"><div class="identity-card-label">Day 1</div><div class="identity-card-title">🎯 Define Your Idea</div><div class="identity-card-quote">"How to help [person] solve [problem]"</div><ul class="identity-card-traits"><li>Choose ONE clear idea</li><li>Identify your target person</li><li>Name the problem you solve</li></ul></div>
+              <div class="identity-card"><div class="identity-card-label">Day 2</div><div class="identity-card-title">📋 Create Your Outline</div><div class="identity-card-quote">Use AI: "Create a simple step-by-step guide for [your idea]"</div><ul class="identity-card-traits"><li>Clear sections</li><li>Logical flow</li></ul></div>
+              <div class="identity-card"><div class="identity-card-label">Day 3</div><div class="identity-card-title">✍️ Create Your Content</div><div class="identity-card-quote">Expand each section. Keep it simple. Focus on clarity.</div><ul class="identity-card-traits"><li>Target: 5–15 pages</li><li>First full draft complete</li></ul></div>
+              <div class="identity-card"><div class="identity-card-label">Day 4</div><div class="identity-card-title">✂️ Simplify &amp; Finalise</div><div class="identity-card-quote">Remove unnecessary content. Add practical steps.</div><ul class="identity-card-traits"><li>Clean, beginner-friendly product</li></ul></div>
+              <div class="identity-card"><div class="identity-card-label">Day 5</div><div class="identity-card-title">🎁 Package Your Product</div><div class="identity-card-quote">Title · Promise · Description · What's inside</div><ul class="identity-card-traits"><li>Ready-to-present product</li></ul></div>
+              <div class="identity-card"><div class="identity-card-label">Day 6</div><div class="identity-card-title">💬 Prepare Your Sales Message</div><div class="identity-card-quote">"I've created a simple guide to help [person] solve [problem]. Message me 'START'."</div><ul class="identity-card-traits"><li>Ready-to-send message</li></ul></div>
+              <div class="identity-card" style="border-color:var(--gold)"><div class="identity-card-label" style="color:var(--gold-bright)">Day 7 🏆</div><div class="identity-card-title" style="color:var(--gold-bright)">🚀 Make Your First Offer</div><div class="identity-card-quote">Share your message. Send to contacts. Post in groups. Start conversations.</div><ul class="identity-card-traits"><li>First real attempt to sell</li><li>You are no longer a consumer — you are a participant in the economy</li></ul></div>
+              <div class="final-truth"><p>Action creates clarity. <strong>Clarity creates income.</strong> You don't need more time. You need 7 days of focused execution.</p></div>
+              <div class="chapter-end"><span class="chapter-end-line"></span>
+              <div class="locked-chapter-btn" onclick="openUpgradeModal()">
+                <div class="locked-icon">🔒</div>
+                <div class="locked-info">
+                  <div class="locked-title">Full Chapter: Chapter 30 — 7-Day Challenge</div>
+                  <div class="locked-desc">Upgrade to read the complete chapter</div>
+                </div>
+                <div class="locked-pill">R500 FULL ACCESS</div>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · Bonus Chapter 30 · Action Activated</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 16 — CONCLUSION -->
+        <div class="page" id="p16">
+          <div class="content-page">
+            <div class="page-header" style="background:linear-gradient(135deg,#0a1520 0%,#1a3060 60%,#0a0608 100%);">
+              <div class="page-header-eyebrow">Zero2Billionaires — Final Chapter</div>
+              <div class="page-header-num" style="color:rgba(240,192,64,0.15)">END</div>
+              <div class="page-header-title">Conclusion — From Zero to Legacy</div>
+              <div class="page-header-subtitle">Structured Book Summary &amp; Final Activation</div>
+            </div>
+            <div class="page-body">
+              <p class="body-text">Your entire journey in Zero2Billionaires is built on five foundational sections:</p>
+              <ul class="z2b-list">
+                <li><strong>Section 1:</strong> Awakening &amp; Financial Mind Shift</li>
+                <li><strong>Section 2:</strong> Understanding Wealth &amp; The Money Game</li>
+                <li><strong>Section 3:</strong> Becoming a Creator in the Digital Economy</li>
+                <li><strong>Section 4:</strong> Wealth Systems, Discipline &amp; Growth Principles</li>
+                <li><strong>Section 5:</strong> Legacy Building Systems — How to Live Forever</li>
+              </ul>
+              <div class="section-label"><span class="section-label-icon">🎯</span><span class="section-label-text">Final Declaration</span><span class="section-label-line"></span></div>
+              <p class="body-text">You are no longer a passive reader. You are no longer a passive learner. You are no longer a passive observer. You are now:</p>
+              <ul class="z2b-list">
+                <li>A <strong>Creator</strong></li>
+                <li>A <strong>Builder</strong></li>
+                <li>A <strong>System Thinker</strong></li>
+                <li>A <strong>Legacy Architect</strong></li>
+              </ul>
+              <div class="scripture-box">
+                <div class="scripture-bridge">You were never designed to depend on systems that limit you, but to build, expand, and multiply what has been placed in your hands. What you have learned is not just a method — it is a responsibility.</div>
+                <div class="scripture-text">"Well done, good and faithful servant; you were faithful over a few things, I will make you ruler over many things."</div>
+                <div class="scripture-ref">— Matthew 25:21</div>
+                <div class="scripture-application">Take what you now know and act — multiplication begins with what you do next.</div>
+              </div>
+              <div class="final-truth"><p>You started at Zero. But you were never meant to stay there. You are now equipped to build income, systems, ownership, and impact. And through what you build… <strong>others will rise.</strong></p></div>
+              <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid rgba(201,162,39,0.2)">
+                <div style="font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--purple);margin-bottom:4px">Rev Mokoro Manana</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:3px;color:var(--gold-dim)">Zero2Billionaires · Founder &amp; CEO · Systems Architect · Author</div>
+              </div>
+              <div class="chapter-end" style="margin-top:20px"><span class="chapter-end-line"></span>
+              <div class="upgrade-cta">
+                <div class="cta-eyebrow">🔒 Preview Edition</div>
+                <div class="cta-headline">Your Next Step Is One Decision Away</div>
+                <div class="cta-sub">You have seen the overview. Now unlock the complete system and start building today.</div>
+                <ul class="cta-features">
+                  <li><span class="icon">📖</span> Read the Complete eBook — All 30 Chapters</li>
+                  <li><span class="icon">🛠️</span> Access the Z2B 4M Mobile Money Making Machine</li>
+                  <li><span class="icon">⚡</span> Coach Manlaw — Your AI Business Executioner</li>
+                  <li><span class="icon">📄</span> Downloadable PDF — Your Business Blueprint</li>
+                  <li><span class="icon">🎧</span> Audio Reader — Learn On The Go</li>
+                  <li><span class="icon">🌐</span> Unlock the Whole Zero2Billionaires Business System</li>
+                </ul>
+                <button class="btn-upgrade" onclick="openUpgradeModal()">🔓 UNLOCK THE SYSTEM — R500</button>
+                <span class="cta-signin" onclick="openUpgradeModal()">Already a member? Sign In →</span>
+              </div>
+              <span class="chapter-end-text">Zero2Billionaires · You Will Testify!</span><span class="chapter-end-line" style="background:linear-gradient(90deg,var(--gold-dim),transparent);transform:scaleX(-1)"></span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-container -->
+    </div><!-- /book-viewport -->
+  </div><!-- /main -->
+
+  <!-- NAV CONTROLS -->
+  <div id="nav-controls">
+    <button class="nav-btn" id="btn-prev" onclick="navigate(-1)" disabled>◀ PREV</button>
+    <div class="chapter-dots" id="dots"></div>
+    <button class="nav-btn primary" id="btn-next" onclick="navigate(1)">NEXT ▶</button>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+  const PAGES  = ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16'];
+  const LABELS = ['Cover','Contents','Intro','Ch.1','Ch.2','Ch.3','Ch.4','Ch.5','Ch.6-9','Ch.10-13','Ch.14-17','Ch.18-21','Ch.22-25','Ch.26-27','Ch.28-29','Ch.30','Conclusion'];
+  const TOTAL  = PAGES.length;
+  let current  = 0;
+  let animating = false;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  PAGES.forEach((_,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  // Show only p0 on load, hide rest
+  PAGES.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (i !== 0) el.classList.remove('active');
+  });
+
+  function updateUI() {
+    document.getElementById('page-counter').textContent =
+      LABELS[current].toUpperCase() + ' · OF ' + TOTAL;
+    document.getElementById('progress-bar').style.width =
+      ((current / (TOTAL - 1)) * 100) + '%';
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === TOTAL - 1;
+    document.querySelectorAll('.dot').forEach((d, i) =>
+      d.classList.toggle('active', i === current));
+    document.querySelectorAll('.sidebar-item').forEach((el, i) =>
+      el.classList.toggle('active', i === current));
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL || idx === current || animating) return;
+    animating = true;
+
+    const dir     = idx > current ? 1 : -1;
+    const outEl   = document.getElementById(PAGES[current]);
+    const inEl    = document.getElementById(PAGES[idx]);
+    const outAnim = dir > 0 ? 'pageOutLeft' : 'pageOutRight';
+    const inAnim  = dir > 0 ? 'pageIn'      : 'pageInLeft';
+
+    // Animate OUT
+    outEl.style.animation = `${outAnim} 0.32s ease forwards`;
+
+    setTimeout(() => {
+      outEl.style.animation = '';
+      outEl.classList.remove('active');
+
+      // Animate IN
+      current = idx;
+      inEl.scrollTop = 0;
+      inEl.classList.add('active');
+      inEl.style.animation = `${inAnim} 0.35s ease forwards`;
+
+      setTimeout(() => {
+        inEl.style.animation = '';
+        animating = false;
+      }, 360);
+
+      updateUI();
+    }, 330);
+  }
+
+  function navigate(dir) { goTo(current + dir); }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  document.getElementById('book-viewport').addEventListener('touchstart',
+    e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.getElementById('book-viewport').addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
+  });
+
+  // Init UI state
+  updateUI();
+
+  function openUpgradeModal() {
+    document.getElementById('upgrade-modal').classList.add('open');
+  }
+  function closeUpgradeModal() {
+    document.getElementById('upgrade-modal').classList.remove('open');
+  }
+  function handleUpgrade() {
+    // Placeholder — wire to PayFast when connecting to Z2B system
+    alert('Payment integration coming soon. Contact Rev Mokoro Manana at app.z2blegacybuilders.co.za to upgrade.');
+  }
+  document.getElementById('upgrade-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeUpgradeModal();
+  });
+
+</script>
+
+<!-- UPGRADE MODAL -->
+<div id="upgrade-modal">
+  <div class="upgrade-modal-box">
+    <div class="modal-top">
+      <button class="btn-modal-close" onclick="closeUpgradeModal()">✕</button>
+      <div class="badge">🔒 PREVIEW EDITION — UPGRADE TO UNLOCK</div>
+      <h2>Unlock the Whole Zero2Billionaires Business System</h2>
+      <p>Not just a book — your complete starting system to create and sell your first digital product</p>
+    </div>
+    <div class="modal-price">
+      <div class="price-amount">R500</div>
+      <div class="price-label">One-time unlock · Everything included · No monthly fees</div>
+    </div>
+    <div class="modal-features">
+      <div class="modal-feature"><span class="f-icon">📖</span><span>Read the <strong>Complete eBook</strong> — All 30 Chapters in-app</span></div>
+      <div class="modal-feature"><span class="f-icon">🛠️</span><span>Access the <strong>Z2B 4M Mobile Money Making Machine</strong></span></div>
+      <div class="modal-feature"><span class="f-icon">⚡</span><span><strong>Coach Manlaw AI</strong> — Your Personal Business Executioner</span></div>
+      <div class="modal-feature"><span class="f-icon">📄</span><span><strong>PDF Download</strong> — Your complete business blueprint</span></div>
+      <div class="modal-feature"><span class="f-icon">🎧</span><span><strong>Audio Reader</strong> — Listen &amp; learn on the go</span></div>
+      <div class="modal-feature"><span class="f-icon">🌐</span><span>Full <strong>Z2B Business System</strong> access &amp; community</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-upgrade" onclick="handleUpgrade()">🔓 UNLOCK NOW — R500</button>
+      <button class="btn-modal-signin">Already a member? Sign In</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
