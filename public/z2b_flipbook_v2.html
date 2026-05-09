@@ -1006,8 +1006,9 @@
     border: 1px solid var(--gold);
     border-radius: 8px;
     width: 100%;
-    max-width: 480px;
-    overflow: hidden;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
     animation: modalIn 0.35s ease;
   }
   @keyframes modalIn {
@@ -2360,7 +2361,7 @@
       <div class="modal-feature"><span class="f-icon">🌐</span><span>Full <strong>Z2B Business System</strong> access &amp; community</span></div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-upgrade" onclick="handleUpgrade()">🔓 UNLOCK NOW — R700</button>
+      <button class="btn-modal-upgrade" onclick="window.location.href='/book?buy=r700'">🔓 UNLOCK NOW — R700</button>
       <button class="btn-modal-signin">Already a member? Sign In</button>
     </div>
   </div>
