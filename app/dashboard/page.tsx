@@ -249,6 +249,15 @@ function DashboardInner() {
 
   const tier      = profile.paid_tier || 'fam'
   const isFam     = tier === 'fam'
+  const isStarterPaid = tier === 'fam' && (profile.is_paid_member || profile.payment_status === 'paid')
+  const isFreeAffiliate = tier === 'fam' && !profile.is_paid_member && profile.payment_status !== 'paid'
+
+  // Display label — same database key, different display
+  const tierDisplayLabel = isStarterPaid
+    ? 'Starter Pack'
+    : isFreeAffiliate
+    ? 'Free Affiliate'
+    : tier.charAt(0).toUpperCase() + tier.slice(1)
   const tierColor = TIER_COLORS[tier] || '#6B7280'
   const ispRate   = TIER_ISP[tier] || 10
   const isAdmin   = ADMIN_ROLES.includes(profile.user_role)
@@ -427,7 +436,7 @@ function DashboardInner() {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1.5 rounded-full text-sm font-black border-2"
                 style={{ background:`${tierColor}20`, color:tierColor, borderColor:`${tierColor}60` }}>
-                {tier.toUpperCase()}
+                {tierDisplayLabel}
               </span>
               {roleInfo && (
                 <span className="px-3 py-1.5 rounded-full text-sm font-black border-2"
@@ -456,14 +465,14 @@ function DashboardInner() {
             </div>
             <div>
               <p className="text-xs text-gray-500 font-bold mb-1">Tier</p>
-              <p className="text-lg font-black" style={{ color:tierColor }}>{tier.toUpperCase()}</p>
+              <p className="text-lg font-black" style={{ color:tierColor }}>{tierDisplayLabel}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 font-bold mb-1">Status</p>
               <p className="text-lg font-black text-gray-700">
                 {profile.payment_status === 'suspended' ? '🚫 Suspended' :
                  profile.payment_status === 'pending'   ? '⏳ Pending'   :
-                 (profile.is_paid_member || profile.payment_status === 'paid') ? '✅ Active' : '🆓 Free'}
+                 (profile.is_paid_member || profile.payment_status === 'paid') ? '✅ Active' : '🤝 Free Affiliate'}
               </p>
             </div>
           </div>
@@ -517,8 +526,8 @@ function DashboardInner() {
             <div className="flex-1">
               <p className="text-gray-800 font-black text-lg">🚀 Ready to unlock more earnings?</p>
               <p className="text-gray-600 text-sm mt-0.5">
-                You're on <strong style={{ color:tierColor }}>{tier.toUpperCase()}</strong> —{' '}
-                {isFam     ? 'upgrade to Starter Pack (R500) to unlock the full Z2B Book System + 4M Machine' :
+                You're on <strong style={{ color:tierColor }}>{tierDisplayLabel}</strong> —{' '}
+                {isFreeAffiliate ? 'upgrade to Starter Pack (R700) to unlock the full Z2B Book System + 4M Machine' :
                  tier==='bronze'  ? 'upgrade to Copper (R5,000) for 22% ISP + more PWA apps' :
                  tier==='copper'  ? 'upgrade to Silver (R12,000) for 25% ISP + Automatic Power' :
                  tier==='silver'  ? 'upgrade to Gold (R24,000) for 28% ISP + Electric Power + AI Video Avatar' :
@@ -591,7 +600,7 @@ function DashboardInner() {
               style={{ background:'linear-gradient(135deg,#1e1b4b,#4c1d95)' }}>
               <div className="text-3xl mb-2">🔒</div>
               <p className="text-white font-black text-base mb-1">
-                You are a FAM Member — Free Affiliate Marketer
+                {isFreeAffiliate ? "You are a Free Affiliate Marketer" : "Welcome, Starter Pack Member"}
               </p>
               <p className="text-purple-200 text-sm mb-4 leading-relaxed">
                 You can see all features below but they are locked until you upgrade.<br/>
@@ -611,7 +620,7 @@ function DashboardInner() {
               <Link href="/pricing"
                 className="inline-block px-8 py-3 rounded-xl font-black text-purple-900 text-sm hover:scale-105 transition-transform"
                 style={{ background:'linear-gradient(135deg,#fbbf24,#D4AF37)' }}>
-                🚀 Upgrade Now — From R500 →
+                🚀 Upgrade Now — From R700 →
               </Link>
             </div>
           )}

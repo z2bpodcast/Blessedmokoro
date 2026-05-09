@@ -11,7 +11,7 @@ const LEGACY_PRODUCTS = [
     icon: '📖',
     items: [
       { id: 'flipbook', name: 'Zero2Billionaires Flipbook', price: 200, commission: 10, tag: 'R200', desc: 'Interactive digital flipbook — full book access. Includes first 3 features of 4M Manual Engine.', url: '/marketplace/product/book-ecosystem' },
-      { id: 'book-system', name: 'Z2B Book System', price: 500, commission: 10, tag: 'R500', desc: 'Full book + ALL 7 features of 4M Manual Engine + Audio Reader + Workbook + Coach Manlaw AI.', url: '/marketplace/product/book-ecosystem' },
+      { id: 'book-system', name: 'Z2B Book System', price: 700, commission: 10, tag: 'R700', desc: 'Full book + ALL 7 features of 4M Manual Engine + Audio Reader + Workbook + Coach Manlaw AI.', url: '/marketplace/product/book-ecosystem' },
     ]
   },
   {
@@ -19,10 +19,10 @@ const LEGACY_PRODUCTS = [
     icon: '⚡',
     items: [
       { id: '4m-bronze', name: '4M Manual Power FULL — Bronze', price: 2500, commission: 10, tag: 'R2,500', desc: 'Once-off. AI Offer Generator, Customer Finder, Post Generator, Reply System, Closing Assistant, Daily R300/Day Engine. 5 Digital Products. R200/referral income. 1 PWA App built.', url: '/pricing' },
-      { id: '4m-copper', name: '4M Manual Power FULL — Copper', price: 5000, commission: 10, tag: 'R5,000', desc: 'Once-off. Everything in Bronze + 10 Bonus Products, 2 PWA Apps Built, Household Expenses Programme, Full Sales Funnel.', url: '/pricing' },
+      { id: '4m-copper', name: '4M Manual Power FULL — Copper', price: 7000, commission: 10, tag: 'R5,000', desc: 'Once-off. Everything in Bronze + 10 Bonus Products, 2 PWA Apps Built, Household Expenses Programme, Full Sales Funnel.', url: '/pricing' },
       { id: '4m-silver', name: '4M Automatic Power — Silver', price: 12000, commission: 10, tag: 'R12,000', desc: 'Once-off. Product Multiplication Engine, 1-Click Launch Pack, 5-Day Follow-Up Sequences, 15 Bonus Products, 2 PWA Apps. Full AI automation begins.', url: '/pricing' },
       { id: '4m-gold', name: '4M Electric Power — Gold', price: 24000, commission: 10, tag: 'R24,000', desc: 'Once-off. AI Video Avatar, Full Automation Blueprints, daily sequences, 20 Bonus Products, 5 PWA Apps Built, 1-on-1 Coaching, Weekend Bootcamp, Gold Pool Profit Sharing.', url: '/pricing' },
-      { id: '4m-platinum', name: '4M Electric Power MAX — Platinum', price: 50000, commission: 10, tag: 'R50,000', desc: 'Once-off. All systems active. 7 PWA Apps Built, Distribution License, CEO Mastermind, Platinum Pool Profit Sharing, 3 months 1-on-1 Coaching.', url: '/pricing' },
+      { id: '4m-platinum', name: '4M Electric Power MAX — Platinum', price: 70000, commission: 10, tag: 'R50,000', desc: 'Once-off. All systems active. 7 PWA Apps Built, Distribution License, CEO Mastermind, Platinum Pool Profit Sharing, 3 months 1-on-1 Coaching.', url: '/pricing' },
     ]
   },
   {
@@ -168,7 +168,7 @@ function EarnPageContent() {
             <Link href="/marketplace/join"
               className="px-6 py-2.5 rounded-sm text-xs font-bold tracking-widest"
               style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '3px', background: 'linear-gradient(135deg,#c9a227,#f0c040)', color: '#080608' }}>
-              JOIN FREE TO GET YOUR LINK
+              JOIN FREE AS AFFILIATE TO GET YOUR LINK
             </Link>
           </div>
         )}

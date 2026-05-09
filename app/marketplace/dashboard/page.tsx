@@ -137,7 +137,7 @@ export default function MarketplaceDashboardPage() {
             <div className="text-xs text-white font-medium">{profile?.full_name}</div>
             <div className="text-[10px] text-[#5a4510] uppercase tracking-wide"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              {isFam ? 'FAM · Free' : profile?.paid_tier?.toUpperCase()}
+              {isFam && !profile?.is_paid_member ? 'Free Affiliate' : isFam && profile?.is_paid_member ? 'Starter Pack' : profile?.paid_tier?.toUpperCase()}
             </div>
           </div>
           <Link href="/marketplace"
@@ -356,7 +356,7 @@ export default function MarketplaceDashboardPage() {
                 <div className="h-[3px]" style={{ background: 'linear-gradient(90deg,#c9a227,#f0c040,#c9a227)' }} />
                 <div className="p-6">
                   <div className="text-[10px] tracking-[4px] text-[#5a4510] mb-2" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                    YOU ARE CURRENTLY EARNING 20% AS A FREE AFFILIATE
+                    YOU ARE A FREE AFFILIATE — EARN 20% ON MARKETPLACE SALES
                   </div>
                   <div className="text-2xl text-white mb-3" style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
                     Upgrade to a Full Z2B Member
@@ -398,7 +398,7 @@ export default function MarketplaceDashboardPage() {
                   <Link href="https://app.z2blegacybuilders.co.za/pricing"
                     className="block w-full py-3.5 text-center rounded-sm font-bold tracking-widest text-sm"
                     style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '4px', background: 'linear-gradient(135deg,#c9a227,#f0c040)', color: '#080608' }}>
-                    🚀 VIEW ALL PACKAGES — FROM R500
+                    🚀 VIEW ALL PACKAGES — FROM R700
                   </Link>
                 </div>
               </div>
@@ -413,7 +413,7 @@ export default function MarketplaceDashboardPage() {
               <div className="space-y-4">
                 {[
                   {
-                    step: '01', title: 'Starter Pack — R500 once-off',
+                    step: '01', title: 'Starter Pack — R700 once-off',
                     desc: 'Unlocks 4M Manual Power FULL (7 features), Coach Manlaw AI unlimited, all 99 Workshop Sessions, 5 Digital Products, 1 PWA App built for you. R850/month BFM after 60 days.'
                   },
                   {

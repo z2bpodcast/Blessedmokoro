@@ -294,7 +294,7 @@ function BookEcosystemContent() {
         </p>
 
         {/* Service pills */}
-        <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto mb-8">
           {SERVICES.map((s, i) => (
             <div key={i} className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 border border-[#5a4510]/40 rounded-sm"
               style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '1px', color: '#c9a227', background: 'rgba(201,162,39,0.05)' }}>
@@ -302,6 +302,91 @@ function BookEcosystemContent() {
             </div>
           ))}
         </div>
+
+        {/* ── LIVE EXAMPLE: Z2B Book ── */}
+        <div className="max-w-2xl mx-auto rounded-lg overflow-hidden mb-6"
+          style={{ border: '1px solid rgba(201,162,39,0.4)', background: 'rgba(0,0,0,0.3)' }}>
+          <div className="px-5 py-3 border-b border-[#5a4510]/30 flex items-center gap-2">
+            <span className="text-[10px] tracking-[3px] text-[#5a4510]"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              LIVE EXAMPLE — SEE WHAT YOUR BOOK BECOMES
+            </span>
+          </div>
+          <div className="p-5">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="text-4xl">📖</div>
+              <div>
+                <div className="text-white font-bold mb-1"
+                  style={{ fontFamily: 'Playfair Display, serif' }}>
+                  Zero2Billionaires
+                </div>
+                <div className="text-xs text-[#e8d48b] italic mb-2"
+                  style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                  by Rev Mokoro Manana — the book that built this entire ecosystem
+                </div>
+                <div className="text-xs text-[rgba(255,255,255,0.5)] leading-relaxed">
+                  From Salary Struggles or No Income → Build a Digital Estate with AI and Create Lasting Income
+                </div>
+              </div>
+            </div>
+
+            {/* Flipbook preview + purchase buttons */}
+            <div className="grid grid-cols-1 gap-3">
+              <a href="https://app.z2blegacybuilders.co.za/flipbook"
+                target="_blank"
+                className="flex items-center justify-between px-4 py-3 rounded-sm transition-all hover:opacity-90"
+                style={{ background: 'rgba(45,27,105,0.4)', border: '1px solid rgba(201,162,39,0.2)' }}>
+                <div>
+                  <div className="text-xs font-bold text-white mb-0.5">📖 Preview the Flipbook</div>
+                  <div className="text-[10px] text-[rgba(255,255,255,0.4)]">Read the first chapters free — no sign up needed</div>
+                </div>
+                <span className="text-[#c9a227] text-xs" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>FREE →</span>
+              </a>
+
+              <a href="https://app.z2blegacybuilders.co.za/flipbook?buy=r200"
+                target="_blank"
+                className="flex items-center justify-between px-4 py-3 rounded-sm transition-all hover:opacity-90"
+                style={{ background: 'rgba(201,162,39,0.12)', border: '1px solid rgba(201,162,39,0.35)' }}>
+                <div>
+                  <div className="text-xs font-bold text-[#f0c040] mb-0.5">📄 Full Flipbook Access</div>
+                  <div className="text-[10px] text-[rgba(255,255,255,0.4)]">Full interactive digital book — all chapters</div>
+                </div>
+                <span className="text-[#f0c040] font-bold text-sm" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>R200 →</span>
+              </a>
+
+              <a href="https://app.z2blegacybuilders.co.za/flipbook?buy=r500"
+                target="_blank"
+                className="flex items-center justify-between px-4 py-3 rounded-sm transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, rgba(45,27,105,0.6), rgba(201,162,39,0.1))', border: '1px solid #c9a227' }}>
+                <div>
+                  <div className="text-xs font-bold text-white mb-0.5">⚡ Full Book System</div>
+                  <div className="text-[10px] text-[rgba(255,255,255,0.4)]">PDF + Audio Reader + Workbook + 4M Machine Starter</div>
+                </div>
+                <span className="text-[#f0c040] font-bold text-sm" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>R700 →</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* ── BECOME AN AFFILIATE BUTTON ── */}
+        {!isMember && (
+          <div className="max-w-2xl mx-auto">
+            <a href="/marketplace/join"
+              className="flex items-center justify-center gap-3 w-full py-4 rounded-sm font-bold tracking-widest text-sm transition-all hover:opacity-90"
+              style={{
+                fontFamily: 'Bebas Neue, sans-serif',
+                letterSpacing: '4px',
+                background: 'linear-gradient(135deg, #1a7a30, #25a244)',
+                color: '#fff',
+              }}>
+              🤝 BECOME A FREE AFFILIATE — EARN 20% COMMISSION
+            </a>
+            <div className="text-center text-[10px] text-[rgba(255,255,255,0.25)] mt-2">
+              Free registration · Share this page · Earn 20% on every sale you refer
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* ── PACKAGES ── */}
