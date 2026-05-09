@@ -123,11 +123,14 @@ function FlipbookContent() {
       <div className="min-h-screen" style={{ background: '#080608' }}>
         {/* Access banner */}
         <div className="px-4 py-2 text-center text-xs"
-          style={{ background: 'linear-gradient(90deg,#2d1b69,#1a0d35)', borderBottom: '1px solid rgba(201,162,39,0.2)' }}>
+          style={{ background: 'linear-gradient(90deg,#2d1b69,#1a0d35)', borderBottom: '1px solid rgba(201,162,39,0.2)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <span style={{ color: '#5a4510', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
-            FLIPBOOK ACCESS · R200 PACKAGE · FIRST 3 FEATURES OF 4M MACHINE INCLUDED
+            FLIPBOOK ACCESS · R200 · FIRST 3 FEATURES OF 4M INCLUDED
           </span>
-          <a href="/book?buy=r700" className="ml-4 text-yellow-400 underline">Upgrade to Full System →</a>
+          <div style={{display:'flex',gap:'8px'}}>
+            <a href="/book" style={{fontFamily:'Bebas Neue,sans-serif',letterSpacing:'2px',fontSize:'0.6rem',padding:'4px 10px',border:'1px solid rgba(201,162,39,0.3)',borderRadius:'2px',color:'rgba(201,162,39,0.6)',textDecoration:'none'}}>🏠 HOME</a>
+            <a href="/book?buy=r700" style={{fontFamily:'Bebas Neue,sans-serif',letterSpacing:'2px',fontSize:'0.6rem',padding:'4px 10px',background:'linear-gradient(135deg,#c9a227,#f0c040)',borderRadius:'2px',color:'#080608',textDecoration:'none'}}>⚡ UPGRADE R700</a>
+          </div>
         </div>
         <iframe
           src="/z2b_flipbook_v2.html"
