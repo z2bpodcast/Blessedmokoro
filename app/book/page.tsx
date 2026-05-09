@@ -747,6 +747,14 @@ function z2bCloseModal(){document.getElementById('z2bPayModal').classList.remove
 function z2bToggleBank(t){document.getElementById('z2b-bank-'+t).classList.toggle('open');}
 function z2bCopy(txt,btn){navigator.clipboard.writeText(txt);btn.textContent='✓';setTimeout(function(){btn.textContent='COPY';},2000);}
 document.getElementById('z2bPayModal').addEventListener('click',function(e){if(e.target===this)z2bCloseModal();});
+
+// ── Auto-open modal if ?buy= param present ──────────────────
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var buy = params.get('buy');
+  if(buy === 'r200') { setTimeout(function(){ z2bOpenModal('r200'); }, 300); }
+  if(buy === 'r700') { setTimeout(function(){ z2bOpenModal('r700'); }, 300); }
+})();
 </script>
 `
 }
