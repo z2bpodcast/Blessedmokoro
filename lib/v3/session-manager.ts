@@ -102,6 +102,13 @@ function getServerClient() {
   return _serverClient
 }
 
+// V3 tables are not in generated Supabase types yet.
+// This helper returns a loosely-typed query builder for V3 tables only.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function v3Table(table: string): any {
+  return getServerClient().from(table as any)
+}
+
 // ── ACCESS CONTROL ───────────────────────────────────────────
 
 // Check if a builder can access the 4M Machine at all
@@ -237,8 +244,7 @@ export async function createGearSession(
   const tierDef = getTier(tier)
 
   // Check parallel session limit
-  const { count: activeSessions } = await supabase
-    .from('gear_sessions')
+  const { count: activeSessions } = await v3Table('gear_sessions')
     .select('*', { count: 'exact', head: true })
     .eq('builder_id', builderId)
     .eq('session_status', 'active')
@@ -253,8 +259,7 @@ export async function createGearSession(
     }
   }
 
-  const { data: session, error: createError } = await supabase
-    .from('gear_sessions')
+  const { data: session, error: createError } = await v3Table('gear_sessions')
     .insert({
       builder_id:      builderId,
       tier:            tier,
@@ -283,8 +288,7 @@ export async function getActiveSession(
 ): Promise<GearSession | null> {
   const supabase = getServerClient()
 
-  const { data } = await supabase
-    .from('gear_sessions')
+  const { data } = await v3Table('gear_sessions')
     .select('*')
     .eq('builder_id', builderId)
     .eq('session_status', 'active')
@@ -302,8 +306,7 @@ export async function getSession(
 ): Promise<GearSession | null> {
   const supabase = getServerClient()
 
-  const { data } = await supabase
-    .from('gear_sessions')
+  const { data } = await v3Table('gear_sessions')
     .select('*')
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -318,8 +321,7 @@ export async function getAllActiveSessions(
 ): Promise<GearSession[]> {
   const supabase = getServerClient()
 
-  const { data } = await supabase
-    .from('gear_sessions')
+  const { data } = await v3Table('gear_sessions')
     .select('*')
     .eq('builder_id', builderId)
     .eq('session_status', 'active')
@@ -373,8 +375,7 @@ export async function advanceGear(
     updateData[outputColumn] = gearOutput
   }
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update(updateData)
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -394,8 +395,7 @@ export async function saveContentDraft(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({ content_draft: content })
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -413,8 +413,7 @@ export async function saveQualityResult(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({
       quality_score:  score,
       quality_passed: passed,
@@ -434,8 +433,7 @@ export async function completeSession(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({
       session_status: 'completed',
       product_status: 'live',
@@ -455,8 +453,7 @@ export async function pauseSession(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({ session_status: 'paused' })
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -472,8 +469,7 @@ export async function resumeSession(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({ session_status: 'active' })
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -489,8 +485,7 @@ export async function abandonSession(
 ): Promise<boolean> {
   const supabase = getServerClient()
 
-  const { error } = await supabase
-    .from('gear_sessions')
+  const { error } = await v3Table('gear_sessions')
     .update({ session_status: 'abandoned' })
     .eq('id', sessionId)
     .eq('builder_id', builderId)
@@ -531,8 +526,7 @@ export async function cleanStaleSessions(builderId: string): Promise<number> {
   const supabase = getServerClient()
   const staleThreshold = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
 
-  const { data, error } = await supabase
-    .from('gear_sessions')
+  const { data, error } = await v3Table('gear_sessions')
     .update({ session_status: 'paused' })
     .eq('builder_id', builderId)
     .eq('session_status', 'active')
