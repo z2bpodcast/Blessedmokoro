@@ -307,8 +307,11 @@ function Gear1Inner() {
     }
 
     setStep('done')
-    // Clear sessionStorage — opportunity has been committed to DB
-    try { sessionStorage.removeItem('v3_selected_opportunity') } catch (_) {}
+    // Save intent for Gear 2 · Clear opportunity (committed to DB)
+    try {
+      sessionStorage.setItem('v3_gear1_intent', JSON.stringify(intent))
+      sessionStorage.removeItem('v3_selected_opportunity')
+    } catch (_) {}
 
     setTimeout(() => {
       router.push(data.redirect ?? '/ai-income/gear/2?session=' + sessionId)
