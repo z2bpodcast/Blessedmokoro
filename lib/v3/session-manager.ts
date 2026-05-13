@@ -112,7 +112,16 @@ export async function check4MAccess(builderId: string): Promise<AccessCheckResul
     .from('profiles')
     .select('paid_tier, gear_access, bfm_status, access_expires, v3_enrolled')
     .eq('id', builderId)
-    .single()
+    .single() as {
+      data: {
+        paid_tier:      string | null
+        gear_access:    number | null
+        bfm_status:     string | null
+        access_expires: string | null
+        v3_enrolled:    boolean | null
+      } | null
+      error: unknown
+    }
 
   if (error || !profile) {
     return { allowed: false, reason: 'Profile not found', redirect: '/login' }
@@ -163,7 +172,15 @@ export async function checkGearAccess(
     .from('profiles')
     .select('paid_tier, gear_access, bfm_status, access_expires')
     .eq('id', builderId)
-    .single()
+    .single() as {
+      data: {
+        paid_tier:      string | null
+        gear_access:    number | null
+        bfm_status:     string | null
+        access_expires: string | null
+      } | null
+      error: unknown
+    }
 
   if (error || !profile) {
     return { allowed: false, reason: 'Profile not found', redirect: '/login' }
@@ -207,7 +224,10 @@ export async function createGearSession(
     .from('profiles')
     .select('paid_tier, gear_access')
     .eq('id', builderId)
-    .single()
+    .single() as {
+      data: { paid_tier: string | null; gear_access: number | null } | null
+      error: unknown
+    }
 
   if (profileError || !profile) {
     return { session: null, error: 'Could not load builder profile' }
@@ -246,7 +266,7 @@ export async function createGearSession(
       automation_mode: tierDef.automationMode,
     })
     .select()
-    .single()
+    .single() as { data: GearSession | null; error: { message: string } | null }
 
   if (createError) {
     return { session: null, error: createError.message }
@@ -270,9 +290,9 @@ export async function getActiveSession(
     .eq('session_status', 'active')
     .order('updated_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
-  return (data as GearSession) ?? null
+  return (data as GearSession | null) ?? null
 }
 
 // Get a specific session (validates ownership)
@@ -287,9 +307,9 @@ export async function getSession(
     .select('*')
     .eq('id', sessionId)
     .eq('builder_id', builderId)
-    .single()
+    .maybeSingle()
 
-  return (data as GearSession) ?? null
+  return (data as GearSession | null) ?? null
 }
 
 // Get all active sessions (for Rocket Platinum pipeline)
