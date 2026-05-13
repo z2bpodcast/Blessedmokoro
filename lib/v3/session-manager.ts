@@ -233,7 +233,7 @@ export async function createGearSession(
     return { session: null, error: 'Could not load builder profile' }
   }
 
-  const tier = normaliseTier(profile.paid_tier)
+  const tier = normaliseTier(profile.paid_tier || 'fam')
   const tierDef = getTier(tier)
 
   // Check parallel session limit
