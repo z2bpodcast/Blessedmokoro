@@ -35,7 +35,10 @@ const GENERATING_MSGS = [
 ]
 
 // ── GEAR PROGRESS BAR ─────────────────────────────────────────
-function GearProgressBar({ current, gearAccess }: { current: number; gearAccess: number }) {
+import { memo } from 'react'
+
+// Memoized — prevents re-renders during generating state (LOW #12)
+const GearProgressBar = memo(function GearProgressBar({ current, gearAccess }: { current: number; gearAccess: number }) {
   const labels = ['IG', '1', '2', '3', '4', '5', '6', '7']
   return (
     <div style={{ padding: '12px 20px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -69,7 +72,7 @@ function GearProgressBar({ current, gearAccess }: { current: number; gearAccess:
       </div>
     </div>
   )
-}
+})
 
 // ── INTENT CARD ───────────────────────────────────────────────
 function IntentCard({ intent, onEdit }: { intent: IntentDefinition; onEdit: (field: string) => void }) {
@@ -158,7 +161,8 @@ function Gear1Inner() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
-      setAuthToken(session.access_token)
+      const token = session.access_token
+      setAuthToken(token)
 
       // Get gear access from profile
       const { data: profile } = await supabase
@@ -172,7 +176,7 @@ function Gear1Inner() {
       // Check for resumable session first
       const resumeSessionId = searchParams.get('session')
       if (resumeSessionId) {
-        await resumeSession(session.access_token, resumeSessionId)
+        await resumeSession(token, resumeSessionId)
         return
       }
 
@@ -189,7 +193,7 @@ function Gear1Inner() {
       }
 
       setOpportunity(opp)
-      await generateIntent(session.access_token, opp)
+      await generateIntent(token, opp)
     })
   }, [])
 
@@ -273,6 +277,7 @@ function Gear1Inner() {
 
     if (!res.ok || data.error) {
       setAdjustError(data.error ?? 'Adjustment failed. Please try again.')
+      setAdjustInput('')  // Clear stale input on error (LOW #11)
       setStep('review')
       return
     }
@@ -284,7 +289,8 @@ function Gear1Inner() {
   }
 
   async function handleConfirm() {
-    if (!intent || !sessionId) return
+    if (!intent) { setErrorMsg('No intent to confirm.'); setStep('error'); return }
+  if (!sessionId) { setErrorMsg('Session lost. Please start again.'); setStep('error'); return }
     setStep('confirming')
 
     const res = await fetch('/api/gear/1', {
@@ -476,13 +482,20 @@ function Gear1Inner() {
               </div>
               <div style={{ fontSize: '13px', color: MUTED, marginBottom: '28px', lineHeight: 1.7 }}>{errorMsg}</div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button onClick={() => opportunity && generateIntent(authToken, opportunity)}
-                  style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', fontFamily: 'Georgia,serif' }}>
-                  Try Again
-                </button>
+                {opportunity ? (
+                  <button onClick={() => generateIntent(authToken, opportunity)}
+                    style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', fontFamily: 'Georgia,serif' }}>
+                    Try Again
+                  </button>
+                ) : (
+                  <Link href="/ai-income/ignition"
+                    style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', textDecoration: 'none', fontFamily: 'Georgia,serif' }}>
+                    Return to Idea Ignition
+                  </Link>
+                )}
                 <Link href="/ai-income/ignition"
                   style={{ padding: '12px 24px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '13px', textDecoration: 'none', fontFamily: 'Georgia,serif' }}>
-                  Back to Ignition
+                  Start New Product
                 </Link>
               </div>
             </div>

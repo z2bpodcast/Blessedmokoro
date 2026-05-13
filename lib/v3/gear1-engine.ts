@@ -139,6 +139,8 @@ export async function runGear1(params: {
   if (!data.priceRecommended || data.priceRecommended < 99 || data.priceRecommended > 5000) {
     data.priceRecommended = deriveDefaultPrice(params.opportunity)
   }
+  // Hard clamp — prevent any price slipping through out of range
+  data.priceRecommended = Math.max(99, Math.min(4999, Math.round(data.priceRecommended)))
 
   // Ensure key problems array exists
   if (!Array.isArray(data.keyProblems) || data.keyProblems.length === 0) {
@@ -153,7 +155,7 @@ export async function runGear1(params: {
 
 export async function adjustGear1(params: {
   currentIntent: IntentDefinition
-  adjustment:    string  // builder's natural language request
+  adjustment:    string
   tierId:        string
 }): Promise<Gear1Result> {
   const prompt = `You generated this product intent definition:
@@ -177,6 +179,10 @@ Return the complete updated intent definition as valid JSON matching the origina
     return { intent: params.currentIntent, tokensUsed: result.tokensUsed, error: null }
   }
 
+  // Clamp price after adjustment too (LOW #10)
+  if (data.priceRecommended) {
+    data.priceRecommended = Math.max(99, Math.min(4999, Math.round(data.priceRecommended)))
+  }
   return { intent: data, tokensUsed: result.tokensUsed, error: null }
 }
 
@@ -255,12 +261,13 @@ function mapToValidFormat(raw: string): ProductFormat {
   for (const [key, val] of Object.entries(map)) {
     if (lower.includes(key)) return val
   }
+  console.warn('[gear1-engine] Unknown format:', raw, '— defaulting to ebook')
   return 'ebook' // safe default
 }
 
 function deriveDefaultPrice(opp: SelectedOpportunity): number {
-  if (opp.priceRangeMin && opp.priceRangeMax) {
-    return Math.round((opp.priceRangeMin + opp.priceRangeMax) / 2)
+  if (opp.priceRangeMin && opp.priceRangeMax && opp.priceRangeMin > 0) {
+    return Math.max(99, Math.round((opp.priceRangeMin + opp.priceRangeMax) / 2))
   }
   const formatPrices: Record<string, number> = {
     masterclass: 499, course: 399, toolkit: 349, workbook: 249,
@@ -271,7 +278,8 @@ function deriveDefaultPrice(opp: SelectedOpportunity): number {
 
 // ── INTENT SUMMARY FOR HANDOFF ─────────────────────────────────
 // Stripped version passed to Gear 2 (no internal fields)
-export function toGear2Handoff(intent: IntentDefinition): Record<string, unknown> {
+export function toGear2Handoff(intent: IntentDefinition | null): Record<string, unknown> | null {
+  if (!intent) return null
   return {
     productTitle:     intent.productTitle,
     productPurpose:   intent.productPurpose,
