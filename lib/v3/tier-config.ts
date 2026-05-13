@@ -87,7 +87,25 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     color:            '#6B7280',
     description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
   },
-  // 'free' is an alias for 'fam' — normaliseTier() maps it automatically
+  // free is an alias for fam — same values, normaliseTier() normalises it
+  free: {
+    id:               'fam',
+    label:            'Free Member',
+    vehicle:          'free',
+    priceZar:         0,
+    gearAccess:       0,
+    accessDays:       0,
+    bfmMonthlyZar:    0,
+    automationMode:   'none',
+    ideaIgnitionDepth:'none',
+    maxOpportunities: 0,
+    parallelSessions: 0,
+    hasBFM:           false,
+    isRocket:         false,
+    emoji:            '🌱',
+    color:            '#6B7280',
+    description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
+  },
   starter: {
     id:               'starter',
     label:            'Manual Starter',
