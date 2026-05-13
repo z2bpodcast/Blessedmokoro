@@ -84,20 +84,6 @@ const TIER_STRUCTURE_CONFIG: Record<string, StructureConfig> = {
     depthLabel: 'premium depth with bonus module',
     lengthGuide: '28-40 pages or 10-14 modules plus bonus',
   },
-  gold: {
-    minSections: 12, maxSections: 16,
-    keyPointsMin: 3, keyPointsMax: 5,
-    hasBonus: true,
-    depthLabel: 'elite depth with advanced content',
-    lengthGuide: '35-50 pages or 12-16 modules plus bonus',
-  },
-  platinum: {
-    minSections: 14, maxSections: 18,
-    keyPointsMin: 4, keyPointsMax: 6,
-    hasBonus: true,
-    depthLabel: 'flagship depth — comprehensive ecosystem',
-    lengthGuide: '45-65 pages or 14-18 modules plus bonus',
-  },
   rocket_gold: {
     minSections: 12, maxSections: 16,
     keyPointsMin: 3, keyPointsMax: 5,
