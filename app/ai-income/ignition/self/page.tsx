@@ -68,7 +68,7 @@ function SelfDiscoveryInner() {
   useEffect(() => {
     if (step !== 'thinking') return
     const interval = setInterval(() => {
-      setThinkingMsg(prev => (prev + 1) % THINKING_MSGS.length)
+      setThinkingMsg(prev => (prev + 1) % THINKING_MSGS_SELF.length)
     }, 3000)
     return () => clearInterval(interval)
   }, [step])
