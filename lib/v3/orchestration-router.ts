@@ -47,10 +47,21 @@ export interface OrchestrationDecision {
 // Replaceable per Law 14 — change model strings without
 // touching any other part of the codebase
 const MODEL_CONFIG = {
-  gpt:            'gpt-4o',              // Update to gpt-5 when available
+  gpt:            'gpt-4o',
   claude_sonnet:  'claude-sonnet-4-20250514',
   claude_haiku:   'claude-haiku-4-5-20251001',
 } as const
+
+// Fallback models if primary is unavailable
+const MODEL_FALLBACKS: Record<string, string> = {
+  'gpt-4o':                       'gpt-4-turbo',
+  'claude-sonnet-4-20250514':     'claude-3-5-sonnet-20241022',
+  'claude-haiku-4-5-20251001':    'claude-3-haiku-20240307',
+}
+
+export function getFallbackModel(model: string): string {
+  return MODEL_FALLBACKS[model] ?? model
+}
 
 // ── ROUTING TABLE ────────────────────────────────────────────
 // Maps every task type to the correct AI provider
@@ -349,36 +360,75 @@ export function routeTask(
 // These call the correct API based on the routing decision
 // Never called directly from UI — always through API routes
 
+// Retry helper — retries on transient errors (rate limits, 5xx)
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 2,
+  timeoutMs  = 45000
+): Promise<Response> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController()
+    const timer      = setTimeout(() => controller.abort(), timeoutMs)
+
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal })
+      clearTimeout(timer)
+
+      // Retry on 429 (rate limit) or 5xx (server error)
+      if (response.status === 429 || response.status >= 500) {
+        if (attempt < maxRetries) {
+          const delay = Math.pow(2, attempt) * 1000  // exponential backoff
+          await new Promise(resolve => setTimeout(resolve, delay))
+          continue
+        }
+      }
+      return response
+
+    } catch (e) {
+      clearTimeout(timer)
+      const msg = e instanceof Error ? e.message : String(e)
+      if (attempt === maxRetries) throw new Error('Max retries reached: ' + msg)
+      const delay = Math.pow(2, attempt) * 1000
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+  throw new Error('fetchWithRetry exhausted')
+}
+
 export async function callGPT(
   decision: OrchestrationDecision,
   userMessage: string,
   contextMessages: { role: 'user' | 'assistant'; content: string }[] = []
 ): Promise<{ content: string; error: string | null; tokensUsed: number }> {
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
-      },
-      body: JSON.stringify({
-        model:       decision.model,
-        max_tokens:  decision.maxTokens,
-        temperature: decision.temperature,
-        messages: [
-          { role: 'system', content: decision.systemPrompt },
-          ...contextMessages,
-          { role: 'user',   content: userMessage },
-        ],
-      }),
-    })
+    const response = await fetchWithRetry(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
+        },
+        body: JSON.stringify({
+          model:       decision.model,
+          max_tokens:  decision.maxTokens,
+          temperature: decision.temperature,
+          messages: [
+            { role: 'system', content: decision.systemPrompt },
+            ...contextMessages,
+            { role: 'user',   content: userMessage },
+          ],
+        }),
+      }
+    )
 
     if (!response.ok) {
       const err = await response.text()
       return { content: '', error: 'GPT API error: ' + err, tokensUsed: 0 }
     }
 
-    const data = await response.json()
+    const data       = await response.json()
     const content    = data.choices?.[0]?.message?.content ?? ''
     const tokensUsed = data.usage?.total_tokens ?? 0
 
@@ -396,7 +446,7 @@ export async function callClaude(
   contextMessages: { role: 'user' | 'assistant'; content: string }[] = []
 ): Promise<{ content: string; error: string | null; tokensUsed: number }> {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
       method:  'POST',
       headers: {
         'Content-Type':      'application/json',
@@ -472,38 +522,70 @@ export async function orchestrate(
 export function parseAIJson<T = Record<string, unknown>>(
   raw: string
 ): { data: T | null; error: string | null } {
+  // Attempt 1: strip markdown fences and parse directly
   try {
-    // Strip markdown code fences if present
     const cleaned = raw
       .replace(/^```json\s*/i, '')
       .replace(/^```\s*/i, '')
       .replace(/\s*```$/i, '')
       .trim()
+    return { data: JSON.parse(cleaned) as T, error: null }
+  } catch (_) {}
 
-    const data = JSON.parse(cleaned) as T
-    return { data, error: null }
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Parse failed'
-    return { data: null, error: 'JSON parse error: ' + msg }
-  }
+  // Attempt 2: extract first JSON object or array from prose
+  try {
+    const objMatch = raw.match(/\{[\s\S]*\}/)
+    const arrMatch = raw.match(/\[[\s\S]*\]/)
+    const match    = objMatch ?? arrMatch
+    if (match) {
+      return { data: JSON.parse(match[0]) as T, error: null }
+    }
+  } catch (_) {}
+
+  // Attempt 3: find JSON after a colon (common in AI responses like "Here is the JSON: {...}")
+  try {
+    const afterColon = raw.split(':').slice(1).join(':').trim()
+    if (afterColon.startsWith('{') || afterColon.startsWith('[')) {
+      return { data: JSON.parse(afterColon) as T, error: null }
+    }
+  } catch (_) {}
+
+  return { data: null, error: 'Could not extract valid JSON from AI response' }
 }
 
 // ── TOKEN BUDGET GUARD ───────────────────────────────────────
 // Law 15: Protect performance and token efficiency
 // Warn if a session is approaching token budget
 
-const SESSION_TOKEN_BUDGET = 50000 // tokens per gear session
+// Token budgets scale with tier (Law 15: token efficiency)
+const TIER_TOKEN_BUDGETS: Record<string, number> = {
+  starter:        30000,
+  bronze:         40000,
+  copper:         50000,
+  silver:         70000,
+  gold:           80000,
+  platinum:       100000,
+  rocket_gold:    150000,
+  rocket_platinum:200000,
+  default:        50000,
+}
+
+export function getTokenBudget(tierId: string): number {
+  return TIER_TOKEN_BUDGETS[tierId] ?? TIER_TOKEN_BUDGETS.default
+}
 
 export function checkTokenBudget(
   tokensUsed:  number,
-  sessionTotal:number
+  sessionTotal:number,
+  tierId:      string = 'default'
 ): { withinBudget: boolean; percentUsed: number; warning: boolean } {
+  const budget      = getTokenBudget(tierId)
   const total       = sessionTotal + tokensUsed
-  const percentUsed = Math.round((total / SESSION_TOKEN_BUDGET) * 100)
+  const percentUsed = Math.round((total / budget) * 100)
   const warning     = percentUsed > 80
 
   return {
-    withinBudget: total < SESSION_TOKEN_BUDGET,
+    withinBudget: total < budget,
     percentUsed,
     warning,
   }

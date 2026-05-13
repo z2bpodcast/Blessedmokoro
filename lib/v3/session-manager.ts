@@ -87,14 +87,19 @@ export interface AccessCheckResult {
 }
 
 // ── SUPABASE CLIENT ──────────────────────────────────────────
-// Uses server-side client for all session operations
-// Never use client-side Supabase for session management
+// Memoized server-side client — created once per module lifecycle
+// Never use client-side Supabase for session management (Law 19)
+let _serverClient: ReturnType<typeof createClient> | null = null
+
 function getServerClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+  if (!_serverClient) {
+    _serverClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+  }
+  return _serverClient
 }
 
 // ── ACCESS CONTROL ───────────────────────────────────────────
@@ -146,32 +151,41 @@ export async function check4MAccess(builderId: string): Promise<AccessCheckResul
 }
 
 // Check if a builder can access a specific gear
+// Combined access check — single DB round trip for both checks
 export async function checkGearAccess(
   builderId: string,
   gearNumber: number
 ): Promise<AccessCheckResult> {
-  // First check general 4M access
-  const base = await check4MAccess(builderId)
-  if (!base.allowed) return base
-
   const supabase = getServerClient()
 
-  const { data: profile } = await supabase
+  // Single query fetches all fields needed for both checks
+  const { data: profile, error } = await supabase
     .from('profiles')
-    .select('paid_tier, gear_access')
+    .select('paid_tier, gear_access, bfm_status, access_expires')
     .eq('id', builderId)
     .single()
 
-  if (!profile) {
+  if (error || !profile) {
     return { allowed: false, reason: 'Profile not found', redirect: '/login' }
   }
 
-  const tierGearAccess = profile.gear_access ?? 0
+  const tier = normaliseTier(profile.paid_tier || 'fam')
 
+  if (tier === 'fam') {
+    return { allowed: false, reason: 'Free tier cannot access the 4M Machine', redirect: '/pricing' }
+  }
+  if (profile.bfm_status === 'overdue' || profile.bfm_status === 'suspended') {
+    return { allowed: false, reason: 'BFM payment overdue', redirect: '/dashboard?bfm=overdue' }
+  }
+  if (profile.access_expires && new Date(profile.access_expires) < new Date()) {
+    return { allowed: false, reason: 'Access period expired', redirect: '/pricing?reason=expired' }
+  }
+
+  const tierGearAccess = profile.gear_access ?? 0
   if (gearNumber > tierGearAccess) {
     return {
       allowed:  false,
-      reason:   'Your current tier does not include Gear ' + String(gearNumber),
+      reason:   'Your tier does not include Gear ' + String(gearNumber),
       redirect: '/pricing?upgrade=gear' + String(gearNumber),
     }
   }
@@ -315,13 +329,24 @@ export async function advanceGear(
     7: 'distribution_data',
   }
 
+  // Gear 7 = product goes live, not a named gear-complete state
+  const productStatusMap: Record<number, string> = {
+    1: 'in_progress',
+    2: 'in_progress',
+    3: 'in_progress',
+    4: 'quality_check',
+    5: 'in_progress',
+    6: 'in_progress',
+    7: 'live',
+  }
+
   const outputColumn  = outputColumnMap[gearNumber]
-  const nextPhase     = (gearNumber + 1) as GearPhase
-  const statusColumn  = 'gear' + String(gearNumber) + '_complete' as ProductStatus
+  const nextPhase     = (gearNumber < 7 ? gearNumber + 1 : 7) as GearPhase
+  const newStatus     = productStatusMap[gearNumber] ?? 'in_progress'
 
   const updateData: Record<string, unknown> = {
     phase_current:   nextPhase,
-    product_status:  statusColumn,
+    product_status:  newStatus,
   }
 
   if (outputColumn) {
@@ -477,6 +502,25 @@ export function toPublicSession(session: GearSession): PublicGearSession {
     updated_at:     session.updated_at,
     // NEVER includes: quality_score, quality_passed, revision_count
   }
+}
+
+// ── STALE SESSION CLEANUP ───────────────────────────────────
+// Marks sessions stuck in 'active' for over 4 hours as 'paused'
+// Call this from a cron job or on user login
+export async function cleanStaleSessions(builderId: string): Promise<number> {
+  const supabase = getServerClient()
+  const staleThreshold = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+
+  const { data, error } = await supabase
+    .from('gear_sessions')
+    .update({ session_status: 'paused' })
+    .eq('builder_id', builderId)
+    .eq('session_status', 'active')
+    .lt('updated_at', staleThreshold)
+    .select('id')
+
+  if (error) return 0
+  return data?.length ?? 0
 }
 
 // ============================================================

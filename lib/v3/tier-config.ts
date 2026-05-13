@@ -87,25 +87,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     color:            '#6B7280',
     description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
   },
-  free: {
-    // Alias for fam — same definition
-    id:               'fam',
-    label:            'Free Member',
-    vehicle:          'free',
-    priceZar:         0,
-    gearAccess:       0,
-    accessDays:       0,
-    bfmMonthlyZar:    0,
-    automationMode:   'none',
-    ideaIgnitionDepth:'none',
-    maxOpportunities: 0,
-    parallelSessions: 0,
-    hasBFM:           false,
-    isRocket:         false,
-    emoji:            '🌱',
-    color:            '#6B7280',
-    description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
-  },
+  // 'free' is an alias for 'fam' — normaliseTier() maps it automatically
   starter: {
     id:               'starter',
     label:            'Manual Starter',
@@ -195,6 +177,8 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🥇',
     color:            '#D4AF37',
     description:      'All 7 Gears · 1-year access · Premium AI product creation',
+    // NOTE: gold/platinum have 365-day access like Rocket but are NOT Rocket tiers
+    // They do not get automation routing. isRocket=false is correct.
   },
   platinum: {
     id:               'platinum',
@@ -281,7 +265,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     bfmMonthlyZar:    0,
     automationMode:   'ultra',
     ideaIgnitionDepth:'elite',
-    maxOpportunities: 0, // unlimited
+    maxOpportunities: -1, // -1 = unlimited
     parallelSessions: 10,
     hasBFM:           false,
     isRocket:         true,
@@ -299,7 +283,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     bfmMonthlyZar:    0,
     automationMode:   'ultra',
     ideaIgnitionDepth:'elite',
-    maxOpportunities: 0, // unlimited
+    maxOpportunities: -1, // -1 = unlimited
     parallelSessions: 10,
     hasBFM:           false,
     isRocket:         true,
@@ -324,6 +308,16 @@ export function canAccessGear(tierId: string, gearNumber: number): boolean {
 }
 
 // Can a tier access Idea Ignition?
+// Helper: check if opportunity count is unlimited (-1)
+export function isUnlimitedOpportunities(maxOpps: number): boolean {
+  return maxOpps === -1
+}
+
+// Helper: get display count (shows Unlimited for -1)
+export function getOpportunityCountLabel(maxOpps: number): string {
+  return maxOpps === -1 ? 'Unlimited' : String(maxOpps)
+}
+
 export function canAccessIdeaIgnition(tierId: string): boolean {
   const tier = getTier(tierId)
   return tier.ideaIgnitionDepth !== 'none'
@@ -463,7 +457,7 @@ export const IGNITION_DEPTH_CONFIG = {
   expanded: { maxOpps: 5, hasGapAnalysis: true,  hasHistory: true,  hasMarketData: true  },
   full:     { maxOpps: 7, hasGapAnalysis: true,  hasHistory: true,  hasMarketData: true  },
   premium:  { maxOpps: 10, hasGapAnalysis: true, hasHistory: true,  hasMarketData: true  },
-  elite:    { maxOpps: 0, hasGapAnalysis: true,  hasHistory: true,  hasMarketData: true  }, // unlimited
+  elite:    { maxOpps: -1, hasGapAnalysis: true,  hasHistory: true,  hasMarketData: true  }, // -1 = unlimited
 } as const
 
 // ============================================================
