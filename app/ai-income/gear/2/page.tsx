@@ -69,8 +69,18 @@ const GearProgressBar = memo(function GearProgressBar({
 })
 
 // ── SECTION CARD ──────────────────────────────────────────────
-function SectionCard({ section, isBonus = false }: { section: ProductSection; isBonus?: boolean }) {
+function SectionCard({
+  section,
+  isBonus = false,
+  forceExpanded = false,
+}: {
+  section: ProductSection
+  isBonus?: boolean
+  forceExpanded?: boolean
+}) {
   const [expanded, setExpanded] = useState(false)
+  // Sync with parent expandAll (HIGH #3 + MEDIUM #7)
+  const isExpanded = forceExpanded || expanded
   const accentColor = isBonus ? CYAN : GOLD
 
   return (
@@ -82,7 +92,7 @@ function SectionCard({ section, isBonus = false }: { section: ProductSection; is
     }}>
       {/* Header row */}
       <button
-        onClick={() => setExpanded(p => !p)}
+        onClick={() => setExpanded(p => !p)}  // local toggle still works
         style={{
           width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center',
           gap: '12px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
@@ -114,14 +124,14 @@ function SectionCard({ section, isBonus = false }: { section: ProductSection; is
           {section.estimatedPages && (
             <span style={{ fontSize: '10px', color: MUTED }}>~{section.estimatedPages}p</span>
           )}
-          <span style={{ color: MUTED, fontSize: '16px', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          <span style={{ color: MUTED, fontSize: '16px', transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
             ↓
           </span>
         </div>
       </button>
 
       {/* Expanded content */}
-      {expanded && (
+      {isExpanded && (
         <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: '12px', paddingTop: '10px' }}>
             {section.purpose}
@@ -399,23 +409,29 @@ function Gear2Inner() {
 
               {/* Expand all toggle */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                <button onClick={() => setExpandAll(p => !p)}
-                  style={{ fontSize: '11px', color: MUTED, background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 0' }}>
-                  {expandAll ? '↑ Collapse all' : '↓ Expand all'}
+                <button
+                  onClick={() => setExpandAll(p => !p)}
+                  style={{
+                    fontSize: '11px', color: expandAll ? GOLD : MUTED,
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    padding: '4px 8px', borderRadius: '6px',
+                    transition: 'color 0.2s',
+                  }}>
+                  {expandAll ? '↑ Collapse all sections' : '↓ Expand all sections'}
                 </button>
               </div>
 
               {/* Sections */}
               <div>
                 {structure.sections.map(section => (
-                  <SectionCard key={section.number} section={section} />
+                  <SectionCard key={section.number} section={section} forceExpanded={expandAll} />
                 ))}
                 {structure.bonusSection && (
                   <div style={{ marginTop: '4px' }}>
                     <div style={{ fontSize: '10px', color: CYAN, letterSpacing: '2px', textTransform: 'uppercase', margin: '12px 0 8px', textAlign: 'center' }}>
                       ✦ Bonus Section Included
                     </div>
-                    <SectionCard section={structure.bonusSection} isBonus={true} />
+                    <SectionCard section={structure.bonusSection} isBonus={true} forceExpanded={expandAll} />
                   </div>
                 )}
               </div>
@@ -511,13 +527,17 @@ function Gear2Inner() {
                   </button>
                 ) : (
                   <Link href={'/ai-income/gear/1?session=' + sessionId}
-                    style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', textDecoration: 'none', fontFamily: 'Georgia,serif', display: 'inline-block' }}>
+                    style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, textDecoration: 'none', fontSize: '13px', fontFamily: 'Georgia,serif', display: 'inline-block' }}>
                     Back to Gear 1
                   </Link>
                 )}
                 <Link href="/dashboard"
                   style={{ padding: '12px 24px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '13px', textDecoration: 'none', fontFamily: 'Georgia,serif' }}>
                   Dashboard
+                </Link>
+                <Link href="/ai-income/ignition"
+                  style={{ padding: '12px 24px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)', fontSize: '12px', textDecoration: 'none', fontFamily: 'Georgia,serif' }}>
+                  Start New Product
                 </Link>
               </div>
             </div>

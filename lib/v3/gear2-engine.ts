@@ -112,6 +112,21 @@ const TIER_STRUCTURE_CONFIG: Record<string, StructureConfig> = {
     depthLabel: 'flagship automated structure',
     lengthGuide: '45-65 pages or 14-18 modules plus bonus',
   },
+  // Explicit gold and platinum entries (prevent starter fallback — HIGH #1)
+  gold: {
+    minSections: 12, maxSections: 16,
+    keyPointsMin: 3, keyPointsMax: 5,
+    hasBonus: true,
+    depthLabel: 'elite depth with advanced content',
+    lengthGuide: '35-50 pages or 12-16 modules plus bonus',
+  },
+  platinum: {
+    minSections: 14, maxSections: 18,
+    keyPointsMin: 4, keyPointsMax: 6,
+    hasBonus: true,
+    depthLabel: 'flagship depth — comprehensive ecosystem',
+    lengthGuide: '45-65 pages or 14-18 modules plus bonus',
+  },
 }
 
 function getStructureConfig(tierId: string): StructureConfig {
@@ -158,6 +173,9 @@ export async function runGear2(params: {
       finalStructure = refined
     }
     // If refinement fails, keep the GPT-5.x version — don't error
+    if (refineResult.error) {
+      console.warn('[gear2-engine] Claude refinement failed:', refineResult.error, '— using GPT-5.x version')
+    }
   }
 
   const totalTokens = archResult.tokensUsed + refineResult.tokensUsed
@@ -198,6 +216,7 @@ Return the complete updated structure as valid JSON matching the original format
   const { data } = parseAIJson<ProductStructure>(result.content)
 
   if (!data?.sections?.length) {
+    console.warn('[gear2-engine] Adjustment parse failed — keeping current structure')
     return { structure: params.currentStructure, tokensUsed: result.tokensUsed, error: null }
   }
 
@@ -294,46 +313,40 @@ function normaliseStructure(
   intent: IntentDefinition,
   config: StructureConfig
 ): ProductStructure {
-  // Ensure product title matches intent
-  raw.productTitle = intent.productTitle
-
-  // Ensure sections are numbered correctly
-  raw.sections = raw.sections.map((s, i) => ({
+  // Return a copy — never mutate the input (MEDIUM #4)
+  let sections = raw.sections.map((s, i) => ({
     ...s,
-    number: i + 1,
-    keyPoints: Array.isArray(s.keyPoints) ? s.keyPoints : [],
-    estimatedPages: s.estimatedPages ?? Math.ceil(2 + i * 0.5),
+    number:        i + 1,
+    keyPoints:     Array.isArray(s.keyPoints) ? s.keyPoints : [],
+    estimatedPages:s.estimatedPages
+      ? Math.round(s.estimatedPages)              // LOW #6: integer pages
+      : Math.max(2, 2 + Math.round(i * 0.5)),    // fallback integer
   }))
 
   // Clamp section count to tier limits
-  if (raw.sections.length > config.maxSections) {
-    raw.sections = raw.sections.slice(0, config.maxSections)
+  if (sections.length > config.maxSections) {
+    sections = sections.slice(0, config.maxSections)
   }
 
-  // Remove bonus if tier doesn't support it
-  if (!config.hasBonus) {
-    delete raw.bonusSection
+  return {
+    ...raw,
+    productTitle:     intent.productTitle,
+    sections,
+    totalSections:    sections.length,
+    bonusSection:     config.hasBonus ? raw.bonusSection : undefined,
+    contentFlow:      raw.contentFlow
+      || 'Each section builds on the previous, guiding the reader from problem awareness to full implementation.',
+    transformationArc:raw.transformationArc || intent.promiseStatement,
   }
-
-  raw.totalSections = raw.sections.length
-
-  // Ensure required fields
-  if (!raw.contentFlow) {
-    raw.contentFlow = 'Each section builds on the previous, guiding the reader from problem awareness to full implementation.'
-  }
-  if (!raw.transformationArc) {
-    raw.transformationArc = intent.promiseStatement
-  }
-
-  return raw
 }
 
 // ── GEAR 3 HANDOFF ────────────────────────────────────────────
 
 export function toGear3Handoff(
-  structure: ProductStructure,
+  structure: ProductStructure | null,
   intent:    IntentDefinition
-): Record<string, unknown> {
+): Record<string, unknown> | null {
+  if (!structure) return null
   return {
     productTitle:     structure.productTitle,
     totalSections:    structure.totalSections,
