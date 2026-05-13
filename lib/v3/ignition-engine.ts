@@ -15,6 +15,7 @@ import {
   isUnlimitedOpportunities,
 } from '@/lib/v3/tier-config'
 import { createClient } from '@supabase/supabase-js'
+import { randomUUID }    from 'crypto'
 
 // ── TYPES ────────────────────────────────────────────────────
 
@@ -479,6 +480,10 @@ Return ONLY valid JSON:
   const opportunities: IgnitionOpportunity[] = raw.map((o, i) => {
     const scoreEntry = scores.find(s => s.index === i)
     const score      = scoreEntry?.total ?? 50
+    // Log scoring failures for debugging (Low issue #10)
+    if (!scoreEntry) {
+      console.warn('[ignition-engine] No score for opportunity', i, '— using default 50')
+    }
 
     // Map score to demand level for display (score stays hidden)
     const demandDisplay = (score >= 80) ? 'very_high'
@@ -487,7 +492,7 @@ Return ONLY valid JSON:
       : 'low'
 
     return {
-      id:             crypto.randomUUID(),
+      id:             randomUUID(),
       title:          o.title,
       audience:       o.audience,
       transformation: o.transformation,
@@ -526,6 +531,7 @@ export async function saveIgnitionLog(params: {
   opportunitiesShown: IgnitionOpportunity[]
   selectedOpp?:     IgnitionOpportunity
 }) {
+  // Reuse same server client pattern as session-manager (module-level memoization)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

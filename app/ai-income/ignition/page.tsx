@@ -93,10 +93,10 @@ function IgnitionEntry() {
               <div style={{
                 width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: i === 0 ? GOLD : 'rgba(255,255,255,0.06)',
+                background: i === 0 ? GOLD : (i > 3 && tierLabel.includes('Starter')) || (i > 4 && tierLabel.includes('Bronze')) || (i > 5 && tierLabel.includes('Copper')) ? 'transparent' : 'rgba(255,255,255,0.06)',
                 border: '2px solid ' + (i === 0 ? GOLD : 'rgba(255,255,255,0.1)'),
                 fontSize: '11px', fontWeight: i === 0 ? 900 : 400,
-                color: i === 0 ? '#050A18' : MUTED,
+                color: i === 0 ? '#050A18' : (i > 3 && tierLabel.includes('Starter')) || (i > 4 && tierLabel.includes('Bronze')) || (i > 5 && tierLabel.includes('Copper')) ? 'rgba(255,255,255,0.15)' : MUTED,
               }}>
                 {label}
               </div>

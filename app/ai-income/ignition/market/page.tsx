@@ -28,6 +28,12 @@ const MUTED = '#64748B'
 
 type Step = 'params' | 'thinking' | 'results'
 
+const THINKING_MSGS_MARKET = [
+  'Scanning market demand...',
+  'Detecting opportunity gaps...',
+  'Ranking your best entries...',
+]
+
 function MarketDiscoveryInner() {
   const router = useRouter()
 
@@ -42,11 +48,7 @@ function MarketDiscoveryInner() {
   const [thinkingMsg,   setThinkingMsg]= useState(0)
   const [paramError,    setParamError] = useState('')
 
-  const THINKING_MSGS = [
-    'Scanning market demand...',
-    'Detecting opportunity gaps...',
-    'Ranking your best entries...',
-  ]
+  // THINKING_MSGS moved to module level
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -77,7 +79,14 @@ function MarketDiscoveryInner() {
       audience:  audience as MarketAudience,
     }
 
-    const res = await fetch('/api/idea-ignition', {
+    // Timeout guard — 55s abort (HIGH #14)
+    const controller = new AbortController()
+    const timeout    = setTimeout(() => controller.abort(), 55000)
+
+    let res: Response
+    try {
+      res = await fetch('/api/idea-ignition', {
+        signal: controller.signal,
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
@@ -90,6 +99,17 @@ function MarketDiscoveryInner() {
         route:       'market',
       }),
     })
+
+      clearTimeout(timeout)
+    } catch (e) {
+      clearTimeout(timeout)
+      const msg = (e instanceof Error && e.name === 'AbortError')
+        ? 'This is taking longer than expected. Please try again.'
+        : 'Something went wrong. Please try again.'
+      alert(msg)
+      setStep('params')
+      return
+    }
 
     const data = await res.json()
 
@@ -106,15 +126,20 @@ function MarketDiscoveryInner() {
 
   async function handleSelect(opp: IgnitionOpportunity) {
     setSelected(opp)
-    await fetch('/api/idea-ignition', {
+    // Save to sessionStorage — Gear 1 reads on mount (HIGH #3)
+    try {
+      sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({
+        title: opp.title, audience: opp.audience,
+        transformation: opp.transformation, format: opp.format,
+        priceRangeMin: opp.priceRangeMin, priceRangeMax: opp.priceRangeMax,
+      }))
+    } catch (_) {}
+    fetch('/api/idea-ignition', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
       body: JSON.stringify({ action: 'save_selection', opportunity: opp }),
-    })
-    router.push('/ai-income/gear/1?opp=' + encodeURIComponent(JSON.stringify({
-      title: opp.title, audience: opp.audience,
-      transformation: opp.transformation, format: opp.format,
-    })))
+    }).catch(console.error)
+    router.push('/ai-income/gear/1')
   }
 
   const SelectCard = ({ value, label, selected: sel, onSelect }: { value: string; label: string; selected: boolean; onSelect: () => void }) => (
@@ -218,7 +243,7 @@ function MarketDiscoveryInner() {
                 Discovering your opportunity
               </div>
               <div style={{ fontSize: '13px', color: MUTED }}>
-                {THINKING_MSGS[thinkingMsg]}
+                {THINKING_MSGS_MARKET[thinkingMsg]}
               </div>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
@@ -236,6 +261,16 @@ function MarketDiscoveryInner() {
                 </h2>
               </div>
 
+              {opportunities.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>🌍</div>
+                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', color: W, marginBottom: '8px' }}>No opportunities found</div>
+                  <div style={{ fontSize: '13px', color: MUTED, marginBottom: '16px' }}>Try a different category or geography to find active market gaps.</div>
+                  <button onClick={() => setStep('params')} style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: CYAN, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', fontFamily: 'Georgia,serif' }}>
+                    Change Parameters
+                  </button>
+                </div>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
                 {opportunities.map((opp, i) => (
                   <button key={opp.id} onClick={() => handleSelect(opp)}

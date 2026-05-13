@@ -50,7 +50,10 @@ export async function POST(req: NextRequest) {
     // Authenticate
     const { user, error: authError } = await getAuthUser(req)
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+      return NextResponse.json({
+        error:   'Session expired. Please refresh the page and try again.',
+        code:    'AUTH_EXPIRED',
+      }, { status: 401 })
     }
 
     // Check 4M access (tier gate + BFM + expiry)
@@ -77,6 +80,21 @@ export async function POST(req: NextRequest) {
     const tierId = normaliseTier(profile?.paid_tier || 'fam')
 
     // ── SYNTHESISE SELF DISCOVERY ─────────────────────────────
+    // Rate limit: max 10 synthesise calls per builder per day (HIGH #7)
+    if (action === 'synthesise_self' || action === 'synthesise_market') {
+      const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+      const { count: todayCount } = await (supabase.from as any)('idea_ignition_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('builder_id', user.id)
+        .gte('created_at', today + 'T00:00:00Z') as { count: number | null }
+
+      if ((todayCount ?? 0) >= 10) {
+        return NextResponse.json({
+          error: 'Daily idea limit reached. Come back tomorrow with fresh energy.',
+        }, { status: 429 })
+      }
+    }
+
     if (action === 'synthesise_self') {
       const {
         category,
@@ -102,6 +120,13 @@ export async function POST(req: NextRequest) {
       if (missing.length > 0) {
         return NextResponse.json({
           error: 'Please answer all 5 questions before continuing',
+        }, { status: 400 })
+      }
+      // Server-side minimum length validation (MEDIUM #8)
+      const tooShort = required.filter(k => (responses[k]?.trim().length ?? 0) < 10)
+      if (tooShort.length > 0) {
+        return NextResponse.json({
+          error: 'Please give more detail in each answer — at least one sentence each.',
         }, { status: 400 })
       }
 
@@ -197,7 +222,17 @@ export async function POST(req: NextRequest) {
         params?:      MarketParams
       }
 
-      if (!canRegenerate(regen_count)) {
+      // Verify regen count server-side (client value cannot be trusted)
+      const { data: logRecord } = await (supabase.from as any)('idea_ignition_logs')
+        .select('regen_count')
+        .eq('builder_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle() as { data: { regen_count: number } | null }
+
+      const serverRegenCount = logRecord?.regen_count ?? 0
+
+      if (!canRegenerate(serverRegenCount)) {
         return NextResponse.json({
           error: 'Maximum regenerations reached. Please select from the options shown.',
         }, { status: 429 })

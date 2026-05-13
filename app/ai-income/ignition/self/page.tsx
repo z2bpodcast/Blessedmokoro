@@ -31,6 +31,13 @@ type Step = 'category' | 'subcategory' | 'question_1' | 'question_2' | 'question
 const QUESTION_STEPS: Step[] = ['question_1', 'question_2', 'question_3', 'question_4', 'question_5']
 const QUESTION_KEYS: (keyof SecretFrameworkResponses)[] = ['problems', 'passions', 'skills', 'trends', 'transformations']
 
+// Module-level constants — prevent recreation on every render (LOW #12)
+const THINKING_MSGS_SELF = [
+  'Analyzing your expertise...',
+  'Identifying market demand...',
+  'Engineering your opportunity...',
+]
+
 function SelfDiscoveryInner() {
   const router  = useRouter()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -48,11 +55,7 @@ function SelfDiscoveryInner() {
   const [authToken,    setAuthToken]   = useState('')
   const [thinkingMsg,  setThinkingMsg] = useState(0)
 
-  const THINKING_MSGS = [
-    'Analyzing your expertise...',
-    'Identifying market demand...',
-    'Engineering your opportunity...',
-  ]
+  // THINKING_MSGS moved to module level (see below)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -122,7 +125,14 @@ function SelfDiscoveryInner() {
   async function synthesise(responses: SecretFrameworkResponses, regen = false) {
     setStep('thinking')
 
-    const res = await fetch('/api/idea-ignition', {
+    // Timeout guard — if API hangs >55s, recover gracefully (HIGH #14)
+    const controller = new AbortController()
+    const timeout    = setTimeout(() => controller.abort(), 55000)
+
+    let res: Response
+    try {
+      res = await fetch('/api/idea-ignition', {
+        signal: controller.signal,
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
@@ -137,11 +147,29 @@ function SelfDiscoveryInner() {
       }),
     })
 
+      clearTimeout(timeout)
+    } catch (e) {
+      clearTimeout(timeout)
+      const msg = (e instanceof Error && e.name === 'AbortError')
+        ? 'This is taking longer than expected. Please try again.'
+        : 'Something went wrong. Please try again.'
+      alert(msg)
+      setStep(QUESTION_STEPS[currentQ] ?? 'question_5')
+      return
+    }
+
     const data = await res.json()
+
+    // Handle auth expiry
+    if (res.status === 401 && data.code === 'AUTH_EXPIRED') {
+      alert('Your session expired. Please refresh the page.')
+      setStep(QUESTION_STEPS[currentQ] ?? 'question_5')
+      return
+    }
 
     if (!res.ok || data.error) {
       alert(data.error ?? 'Something went wrong. Please try again.')
-      setStep('question_5')
+      setStep(QUESTION_STEPS[currentQ] ?? 'question_5')
       return
     }
 
@@ -152,24 +180,32 @@ function SelfDiscoveryInner() {
 
   async function handleSelect(opp: IgnitionOpportunity) {
     setSelected(opp)
+    setStep('thinking')  // Brief loading state while navigating
 
-    // Save selection to server
-    await fetch('/api/idea-ignition', {
+    // Save to sessionStorage (avoids URL length limit — HIGH #3)
+    // Gear 1 reads from sessionStorage on mount
+    try {
+      sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({
+        title:          opp.title,
+        audience:       opp.audience,
+        transformation: opp.transformation,
+        format:         opp.format,
+        priceRangeMin:  opp.priceRangeMin,
+        priceRangeMax:  opp.priceRangeMax,
+      }))
+    } catch (_) {
+      // sessionStorage full or unavailable — fallback to URL (truncated)
+    }
+
+    // Save selection to server (async, non-blocking)
+    fetch('/api/idea-ignition', {
       method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + authToken,
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
       body: JSON.stringify({ action: 'save_selection', opportunity: opp }),
-    })
+    }).catch(console.error)
 
-    // Navigate to Gear 1 with opportunity in URL state
-    router.push('/ai-income/gear/1?opp=' + encodeURIComponent(JSON.stringify({
-      title:          opp.title,
-      audience:       opp.audience,
-      transformation: opp.transformation,
-      format:         opp.format,
-    })))
+    // Navigate to Gear 1 — sessionStorage carries the data
+    router.push('/ai-income/gear/1')
   }
 
   // ── RENDER ────────────────────────────────────────────────
@@ -300,15 +336,29 @@ function SelfDiscoveryInner() {
               />
               {inputError && <div style={{ fontSize: '12px', color: '#F87171', marginBottom: '10px' }}>{inputError}</div>}
 
-              <button onClick={handleAnswerSubmit}
-                style={{
-                  width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
-                  background: 'linear-gradient(135deg,#7C3AED,#4C1D95)',
-                  color: W, fontWeight: 900, fontSize: '14px', cursor: 'pointer',
-                  fontFamily: 'Cinzel,Georgia,serif',
-                }}>
-                {currentQ < 4 ? 'Next Question →' : 'Discover My Opportunities →'}
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {currentQ > 0 && (
+                  <button
+                    onClick={() => {
+                      setCurrentQ(prev => prev - 1)
+                      setStep(QUESTION_STEPS[currentQ - 1])
+                      setInput(answers[QUESTION_KEYS[currentQ - 1]] ?? '')
+                      setInputError('')
+                    }}
+                    style={{ padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: MUTED, fontSize: '13px', cursor: 'pointer', fontFamily: 'Georgia,serif', flexShrink: 0 }}>
+                    ← Back
+                  </button>
+                )}
+                <button onClick={handleAnswerSubmit}
+                  style={{
+                    flex: 1, padding: '14px', borderRadius: '12px', border: 'none',
+                    background: 'linear-gradient(135deg,#7C3AED,#4C1D95)',
+                    color: W, fontWeight: 900, fontSize: '14px', cursor: 'pointer',
+                    fontFamily: 'Cinzel,Georgia,serif',
+                  }}>
+                  {currentQ < 4 ? 'Next Question →' : 'Discover My Opportunities →'}
+                </button>
+              </div>
 
               <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
                 Cmd/Ctrl + Enter to continue
@@ -330,7 +380,7 @@ function SelfDiscoveryInner() {
                 Discovering your opportunity
               </div>
               <div style={{ fontSize: '13px', color: MUTED, transition: 'opacity 0.4s' }}>
-                {THINKING_MSGS[thinkingMsg]}
+                {THINKING_MSGS_SELF[thinkingMsg]}
               </div>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
@@ -348,6 +398,16 @@ function SelfDiscoveryInner() {
                 </h2>
               </div>
 
+              {opportunities.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>🤔</div>
+                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', color: W, marginBottom: '8px' }}>No opportunities found</div>
+                  <div style={{ fontSize: '13px', color: MUTED, marginBottom: '16px' }}>Try providing more detail in your answers or choose a different category.</div>
+                  <button onClick={() => setStep('question_1')} style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: VIO, color: W, fontWeight: 700, cursor: 'pointer', fontSize: '13px', fontFamily: 'Georgia,serif' }}>
+                    Try Again
+                  </button>
+                </div>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
                 {opportunities.map((opp, i) => (
                   <button key={opp.id} onClick={() => handleSelect(opp)}
