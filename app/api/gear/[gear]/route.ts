@@ -866,6 +866,10 @@ async function handleGear2(
 
     const handoff = toGear3Handoff(structure, intent)
 
+    if (!handoff) {
+      return NextResponse.json({ error: 'Could not build structure handoff.' }, { status: 500 })
+    }
+
     const { success, error: advanceError } = await advanceGear(sessionId, userId, 2, handoff)
 
     if (!success) {
