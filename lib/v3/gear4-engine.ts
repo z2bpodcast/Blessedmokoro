@@ -184,7 +184,8 @@ Write the revised section body content only (no title).`
         content:       result.content.trim(),
       })
     } else {
-      // Keep original if revision fails
+      // Keep original if revision fails — log for monitoring (LOW #9)
+      console.warn('[gear4-engine] Minor revision failed for section', weak.sectionNumber, '— keeping original')
       revisedSections.push({
         sectionNumber: weak.sectionNumber,
         content:       original.content,
@@ -200,7 +201,7 @@ Write the revised section body content only (no title).`
 function buildEvaluationPrompt(draft: ContentDraft, intent: IntentDefinition): string {
   // Build section summaries (first 300 chars each — token efficient)
   const sectionSummaries = draft.sections.map(s =>
-    `Section ${s.sectionNumber}: "${s.sectionTitle}"\n${s.content.substring(0, 300)}...`
+    `Section ${s.sectionNumber}: "${s.sectionTitle}"\n${s.content.substring(0, 500)}...`
   ).join('\n\n')
 
   return `You are the Z2B Quality Control Engine — the STRICT final gatekeeper.
@@ -310,9 +311,10 @@ export function isGear4Endpoint(tierId: string): boolean {
 // ── GEAR 5 HANDOFF ────────────────────────────────────────────
 
 export function toGear5Handoff(
-  draft:  ContentDraft,
+  draft:  ContentDraft | null,
   intent: IntentDefinition
-): Record<string, unknown> {
+): Record<string, unknown> | null {
+  if (!draft?.sections?.length) return null
   return {
     productTitle:     draft.productTitle,
     totalSections:    draft.totalSections,

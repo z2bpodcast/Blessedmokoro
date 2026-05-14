@@ -196,6 +196,7 @@ function Gear4Inner() {
       clearTimeout(timeout)
       const isTimeout = e instanceof Error && e.name === 'AbortError'
       setErrorMsg(isTimeout ? 'Quality review timed out. Please try again.' : 'Connection error.')
+      hasRun.current = false  // HIGH #3: reset so retry button works
       setStep('error')
       return
     }
@@ -204,6 +205,7 @@ function Gear4Inner() {
 
     if (!res.ok || data.error) {
       setErrorMsg(data.error ?? 'Quality review failed.')
+      hasRun.current = false  // HIGH #3: reset so retry button works
       setStep('error')
       return
     }
@@ -404,7 +406,13 @@ function Gear4Inner() {
                   ← Return to Gear 3 — Strengthen Content
                 </Link>
                 {/* After 2 major fails — allow bypass */}
-                <button onClick={handleConfirm}
+                <button
+                  onClick={() => {
+                    // MEDIUM #8: Warn builder before bypassing QC
+                    if (window.confirm('Your product did not pass quality review. Continuing may result in a lower-quality product. Are you sure?')) {
+                      handleConfirm()
+                    }
+                  }}
                   style={{ padding:'10px', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.08)', background:'transparent', color:'rgba(255,255,255,0.2)', fontSize:'11px', cursor:'pointer', fontFamily:'Georgia,serif' }}>
                   Continue anyway (not recommended)
                 </button>
