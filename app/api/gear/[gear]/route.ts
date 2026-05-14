@@ -277,9 +277,9 @@ async function handleGear6(
         seller_id:   userId,
         title:       listing.title,
         description: listing.description,
-        price:       listing.priceZar,
+        price:       listing.priceZar,        // column 'price' in marketplace_products
         format:      listing.format,
-        keywords:    listing.keywords,
+        keywords:    JSON.stringify(listing.keywords ?? []), // MEDIUM #7: safe JSONB
         status:      'active',
         session_id:  sessionId,
       })
@@ -293,6 +293,10 @@ async function handleGear6(
 
     // Build final session completion data
     const completionData = buildSessionComplete(pkg as any, intent as any)
+
+    if (!completionData) {
+      return NextResponse.json({ error: 'Could not build completion data.' }, { status: 500 })
+    }
 
     // Advance gear and complete session
     const { success } = await advanceGear(sessionId, userId, 6, completionData)

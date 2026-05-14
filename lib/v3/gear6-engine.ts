@@ -72,7 +72,7 @@ export async function buildDistributionPackage(params: {
   }
 
   // Validate and clamp price
-  listing.priceZar = Math.max(49, Math.min(4999, Math.round(listing.priceZar ?? intent.priceRecommended)))
+  listing.priceZar = Math.max(99, Math.min(4999, Math.round(listing.priceZar ?? intent.priceRecommended)))
 
   return buildWithSocialPosts(listing, intent, params.tierId, listingResult.tokensUsed)
 }
@@ -128,6 +128,7 @@ Return the complete updated listing as valid JSON in the same format.`
 
   const result = await orchestrate('distribution_strategy', prompt)
   if (result.error) {
+    console.warn('[gear6-engine] Adjustment API call failed — keeping current listing:', result.error)
     return { listing: params.currentListing, tokensUsed: result.tokensUsed, error: null }
   }
 
@@ -136,7 +137,7 @@ Return the complete updated listing as valid JSON in the same format.`
     return { listing: params.currentListing, tokensUsed: result.tokensUsed, error: null }
   }
 
-  data.priceZar = Math.max(49, Math.min(4999, Math.round(data.priceZar ?? params.currentListing.priceZar)))
+  data.priceZar = Math.max(99, Math.min(4999, Math.round(data.priceZar ?? params.currentListing.priceZar)))
   return { listing: data, tokensUsed: result.tokensUsed, error: null }
 }
 
@@ -238,7 +239,7 @@ function buildFallbackPosts(listing: MarketplaceListing): SocialPost[] {
     },
     {
       platform: 'whatsapp',
-      content:  `Hey! I just launched something I think you need to see.\n\n"${listing.title}" — ${listing.tagline}\n\nCheck it out: [link]`,
+      content:  `Hey! I just launched something I think you need to see.\n\n"${listing.title}" — ${listing.tagline}\n\nCheck the link in my bio.`,
       hashtags: [],
     },
   ]
@@ -259,9 +260,10 @@ export function isGear6Endpoint(tierId: string): boolean {
 // ── FINAL HANDOFF FOR SESSION COMPLETION ──────────────────────
 
 export function buildSessionComplete(
-  pkg:    DistributionPackage,
+  pkg:    DistributionPackage | null,
   intent: IntentDefinition
-): Record<string, unknown> {
+): Record<string, unknown> | null {
+  if (!pkg?.listing) return null
   return {
     productTitle:    pkg.listing.title,
     priceZar:        pkg.listing.priceZar,

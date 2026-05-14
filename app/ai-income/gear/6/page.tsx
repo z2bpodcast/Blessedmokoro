@@ -79,7 +79,15 @@ function SocialPostCard({ post }: { post: SocialPost }) {
           <span style={{ fontSize:'11px', fontWeight:700, color:colors[post.platform] ?? MUTED, textTransform:'capitalize' }}>{post.platform}</span>
         </div>
         <button
-          onClick={() => { navigator.clipboard.writeText(post.content + (post.hashtags.length ? '\n\n' + post.hashtags.join(' ') : '')); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
+          onClick={() => {
+              const text = post.content + (post.hashtags.length ? '\n\n' + post.hashtags.join(' ') : '')
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) }).catch(() => setCopied(false))
+              } else {
+                // Fallback for HTTP/older browsers
+                const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); setCopied(true); setTimeout(() => setCopied(false), 2000)
+              }
+            }}
           style={{ fontSize:'10px', color: copied ? GREEN : MUTED, background:'transparent', border:'none', cursor:'pointer', padding:'2px 6px' }}>
           {copied ? '✅ Copied' : '📋 Copy'}
         </button>
@@ -217,6 +225,12 @@ function Gear6Inner() {
 
   async function handleConfirm() {
     if (!pkg || !intent || !sessionId) return
+    // MEDIUM #8: Validate listing has content
+    if (!pkg.listing?.title?.trim() || !pkg.listing?.description?.trim()) {
+      setErrorMsg('Your listing is incomplete. Please adjust and try again.')
+      setStep('error')
+      return
+    }
     setStep('confirming')
     try { sessionStorage.setItem('v3_gear6_package', JSON.stringify(pkg)) } catch (_) {}
 
@@ -352,7 +366,15 @@ function Gear6Inner() {
                   <div style={{ fontSize:'12px', color:MUTED, marginBottom:'12px', lineHeight:1.7 }}>
                     Your launch posts are ready. Copy each one to share after your product goes live.
                   </div>
-                  {pkg.socialPosts.map((post, i) => <SocialPostCard key={i} post={post} />)}
+                  {pkg.socialPosts.length === 0 ? (
+                    <div style={{ textAlign:'center', padding:'32px', background:'rgba(255,255,255,0.03)', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.08)' }}>
+                      <div style={{ fontSize:'24px', marginBottom:'8px' }}>📣</div>
+                      <div style={{ fontSize:'13px', color:MUTED }}>Social posts could not be generated this time.</div>
+                      <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.2)', marginTop:'4px' }}>Use your listing description to create posts manually.</div>
+                    </div>
+                  ) : (
+                    pkg.socialPosts.map((post, i) => <SocialPostCard key={i} post={post} />)
+                  )}
                 </div>
               )}
 
@@ -396,7 +418,10 @@ function Gear6Inner() {
                 </div>
               </div>
 
-              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)' }}>Redirecting to dashboard...</div>
+              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', marginBottom:'8px' }}>Redirecting to dashboard...</div>
+              <Link href="/dashboard" style={{ fontSize:'12px', color:MUTED, textDecoration:'underline' }}>
+                Click here if not redirected
+              </Link>
             </div>
           )}
 
