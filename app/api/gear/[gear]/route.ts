@@ -67,10 +67,11 @@ async function getAuthUser(req: NextRequest) {
 // ── MAIN HANDLER ─────────────────────────────────────────────
 export async function POST(
   req: NextRequest,
-  { params }: { params: { gear: string } }
+  { params }: { params: Promise<{ gear: string }> }
 ) {
   try {
-    const gearNumber = parseInt(params.gear) as GearNumber
+    const { gear: gearParam } = await params
+    const gearNumber = parseInt(gearParam) as GearNumber
     if (isNaN(gearNumber) || gearNumber < 1 || gearNumber > 7) {
       return NextResponse.json({ error: 'Invalid gear number' }, { status: 400 })
     }
