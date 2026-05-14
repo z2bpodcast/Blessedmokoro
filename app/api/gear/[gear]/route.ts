@@ -43,6 +43,21 @@ import {
   type ContentDraft,
   type ContentDirective,
 } from '@/lib/v3/gear3-engine'
+import {
+  runGear4Evaluation,
+  runMinorRevision,
+  isGear4Endpoint,
+  toGear5Handoff,
+  type QualityEvaluation,
+} from '@/lib/v3/gear4-engine'
+import {
+  buildEnhancementDirective,
+  generateAsset,
+  isGear5Endpoint,
+  toGear6Handoff,
+  type EnhancementAsset,
+  type EnhancementBundle,
+} from '@/lib/v3/gear5-engine'
 import type { IntentDefinition } from '@/lib/v3/gear1-engine'
 
 // Gear API timeout — prevents Vercel serverless from hanging (MEDIUM #6)
