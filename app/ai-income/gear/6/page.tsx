@@ -1,4 +1,5 @@
 'use client'
+// v3.1 — stabilized
 // ============================================================
 // Z2B 4M V3 — GEAR 6: DISTRIBUTION ENGINE PAGE
 // File: app/ai-income/gear/6/page.tsx

@@ -1,4 +1,5 @@
 // ============================================================
+// v3.1 — stabilized
 // Z2B 4M V3 — GEAR 6 DISTRIBUTION ENGINE
 // File: lib/v3/gear6-engine.ts
 // Laws: GPT-5.x writes listing · Builder approves

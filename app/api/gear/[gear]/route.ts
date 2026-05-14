@@ -1,4 +1,5 @@
 // ============================================================
+// v3.1 — stabilized
 // Z2B 4M V3 — UNIFIED GEAR API ROUTE
 // File: app/api/gear/[gear]/route.ts
 // Laws: Modular · Tier-gated · Extensible for Gears 2-7
