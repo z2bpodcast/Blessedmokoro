@@ -1,333 +1,304 @@
 'use client'
+// ============================================================
+// Z2B 4M V3 — PUBLIC MARKETPLACE PAGE
+// File: app/marketplace/page.tsx
+// Laws: Public-facing · 4 navigation buttons · Mobile-first
+//       Products from gear_sessions.marketplace_id
+//       Buttons: Home · Login to Marketplace · Register as Affiliate · Dashboard (auth)
+// ============================================================
 
-// app/marketplace/page.tsx
-// FIXED: Categories visible on load, not hidden behind search
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter }                      from 'next/navigation'
+import { supabase }                       from '@/lib/supabase'
+import Link                               from 'next/link'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
+const BG    = '#050A18'
+const SURF  = '#0D1629'
+const GOLD  = '#D4AF37'
+const CYAN  = '#06B6D4'
+const VIO   = '#8B5CF6'
+const W     = '#F0F9FF'
+const MUTED = '#64748B'
+const GREEN = '#10B981'
 
-type Product = {
-  id: string
-  title: string
-  slug: string
+interface MarketplaceProduct {
+  id:          string
+  title:       string
   description: string
-  category: string
-  product_type: string
-  price: number
-  currency: string
-  seller_name: string
-  status: string
-  featured: boolean
-  tags: string[]
+  price:       number
+  format:      string
+  keywords:    string | string[]
+  seller_id:   string
+  created_at:  string
+  session_id?: string
+  // joined from profiles
+  seller_name?: string
 }
 
-const CATEGORIES = [
-  { id: 'all',              label: 'All Products',        icon: '🛍️' },
-  { id: 'Digital Services', label: 'Digital Services',    icon: '⚙️' },
-  { id: 'Digital Products', label: 'Digital Products',    icon: '📦' },
-  { id: 'Tools & Apps',     label: 'Tools & Apps',        icon: '🛠️' },
-  { id: 'Courses',          label: 'Courses & Training',  icon: '🎓' },
-  { id: 'Templates',        label: 'Templates',           icon: '📋' },
-]
+const FORMAT_EMOJIS: Record<string, string> = {
+  ebook: '📖', course: '🎓', template: '📋', checklist: '✅',
+  workbook: '📓', toolkit: '🧰', masterclass: '🏆', guide: '🗺️',
+  planner: '📅', swipe_file: '📂',
+}
 
-function MarketplaceContent() {
-  const searchParams = useSearchParams()
-
-  const [products, setProducts] = useState<Product[]>([])
-  const [filtered, setFiltered] = useState<Product[]>([])
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [refCode, setRefCode] = useState<string | null>(null)
-
-  // Capture referral code from URL
-  useEffect(() => {
-    const ref = searchParams.get('ref')
-    if (ref) {
-      setRefCode(ref)
-      // Store in cookie for checkout
-      document.cookie = `z2b_ref=${ref}; path=/; max-age=2592000`
-    }
-  }, [])
-
-  // Load products from Supabase
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from('marketplace_products')
-        .select('*')
-        .eq('status', 'active')
-        .order('featured', { ascending: false })
-        .order('created_at', { ascending: false })
-
-      // If no DB products yet, show the book ecosystem service as a static card
-      const staticProducts: Product[] = [
-        {
-          id: 'static-book-ecosystem',
-          title: 'Book Ecosystem Services — I Turn Authors into Brands',
-          slug: 'book-ecosystem',
-          description: 'A complete digital ecosystem around your book — Interactive Flipbook, PDF eBook, Audio Reader, AI Book Coach, Monetisation System and more.',
-          category: 'Digital Services',
-          product_type: 'service',
-          price: 7500,
-          currency: 'ZAR',
-          seller_name: 'Rev Mokoro Manana',
-          status: 'active',
-          featured: true,
-          tags: ['book', 'author', 'digital', 'ecosystem'],
-        },
-      ]
-
-      const allProducts = [...(data || []), ...(data?.length ? [] : staticProducts)]
-      setProducts(allProducts)
-      setFiltered(allProducts)
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  // Filter whenever category or search changes
-  useEffect(() => {
-    let result = products
-    if (activeCategory !== 'all') {
-      result = result.filter(p => p.category === activeCategory)
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.tags?.some(t => t.toLowerCase().includes(q))
-      )
-    }
-    setFiltered(result)
-  }, [activeCategory, search, products])
-
-  const buildProductUrl = (slug: string) => {
-    const base = `/marketplace/product/${slug}`
-    return refCode ? `${base}?ref=${refCode}` : base
-  }
+function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isLoggedIn: boolean }) {
+  const [expanded, setExpanded] = useState(false)
+  const emoji  = FORMAT_EMOJIS[product.format?.toLowerCase() ?? ''] ?? '📦'
+  const descParagraph = product.description?.split('\n\n')[0] ?? product.description ?? ''
+  const keywords: string[] = typeof product.keywords === 'string'
+    ? (() => { try { return JSON.parse(product.keywords) } catch { return [product.keywords] } })()
+    : (product.keywords ?? [])
 
   return (
-    <div className="min-h-screen bg-[#080608] text-white">
-
-      {/* ── HEADER ── */}
-      <div
-        className="px-6 py-10 text-center relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(160deg, #080608 0%, #1a0d35 50%, #080608 100%)',
-          borderBottom: '3px solid #c9a227',
-        }}
-      >
-        <div
-          className="absolute right-6 top-4 pointer-events-none select-none"
-          style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '8rem', color: 'rgba(255,255,255,0.025)', lineHeight: 1 }}
-        >
-          Z2B
-        </div>
-        <div
-          className="text-[11px] tracking-[5px] text-[#5a4510] mb-3 uppercase"
-          style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-        >
-          Zero2Billionaires · Marketplace
-        </div>
-        <h1
-          className="text-3xl md:text-4xl text-white mb-2"
-          style={{ fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '3px' }}
-        >
-          Digital Products & Services
-        </h1>
-        <p
-          className="text-[#e8d48b] text-sm italic max-w-md mx-auto"
-          style={{ fontFamily: 'Cormorant Garamond, serif' }}
-        >
-          Built by Z2B Legacy Builders. Earn 20% commission as an affiliate on every sale.
-        </p>
-
-        {/* Search */}
-        <div className="mt-6 max-w-md mx-auto relative">
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search products..."
-            className="w-full px-4 py-3 rounded-sm text-sm bg-white/[0.06] border border-[#5a4510]/40 text-white placeholder-[rgba(255,255,255,0.25)] focus:outline-none focus:border-[#c9a227]"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.3)] hover:text-white"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── CATEGORIES — ALWAYS VISIBLE ── */}
-      <div className="px-4 py-5 border-b border-[#5a4510]/20">
-        <div className="max-w-5xl mx-auto flex flex-wrap gap-2 justify-center">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className="flex items-center gap-2 px-4 py-2 rounded-sm text-xs transition-all"
-              style={{
-                fontFamily: 'Bebas Neue, sans-serif',
-                letterSpacing: '2px',
-                background: activeCategory === cat.id
-                  ? 'linear-gradient(135deg,#2d1b69,#3d2285)'
-                  : 'rgba(255,255,255,0.03)',
-                color: activeCategory === cat.id ? '#f0c040' : 'rgba(255,255,255,0.4)',
-                border: activeCategory === cat.id
-                  ? '1px solid #c9a227'
-                  : '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <span>{cat.icon}</span>
-              {cat.label}
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded-sm"
-                style={{
-                  background: activeCategory === cat.id ? 'rgba(201,162,39,0.2)' : 'rgba(255,255,255,0.05)',
-                  color: activeCategory === cat.id ? '#f0c040' : 'rgba(255,255,255,0.25)',
-                }}
-              >
-                {cat.id === 'all'
-                  ? products.length
-                  : products.filter(p => p.category === cat.id).length}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── PRODUCTS GRID ── */}
-      <div className="px-4 py-8 max-w-5xl mx-auto">
-
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="text-2xl mb-3 animate-pulse">⚡</div>
-            <div
-              className="text-xs tracking-widest text-[#5a4510]"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-            >
-              LOADING PRODUCTS…
+    <div style={{
+      borderRadius: '18px', overflow: 'hidden',
+      background: 'rgba(255,255,255,0.04)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      transition: 'all 0.2s', marginBottom: '12px',
+    }}>
+      {/* Card header */}
+      <div style={{ padding: '18px 18px 14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ fontSize: '28px' }}>{emoji}</div>
+            <div style={{ fontSize: '10px', color: MUTED, background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '8px', textTransform: 'capitalize' }}>
+              {product.format ?? 'Digital Product'}
             </div>
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-3xl mb-3">🔍</div>
-            <div className="text-[rgba(255,255,255,0.4)] text-sm">No products found</div>
-            <button
-              onClick={() => { setSearch(''); setActiveCategory('all') }}
-              className="mt-4 text-xs text-[#c9a227] underline"
-            >
-              Clear filters
-            </button>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: GOLD }}>
+            R{(product.price ?? 0).toLocaleString()}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map(product => (
-              <Link
-                key={product.id}
-                href={buildProductUrl(product.slug)}
-                className="block group"
-              >
-                <div
-                  className="rounded-lg overflow-hidden transition-all duration-200 group-hover:scale-[1.02] h-full flex flex-col"
-                  style={{
-                    border: product.featured
-                      ? '1px solid rgba(201,162,39,0.5)'
-                      : '1px solid rgba(255,255,255,0.07)',
-                    background: '#0f0d18',
-                    boxShadow: product.featured ? '0 0 20px rgba(201,162,39,0.06)' : 'none',
-                  }}
-                >
-                  {/* Card header */}
-                  <div
-                    className="px-5 py-4 relative overflow-hidden"
-                    style={{
-                      background: 'linear-gradient(135deg,#2d1b69 0%,#1a0d35 70%,#080608 100%)',
-                      borderBottom: '1px solid rgba(201,162,39,0.2)',
-                    }}
-                  >
-                    {product.featured && (
-                      <div
-                        className="absolute top-0 left-0 right-0 h-[2px]"
-                        style={{ background: 'linear-gradient(90deg,#c9a227,#f0c040,#c9a227)' }}
-                      />
-                    )}
-                    <div
-                      className="text-[9px] tracking-[3px] text-[#5a4510] mb-1.5 uppercase"
-                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-                    >
-                      {product.category}
-                      {product.featured && (
-                        <span className="ml-2 text-[#f0c040]">★ FEATURED</span>
-                      )}
-                    </div>
-                    <div
-                      className="text-sm text-white leading-tight font-bold"
-                      style={{ fontFamily: 'Playfair Display, serif' }}
-                    >
-                      {product.title}
-                    </div>
-                  </div>
+        </div>
 
-                  {/* Card body */}
-                  <div className="px-5 py-4 flex flex-col flex-1">
-                    <p className="text-xs text-[rgba(255,255,255,0.5)] leading-relaxed mb-4 flex-1 line-clamp-3">
-                      {product.description}
-                    </p>
+        <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '8px', lineHeight: 1.3 }}>
+          {product.title}
+        </div>
 
-                    <div className="flex items-center justify-between mt-auto">
-                      <div>
-                        <div
-                          className="text-xl text-[#f0c040]"
-                          style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-                        >
-                          {product.price === 0 ? 'CUSTOM' : `R${product.price.toLocaleString()}`}
-                        </div>
-                        <div className="text-[10px] text-[rgba(255,255,255,0.25)]">
-                          {product.seller_name}
-                        </div>
-                      </div>
-                      <div
-                        className="text-[10px] tracking-widest px-3 py-2 rounded-sm transition-all group-hover:bg-[#c9a227] group-hover:text-[#080608]"
-                        style={{
-                          fontFamily: 'Bebas Neue, sans-serif',
-                          background: 'rgba(201,162,39,0.1)',
-                          border: '1px solid rgba(201,162,39,0.3)',
-                          color: '#c9a227',
-                        }}
-                      >
-                        VIEW →
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+        <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7, marginBottom: '10px' }}>
+          {expanded ? (product.description ?? '') : descParagraph.slice(0, 140) + (descParagraph.length > 140 ? '...' : '')}
+        </div>
+
+        {descParagraph.length > 140 && (
+          <button onClick={() => setExpanded(p => !p)}
+            style={{ fontSize: '11px', color: CYAN, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'Georgia,serif' }}>
+            {expanded ? 'Show less ↑' : 'Read more ↓'}
+          </button>
+        )}
+
+        {/* Keywords */}
+        {keywords.length > 0 && (
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
+            {keywords.slice(0, 4).map((k: string, i: number) => (
+              <span key={i} style={{ fontSize: '10px', color: VIO, background: 'rgba(139,92,246,0.1)', padding: '2px 8px', borderRadius: '8px' }}>
+                {k}
+              </span>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── AFFILIATE FOOTER ── */}
-      <div
-        className="px-6 py-5 text-center border-t border-[#5a4510]/20"
-        style={{ background: 'rgba(0,0,0,0.3)' }}
-      >
-        <div
-          className="text-[10px] tracking-[4px] text-[#5a4510] mb-1"
-          style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-        >
-          Z2B MARKETPLACE · EARN 20% ON EVERY SALE YOU REFER
+      {/* CTA */}
+      <div style={{ padding: '0 18px 18px' }}>
+        {isLoggedIn ? (
+          <button
+            style={{ width: '100%', padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
+            Get This Product — R{(product.price ?? 0).toLocaleString()}
+          </button>
+        ) : (
+          <Link href="/login?redirect=/marketplace"
+            style={{ display: 'block', padding: '12px', borderRadius: '12px', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: GOLD, fontWeight: 700, fontSize: '13px', textAlign: 'center', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+            Login to Purchase →
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function MarketplaceInner() {
+  const router = useRouter()
+  const [products,   setProducts]   = useState<MarketplaceProduct[]>([])
+  const [loading,    setLoading]    = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [search,     setSearch]     = useState('')
+  const [formatFilter, setFormat]   = useState('all')
+  const [sortBy,     setSortBy]     = useState<'newest'|'price_low'|'price_high'>('newest')
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session)
+    })
+    loadProducts()
+  }, [])
+
+  async function loadProducts() {
+    setLoading(true)
+    try {
+      const { data } = await supabase
+        .from('marketplace_products')
+        .select('id, title, description, price, format, keywords, seller_id, created_at, session_id')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(50) as { data: MarketplaceProduct[] | null }
+
+      setProducts(data ?? [])
+    } catch (_) {}
+    setLoading(false)
+  }
+
+  // Filter + sort
+  const formats    = ['all', ...Array.from(new Set(products.map(p => p.format).filter(Boolean)))]
+  const filtered   = products
+    .filter(p => {
+      const matchSearch = !search || p.title?.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
+      const matchFormat = formatFilter === 'all' || p.format === formatFilter
+      return matchSearch && matchFormat
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price_low')  return (a.price ?? 0) - (b.price ?? 0)
+      if (sortBy === 'price_high') return (b.price ?? 0) - (a.price ?? 0)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+  return (
+    <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif' }}>
+
+      {/* NAV — 4 required buttons */}
+      <nav style={{ padding: '12px 20px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(12px)' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          {/* Left: Home */}
+          <Link href="/"
+            style={{ fontSize: '12px', color: MUTED, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            ← Home
+          </Link>
+
+          {/* Logo */}
+          <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', fontWeight: 900, color: GOLD }}>
+            🏪 Z2B Marketplace
+          </span>
+
+          {/* Right: action buttons */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {!isLoggedIn ? (
+              <>
+                <Link href="/login?redirect=/marketplace"
+                  style={{ fontSize: '11px', color: GOLD, background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700 }}>
+                  Login
+                </Link>
+                <Link href="/register?ref=affiliate"
+                  style={{ fontSize: '11px', color: VIO, background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700 }}>
+                  Affiliate
+                </Link>
+              </>
+            ) : (
+              <Link href="/dashboard"
+                style={{ fontSize: '11px', color: GOLD, background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700 }}>
+                Dashboard →
+              </Link>
+            )}
+          </div>
         </div>
-        <div className="text-xs text-[rgba(255,255,255,0.25)]">
-          Log in to get your personal referral link and start earning
+      </nav>
+
+      {/* HERO */}
+      <div style={{ background: 'linear-gradient(180deg,rgba(212,175,55,0.08) 0%,transparent 100%)', padding: '40px 20px 32px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+          <div style={{ fontSize: '11px', color: GOLD, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '10px' }}>
+            Quality-Approved Digital Products
+          </div>
+          <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(22px,4vw,36px)', fontWeight: 900, color: W, margin: '0 0 12px' }}>
+            The Z2B Marketplace
+          </h1>
+          <p style={{ fontSize: '14px', color: MUTED, lineHeight: 1.8, margin: '0 0 20px' }}>
+            Every product here was built by an Entrepreneurial Consumer using the 4M Machine — quality-reviewed, implementation-ready, and priced for the African market.
+          </p>
+
+          {/* CTA for non-members */}
+          {!isLoggedIn && (
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/login?redirect=/marketplace"
+                style={{ padding: '11px 24px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '13px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                Login to Marketplace →
+              </Link>
+              <Link href="/register?ref=affiliate"
+                style={{ padding: '11px 24px', borderRadius: '12px', border: '1px solid rgba(139,92,246,0.4)', color: VIO, fontSize: '13px', textDecoration: 'none', fontWeight: 700 }}>
+                Register as Affiliate →
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* FILTERS */}
+      <div style={{ padding: '0 20px 16px', maxWidth: '720px', margin: '0 auto' }}>
+        {/* Search */}
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search products..."
+          style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: W, fontSize: '13px', fontFamily: 'Georgia,serif', outline: 'none', marginBottom: '10px', boxSizing: 'border-box' }}
+        />
+
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Format filter */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
+            {formats.slice(0, 6).map(f => (
+              <button key={f} onClick={() => setFormat(f)}
+                style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid ' + (formatFilter === f ? GOLD : 'rgba(255,255,255,0.1)'), background: formatFilter === f ? 'rgba(212,175,55,0.12)' : 'transparent', color: formatFilter === f ? GOLD : MUTED, fontSize: '11px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Georgia,serif' }}>
+                {f === 'all' ? 'All' : f}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort */}
+          <select value={sortBy} onChange={e => setSortBy(e.target.value as any)}
+            style={{ padding: '5px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, fontSize: '11px', cursor: 'pointer', outline: 'none', fontFamily: 'Georgia,serif' }}>
+            <option value="newest">Newest</option>
+            <option value="price_low">Price: Low → High</option>
+            <option value="price_high">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+
+      {/* PRODUCTS */}
+      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 20px 40px' }}>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: MUTED }}>
+            <div style={{ width: '36px', height: '36px', border: '3px solid ' + GOLD, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            Loading products...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: MUTED }}>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>🏪</div>
+            <div style={{ fontSize: '15px', color: W, marginBottom: '8px' }}>
+              {search || formatFilter !== 'all' ? 'No products match your search.' : 'No products yet.'}
+            </div>
+            <div style={{ fontSize: '13px' }}>
+              {search ? 'Try different keywords.' : 'Products created via the 4M Machine appear here.'}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: '12px', color: MUTED, marginBottom: '14px' }}>
+              {filtered.length} product{filtered.length !== 1 ? 's' : ''} available
+            </div>
+            {filtered.map(p => (
+              <ProductCard key={p.id} product={p} isLoggedIn={isLoggedIn} />
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* FOOTER NAV */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '20px', background: SURF }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <Link href="/"    style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>← Back to Home</Link>
+          <Link href="/login?redirect=/marketplace" style={{ fontSize: '12px', color: GOLD, textDecoration: 'none' }}>Login to Marketplace</Link>
+          <Link href="/register?ref=affiliate" style={{ fontSize: '12px', color: VIO, textDecoration: 'none' }}>Register as Affiliate</Link>
+          {isLoggedIn && <Link href="/dashboard" style={{ fontSize: '12px', color: CYAN, textDecoration: 'none' }}>Dashboard →</Link>}
         </div>
       </div>
 
@@ -337,12 +308,8 @@ function MarketplaceContent() {
 
 export default function MarketplacePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#080608] flex items-center justify-center">
-        <div className="text-2xl animate-pulse">⚡</div>
-      </div>
-    }>
-      <MarketplaceContent />
+    <Suspense fallback={<div style={{ minHeight:'100vh',background:'#050A18',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37',fontFamily:'Georgia,serif' }}>Loading Marketplace...</div>}>
+      <MarketplaceInner />
     </Suspense>
   )
 }
