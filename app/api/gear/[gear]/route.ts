@@ -33,13 +33,15 @@ import {
   type ProductStructure,
 } from '@/lib/v3/gear2-engine'
 import {
-  writeSection,
-  reviseSection,
+  buildContentDirective,
+  generateSectionContent,
+  regenerateSectionContent,
   assembleContentDraft,
   toGear4Handoff,
-  getContentProgress,
+  isGear3Endpoint,
   type SectionContent,
   type ContentDraft,
+  type ContentDirective,
 } from '@/lib/v3/gear3-engine'
 import type { IntentDefinition } from '@/lib/v3/gear1-engine'
 
