@@ -1,9 +1,7 @@
 // ============================================================
 // Z2B 4M V3 — COACH MANLAW INTELLIGENCE ENGINE
 // File: lib/v3/coach-engine.ts
-// Laws: Context-aware · Genuine intelligence · Memory within session
-//       Uses Claude Sonnet PRIMARY · Builder context injected
-//       No programmed answers — real conversational AI
+// v3.1 — stabilized
 // ============================================================
 
 import { randomUUID } from 'crypto'
@@ -13,23 +11,18 @@ import { normaliseTier, getTier } from '@/lib/v3/tier-config'
 // ── TYPES ────────────────────────────────────────────────────
 
 export interface BuilderContext {
-  // Identity
-  firstName:      string
-  tierId:         string
-  tierLabel:      string
-  gearAccess:     number
-  // Current journey
+  firstName:        string
+  tierId:           string
+  tierLabel:        string
+  gearAccess:       number
   hasActiveSession: boolean
-  currentGear:     number
-  productTitle:    string
-  productFormat:   string
-  // Portfolio
-  productsLive:    number
-  // Business model
-  bfmStatus:       string
-  isRocket:        boolean
-  // Platform context
-  memberSince:     string
+  currentGear:      number
+  productTitle:     string
+  productFormat:    string
+  productsLive:     number
+  bfmStatus:        string
+  isRocket:         boolean
+  memberSince:      string
 }
 
 export interface CoachMessage {
@@ -45,11 +38,8 @@ export interface CoachSession {
 }
 
 // ── BUILDER CONTEXT LOADER ────────────────────────────────────
-// Pulls real data from Supabase to ground every conversation
 
 export async function loadBuilderContext(userId: string): Promise<BuilderContext> {
-  // MEDIUM #3: Module-level memoized client would go here
-  // Using per-call client for now (acceptable at coach message frequency)
   // Service role client — stateless per call (acceptable for coach context loading)
   const sb = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,7 +47,6 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
-  // Load profile
   const { data: profile } = await (sb.from('profiles') as any)
     .select('paid_tier, full_name, created_at, bfm_status')
     .eq('id', userId)
@@ -67,7 +56,6 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
   const tierDef  = getTier(tier)
   const name     = profile?.full_name?.split(' ')[0] ?? 'Builder'
 
-  // Load active session
   const { data: activeSessions } = await (sb.from as any)('gear_sessions')
     .select('phase_current, opportunity_data, gear_access')
     .eq('builder_id', userId)
@@ -78,14 +66,11 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
   const activeSession = activeSessions?.[0]
   const oppData       = activeSession?.opportunity_data as any
 
-  // Load completed products
   const { data: completed } = await (sb.from as any)('gear_sessions')
     .select('distribution_data')
     .eq('builder_id', userId)
     .eq('session_status', 'completed')
     .not('distribution_data', 'is', null) as { data: any[] | null }
-
-  const productsLive  = completed?.length ?? 0
 
   return {
     firstName:        name,
@@ -96,8 +81,8 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
     currentGear:      activeSession?.phase_current ?? 0,
     productTitle:     oppData?.title ?? '',
     productFormat:    oppData?.format ?? '',
-    productsLive,
-      bfmStatus:        profile?.bfm_status ?? 'none',
+    productsLive:     completed?.length ?? 0,
+    bfmStatus:        profile?.bfm_status ?? 'none',
     isRocket:         tierDef.isRocket,
     memberSince:      profile?.created_at
       ? new Date(profile.created_at).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' })
@@ -106,7 +91,6 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
 }
 
 // ── SYSTEM PROMPT BUILDER ─────────────────────────────────────
-// This is the secret sauce — Coach Manlaw's real intelligence
 
 export function buildCoachSystemPrompt(ctx: BuilderContext): string {
   const gearLabels: Record<number, string> = {
@@ -186,25 +170,25 @@ You are the best business coach ${ctx.firstName} has ever had. Act like it.`
 // ── COACH RESPONSE GENERATOR ──────────────────────────────────
 
 export async function generateCoachResponse(params: {
-  messages:  CoachMessage[]
-  newMessage:string
-  context:   BuilderContext
+  messages:   CoachMessage[]
+  newMessage: string
+  context:    BuilderContext
 }): Promise<{ response: string; error: string | null }> {
 
   const systemPrompt = buildCoachSystemPrompt(params.context)
 
-  // Build conversation history for Claude
-  const history = params.messages.slice(-6).map   // LOW #8: 6 msgs ≈ 3600 tokens max(m => ({  // last 10 messages for context
+  // Last 6 messages only (~3600 tokens max — LOW #8)
+  const history = params.messages.slice(-6).map(m => ({
     role:    m.role === 'coach' ? 'assistant' as const : 'user' as const,
     content: m.content,
   }))
 
-  try {
-    // HIGH #1: AbortController — 45s timeout (under Vercel 60s)
-    const controller = new AbortController()
-    const timeout    = setTimeout(() => controller.abort(), 45000)
+  const controller = new AbortController()
+  const timeout    = setTimeout(() => controller.abort(), 55000)
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+  let res: Response
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
       method:  'POST',
       signal:  controller.signal,
       headers: {
@@ -214,7 +198,7 @@ export async function generateCoachResponse(params: {
       },
       body: JSON.stringify({
         model:      'claude-sonnet-4-20250514',
-        max_tokens: 600,   // Coach Manlaw is concise
+        max_tokens: 600,
         system:     systemPrompt,
         messages:   [
           ...history,
@@ -222,45 +206,35 @@ export async function generateCoachResponse(params: {
         ],
       }),
     })
-
-      clearTimeout(timeout)
-    } catch (e) {
-      clearTimeout(timeout)
-      const isAbort = e instanceof Error && e.name === 'AbortError'
-      return { response: '', error: isAbort ? 'Coach took too long. Please try again.' : 'Connection error. Please try again.' }
-    }
-
-      clearTimeout(timeout)
-    } catch (e) {
-      clearTimeout(timeout)
-      const isTimeout = e instanceof Error && e.name === 'AbortError'
-      return { response: '', error: isTimeout ? 'Coach is thinking too hard. Please try again.' : 'Connection error. Please try again.' }
-    }
-
-    if (!res.ok) {
-      const err = await res.text()
-      console.error('[coach-engine] Claude error:', err)
-      return { response: '', error: 'Coach is temporarily unavailable. Try again.' }
-    }
-
-    const data = await res.json()
-    const response = data.content?.[0]?.text ?? ''
-
-    if (!response.trim()) {
-      return { response: '', error: 'No response received. Please try again.' }
-    }
-
-    return { response, error: null }
-
+    clearTimeout(timeout)
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Unknown error'
-    console.error('[coach-engine] fetch error:', msg)
-    return { response: '', error: 'Connection error. Please try again.' }
+    clearTimeout(timeout)
+    const isTimeout = e instanceof Error && e.name === 'AbortError'
+    return {
+      response: '',
+      error: isTimeout
+        ? 'Coach is thinking too hard. Please try again.'
+        : 'Connection error. Please try again.',
+    }
   }
+
+  if (!res.ok) {
+    const err = await res.text()
+    console.error('[coach-engine] Claude error:', err)
+    return { response: '', error: 'Coach is temporarily unavailable. Try again.' }
+  }
+
+  const data     = await res.json()
+  const response = data.content?.[0]?.text ?? ''
+
+  if (!response.trim()) {
+    return { response: '', error: 'No response received. Please try again.' }
+  }
+
+  return { response, error: null }
 }
 
 // ── STARTER MESSAGES ──────────────────────────────────────────
-// Context-aware opening message — never generic
 
 export function buildStarterMessage(ctx: BuilderContext): string {
   if (!ctx.hasActiveSession && ctx.productsLive === 0) {
@@ -284,4 +258,4 @@ export function buildStarterMessage(ctx: BuilderContext): string {
   return `${ctx.firstName}. ${ctx.productsLive} products live. The machine is working.\n\nNow let's talk about what's next — because there's always a next. What's on your mind?`
 }
 
-// randomUUID imported from 'crypto' above — used internally only
+export { randomUUID }
