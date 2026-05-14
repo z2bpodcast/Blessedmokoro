@@ -5,6 +5,7 @@
 //       Tier-scaled asset count · Copper endpoint
 // ============================================================
 
+import { randomUUID }               from 'crypto'
 import { orchestrate, parseAIJson } from '@/lib/v3/orchestration-router'
 import { normaliseTier }             from '@/lib/v3/tier-config'
 import type { ContentDraft }         from '@/lib/v3/gear3-engine'
@@ -133,6 +134,7 @@ export async function generateAsset(params: {
   assetPlan: { type: AssetType; title: string; purpose: string }
   draft:     ContentDraft
   intent:    IntentDefinition
+  tierId?:   string
 }): Promise<{
   asset:     EnhancementAsset | null
   tokensUsed:number
@@ -140,7 +142,7 @@ export async function generateAsset(params: {
 }> {
   const { assetPlan, draft, intent } = params
 
-  const prompt = buildAssetPrompt(assetPlan, draft, intent)
+  const prompt = buildAssetPrompt(assetPlan, draft, intent, params.tierId ?? 'copper')
   const result = await orchestrate('enhancement_production', prompt)
 
   if (result.error) {
@@ -149,7 +151,7 @@ export async function generateAsset(params: {
 
   return {
     asset: {
-      id:          crypto.randomUUID(),
+      id:          randomUUID(),
       type:        assetPlan.type,
       title:       assetPlan.title,
       description: assetPlan.purpose,
@@ -166,8 +168,12 @@ export async function generateAsset(params: {
 function buildAssetPrompt(
   plan:   { type: AssetType; title: string; purpose: string },
   draft:  ContentDraft,
-  intent: IntentDefinition
+  intent: IntentDefinition,
+  tierId: string = 'copper'
 ): string {
+  const depthNote = ['silver','gold','platinum','rocket_gold','rocket_platinum'].includes(tierId)
+    ? 'PREMIUM TIER: Make this asset comprehensive and high-value — go deep, be thorough.'
+    : 'STANDARD TIER: Make this practical and immediately usable — focused and clear.'
   const formats: Record<AssetType, string> = {
     worksheet:      'A fillable worksheet with clearly labelled sections, questions and space for reflection.',
     checklist:      'A numbered checklist of specific action items the reader must complete.',
@@ -200,17 +206,18 @@ FORMAT RULES:
 - Include instructions for HOW to use each section
 - Keep it practical — every element must serve the transformation
 
+${depthNote}
 Write the complete asset content now.`
 }
 
 // ── GEAR 6 HANDOFF ────────────────────────────────────────────
 
 export function toGear6Handoff(
-  bundle: EnhancementBundle,
+  bundle: EnhancementBundle | null,
   draft:  ContentDraft,
   intent: IntentDefinition
 ): Record<string, unknown> | null {
-  if (!bundle.assets.length) return null
+  if (!bundle?.assets?.length) return null
   return {
     productTitle:     draft.productTitle,
     wordCountTotal:   draft.wordCountTotal,

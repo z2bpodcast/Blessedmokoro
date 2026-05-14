@@ -222,7 +222,11 @@ function Gear4Inner() {
     // Update draft if revised sections returned
     if (data.draft) {
       setDraft(data.draft as ContentDraft)
-      try { sessionStorage.setItem('v3_gear3_draft', JSON.stringify(data.draft)) } catch (_) {}
+      try {
+        // Save for Gear 5 — prefer v3_gear4_draft (quality-revised) over v3_gear3_draft
+        sessionStorage.setItem('v3_gear3_draft', JSON.stringify(data.draft))
+        sessionStorage.setItem('v3_gear4_draft', JSON.stringify(data.draft))
+      } catch (_) {}
     }
 
     setQcResult(result)

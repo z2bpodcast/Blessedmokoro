@@ -111,7 +111,7 @@ function AssetCard({ asset }: { asset: EnhancementAsset }) {
       </button>
       {expanded && (
         <div style={{ padding:'0 16px 16px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ paddingTop:'12px', fontSize:'12px', color:'rgba(255,255,255,0.65)', lineHeight:1.8, whiteSpace:'pre-wrap', maxHeight:'280px', overflowY:'auto' }}>
+          <div style={{ paddingTop:'12px', fontSize:'12px', color:'rgba(255,255,255,0.65)', lineHeight:1.8, whiteSpace:'pre-wrap', maxHeight:'360px', overflowY:'auto' }}>
             {asset.content}
           </div>
         </div>
@@ -164,7 +164,10 @@ function Gear5Inner() {
       let loadedDraft:  ContentDraft | null     = null
       try {
         const ri = sessionStorage.getItem('v3_gear1_intent')
-        const rd = sessionStorage.getItem('v3_gear3_draft')
+        // MEDIUM #5: prefer quality-revised draft if saved by Gear 4
+        const rd4 = sessionStorage.getItem('v3_gear4_draft')
+        const rd3 = sessionStorage.getItem('v3_gear3_draft')
+        const rd  = rd4 ?? rd3  // Gear 4 revised draft takes priority
         if (ri) loadedIntent = JSON.parse(ri)
         if (rd) loadedDraft  = JSON.parse(rd)
       } catch (_) {}
@@ -243,11 +246,23 @@ function Gear5Inner() {
       }
       setAssets([...built])
     }
-    setStep('review')
+    // HIGH: All assets failed — show error not blank review
+    if (built.length === 0) {
+      setErrorMsg('Asset generation failed for all sections. Please try again.')
+      hasRun.current = false
+      setStep('error')
+    } else {
+      setStep('review')
+    }
   }
 
   async function handleConfirm() {
-    if (!draft || !intent || !sessionId || assets.length === 0) return
+    if (!draft || !intent || !sessionId) return
+    if (assets.length === 0) {
+      setErrorMsg('No assets available. Please try again.')
+      setStep('error')
+      return
+    }
     setStep('confirming')
     const bundle: EnhancementBundle = { assets, isComplete: true }
     try { sessionStorage.setItem('v3_gear5_bundle', JSON.stringify(bundle)) } catch (_) {}
