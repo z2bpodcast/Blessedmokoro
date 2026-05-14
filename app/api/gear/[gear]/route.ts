@@ -58,6 +58,14 @@ import {
   type EnhancementAsset,
   type EnhancementBundle,
 } from '@/lib/v3/gear5-engine'
+import {
+  buildDistributionPackage,
+  adjustListing,
+  buildSessionComplete,
+  isRocketTier,
+  type DistributionPackage,
+  type MarketplaceListing,
+} from '@/lib/v3/gear6-engine'
 import type { IntentDefinition } from '@/lib/v3/gear1-engine'
 
 // Gear API timeout — prevents Vercel serverless from hanging (MEDIUM #6)
@@ -131,7 +139,7 @@ export async function POST(
       case 3: return await handleGear3(user.id, tierId, action, body)
       case 4: return await handleGear4(user.id, tierId, action, body)
       case 5: return await handleGear5(user.id, tierId, action, body)
-      case 6:
+      case 6: return await handleGear6(user.id, tierId, action, body)
       case 7:
         return NextResponse.json(
           { error: 'Gear ' + String(gearNumber) + ' is coming soon.' },
@@ -149,6 +157,183 @@ export async function POST(
       { status: 500 }
     )
   }
+}
+
+// ── GEAR 6 HANDLER ───────────────────────────────────────────
+
+async function handleGear6(
+  userId:  string,
+  tierId:  string,
+  action:  string,
+  body:    Record<string, unknown>
+): Promise<NextResponse> {
+
+  const validActions = ['generate', 'adjust', 'confirm']
+  if (!validActions.includes(action)) {
+    return NextResponse.json({ error: 'Invalid action for Gear 6' }, { status: 400 })
+  }
+
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  // ── GENERATE: Build listing + social posts ────────────────
+  if (action === 'generate') {
+    const { intent, wordCount, sections, sessionId } = body as {
+      intent:    Record<string, unknown>
+      wordCount: number
+      sections:  number
+      sessionId: string
+    }
+
+    if (!intent || !sessionId) {
+      return NextResponse.json({ error: 'Missing data.' }, { status: 400 })
+    }
+
+    const result = await buildDistributionPackage({
+      intent:    intent as any,
+      wordCount: wordCount ?? 0,
+      sections:  sections  ?? 0,
+      tierId,
+    })
+
+    if (result.error || !result.package) {
+      return NextResponse.json({ error: result.error ?? 'Distribution generation failed.' }, { status: 500 })
+    }
+
+    return NextResponse.json({ package: result.package })
+  }
+
+  // ── ADJUST: Builder modifies listing ─────────────────────
+  if (action === 'adjust') {
+    const { currentListing, adjustment, intent, sessionId } = body as {
+      currentListing: Record<string, unknown>
+      adjustment:     string
+      intent:         Record<string, unknown>
+      sessionId:      string
+    }
+
+    if (!currentListing || !adjustment?.trim() || !intent || !sessionId) {
+      return NextResponse.json({ error: 'Missing adjustment data.' }, { status: 400 })
+    }
+
+    if (adjustment.trim().length < 5) {
+      return NextResponse.json({ error: 'Please describe what to change.' }, { status: 400 })
+    }
+
+    // Server-side adjust limit
+    const { data: sessionRow } = await (sb.from as any)('gear_sessions')
+      .select('revision_count')
+      .eq('id', sessionId)
+      .eq('builder_id', userId)
+      .maybeSingle() as { data: { revision_count: number } | null }
+
+    const revCount = sessionRow?.revision_count ?? 0
+    if (revCount >= 2) {
+      return NextResponse.json(
+        { error: 'Maximum adjustments reached. Please confirm your listing.' },
+        { status: 429 }
+      )
+    }
+
+    await (sb.from as any)('gear_sessions')
+      .update({ revision_count: revCount + 1 })
+      .eq('id', sessionId)
+      .eq('builder_id', userId)
+
+    const result = await adjustListing({
+      currentListing: currentListing as any,
+      adjustment:     adjustment.trim(),
+      intent:         intent as any,
+    })
+
+    return NextResponse.json({ listing: result.listing })
+  }
+
+  // ── CONFIRM: Publish listing and complete session ─────────
+  if (action === 'confirm') {
+    const { pkg, intent, sessionId } = body as {
+      pkg:       Record<string, unknown>
+      intent:    Record<string, unknown>
+      sessionId: string
+    }
+
+    if (!pkg || !intent || !sessionId) {
+      return NextResponse.json({ error: 'Missing data.' }, { status: 400 })
+    }
+
+    // Validate listing has required fields
+    const listing = (pkg as any).listing
+    if (!listing?.title?.trim() || !listing?.description?.trim()) {
+      return NextResponse.json({ error: 'Listing is incomplete.' }, { status: 400 })
+    }
+
+    // Save to marketplace_products
+    const { data: product, error: productError } = await sb
+      .from('marketplace_products')
+      .insert({
+        seller_id:   userId,
+        title:       listing.title,
+        description: listing.description,
+        price:       listing.priceZar,
+        format:      listing.format,
+        keywords:    listing.keywords,
+        status:      'active',
+        session_id:  sessionId,
+      })
+      .select('id')
+      .single() as { data: { id: string } | null; error: unknown }
+
+    if (productError || !product) {
+      console.error('[gear6] Marketplace insert failed:', productError)
+      return NextResponse.json({ error: 'Could not publish product.' }, { status: 500 })
+    }
+
+    // Build final session completion data
+    const completionData = buildSessionComplete(pkg as any, intent as any)
+
+    // Advance gear and complete session
+    const { success } = await advanceGear(sessionId, userId, 6, completionData)
+
+    if (!success) {
+      return NextResponse.json({ error: 'Could not complete session.' }, { status: 500 })
+    }
+
+    // Mark session complete
+    await (sb.from as any)('gear_sessions')
+      .update({
+        session_status: 'completed',
+        product_status: 'live',
+        marketplace_id: product.id,
+        completed_at:   new Date().toISOString(),
+      })
+      .eq('id', sessionId)
+      .eq('builder_id', userId)
+
+    // Flag Rocket tiers for n8n automation
+    const isRocket = isRocketTier(tierId)
+    if (isRocket) {
+      await (sb.from as any)('automation_logs').insert({
+        builder_id:    userId,
+        session_id:    sessionId,
+        workflow_type: 'product_launch',
+        trigger_event: 'gear6_confirmed',
+        api_called:    'n8n_pending',
+        status:        'pending',
+      })
+    }
+
+    return NextResponse.json({
+      success:      true,
+      productId:    product.id,
+      isRocket,
+      redirect:     '/ai-income/complete?session=' + sessionId + '&product=' + product.id,
+    })
+  }
+
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }
 
 // ── GEAR 5 HANDLER ───────────────────────────────────────────
