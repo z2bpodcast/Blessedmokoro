@@ -100,7 +100,9 @@ function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isL
       {/* CTA */}
       <div style={{ padding: '0 18px 18px' }}>
         {isLoggedIn ? (
+          // MEDIUM #7: PayFast checkout — wired in Sprint 11
           <button
+            onClick={() => alert('Payment integration coming soon. Contact us to purchase this product.')}
             style={{ width: '100%', padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
             Get This Product — R{(product.price ?? 0).toLocaleString()}
           </button>
@@ -131,18 +133,22 @@ function MarketplaceInner() {
     loadProducts()
   }, [])
 
+  const [loadError, setLoadError] = useState(false)
+
   async function loadProducts() {
     setLoading(true)
+    setLoadError(false)
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('marketplace_products')
         .select('id, title, description, price, format, keywords, seller_id, created_at, session_id')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(50) as { data: MarketplaceProduct[] | null }
+        .limit(50) as { data: MarketplaceProduct[] | null; error: unknown }
 
-      setProducts(data ?? [])
-    } catch (_) {}
+      if (error) { setLoadError(true) }
+      else { setProducts(data ?? []) }
+    } catch (_) { setLoadError(true) }
     setLoading(false)
   }
 
@@ -269,6 +275,14 @@ function MarketplaceInner() {
             <div style={{ width: '36px', height: '36px', border: '3px solid ' + GOLD, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
             Loading products...
+          </div>
+        ) : loadError ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: MUTED }}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
+            <div style={{ fontSize: '14px', color: W, marginBottom: '8px' }}>Could not load products</div>
+            <button onClick={loadProducts} style={{ padding: '10px 20px', borderRadius: '10px', border: 'none', background: GOLD, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '12px', fontFamily: 'Georgia,serif' }}>
+              Try Again
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: MUTED }}>

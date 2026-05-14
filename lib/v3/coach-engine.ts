@@ -25,7 +25,6 @@ export interface BuilderContext {
   productFormat:   string
   // Portfolio
   productsLive:    number
-  totalRevenue:    number   // ZAR
   // Business model
   bfmStatus:       string
   isRocket:        boolean
@@ -49,6 +48,9 @@ export interface CoachSession {
 // Pulls real data from Supabase to ground every conversation
 
 export async function loadBuilderContext(userId: string): Promise<BuilderContext> {
+  // MEDIUM #3: Module-level memoized client would go here
+  // Using per-call client for now (acceptable at coach message frequency)
+  // Service role client — stateless per call (acceptable for coach context loading)
   const sb = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -84,7 +86,6 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
     .not('distribution_data', 'is', null) as { data: any[] | null }
 
   const productsLive  = completed?.length ?? 0
-  const totalRevenue  = 0 // calculated from commissions in future sprint
 
   return {
     firstName:        name,
@@ -96,8 +97,7 @@ export async function loadBuilderContext(userId: string): Promise<BuilderContext
     productTitle:     oppData?.title ?? '',
     productFormat:    oppData?.format ?? '',
     productsLive,
-    totalRevenue,
-    bfmStatus:        profile?.bfm_status ?? 'none',
+      bfmStatus:        profile?.bfm_status ?? 'none',
     isRocket:         tierDef.isRocket,
     memberSince:      profile?.created_at
       ? new Date(profile.created_at).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' })
@@ -194,14 +194,19 @@ export async function generateCoachResponse(params: {
   const systemPrompt = buildCoachSystemPrompt(params.context)
 
   // Build conversation history for Claude
-  const history = params.messages.slice(-10).map(m => ({  // last 10 messages for context
+  const history = params.messages.slice(-6).map   // LOW #8: 6 msgs ≈ 3600 tokens max(m => ({  // last 10 messages for context
     role:    m.role === 'coach' ? 'assistant' as const : 'user' as const,
     content: m.content,
   }))
 
   try {
+    // HIGH #1: AbortController — 45s timeout (under Vercel 60s)
+    const controller = new AbortController()
+    const timeout    = setTimeout(() => controller.abort(), 45000)
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:  'POST',
+      signal:  controller.signal,
       headers: {
         'Content-Type':      'application/json',
         'x-api-key':         process.env.ANTHROPIC_API_KEY!,
@@ -217,6 +222,20 @@ export async function generateCoachResponse(params: {
         ],
       }),
     })
+
+      clearTimeout(timeout)
+    } catch (e) {
+      clearTimeout(timeout)
+      const isAbort = e instanceof Error && e.name === 'AbortError'
+      return { response: '', error: isAbort ? 'Coach took too long. Please try again.' : 'Connection error. Please try again.' }
+    }
+
+      clearTimeout(timeout)
+    } catch (e) {
+      clearTimeout(timeout)
+      const isTimeout = e instanceof Error && e.name === 'AbortError'
+      return { response: '', error: isTimeout ? 'Coach is thinking too hard. Please try again.' : 'Connection error. Please try again.' }
+    }
 
     if (!res.ok) {
       const err = await res.text()
@@ -265,4 +284,4 @@ export function buildStarterMessage(ctx: BuilderContext): string {
   return `${ctx.firstName}. ${ctx.productsLive} products live. The machine is working.\n\nNow let's talk about what's next — because there's always a next. What's on your mind?`
 }
 
-export { randomUUID }
+// randomUUID imported from 'crypto' above — used internally only

@@ -57,11 +57,12 @@ export default function FourMWidget() {
   }, [])
 
   async function loadData() {
+    try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setLoading(false); return }
 
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('profiles' as any)
       .select('paid_tier, bfm_status')
       .eq('id', user.id)
       .single() as { data: { paid_tier: string | null; bfm_status: string | null } | null }
@@ -102,6 +103,10 @@ export default function FourMWidget() {
       isRocket:         tierDef.isRocket,
     })
     setLoading(false)
+    } catch (e) {
+      console.error('[FourMWidget] loadData failed:', e)
+      setLoading(false)
+    }
   }
 
   if (loading) {

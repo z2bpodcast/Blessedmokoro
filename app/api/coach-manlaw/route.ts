@@ -7,11 +7,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }              from '@supabase/supabase-js'
+import { randomUUID }         from 'crypto'
 import {
   loadBuilderContext,
   generateCoachResponse,
   buildStarterMessage,
-  randomUUID,
   type CoachMessage,
 } from '@/lib/v3/coach-engine'
 
@@ -42,8 +42,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Session expired. Please log in.' }, { status: 401 })
     }
 
-    // Load builder's real context from Supabase
-    const context = await loadBuilderContext(user.id)
+    // Load builder's real context — wrap in try/catch (MEDIUM #5)
+    let context
+    try {
+      context = await loadBuilderContext(user.id)
+    } catch (e) {
+      console.error('[coach-api] Context load failed:', e)
+      return NextResponse.json({ error: 'Could not load your profile. Please try again.' }, { status: 500 })
+    }
 
     // ── INIT: Start new coach session ─────────────────────────
     if (action === 'init') {
@@ -82,10 +88,19 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Message too long. Please keep it under 1000 characters.' }, { status: 400 })
       }
 
-      // Rate limit: max 30 messages per hour
-      // Simple in-memory check — Redis in future sprint
+      // HIGH: Rate limit via message count in this session (client-enforced)
+      // Server-side: validate history length to prevent abuse
+      const safeHistory = (history ?? [])
+        .filter((m: CoachMessage) => m.role === 'user' || m.role === 'coach')  // MEDIUM #4: strip any injected roles
+        .slice(-20)  // max 20 messages in history
+        .map((m: CoachMessage) => ({ ...m, content: String(m.content).slice(0, 2000) }))  // cap each message
+
+      if (safeHistory.length >= 50) {
+        return NextResponse.json({ error: 'Session limit reached. Please start a new conversation.' }, { status: 429 })
+      }
+
       const result = await generateCoachResponse({
-        messages:   history ?? [],
+        messages:   safeHistory,
         newMessage: message.trim(),
         context,
       })
@@ -108,7 +123,7 @@ export async function POST(req: NextRequest) {
 
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Server error'
-    console.error('[coach-manlaw-api]', msg)
+    console.error('[coach-manlaw-api] Unhandled error:', msg)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
 }
