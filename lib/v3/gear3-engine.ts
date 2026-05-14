@@ -90,7 +90,19 @@ Return ONLY valid JSON:
 
   const { data, error: parseError } = parseAIJson<ContentDirective>(result.content)
   if (parseError || !data) {
-    return { directive: null, tokensUsed: result.tokensUsed, error: 'Could not build content directive.' }
+    // Fallback directive — ensures Gear 3 is never fully blocked (MEDIUM #5)
+    const fallback: ContentDirective = {
+      tone:                'warm, direct and practical — like a trusted mentor',
+      depth:               'implementation-focused — every point must be actionable today',
+      audienceLevel:       'clear and accessible — define terms, use simple language',
+      geographyContext:    'South Africa — use ZAR pricing and local examples',
+      transformationFocus: 'move reader from their current struggle to the promised result',
+      implementationStyle: 'step-by-step with numbered instructions and concrete examples',
+      examplesType:        'real-world scenarios the target audience would recognise',
+      avoidList:           ['generic advice', 'filler phrases', 'vague generalisations', 'passive voice'],
+    }
+    console.warn('[gear3-engine] Directive parse failed — using fallback directive')
+    return { directive: fallback, tokensUsed: result.tokensUsed, error: null }
   }
 
   return { directive: data, tokensUsed: result.tokensUsed, error: null }
@@ -127,11 +139,13 @@ export async function generateSectionContent(params: {
   let sectionContent = contentResult.content.trim()
 
   // Claude Haiku adds transition (non-blocking — proceeds if fails)
+  let transitionTokens = 0
   if (section.number > 1 && params.prevSectionTitle) {
     const transitionResult = await orchestrate(
       'content_transition',
       `Write one smooth bridge sentence from "${params.prevSectionTitle}" into "${section.title}". Under 20 words. Natural.`
     )
+    transitionTokens = transitionResult.tokensUsed
     if (!transitionResult.error && transitionResult.content.trim()) {
       sectionContent = transitionResult.content.trim() + '\n\n' + sectionContent
     }
@@ -145,7 +159,7 @@ export async function generateSectionContent(params: {
       wordCount:     countWords(sectionContent),
       status:        'complete',
     },
-    tokensUsed: contentResult.tokensUsed,
+    tokensUsed: contentResult.tokensUsed + transitionTokens,  // LOW #11: include Haiku tokens
     error:      null,
   }
 }
@@ -160,13 +174,19 @@ export async function regenerateSectionContent(params: {
   structure:       ProductStructure
   builderFeedback: string
 }): Promise<Gear3GenerateResult> {
+  // LOW #13: Ensure feedback is meaningful
+  const feedback = params.builderFeedback.trim()
+  if (feedback.length < 5) {
+    return { section: null, tokensUsed: 0, error: 'Please describe what to improve in at least a few words.' }
+  }
+
   const regenPrompt = buildSectionPrompt({
     section:      params.section,
     directive:    params.directive,
     intent:       params.intent,
     totalSections:params.structure.totalSections,
     isBonus:      false,
-    extraContext:  `Builder feedback: "${params.builderFeedback}". Address this specifically while maintaining all requirements.`,
+    extraContext:  `Builder feedback: "${feedback}". Address this specifically while maintaining all requirements.`,
   })
 
   const result = await orchestrate('content_production', regenPrompt)
@@ -279,7 +299,7 @@ export function toGear4Handoff(
   intent:    IntentDefinition,
   structure: ProductStructure
 ): Record<string, unknown> | null {
-  if (!draft.isComplete) return null
+  if (!draft.isComplete || !draft.sections?.length) return null
   return {
     productTitle:     draft.productTitle,
     totalSections:    draft.totalSections,

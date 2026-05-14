@@ -366,7 +366,7 @@ function Gear3Inner() {
       setCurrentIdx(i)
 
       const controller = new AbortController()
-      const timeout    = setTimeout(() => controller.abort(), 90000) // 90s for content generation
+      const timeout    = setTimeout(() => controller.abort(), 55000) // 55s — under Vercel 60s limit (HIGH #4)
 
       let res: Response
       try {
@@ -457,17 +457,23 @@ function Gear3Inner() {
     const data = await res.json()
 
     if (res.ok && data.section) {
-      setCompleted(prev =>
-        prev.map(s => s.sectionNumber === sectionNum ? data.section : s)
-      )
+      // HIGH #3: Use functional update — never rely on stale closure state
+      setCompleted(prev => {
+        const updated = prev.map(s => s.sectionNumber === sectionNum ? data.section : s)
+        // Rebuild draft from the FRESH updated array (not stale closure)
+        if (structure) {
+          const regularSects = updated.filter(s => s.sectionNumber !== 99)
+          const bonusSect    = updated.find(s => s.sectionNumber === 99)
+          const assembled    = assembleContentDraft({
+            structure,
+            completedSections: regularSects,
+            bonusSection:      bonusSect,
+          })
+          setDraft(assembled)  // safe to call setState inside setState callback
+        }
+        return updated
+      })
       setRegenCounts(prev => ({ ...prev, [sectionNum]: (prev[sectionNum] ?? 0) + 1 }))
-
-      // Rebuild draft
-      if (structure && intent) {
-        const updated = completedSections.map(s => s.sectionNumber === sectionNum ? data.section : s)
-        const assembled = assembleContentDraft({ structure, completedSections: updated })
-        setDraft(assembled)
-      }
     }
 
     setIsRegenerating(false)
@@ -608,7 +614,7 @@ function Gear3Inner() {
                 <div>
                   {completedSections.map(section => (
                     <SectionPreviewCard
-                      key={section.sectionNumber}
+                      key={section.sectionNumber + '-' + (sectionRegenCounts[section.sectionNumber] ?? 0)}
                       section={section}
                       regenCount={sectionRegenCounts[section.sectionNumber] ?? 0}
                       onRegenerate={(feedback) => handleRegenerate(section.sectionNumber, feedback)}
