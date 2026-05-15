@@ -160,12 +160,12 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     color:            '#B87333',
     description:      'Gears 1-5 · Value Enhancement · Influencer Engine · Google Trends',
   },
-  silver: {
+  silver: { // UPDATED: Silver now has all 7 gears
     id:               'silver',
     label:            'Electric Silver',
     vehicle:          'electric',
     priceZar:         12000,
-    gearAccess:       7,
+    gearAccess: 7,
     accessDays:       120,
     bfmMonthlyZar:    2000,
     automationMode:   'none',

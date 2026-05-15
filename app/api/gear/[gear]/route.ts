@@ -1228,7 +1228,8 @@ async function handleGear1(
     // Save intent to session and advance phase
     const gear1Handoff = toGear2Handoff(intent as any)
     if (!gear1Handoff) {
-      return NextResponse.json({ error: 'Could not build intent handoff.' }, { status: 500 })
+      console.error('[gear1-confirm] toGear2Handoff returned null — intent:', JSON.stringify(intent).slice(0, 200))
+      return NextResponse.json({ error: 'Intent data is incomplete. Please return to Gear 1 and try again.' }, { status: 400 })
     }
     const { success, error: advanceError } = await advanceGear(
       sessionId,
