@@ -17,7 +17,31 @@ export type TierId =
   | 'silver'
   | 'gold'
   | 'platinum'
-  | '
+  | 'silver_rocket'
+  | 'gold_rocket'
+  | 'rocket_gold'
+  | 'platinum_rocket'
+  | 'rocket_platinum'
+
+// Normalise any tier alias to canonical V3 tier ID
+export function normaliseTier(raw: string): TierId {
+  const map: Record<string, TierId> = {
+    fam:              'fam',
+    free:             'fam',
+    starter:          'starter',
+    bronze:           'bronze',
+    copper:           'copper',
+    silver:           'silver',
+    gold:             'gold',
+    platinum:         'platinum',
+    silver_rocket:    'rocket_gold',
+    gold_rocket:      'rocket_gold',
+    rocket_gold:      'rocket_gold',
+    platinum_rocket:  'rocket_platinum',
+    rocket_platinum:  'rocket_platinum',
+  }
+  return map[raw?.toLowerCase()] ?? 'fam'
+}
 
 // ── AUTOMATION MODE ──────────────────────────────────────────
 export type AutomationMode = 'none' | 'high' | 'ultra'
@@ -62,7 +86,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🌱',
     color:            '#6B7280',
     description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
-    engineType: 'manual' as const,
   },
   // free is an alias for fam — same values, normaliseTier() normalises it
   free: {
@@ -82,7 +105,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🌱',
     color:            '#6B7280',
     description:      'Workshop · Zero2Billionaires Flipbook + PDF · Browse Marketplace',
-    engineType: 'manual' as const,
   },
   starter: {
     id:               'starter',
@@ -101,7 +123,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🚗',
     color:            '#10B981',
     description:      'Idea Ignition · Gears 1-3 · Marketplace listing · NSB income · Zero2Billionaires eBook',
-    engineType: 'manual' as const,
   },
   bronze: {
     id:               'bronze',
@@ -120,7 +141,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🥉',
     color:            '#CD7F32',
     description:      'Gears 1-4 · Quality Control · ISP + TSC income · Team building',
-    engineType: 'manual' as const,
   },
   copper: {
     id:               'copper',
@@ -139,14 +159,13 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🪙',
     color:            '#B87333',
     description:      'Gears 1-5 · Value Enhancement · Influencer Engine · Google Trends',
-    engineType: 'automatic' as const,
   },
-  silver: { // UPDATED: Silver now has all 7 gears
+  silver: {
     id:               'silver',
     label:            'Electric Silver',
     vehicle:          'electric',
     priceZar:         12000,
-    gearAccess: 7,
+    gearAccess:       7,
     accessDays:       120,
     bfmMonthlyZar:    2000,
     automationMode:   'none',
@@ -158,7 +177,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '🥈',
     color:            '#C0C0C0',
     description:      'All 7 Gears · Professional packaging · Distribution engine · Full AI creation',
-    engineType: 'electric' as const,
   },
   gold: {
     id:               'gold',
@@ -179,7 +197,6 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     description:      'All 7 Gears · 1-year access · Premium AI product creation',
     // NOTE: gold/platinum have 365-day access like Rocket but are NOT Rocket tiers
     // They do not get automation routing. isRocket=false is correct.
-    engineType: 'rocket' as const,
   },
   platinum: {
     id:               'platinum',
@@ -198,9 +215,101 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     emoji:            '💎',
     color:            '#E5E4E2',
     description:      'All 7 Gears · Distribution Rights · CEO Competition · 1-year access',
-    engineType: 'rocket' as const,
   },
-  
+  silver_rocket: {
+    // Legacy alias — maps to rocket_gold
+    id:               'rocket_gold',
+    label:            'Rocket Gold',
+    vehicle:          'rocket',
+    priceZar:         35000,
+    gearAccess:       7,
+    accessDays:       365,
+    bfmMonthlyZar:    0,
+    automationMode:   'high',
+    ideaIgnitionDepth:'premium',
+    maxOpportunities: 10,
+    parallelSessions: 3,
+    hasBFM:           false,
+    isRocket:         true,
+    emoji:            '🚀',
+    color:            '#F97316',
+    description:      'All 7 Gears · High automation · 30-day social campaign · 1-year access',
+  },
+  gold_rocket: {
+    // Legacy alias — maps to rocket_gold
+    id:               'rocket_gold',
+    label:            'Rocket Gold',
+    vehicle:          'rocket',
+    priceZar:         35000,
+    gearAccess:       7,
+    accessDays:       365,
+    bfmMonthlyZar:    0,
+    automationMode:   'high',
+    ideaIgnitionDepth:'premium',
+    maxOpportunities: 10,
+    parallelSessions: 3,
+    hasBFM:           false,
+    isRocket:         true,
+    emoji:            '🚀',
+    color:            '#F97316',
+    description:      'All 7 Gears · High automation · 30-day social campaign · 1-year access',
+  },
+  rocket_gold: {
+    id:               'rocket_gold',
+    label:            'Rocket Gold',
+    vehicle:          'rocket',
+    priceZar:         35000,
+    gearAccess:       7,
+    accessDays:       365,
+    bfmMonthlyZar:    0,
+    automationMode:   'high',
+    ideaIgnitionDepth:'premium',
+    maxOpportunities: 10,
+    parallelSessions: 3,
+    hasBFM:           false,
+    isRocket:         true,
+    emoji:            '🚀',
+    color:            '#F97316',
+    description:      'All 7 Gears · High automation · 30-day social campaign · 1-year access',
+  },
+  platinum_rocket: {
+    // Legacy alias — maps to rocket_platinum
+    id:               'rocket_platinum',
+    label:            'Rocket Platinum',
+    vehicle:          'rocket',
+    priceZar:         70000,
+    gearAccess:       7,
+    accessDays:       365,
+    bfmMonthlyZar:    0,
+    automationMode:   'ultra',
+    ideaIgnitionDepth:'elite',
+    maxOpportunities: -1, // -1 = unlimited
+    parallelSessions: 10,
+    hasBFM:           false,
+    isRocket:         true,
+    emoji:            '🚀',
+    color:            '#A78BFA',
+    description:      'All 7 Gears · 95% automation · 90-day ecosystem · Parallel sessions',
+  },
+  rocket_platinum: {
+    id:               'rocket_platinum',
+    label:            'Rocket Platinum',
+    vehicle:          'rocket',
+    priceZar:         70000,
+    gearAccess:       7,
+    accessDays:       365,
+    bfmMonthlyZar:    0,
+    automationMode:   'ultra',
+    ideaIgnitionDepth:'elite',
+    maxOpportunities: -1, // -1 = unlimited
+    parallelSessions: 10,
+    hasBFM:           false,
+    isRocket:         true,
+    emoji:            '🚀',
+    color:            '#A78BFA',
+    description:      'All 7 Gears · 95% automation · 90-day ecosystem · Parallel sessions',
+  },
+}
 
 // ── TIER ACCESS HELPERS ──────────────────────────────────────
 
@@ -241,7 +350,13 @@ export function isRocketTier(tierId: string): boolean {
 export function getUpgradePath(tierId: string): TierDefinition | null {
   const order: TierId[] = [
     'fam', 'starter', 'bronze', 'copper', 'silver',
-    'gold', 'platinum', '
+    'gold', 'platinum', 'rocket_gold', 'rocket_platinum',
+  ]
+  const normalised = normaliseTier(tierId)
+  const current = order.indexOf(normalised)
+  if (current === -1 || current === order.length - 1) return null
+  return TIER_CONFIG[order[current + 1]] ?? null
+}
 
 // Get number of accessible gears for display
 export function getGearLabel(tierId: string): string {
@@ -317,7 +432,8 @@ export const GEAR_DEFINITIONS: GearDefinition[] = [
     publicLabel: 'Launching to the World',
     minTier:     'silver',
     aiPrimary:   'gpt',
-    isEndpoint:  ['silver', 'gold', 'platinum', '
+    isEndpoint:  ['silver', 'gold', 'platinum', 'rocket_gold', 'rocket_platinum'],
+  },
 ]
 
 // Get gear definition by number
