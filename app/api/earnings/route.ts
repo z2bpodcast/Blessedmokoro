@@ -147,8 +147,14 @@ export async function GET(req: NextRequest) {
 
   // ── FAM AUTO-UPGRADE TRACKER ──────────────────────────────────
   // FAM: first R500 NSB accumulated → auto-upgrade to Starter
-  const famNsbTotal     = isFam ? nsbTotal : null
-  const famUpgradeProgress = isFam ? Math.min(100, Math.round((nsbTotal / 700) * 100)) : null
+  const famJoinDate        = profile?.created_at ? new Date(profile.created_at) : null
+  const famDaysActive      = famJoinDate ? Math.floor((Date.now() - famJoinDate.getTime()) / 86400000) : 0
+  const famIn90Days        = isFam && famDaysActive <= 90
+  const famNsbTotal        = isFam ? nsbTotal : null
+  const famDaysRemaining   = isFam && famIn90Days ? Math.max(0, 90 - famDaysActive) : 0
+  const famUpgradeProgress = isFam
+    ? (famIn90Days ? Math.min(100, Math.round((nsbTotal / 700) * 100)) : null)
+    : null
 
   return NextResponse.json({
     // Member
