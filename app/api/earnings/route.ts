@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
   const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
   const { data: profile } = await (sb.from('profiles') as any)
-    .select('paid_tier, full_name, referral_code')
+    .select('paid_tier, full_name, referral_code, created_at')
     .eq('id', user.id)
     .maybeSingle() as { data: any }
 
@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
   // ── FAM AUTO-UPGRADE TRACKER ──────────────────────────────────
   // FAM: first R500 NSB accumulated → auto-upgrade to Starter
   const famNsbTotal     = isFam ? nsbTotal : null
-  const famUpgradeProgress = isFam ? Math.min(100, Math.round((nsbTotal / 500) * 100)) : null
+  const famUpgradeProgress = isFam ? Math.min(100, Math.round((nsbTotal / 700) * 100)) : null
 
   return NextResponse.json({
     // Member
@@ -191,6 +191,8 @@ export async function GET(req: NextRequest) {
     // FAM specific
     famNsbTotal,
     famUpgradeProgress,
+    famIn90Days,
+    famDaysRemaining,
 
     // Recent transactions
     recentTx: allComms.slice(0, 20).map(c => ({

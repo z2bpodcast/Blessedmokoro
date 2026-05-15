@@ -20,7 +20,7 @@ const MUTED = '#64748B'
 const GREEN = '#10B981'
 const RED   = '#EF4444'
 
-type TabId = 'overview' | 'isp' | 'team' | 'transactions'
+type TabId = 'overview' | 'isp' | 'affiliate' | 'team' | 'transactions'
 
 interface EarningsData {
   tierId:         string
@@ -40,6 +40,17 @@ interface EarningsData {
   tliTotal:       number
   grandTotal:     number
   grandThisMonth: number
+  affTotal:       number
+  affThisMonth:   number
+  nsbTotal:       number
+  engineType:     string
+  engineIcon:     string
+  isFam:          boolean
+  famNsbTotal:        number | null
+  famUpgradeProgress: number | null
+  famIn90Days:        boolean
+  famDaysRemaining:   number
+  affiliateRate:  number
   nextTierId:     string | null
   nextTierLabel:  string | null
   nextTierPrice:  number | null
@@ -147,6 +158,7 @@ function EarningsInner() {
   const tabs: { id: TabId; label: string }[] = [
     { id: 'overview',     label: 'Overview'      },
     { id: 'isp',          label: 'My Sales'      },
+    { id: 'affiliate',    label: 'Affiliate'     },
     { id: 'team',         label: 'Team'          },
     { id: 'transactions', label: 'History'       },
   ]
@@ -195,6 +207,41 @@ function EarningsInner() {
               <StatCard label="TLI — Leadership"     total={data.tliTotal}  month={0}                  color={VIO}   />
             </div>
 
+            {/* FAM auto-upgrade tracker */}
+            {data.isFam && data.famIn90Days && data.famUpgradeProgress !== null && (
+              <div style={{ padding: '16px', borderRadius: '14px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: GOLD }}>
+                    🌱 Earn R700 in NSB to auto-upgrade to Starter
+                  </div>
+                  <div style={{ fontSize: '10px', color: MUTED, flexShrink: 0, marginLeft: '8px' }}>
+                    {data.famDaysRemaining}d remaining
+                  </div>
+                </div>
+                <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', marginBottom: '8px' }}>
+                  <div style={{ height: '100%', width: data.famUpgradeProgress + '%', background: GOLD, borderRadius: '3px', transition: 'width 0.4s' }} />
+                </div>
+                <div style={{ fontSize: '11px', color: MUTED, lineHeight: 1.7 }}>
+                  {formatZar(data.famNsbTotal ?? 0)} of R700 earned · {data.famUpgradeProgress}% complete
+                </div>
+                <div style={{ marginTop: '8px', fontSize: '11px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7 }}>
+                  Earn R100 NSB + 10% ISP on each membership sale you generate.
+                  Reach R700 within 90 days and your account automatically upgrades to Starter.
+                </div>
+              </div>
+            )}
+            {data.isFam && !data.famIn90Days && (
+              <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: W, marginBottom: '4px' }}>🌱 Ready to upgrade?</div>
+                <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7, marginBottom: '12px' }}>
+                  Your free 90-day NSB period has ended. Upgrade to Starter to unlock the 4M Machine and earn ISP, QPB, TSC and TLI.
+                </div>
+                <a href="/pricing" style={{ display: 'inline-block', padding: '8px 18px', borderRadius: '10px', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '12px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                  Upgrade to Starter →
+                </a>
+              </div>
+            )}
+
             {/* QPB tracker */}
             <div style={{ padding: '16px', borderRadius: '14px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', marginBottom: '16px' }}>
               <div style={{ fontSize: '12px', fontWeight: 700, color: GOLD, marginBottom: '10px' }}>
@@ -239,6 +286,15 @@ function EarningsInner() {
               </div>
             )}
 
+            {/* CEO Competition / NSB */}
+            {data.nsbTotal > 0 && (
+              <div style={{ padding: '16px', borderRadius: '14px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: VIO, marginBottom: '6px' }}>🏅 CEO Competition Earnings (NSB)</div>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: VIO }}>{formatZar(data.nsbTotal)}</div>
+                <div style={{ fontSize: '11px', color: MUTED, marginTop: '4px' }}>Seasonal bonuses from CEO Competitions</div>
+              </div>
+            )}
+
             {/* Last updated */}
             <div style={{ textAlign: 'center', fontSize: '10px', color: 'rgba(255,255,255,0.2)', marginTop: '8px' }}>
               Updated {new Date(data.asOf).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
@@ -269,6 +325,33 @@ function EarningsInner() {
 
             <div style={{ fontSize: '12px', color: MUTED, padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)' }}>
               <strong style={{ color: W }}>How to earn more ISP:</strong> Create more products using the 4M Machine. Every product listed on the Marketplace earns you {data.ispRate}% of every sale automatically.
+            </div>
+          </div>
+        )}
+
+        {/* ── AFFILIATE TAB ───────────────────────────────── */}
+        {tab === 'affiliate' && (
+          <div>
+            <div style={{ padding: '16px', borderRadius: '14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: '16px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: GREEN, marginBottom: '8px' }}>Affiliate Commission (Marketplace)</div>
+              <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8 }}>
+                You earn <strong style={{ color: GREEN }}>{data.affiliateRate}%</strong> of every product sold on the Z2B Marketplace through your affiliate link.
+                This applies to ALL products listed by Z2B and other members.
+                This is separate from your ISP — it works for all tiers including FAM.
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: GREEN }}>{formatZar(data.affTotal)}</div>
+                <div style={{ fontSize: '10px', color: MUTED, marginTop: '4px' }}>Lifetime Affiliate</div>
+              </div>
+              <div style={{ padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: GREEN }}>{formatZar(data.affThisMonth)}</div>
+                <div style={{ fontSize: '10px', color: MUTED, marginTop: '4px' }}>This Month</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '12px', color: MUTED, padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)' }}>
+              <strong style={{ color: W }}>Your affiliate link works only on the Z2B Marketplace.</strong> Share it with anyone — when they buy a product through your link, you earn 20% automatically.
             </div>
           </div>
         )}
