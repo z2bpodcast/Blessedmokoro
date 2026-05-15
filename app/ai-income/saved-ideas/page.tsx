@@ -150,7 +150,7 @@ function SavedIdeasInner() {
                   {/* CTA */}
                   <button
                     onClick={() => launchIdea(idea)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: GOLD, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
+                    style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid rgba(212,175,55,0.3)', cursor: 'pointer', background: 'rgba(212,175,55,0.12)', color: GOLD, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
                     Build this product →
                   </button>
                 </div>
