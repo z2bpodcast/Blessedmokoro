@@ -1,33 +1,47 @@
 // ============================================================
-// Z2B 4M V3 — EARNINGS API
+// Z2B 4M V3 — EARNINGS API (CORRECTED)
 // File: app/api/earnings/route.ts
-// Laws: Reads commissions table · Calculates QPB eligibility
-//       Tier progression · ISP / TSC / TLI breakdown
+// CORRECTED: ISP 10-30% on membership · Affiliate 20% on marketplace
+// NSB = seasonal CEO Competition (not a permanent stream)
+// Engine types: manual · automatic · electric · rocket
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }              from '@supabase/supabase-js'
 import { normaliseTier, getTier }    from '@/lib/v3/tier-config'
 
-// ── COMP PLAN CONSTANTS ───────────────────────────────────────
+// ── ISP RATES — membership tier sales only ────────────────────
+// Source: live compensation page NSB table (derived from R100 + ISP% of R500)
 const ISP_RATES: Record<string, number> = {
-  starter:         0.20,  // 20%
-  bronze:          0.25,  // 25%
-  copper:          0.30,  // 30%
-  silver:          0.35,  // 35%
-  gold:            0.40,  // 40%
-  platinum:        0.45,  // 45%
-  rocket_gold:     0.45,
-  rocket_platinum: 0.50,  // 50%
-  fam:             0.00,
-  free:            0.00,
+  fam:      0.00,   // FAM earns NSB only — no ISP
+  free:     0.00,
+  starter:  0.10,   // 10%
+  bronze:   0.18,   // 18%
+  copper:   0.22,   // 22%
+  silver:   0.25,   // 25%
+  gold:     0.28,   // 28%
+  platinum: 0.30,   // 30%
 }
 
-const QPB_RATE       = 0.075  // 7.5% on Copper / 10% on Silver+
-const QPB_RATE_HIGH  = 0.10
-const QPB_MIN_SALES  = 3      // 3 unique-tier sales in a month
+// ── AFFILIATE COMMISSION RATE — marketplace sales only ────────
+const AFFILIATE_RATE = 0.20  // 20% flat — all tiers including FAM
 
-const TIER_ORDER = ['fam','starter','bronze','copper','silver','gold','platinum','rocket_gold','rocket_platinum']
+// ── QPB THRESHOLDS ────────────────────────────────────────────
+const QPB_RATE       = 0.075   // 7.5% — Copper
+const QPB_RATE_HIGH  = 0.10    // 10%  — Silver+
+const QPB_MIN_SALES  = 3       // 3 unique-tier sales in a month
+
+// ── ENGINE TYPES ──────────────────────────────────────────────
+const ENGINE_TYPES: Record<string, string> = {
+  fam: 'manual', free: 'manual', starter: 'manual', bronze: 'manual',
+  copper: 'automatic', silver: 'electric', gold: 'rocket', platinum: 'rocket',
+}
+const ENGINE_ICONS: Record<string, string> = {
+  manual: '🔧', automatic: '⚙️', electric: '⚡', rocket: '🚀',
+}
+
+// ── TIER PROGRESSION ──────────────────────────────────────────
+const TIER_ORDER  = ['fam','starter','bronze','copper','silver','gold','platinum']
 const TIER_PRICES: Record<string, number> = {
   starter: 500, bronze: 2500, copper: 5000,
   silver: 12000, gold: 25000, platinum: 50000,
@@ -38,8 +52,6 @@ function getNextTier(tierId: string): string | null {
   if (idx < 0 || idx >= TIER_ORDER.length - 1) return null
   return TIER_ORDER[idx + 1] ?? null
 }
-
-// ── AUTH HELPER ───────────────────────────────────────────────
 
 async function getUser(req: NextRequest) {
   const sb    = createClient(
@@ -53,28 +65,25 @@ async function getUser(req: NextRequest) {
   return { user, sb }
 }
 
-// ── GET EARNINGS ──────────────────────────────────────────────
-
 export async function GET(req: NextRequest) {
   const { user, sb } = await getUser(req)
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-  }
+  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const now       = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
+  const now            = new Date()
+  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
-  // Load profile for tier
   const { data: profile } = await (sb.from('profiles') as any)
     .select('paid_tier, full_name, referral_code')
     .eq('id', user.id)
     .maybeSingle() as { data: any }
 
-  const tierId  = normaliseTier(profile?.paid_tier ?? 'fam')
-  const tierDef = getTier(tierId)
+  const tierId      = normaliseTier(profile?.paid_tier ?? 'fam')
+  const tierDef     = getTier(tierId)
+  const isFam       = tierId === 'fam' || tierId === 'free'
+  const engineType  = ENGINE_TYPES[tierId] ?? 'manual'
+  const engineIcon  = ENGINE_ICONS[engineType] ?? '🔧'
+  const ispRate     = ISP_RATES[tierId] ?? 0
 
-  // Load ALL commissions for this builder
   const { data: commissions } = await (sb.from as any)('commissions')
     .select('id, type, amount, source_tier, created_at, status, note')
     .eq('member_id', user.id)
@@ -83,109 +92,113 @@ export async function GET(req: NextRequest) {
 
   const allComms = commissions ?? []
 
-  // ── ISP: Individual Sales Profit ──────────────────────────
-  const ispComms     = allComms.filter(c => c.type === 'isp')
-  const ispTotal     = ispComms.reduce((s, c) => s + (c.amount ?? 0), 0)
-  const ispThisMonth = ispComms
-    .filter(c => c.created_at >= monthStart)
-    .reduce((s, c) => s + (c.amount ?? 0), 0)
-  const ispRate      = ISP_RATES[tierId] ?? 0
-
-  // ── TSC: Team Sales Commission ─────────────────────────────
-  const tscComms     = allComms.filter(c => c.type === 'tsc')
-  const tscTotal     = tscComms.reduce((s, c) => s + (c.amount ?? 0), 0)
-  const tscThisMonth = tscComms
+  // ── AFFILIATE COMMISSION — marketplace product sales ─────────
+  const affComms        = allComms.filter(c => c.type === 'affiliate')
+  const affTotal        = affComms.reduce((s, c) => s + (c.amount ?? 0), 0)
+  const affThisMonth    = affComms
     .filter(c => c.created_at >= monthStart)
     .reduce((s, c) => s + (c.amount ?? 0), 0)
 
-  // ── QPB: Qualified Performance Bonus ──────────────────────
-  // Requires 3 sales from different tiers in a month
-  const ispThisMonthComms = ispComms.filter(c => c.created_at >= monthStart)
-  const uniqueTiersThisMonth = new Set(ispThisMonthComms.map(c => c.source_tier).filter(Boolean))
-  const qpbSalesCount   = uniqueTiersThisMonth.size
-  const qpbEligible     = qpbSalesCount >= QPB_MIN_SALES
+  // ── ISP — membership tier referral sales ─────────────────────
+  // FAM earns 0 ISP — only affiliate commission
+  const ispComms        = allComms.filter(c => c.type === 'isp')
+  const ispTotal        = ispComms.reduce((s, c) => s + (c.amount ?? 0), 0)
+  const ispThisMonth    = ispComms
+    .filter(c => c.created_at >= monthStart)
+    .reduce((s, c) => s + (c.amount ?? 0), 0)
+
+  // ── TSC — team sales commission ───────────────────────────────
+  const tscComms        = isFam ? [] : allComms.filter(c => c.type === 'tsc')
+  const tscTotal        = tscComms.reduce((s, c) => s + (c.amount ?? 0), 0)
+  const tscThisMonth    = tscComms
+    .filter(c => c.created_at >= monthStart)
+    .reduce((s, c) => s + (c.amount ?? 0), 0)
+
+  // ── QPB — qualified performance bonus ─────────────────────────
+  const ispThisMonthAll = ispComms.filter(c => c.created_at >= monthStart)
+  const uniqueTiers     = new Set(ispThisMonthAll.map(c => c.source_tier).filter(Boolean))
+  const qpbSalesCount   = uniqueTiers.size
+  const qpbEligible     = !isFam && qpbSalesCount >= QPB_MIN_SALES
   const qpbRate         = tierId === 'copper' ? QPB_RATE : QPB_RATE_HIGH
-
-  const qpbComms        = allComms.filter(c => c.type === 'qpb')
+  const qpbComms        = isFam ? [] : allComms.filter(c => c.type === 'qpb')
   const qpbTotal        = qpbComms.reduce((s, c) => s + (c.amount ?? 0), 0)
   const qpbThisMonth    = qpbComms
     .filter(c => c.created_at >= monthStart)
     .reduce((s, c) => s + (c.amount ?? 0), 0)
+  const qpbEstimate     = qpbEligible ? ispThisMonth * qpbRate : 0
 
-  // Estimated QPB if eligible this month
-  const qpbEstimate = qpbEligible
-    ? ispThisMonth * qpbRate
-    : 0
+  // ── TLI — team leadership incentive ──────────────────────────
+  const tliComms        = isFam ? [] : allComms.filter(c => c.type === 'tli')
+  const tliTotal        = tliComms.reduce((s, c) => s + (c.amount ?? 0), 0)
 
-  // ── TLI: Team Leadership Incentive ────────────────────────
-  const tliComms  = allComms.filter(c => c.type === 'tli')
-  const tliTotal  = tliComms.reduce((s, c) => s + (c.amount ?? 0), 0)
+  // ── CEO COMPETITIONS (seasonal NSB) ──────────────────────────
+  const nsbComms        = allComms.filter(c => c.type === 'nsb')
+  const nsbTotal        = nsbComms.reduce((s, c) => s + (c.amount ?? 0), 0)
 
-  // ── TOTAL EARNINGS ─────────────────────────────────────────
-  const grandTotal      = ispTotal + tscTotal + qpbTotal + tliTotal
-  const grandThisMonth  = ispThisMonth + tscThisMonth + qpbThisMonth
+  // ── TOTALS ────────────────────────────────────────────────────
+  const grandTotal      = affTotal + ispTotal + tscTotal + qpbTotal + tliTotal + nsbTotal
+  const grandThisMonth  = affThisMonth + ispThisMonth + tscThisMonth + qpbThisMonth
 
-  // ── TIER PROGRESSION ──────────────────────────────────────
+  // ── TIER PROGRESSION ──────────────────────────────────────────
   const nextTierId    = getNextTier(tierId)
   const nextTierPrice = nextTierId ? (TIER_PRICES[nextTierId] ?? null) : null
   const nextTierDef   = nextTierId ? getTier(nextTierId) : null
+  const ispToNextTier = nextTierPrice ? Math.max(0, nextTierPrice - ispTotal) : null
 
-  // ISP needed to fund next tier upgrade
-  const ispToNextTier = nextTierPrice
-    ? Math.max(0, nextTierPrice - ispTotal)
-    : null
-
-  // ── RECENT TRANSACTIONS ────────────────────────────────────
-  const recentTx = allComms.slice(0, 20).map(c => ({
-    id:        c.id,
-    type:      c.type?.toUpperCase() ?? 'COMMISSION',
-    amount:    c.amount ?? 0,
-    note:      c.note ?? '',
-    date:      c.created_at,
-    status:    c.status ?? 'paid',
-  }))
+  // ── FAM AUTO-UPGRADE TRACKER ──────────────────────────────────
+  // FAM: first R500 NSB accumulated → auto-upgrade to Starter
+  const famNsbTotal     = isFam ? nsbTotal : null
+  const famUpgradeProgress = isFam ? Math.min(100, Math.round((nsbTotal / 500) * 100)) : null
 
   return NextResponse.json({
-    // Member info
-    tierId,
-    tierLabel:    tierDef.label,
+    // Member
+    tierId, tierLabel: tierDef.label,
     firstName:    profile?.full_name?.split(' ')[0] ?? '',
     referralCode: profile?.referral_code ?? '',
-    ispRate:      Math.round(ispRate * 100),
+    isFam,
+    engineType, engineIcon,
+    ispRate: Math.round(ispRate * 100),
+    affiliateRate: Math.round(AFFILIATE_RATE * 100),
 
-    // ISP
-    ispTotal,
-    ispThisMonth,
+    // Affiliate (marketplace — ALL tiers)
+    affTotal, affThisMonth,
+
+    // ISP (membership — Starter+ only)
+    ispTotal, ispThisMonth,
 
     // TSC
-    tscTotal,
-    tscThisMonth,
+    tscTotal, tscThisMonth,
 
     // QPB
-    qpbTotal,
-    qpbThisMonth,
-    qpbSalesCount,
-    qpbEligible,
-    qpbEstimate,
-    qpbMinSales:  QPB_MIN_SALES,
+    qpbTotal, qpbThisMonth,
+    qpbSalesCount, qpbEligible, qpbEstimate, qpbMinSales: QPB_MIN_SALES,
 
     // TLI
     tliTotal,
 
+    // CEO Competitions (seasonal NSB)
+    nsbTotal,
+
     // Totals
-    grandTotal,
-    grandThisMonth,
+    grandTotal, grandThisMonth,
 
-    // Tier progression
-    nextTierId:       nextTierId ?? null,
-    nextTierLabel:    nextTierDef?.label ?? null,
-    nextTierPrice:    nextTierPrice ?? null,
-    ispToNextTier:    ispToNextTier ?? null,
+    // Progression
+    nextTierId: nextTierId ?? null,
+    nextTierLabel: nextTierDef?.label ?? null,
+    nextTierPrice: nextTierPrice ?? null,
+    ispToNextTier: ispToNextTier ?? null,
 
-    // Recent
-    recentTx,
+    // FAM specific
+    famNsbTotal,
+    famUpgradeProgress,
 
-    // Meta
+    // Recent transactions
+    recentTx: allComms.slice(0, 20).map(c => ({
+      id: c.id, type: c.type?.toUpperCase() ?? 'COMMISSION',
+      amount: c.amount ?? 0, note: c.note ?? '',
+      date: c.created_at, status: c.status ?? 'paid',
+    })),
+
     asOf: new Date().toISOString(),
   })
 }
