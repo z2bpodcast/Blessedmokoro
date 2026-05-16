@@ -132,15 +132,58 @@ export async function POST(
 
     const tierId = normaliseTier(profile?.paid_tier || 'fam')
 
+    // ── CACHE CHECK: restore saved output for 'run' actions ────
+    const sessionId = body.sessionId as string | undefined
+    if (action === 'run' && sessionId) {
+      const cached = await getCachedGearOutput(supabase as any, sessionId, gearNumber)
+      if (cached) {
+        console.log('[gear-api] Cache HIT — gear', gearNumber, 'session', sessionId)
+        return NextResponse.json({ ...cached, _fromCache: true })
+      }
+      console.log('[gear-api] Cache MISS — gear', gearNumber, 'session', sessionId, '— running AI')
+    }
+
     // ── ROUTE TO GEAR HANDLER ────────────────────────────────
+    // Wrap handlers to auto-save output on success
+    async function runWithCache(handler: Promise<NextResponse>): Promise<NextResponse> {
+      const response = handler instanceof Promise ? await handler : handler
+      // Save output if this was a 'run' action and response is ok
+      if (action === 'run' && sessionId && response.status === 200) {
+        try {
+          const cloned = response.clone()
+          const data = await cloned.json()
+          if (!data.error) {
+            await cacheGearOutput(supabase as any, user.id, sessionId, gearNumber, data)
+            // Also update saved_projects draft — keeps My Projects page in sync
+            try {
+              const title = data.intent?.productTitle
+                ?? data.blueprint?.productTitle
+                ?? data.draft?.productTitle
+                ?? data.listing?.title
+                ?? 'Untitled Project'
+              await (supabase.from as any)('saved_projects').upsert({
+                session_id:   sessionId,
+                builder_id:   user.id,
+                title,
+                current_gear: gearNumber,
+                status:       gearNumber >= 6 ? 'complete' : 'draft',
+                updated_at:   new Date().toISOString(),
+              }, { onConflict: 'session_id' })
+            } catch (_) {}
+          }
+        } catch (_) {}
+      }
+      return response
+    }
+
     switch (gearNumber) {
-      case 1: return await handleGear1(req, user.id, tierId, action, body)
+      case 1: return await runWithCache(handleGear1(req, user.id, tierId, action, body))
       // Gears 2-7 added in Sprints 4-7
-      case 2: return await handleGear2(user.id, tierId, action, body)
-      case 3: return await handleGear3(user.id, tierId, action, body)
-      case 4: return await handleGear4(user.id, tierId, action, body)
-      case 5: return await handleGear5(user.id, tierId, action, body)
-      case 6: return await handleGear6(user.id, tierId, action, body)
+      case 2: return await runWithCache(handleGear2(user.id, tierId, action, body))
+      case 3: return await runWithCache(handleGear3(user.id, tierId, action, body))
+      case 4: return await runWithCache(handleGear4(user.id, tierId, action, body))
+      case 5: return await runWithCache(handleGear5(user.id, tierId, action, body))
+      case 6: return await runWithCache(handleGear6(user.id, tierId, action, body))
       case 7:
         return NextResponse.json(
           { error: 'Gear ' + String(gearNumber) + ' is coming soon.' },
@@ -1228,8 +1271,7 @@ async function handleGear1(
     // Save intent to session and advance phase
     const gear1Handoff = toGear2Handoff(intent as any)
     if (!gear1Handoff) {
-      console.error('[gear1-confirm] toGear2Handoff returned null — intent:', JSON.stringify(intent).slice(0, 200))
-      return NextResponse.json({ error: 'Intent data is incomplete. Please return to Gear 1 and try again.' }, { status: 400 })
+      return NextResponse.json({ error: 'Could not build intent handoff.' }, { status: 500 })
     }
     const { success, error: advanceError } = await advanceGear(
       sessionId,
