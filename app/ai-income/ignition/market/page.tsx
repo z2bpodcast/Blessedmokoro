@@ -1,358 +1,264 @@
 'use client'
 // ============================================================
-// Z2B 4M V3 — MARKET DISCOVERY PAGE
+// Z2B V3 — MARKET RESEARCH IGNITION (GOOGLE TRENDS POWERED)
 // File: app/ai-income/ignition/market/page.tsx
-// Laws: Mobile-first · Premium UX · Tier-gated depth
+// Zero input required — 4M discovers, analyses and recommends
 // ============================================================
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
-import {
-  MARKET_GEOGRAPHIES,
-  MARKET_CATEGORIES,
-  MARKET_AUDIENCES,
-  type MarketGeography,
-  type MarketCategory,
-  type MarketAudience,
-  type MarketParams,
-  type IgnitionOpportunity,
-} from '@/lib/v3/ignition-engine'
+import { useRouter }                      from 'next/navigation'
+import { supabase }                       from '@/lib/supabase'
+import { loadMarket, type TargetMarket }  from '@/components/v3/MarketSelector'
+import Link                               from 'next/link'
 
 const BG    = '#050A18'
 const GOLD  = '#D4AF37'
 const CYAN  = '#06B6D4'
+const VIO   = '#8B5CF6'
 const W     = '#F0F9FF'
 const MUTED = '#64748B'
+const GREEN = '#10B981'
 
-type Step = 'params' | 'thinking' | 'results'
+const DEMAND_COLORS: Record<string, string> = {
+  rising: CYAN, high: GOLD, very_high: GREEN,
+}
+const DEMAND_LABELS: Record<string, string> = {
+  rising: '📈 Rising', high: '🔥 High demand', very_high: '⚡ Very high demand',
+}
 
-const THINKING_MSGS_MARKET = [
-  'Scanning market demand...',
-  'Detecting opportunity gaps...',
-  'Ranking your best entries...',
-]
+interface Opportunity {
+  id:           string
+  title:        string
+  category:     string
+  audience:     string
+  problemSolved:string
+  format:       string
+  priceRangeMin:number
+  priceRangeMax:number
+  currency:     string
+  difficulty:   string
+  trendEvidence:string
+  whyNow:       string
+  demandLevel:  'rising' | 'high' | 'very_high'
+}
 
-function MarketDiscoveryInner() {
-  const router = useRouter()
+interface TrendsResult {
+  opportunities: Opportunity[]
+  marketSignal:  string
+  trendsUsed:    string[]
+  risingUsed:    string[]
+  liveData:      boolean
+  marketLabel:   string
+}
 
-  const [step,          setStep]       = useState<Step>('params')
-  const [geography,     setGeo]        = useState<MarketGeography>('south_africa')
-  const [category,      setCat]        = useState<MarketCategory | ''>('')
-  const [audience,      setAud]        = useState<MarketAudience | ''>('')
-  const [opportunities, setOpps]       = useState<IgnitionOpportunity[]>([])
-  const [regenCount,    setRegenCount] = useState(0)
-  const [selected,      setSelected]   = useState<IgnitionOpportunity | null>(null)
-  const [authToken,     setAuthToken]  = useState('')
-  const [thinkingMsg,   setThinkingMsg]= useState(0)
-  const [paramError,    setParamError] = useState('')
-
-  // THINKING_MSGS moved to module level
+function MarketResearchInner() {
+  const router  = useRouter()
+  const [market,   setMarket]   = useState<TargetMarket | null>(null)
+  const [result,   setResult]   = useState<TrendsResult | null>(null)
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { router.push('/login'); return }
-      setAuthToken(session.access_token)
-    })
-  }, [router])
+    const m = loadMarket()
+    setMarket(m)
+  }, [])
 
-  useEffect(() => {
-    if (step !== 'thinking') return
-    const interval = setInterval(() => {
-      setThinkingMsg(prev => (prev + 1) % THINKING_MSGS_MARKET.length)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [step])
+  const discover = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { router.push('/login'); return }
 
-  async function handleSearch(regen = false) {
-    if (!category || !audience) {
-      setParamError('Please select a category and audience to continue.')
-      return
-    }
-    setParamError('')
-    setStep('thinking')
+    setLoading(true); setError(''); setResult(null)
 
-    const params: MarketParams = {
-      geography: geography,
-      category:  category as MarketCategory,
-      audience:  audience as MarketAudience,
-    }
-
-    // Timeout guard — 55s abort (HIGH #14)
-    const controller = new AbortController()
-    const timeout    = setTimeout(() => controller.abort(), 55000)
-
-    let res: Response
     try {
-      res = await fetch('/api/idea-ignition', {
-        signal: controller.signal,
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + authToken,
-      },
-      body: JSON.stringify({
-        action:      regen ? 'regenerate' : 'synthesise_market',
-        params,
-        regen_count: regen ? regenCount : 0,
-        route:       'market',
-      }),
-    })
-
-      clearTimeout(timeout)
-    } catch (e) {
-      clearTimeout(timeout)
-      const msg = (e instanceof Error && e.name === 'AbortError')
-        ? 'This is taking longer than expected. Please try again.'
-        : 'Something went wrong. Please try again.'
-      alert(msg)
-      setStep('params')
-      return
+      const res  = await fetch('/api/trends', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body:    JSON.stringify({ market }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Could not analyse market.'); return }
+      setResult(data)
+    } catch (_) {
+      setError('Connection error. Please try again.')
+    } finally {
+      setLoading(false)
     }
+  }
 
+  const selectOpp = (opp: Opportunity) => {
+    sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({
+      id: opp.id, title: opp.title, category: opp.category,
+      targetAudience: opp.audience, problemSolved: opp.problemSolved,
+      format: opp.format,
+      priceRange: `${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMin}–${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMax}`,
+      difficulty: opp.difficulty,
+    }))
+    router.push('/ai-income/ignition/self')
+  }
+
+  const saveOpp = async (opp: Opportunity) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const res  = await fetch('/api/saved-ideas', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body:    JSON.stringify({ action: 'save', idea: {
+        id: opp.id, title: opp.title, category: opp.category,
+        targetAudience: opp.audience, problemSolved: opp.problemSolved,
+        priceRange: `${opp.priceRangeMin}–${opp.priceRangeMax} ${opp.currency}`,
+        format: opp.format, difficulty: opp.difficulty,
+      }}),
+    })
     const data = await res.json()
-
-    if (!res.ok || data.error) {
-      alert(data.error ?? 'Something went wrong. Please try again.')
-      setStep('params')
-      return
-    }
-
-    if (regen) setRegenCount(prev => prev + 1)
-    setOpps(data.opportunities ?? [])
-    setStep('results')
+    if (data.success) setSavedIds(prev => { const s = new Set(Array.from(prev)); s.add(opp.id); return s })
   }
-
-  async function handleSelect(opp: IgnitionOpportunity) {
-    setSelected(opp)
-    // Save to sessionStorage — Gear 1 reads on mount (HIGH #3)
-    try {
-      sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({
-        title: opp.title, audience: opp.audience,
-        transformation: opp.transformation, format: opp.format,
-        priceRangeMin: opp.priceRangeMin, priceRangeMax: opp.priceRangeMax,
-      }))
-    } catch (_) {}
-    fetch('/api/idea-ignition', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
-      body: JSON.stringify({ action: 'save_selection', opportunity: opp }),
-    }).catch(console.error)
-    router.push('/ai-income/gear/1')
-  }
-
-  const SelectCard = ({ value, label, selected: sel, onSelect }: { value: string; label: string; selected: boolean; onSelect: () => void }) => (
-    <button onClick={onSelect}
-      style={{
-        padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '13px',
-        background: sel ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.04)',
-        border: '1px solid ' + (sel ? CYAN : 'rgba(255,255,255,0.1)'),
-        color: sel ? CYAN : MUTED, fontFamily: 'Georgia,serif', transition: 'all 0.15s',
-        fontWeight: sel ? 700 : 400,
-      }}>
-      {label}
-    </button>
-  )
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif', display: 'flex', flexDirection: 'column' }}>
-
-      {/* Nav */}
-      <nav style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: BG + 'EE', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <Link href="/ai-income/ignition" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>← Back</Link>
-        <span style={{ fontSize: '12px', color: CYAN, fontWeight: 700 }}>🌍 Market Discovery</span>
+    <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif' }}>
+      <nav style={{ padding: '12px 20px', background: '#0D1629', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
+        <Link href="/ai-income/ignition" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>← Idea Sources</Link>
+        <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', fontWeight: 900, color: GOLD }}>📊 Market Research</span>
+        <div style={{ fontSize: '11px', color: MUTED }}>Powered by Google Trends</div>
       </nav>
 
-      <div style={{ flex: 1, padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ width: '100%', maxWidth: '600px' }}>
+      <div style={{ maxWidth: '620px', margin: '0 auto', padding: '28px 20px 48px' }}>
 
-          {/* ── PARAMS ── */}
-          {step === 'params' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                <div style={{ fontSize: '11px', color: CYAN, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '10px' }}>🌍 Market Discovery</div>
-                <h2 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(18px,4vw,28px)', fontWeight: 900, color: W, margin: '0 0 10px' }}>
-                  Where is your market?
-                </h2>
-                <p style={{ color: MUTED, fontSize: '13px', margin: 0 }}>Select your geography, category and audience</p>
-              </div>
-
-              {/* Geography */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                  Geography
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {(Object.entries(MARKET_GEOGRAPHIES) as [MarketGeography, string][]).map(([key, label]) => (
-                    <SelectCard key={key} value={key} label={label} selected={geography === key} onSelect={() => setGeo(key)} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Category */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                  Category
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {(Object.entries(MARKET_CATEGORIES) as [MarketCategory, string][]).map(([key, label]) => (
-                    <SelectCard key={key} value={key} label={label} selected={category === key} onSelect={() => setCat(key)} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Audience */}
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                  Target Audience
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {(Object.entries(MARKET_AUDIENCES) as [MarketAudience, string][]).map(([key, label]) => (
-                    <SelectCard key={key} value={key} label={label} selected={audience === key} onSelect={() => setAud(key)} />
-                  ))}
-                </div>
-              </div>
-
-              {paramError && (
-                <div style={{ fontSize: '12px', color: '#F87171', marginBottom: '12px', textAlign: 'center' }}>{paramError}</div>
-              )}
-
-              <button onClick={() => handleSearch(false)}
-                style={{
-                  width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                  background: 'linear-gradient(135deg,#06B6D4,#0891B2)',
-                  color: W, fontWeight: 900, fontSize: '15px', cursor: 'pointer',
-                  fontFamily: 'Cinzel,Georgia,serif',
-                }}>
-                🌍 Search This Market →
-              </button>
-            </div>
+        {/* Market display */}
+        <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', marginBottom: '20px' }}>
+          <div style={{ fontSize: '10px', color: MUTED, marginBottom: '4px', letterSpacing: '1px', textTransform: 'uppercase' }}>Your target market</div>
+          <div style={{ fontSize: '15px', fontWeight: 700, color: GOLD }}>🌍 {market?.label ?? 'Global market'}</div>
+          {market?.currency && market.scope !== 'global' && (
+            <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>Currency: {market.currency}</div>
           )}
+          <Link href="/ai-income/ignition" style={{ fontSize: '11px', color: CYAN, textDecoration: 'none', display: 'inline-block', marginTop: '6px' }}>
+            Change market →
+          </Link>
+        </div>
 
-          {/* ── THINKING ── */}
-          {step === 'thinking' && (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 32px' }}>
-                <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(6,182,212,0.2)' }} />
-                <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid transparent', borderTopColor: CYAN, animation: 'spin 1.2s linear infinite' }} />
-                <div style={{ position: 'absolute', inset: '16px', borderRadius: '50%', border: '1px solid transparent', borderTopColor: GOLD, animation: 'spin 0.8s linear infinite reverse' }} />
-                <div style={{ position: 'absolute', inset: '28px', background: 'rgba(6,182,212,0.3)', borderRadius: '50%' }} />
-              </div>
-              <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', color: W, marginBottom: '8px', fontWeight: 700 }}>
-                Discovering your opportunity
-              </div>
-              <div style={{ fontSize: '13px', color: MUTED }}>
-                {THINKING_MSGS_MARKET[thinkingMsg]}
-              </div>
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        {/* Hero CTA — zero input required */}
+        {!result && !loading && (
+          <div style={{ textAlign: 'center', padding: '32px 20px' }}>
+            <div style={{ fontSize: '56px', marginBottom: '16px' }}>📡</div>
+            <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,4vw,26px)', fontWeight: 900, color: W, marginBottom: '12px' }}>
+              What is the market telling us right now?
+            </h1>
+            <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '28px', maxWidth: '420px', margin: '0 auto 28px' }}>
+              4M fetches live Google Trends data for your market, analyses what people are searching for, and surfaces the product opportunities hiding in the demand.
+            </p>
+            <p style={{ fontSize: '12px', color: MUTED, marginBottom: '24px', fontStyle: 'italic' }}>
+              No input needed. Just press discover.
+            </p>
+            <button onClick={discover}
+              style={{ padding: '16px 40px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', fontFamily: 'Cinzel,Georgia,serif' }}>
+              🔍 Discover What's Trending →
+            </button>
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '48px 20px' }}>
+            <div style={{ width: '48px', height: '48px', border: '3px solid ' + GOLD, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }} />
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', color: GOLD, marginBottom: '8px' }}>4M is reading the market...</div>
+            <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8 }}>
+              Fetching live Google Trends · Analysing demand signals<br/>
+              Synthesising product opportunities · Almost ready
             </div>
-          )}
+          </div>
+        )}
 
-          {/* ── RESULTS ── */}
-          {step === 'results' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                <div style={{ fontSize: '11px', color: CYAN, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>
-                  Market opportunities found
-                </div>
-                <h2 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(18px,4vw,26px)', fontWeight: 900, color: W, margin: 0 }}>
-                  Select one to build
-                </h2>
+        {error && <div style={{ color: '#F87171', fontSize: '13px', textAlign: 'center', padding: '20px' }}>{error}</div>}
+
+        {/* Results */}
+        {result && (
+          <div>
+            {/* Market signal */}
+            <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', marginBottom: '20px' }}>
+              <div style={{ fontSize: '10px', color: CYAN, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                {result.liveData ? '📡 Live trend signal' : '🧠 4M market intelligence'}
               </div>
-
-              {opportunities.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '20px' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>🌍</div>
-                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', color: W, marginBottom: '8px' }}>No opportunities found</div>
-                  <div style={{ fontSize: '13px', color: MUTED, marginBottom: '16px' }}>Try a different category or geography to find active market gaps.</div>
-                  <button onClick={() => setStep('params')} style={{ padding: '12px 24px', borderRadius: '10px', border: 'none', background: CYAN, color: '#050A18', fontWeight: 700, cursor: 'pointer', fontSize: '13px', fontFamily: 'Georgia,serif' }}>
-                    Change Parameters
-                  </button>
+              <div style={{ fontSize: '13px', color: W, lineHeight: 1.7, marginBottom: result.trendsUsed.length > 0 ? '10px' : 0 }}>
+                {result.marketSignal}
+              </div>
+              {result.trendsUsed.length > 0 && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {result.trendsUsed.map((t, i) => (
+                    <span key={i} style={{ fontSize: '10px', color: CYAN, background: 'rgba(6,182,212,0.12)', padding: '2px 8px', borderRadius: '8px' }}>
+                      {t}
+                    </span>
+                  ))}
                 </div>
               )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-                {opportunities.map((opp, i) => (
-                  <button key={opp.id} onClick={() => handleSelect(opp)}
-                    style={{
-                      width: '100%', padding: '22px 20px', borderRadius: '16px', cursor: 'pointer', textAlign: 'left',
-                      background: selected?.id === opp.id ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.04)',
-                      border: '1.5px solid ' + (selected?.id === opp.id ? CYAN : 'rgba(255,255,255,0.1)'),
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={e => { if (selected?.id !== opp.id) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(6,182,212,0.4)' }}
-                    onMouseLeave={e => { if (selected?.id !== opp.id) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)' }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                      <div style={{ fontSize: '10px', color: CYAN, letterSpacing: '1px', textTransform: 'uppercase' }}>Opportunity {i + 1}</div>
-                      <div style={{ fontSize: '10px', color: MUTED, background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '10px' }}>{opp.format}</div>
-                    </div>
+            </div>
 
-                    <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: CYAN, marginBottom: '8px', lineHeight: 1.3 }}>
-                      {opp.title}
-                    </div>
+            <div style={{ fontSize: '12px', color: MUTED, marginBottom: '14px' }}>
+              {result.opportunities.length} opportunities found for {result.marketLabel}
+            </div>
 
-                    <div style={{ fontSize: '12px', color: MUTED, marginBottom: '8px', lineHeight: 1.6 }}>
-                      <strong style={{ color: 'rgba(255,255,255,0.7)' }}>For:</strong> {opp.audience}
-                    </div>
-                    <div style={{ fontSize: '12px', color: MUTED, marginBottom: '14px', lineHeight: 1.6 }}>
-                      <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Transformation:</strong> {opp.transformation}
-                    </div>
+            {result.opportunities.map(opp => (
+              <div key={opp.id} style={{ position: 'relative', marginBottom: '12px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', overflow: 'hidden' }}>
+                {/* Demand badge */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: DEMAND_COLORS[opp.demandLevel] ?? GOLD }} />
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: GOLD }}>R{opp.priceRangeMin}–R{opp.priceRangeMax}</span>
-                        {opp.gapType && opp.gapType !== 'null' && (
-                          <span style={{ fontSize: '10px', color: CYAN, background: 'rgba(6,182,212,0.1)', padding: '2px 8px', borderRadius: '10px' }}>
-                            {opp.gapType.replace('_', ' ')}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
-                        {['low','medium','high','very_high'].map((level, li) => (
-                          <div key={level} style={{
-                            width: '6px', height: '14px', borderRadius: '2px',
-                            background: ['low','medium','high','very_high'].indexOf(opp.demandLevel) >= li ? GOLD : 'rgba(255,255,255,0.1)',
-                          }} />
-                        ))}
-                        <span style={{ fontSize: '10px', color: MUTED, marginLeft: '4px' }}>demand</span>
-                      </div>
+                <button onClick={() => saveOpp(opp)}
+                  style={{ position: 'absolute', top: '14px', right: '14px', background: savedIds.has(opp.id) ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '4px 8px', cursor: 'pointer', fontSize: '13px', zIndex: 2 }}>
+                  {savedIds.has(opp.id) ? '✓' : '🔖'}
+                </button>
+
+                <button onClick={() => selectOpp(opp)} style={{ width: '100%', textAlign: 'left', padding: '18px 56px 14px 18px', background: 'transparent', border: 'none', cursor: 'pointer', color: W, fontFamily: 'Georgia,serif' }}>
+                  {/* Demand signal */}
+                  <div style={{ fontSize: '11px', color: DEMAND_COLORS[opp.demandLevel] ?? GOLD, marginBottom: '6px', fontWeight: 700 }}>
+                    {DEMAND_LABELS[opp.demandLevel] ?? '📊 In demand'}
+                  </div>
+
+                  {/* Title */}
+                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '6px', lineHeight: 1.3 }}>
+                    {opp.title}
+                  </div>
+
+                  {/* Tags */}
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '10px', color: GOLD, background: 'rgba(212,175,55,0.1)', padding: '2px 8px', borderRadius: '8px' }}>{opp.format}</span>
+                    <span style={{ fontSize: '10px', color: MUTED, background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '8px' }}>{opp.priceRangeMin}–{opp.priceRangeMax} {opp.currency}</span>
+                    <span style={{ fontSize: '10px', color: MUTED, background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '8px' }}>{opp.difficulty}</span>
+                  </div>
+
+                  {/* Problem */}
+                  <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7, marginBottom: '8px' }}>
+                    {opp.problemSolved}
+                  </div>
+
+                  {/* Trend evidence */}
+                  {opp.trendEvidence && (
+                    <div style={{ fontSize: '11px', color: CYAN, lineHeight: 1.6, marginBottom: '4px' }}>
+                      📡 {opp.trendEvidence}
                     </div>
+                  )}
 
-                    {selected?.id === opp.id && (
-                      <div style={{ marginTop: '12px', padding: '8px 12px', background: 'rgba(6,182,212,0.15)', borderRadius: '8px', fontSize: '12px', color: CYAN, textAlign: 'center', fontWeight: 700 }}>
-                        ✅ Selected — entering Gear 1...
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                {regenCount < 2 && (
-                  <button onClick={() => handleSearch(true)}
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px', cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, fontSize: '12px', fontFamily: 'Georgia,serif' }}>
-                    🔄 Show me different options ({2 - regenCount} left)
-                  </button>
-                )}
-                <button onClick={() => setStep('params')}
-                  style={{ width: '100%', padding: '12px', borderRadius: '10px', cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.25)', fontSize: '12px', fontFamily: 'Georgia,serif' }}>
-                  ← Change market parameters
+                  {/* Why now */}
+                  {opp.whyNow && (
+                    <div style={{ fontSize: '11px', color: GREEN, lineHeight: 1.6 }}>
+                      ⚡ {opp.whyNow}
+                    </div>
+                  )}
                 </button>
               </div>
-            </div>
-          )}
+            ))}
 
-        </div>
+            {/* Rediscover */}
+            <button onClick={discover}
+              style={{ width: '100%', marginTop: '8px', padding: '12px', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(212,175,55,0.06)', color: GOLD, fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Cinzel,Georgia,serif' }}>
+              🔄 Refresh — Discover More Opportunities
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-export default function MarketDiscoveryPage() {
-  return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#050A18', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06B6D4', fontFamily: 'Georgia,serif' }}>Loading...</div>}>
-      <MarketDiscoveryInner />
-    </Suspense>
-  )
+export default function MarketResearchPage() {
+  return <Suspense fallback={null}><MarketResearchInner /></Suspense>
 }
