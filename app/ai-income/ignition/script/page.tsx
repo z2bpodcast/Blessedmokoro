@@ -18,7 +18,7 @@ function ScriptInner() {
   const [error,    setError]    = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
-  async function analyse() {
+  const analyse  = async () => {
     if (content.trim().length < 100) { setError('Please paste at least 100 characters of content.'); return }
     setLoading(true); setError(''); setOpps([]); setSummary('')
     const { data: { session } } = await supabase.auth.getSession()
@@ -33,12 +33,12 @@ function ScriptInner() {
     finally { setLoading(false) }
   }
 
-  function selectOpp(opp: Opp) {
+  const selectOpp = (opp: Opp) => {
     sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({ id: opp.id, title: opp.title, category: opp.category, targetAudience: opp.audience, problemSolved: opp.problemSolved, format: opp.format, priceRange: `R${opp.priceRangeMin}–R${opp.priceRangeMax}`, difficulty: opp.difficulty }))
     router.push('/ai-income/ignition/self')
   }
 
-  async function saveOpp(opp: Opp) {
+  const saveOpp = async (opp: Opp) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
     const res = await fetch('/api/saved-ideas', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ action: 'save', idea: { id: opp.id, title: opp.title, category: opp.category, targetAudience: opp.audience, problemSolved: opp.problemSolved, priceRange: `R${opp.priceRangeMin}–R${opp.priceRangeMax}`, format: opp.format, difficulty: opp.difficulty } }) })
