@@ -501,11 +501,43 @@ export async function orchestrate(
 
   let result: { content: string; error: string | null; tokensUsed: number }
 
+  // ── PRIMARY CALL ─────────────────────────────────────────────
   if (decision.provider === 'gpt') {
     result = await callGPT(decision, userMessage, contextMessages)
   } else {
-    // Both claude_sonnet and claude_haiku use the same call function
     result = await callClaude(decision, userMessage, contextMessages)
+  }
+
+  // ── FALLBACK: if primary fails, try the other provider ───────
+  if (result.error || !result.content.trim()) {
+    console.warn('[orchestrate] Primary provider failed:', decision.provider, result.error, '— trying fallback')
+
+    if (decision.provider === 'gpt') {
+      // GPT failed → try Claude
+      const claudeDecision = {
+        ...decision,
+        provider: 'claude_sonnet' as AIProvider,
+        model: MODEL_CONFIG['claude_sonnet'],
+      }
+      const fallback = await callClaude(claudeDecision, userMessage, contextMessages)
+      if (!fallback.error && fallback.content.trim()) {
+        console.log('[orchestrate] Fallback to Claude succeeded')
+        return { ...fallback, provider: 'claude_sonnet', taskType }
+      }
+    } else {
+      // Claude failed → try GPT
+      const gptDecision = {
+        ...decision,
+        provider: 'gpt' as AIProvider,
+        model: MODEL_CONFIG['gpt'],
+      }
+      const fallback = await callGPT(gptDecision, userMessage, contextMessages)
+      if (!fallback.error && fallback.content.trim()) {
+        console.log('[orchestrate] Fallback to GPT succeeded')
+        return { ...fallback, provider: 'gpt', taskType }
+      }
+    }
+    console.error('[orchestrate] Both providers failed for task:', taskType)
   }
 
   return {
