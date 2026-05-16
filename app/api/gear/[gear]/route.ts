@@ -8,6 +8,7 @@
 //          This route validates, gates, and delegates.
 // ============================================================
 
+import { runGear7, PLATFORMS } from "@/lib/v3/gear7-engine"
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }              from '@supabase/supabase-js'
 import { normaliseTier }             from '@/lib/v3/tier-config'
