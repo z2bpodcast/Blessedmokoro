@@ -184,7 +184,7 @@ export async function POST(
 
     // ── ROUTE TO GEAR HANDLER ────────────────────────────────
     // Wrap handlers to auto-save output on success
-    async function runWithCache(handler: Promise<NextResponse>): Promise<NextResponse> {
+    const runWithCache = async (handler: Promise<NextResponse>): Promise<NextResponse> => {
       const response = handler instanceof Promise ? await handler : handler
       // Save output if this was a 'run' action and response is ok
       if (action === 'run' && sessionId && response.status === 200) {
