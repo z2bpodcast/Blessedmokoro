@@ -41,7 +41,7 @@ function TopicalInner() {
     if (!session) return
     const res = await fetch('/api/saved-ideas', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ action: 'save', idea: { id: opp.id, title: opp.title, category: opp.category, targetAudience: opp.audience, problemSolved: opp.problemSolved, priceRange: `R${opp.priceRangeMin}–R${opp.priceRangeMax}`, format: opp.format, difficulty: opp.difficulty } }) })
     const data = await res.json()
-    if (data.success) setSavedIds(prev => new Set([...prev, opp.id]))
+    if (data.success) setSavedIds(prev => { const s = new Set(Array.from(prev)); s.add(opp.id); return s })
   }
 
   return (
