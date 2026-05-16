@@ -65,8 +65,7 @@ function MarketResearchInner() {
     const m = loadMarket()
     setMarket(m)
     // Load tier for gate check
-    supabase.from('profiles').select('paid_tier').eq('id', (await supabase.auth.getUser()).data.user?.id ?? '').single()
-      .then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) })
+    supabase.auth.getUser().then(({ data: { user } }) => { if (user) supabase.from('profiles').select('paid_tier').eq('id', user.id).single().then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) }) })
   }, [])
 
   const discover = async () => {
