@@ -1,5 +1,4 @@
 'use client'
-import { loadGearOutput, saveGearOutput } from '@/lib/v3/gear-state-manager'
 // v3.1 — stabilized
 // ============================================================
 // Z2B 4M V3 — GEAR 6: DISTRIBUTION ENGINE PAGE
@@ -174,17 +173,7 @@ function Gear6Inner() {
     const timeout    = setTimeout(() => controller.abort(), 55000)
     let res: Response
     try {
-      res = await // CHECK SAVED STATE FIRST — never regenerate if we already have output
-      const _sid = sessionStorage.getItem('v3_current_session_id') ?? ''
-      if (_sid) {
-        const saved = await loadGearOutput(_sid, 6)
-        if (saved) {
-          console.log('[Gear 6] Restoring saved output — skipping AI regeneration')
-          // Restore saved state — component handles this via its state setters
-          // Each gear page will handle its own restoration via restoreFromSaved()
-        }
-      }
-      fetch('/api/gear/6', {
+      res = await fetch('/api/gear/6', {
         method:'POST', signal: controller.signal,
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
         body: JSON.stringify({

@@ -1,5 +1,4 @@
 'use client'
-import { loadGearOutput, saveGearOutput } from '@/lib/v3/gear-state-manager'
 // ============================================================
 // Z2B 4M V3 — GEAR 1: INTENT ENGINE PAGE
 // File: app/ai-income/gear/1/page.tsx
@@ -199,17 +198,7 @@ function Gear1Inner() {
   }, [])
 
   async function resumeSession(token: string, sid: string) {
-    const res = await // CHECK SAVED STATE FIRST — never regenerate if we already have output
-      const _sid = sessionStorage.getItem('v3_current_session_id') ?? ''
-      if (_sid) {
-        const saved = await loadGearOutput(_sid, 1)
-        if (saved) {
-          console.log('[Gear 1] Restoring saved output — skipping AI regeneration')
-          // Restore saved state — component handles this via its state setters
-          // Each gear page will handle its own restoration via restoreFromSaved()
-        }
-      }
-      fetch('/api/gear/1', {
+    const res = await fetch('/api/gear/1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ action: 'resume' }),
