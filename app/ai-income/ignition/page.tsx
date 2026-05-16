@@ -11,10 +11,10 @@ const W    = '#F0F9FF'
 const MUTED= '#64748B'
 
 const SOURCES = [
-  { href: 'self',    icon: '🪞', title: 'Self Discovery',       desc: 'Answer 5 questions about your skills. 4M matches you to the right product idea.',   badge: 'Most Popular' },
-  { href: 'market',  icon: '📊', title: 'Market Research',       desc: '4M scans 90+ opportunity categories and matches them to demand in your target market.', badge: '' },
-  { href: 'topical', icon: '🎯', title: 'Topical / Theme',       desc: 'Enter any topic, industry or theme. 4M generates targeted ideas for your market.',  badge: 'New' },
-  { href: 'script',  icon: '📄', title: 'Script / PDF Content',  desc: 'Paste existing content or a PDF. 4M finds the products hiding inside it.',           badge: 'New' },
+  { href: '/ai-income/ignition/self',    icon: '🪞', title: 'Self Discovery',       desc: 'Answer 5 questions about your skills. 4M matches you to the right product idea.',   badge: 'Most Popular' },
+  { href: '/ai-income/ignition/market',  icon: '📊', title: 'Market Research',       desc: '4M scans 90+ opportunity categories and matches them to demand in your target market.', badge: '' },
+  { href: '/ai-income/ignition/topical', icon: '🎯', title: 'Topical / Theme',       desc: 'Enter any topic, industry or theme. 4M generates targeted ideas for your market.',  badge: 'New' },
+  { href: '/ai-income/ignition/script',  icon: '📄', title: 'Script / PDF Content',  desc: 'Paste existing content or a PDF. 4M finds the products hiding inside it.',           badge: 'New' },
 ]
 
 function IgnitionHubInner() {

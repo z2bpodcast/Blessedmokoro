@@ -39,6 +39,7 @@ export const DEMOGRAPHICS = [
   { id: 'faith_community',        label: 'Faith & community leaders' },
   { id: 'small_business',         label: 'Small business owners' },
   { id: 'women_empowerment',      label: 'Women in business' },
+  { id: 'other',                    label: 'Other — I will specify' },
 ]
 
 export const CURRENCIES: Record<string, string> = {
@@ -99,6 +100,7 @@ interface Props {
 export default function MarketSelector({ value, onChange, compact = false }: Props) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<TargetMarket>(value)
+  const [customDemo, setCustomDemo] = useState('')
 
   function update(patch: Partial<TargetMarket>) {
     const next = { ...draft, ...patch }
@@ -118,8 +120,17 @@ export default function MarketSelector({ value, onChange, compact = false }: Pro
   }
 
   function apply() {
-    saveMarket(draft)
-    onChange(draft)
+    const finalDraft = { ...draft }
+    // If 'other' selected and custom text entered, use custom text in label
+    if (draft.demographic === 'other' && customDemo.trim()) {
+      const parts = [finalDraft.continent, finalDraft.country].filter(Boolean)
+      parts.push(customDemo.trim())
+      finalDraft.label = parts.join(' · ') || customDemo.trim()
+      // Store custom demo in demographic field for API context
+      finalDraft.demographic = customDemo.trim()
+    }
+    saveMarket(finalDraft)
+    onChange(finalDraft)
     setOpen(false)
   }
 
