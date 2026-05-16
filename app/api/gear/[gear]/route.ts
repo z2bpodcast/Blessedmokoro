@@ -91,6 +91,45 @@ async function getAuthUser(req: NextRequest) {
 }
 
 // ── MAIN HANDLER ─────────────────────────────────────────────
+
+// ── GEAR OUTPUT CACHE ─────────────────────────────────────────
+async function getCachedGearOutput(
+  sb: any,
+  sessionId: string,
+  gear: number
+): Promise<Record<string, unknown> | null> {
+  if (!sessionId) return null
+  try {
+    const { data } = await sb.from('gear_outputs')
+      .select('output_data')
+      .eq('session_id', sessionId)
+      .eq('gear_number', gear)
+      .eq('status', 'complete')
+      .maybeSingle()
+    return (data as any)?.output_data ?? null
+  } catch (_) { return null }
+}
+
+async function cacheGearOutput(
+  sb: any,
+  userId: string,
+  sessionId: string,
+  gear: number,
+  output: Record<string, unknown>
+): Promise<void> {
+  if (!sessionId) return
+  try {
+    await sb.from('gear_outputs').upsert({
+      session_id:  sessionId,
+      builder_id:  userId,
+      gear_number: gear,
+      output_data: output,
+      status:      'complete',
+      updated_at:  new Date().toISOString(),
+    }, { onConflict: 'session_id,gear_number' })
+  } catch (_) {}
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ gear: string }> }
