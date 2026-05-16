@@ -202,7 +202,7 @@ function Gear7Inner() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <div style={{ fontSize: '11px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px' }}>Product Title</div>
                 <button onClick={() => copyText(activeKitData.title, 'title')}
-                  style={{ fontSize: '11px', color: copied === 'title' ? GREEN : GOLD, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
+                  style={{ fontSize: '11px', color: copied === 'title' ? GREEN : GOLD, background: 'transparent', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
                   {copied === 'title' ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
@@ -218,7 +218,7 @@ function Gear7Inner() {
                   {activeKitData.platformId === 'whatsapp' ? 'WhatsApp Broadcast Message' : 'Product Description'}
                 </div>
                 <button onClick={() => copyText(activeKitData.whatsappMsg ?? activeKitData.description, 'desc')}
-                  style={{ fontSize: '11px', color: copied === 'desc' ? GREEN : GOLD, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
+                  style={{ fontSize: '11px', color: copied === 'desc' ? GREEN : GOLD, background: 'transparent', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
                   {copied === 'desc' ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
@@ -233,7 +233,7 @@ function Gear7Inner() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <div style={{ fontSize: '11px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px' }}>Tags</div>
                   <button onClick={() => copyText(activeKitData.tags.join(', '), 'tags')}
-                    style={{ fontSize: '11px', color: copied === 'tags' ? GREEN : GOLD, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
+                    style={{ fontSize: '11px', color: copied === 'tags' ? GREEN : GOLD, background: 'transparent', cursor: 'pointer', fontFamily: 'Georgia,serif' }}>
                     {copied === 'tags' ? '✓ Copied' : 'Copy all'}
                   </button>
                 </div>
@@ -276,7 +276,7 @@ function Gear7Inner() {
             Your product is already live on the Z2B Marketplace from Gear 6. Use the kits above to list on additional platforms and multiply your reach.
           </div>
           <button onClick={handleConfirm} disabled={confirming}
-            style={{ width: '100%', padding: '16px', borderRadius: '14px', border: 'none', cursor: confirming ? 'default' : 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', fontFamily: 'Cinzel,Georgia,serif', opacity: confirming ? 0.7 : 1 }}>
+            style={{ width: '100%', padding: '16px', borderRadius: '14px', cursor: confirming ? 'default' : 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', fontFamily: 'Cinzel,Georgia,serif', opacity: confirming ? 0.7 : 1 }}>
             {confirming ? 'Completing...' : `${data.isRocket ? '🚀 Auto-Distribute & ' : ''}Complete — My Product is Live ✓`}
           </button>
         </div>
