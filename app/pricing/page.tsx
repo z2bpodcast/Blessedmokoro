@@ -272,7 +272,7 @@ function PricingInner() {
 
               {/* CTA */}
               <div style={{ padding: '0 20px 24px' }}>
-                <Link href={`/register?tier=${tier.id}`}
+                <Link href={`/register?tier=${tier.id}&amount=${tier.price}&name=${encodeURIComponent(tier.name)}`}
                   style={{ display: 'block', padding: '13px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, background: tier.id === 'gold' ? GOLD : 'transparent', color: tier.id === 'gold' ? '#050A18' : tier.color, border: tier.id === 'gold' ? 'none' : '1px solid ' + tier.color + '60' }}>
                   Get {tier.name} →
                 </Link>
