@@ -92,6 +92,88 @@ async function getAuthUser(req: NextRequest) {
 
 // ── MAIN HANDLER ─────────────────────────────────────────────
 
+
+// ── GEAR 7 HANDLER ───────────────────────────────────────────
+async function handleGear7(
+  userId:   string,
+  tierId:   string,
+  action:   string,
+  body:     Record<string, unknown>
+): Promise<NextResponse> {
+
+  // Tier gate: Silver+ only
+  const allowedTiers = ['silver', 'gold', 'platinum']
+  if (!allowedTiers.includes(tierId)) {
+    return NextResponse.json({
+      error: 'Gear 7 — Multi-Platform Distribution requires Silver tier or higher.',
+      redirect: '/pricing',
+    }, { status: 403 })
+  }
+
+  // ── RUN: Generate platform kits ──────────────────────────
+  if (action === 'run') {
+    // Load Gear 6 listing data for context
+    const sb = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const sessionId = body.sessionId as string | undefined
+
+    let gear6Data: any = null
+    if (sessionId) {
+      const { data: cached } = await (sb.from as any)('gear_outputs')
+        .select('output_data')
+        .eq('session_id', sessionId)
+        .eq('gear_number', 6)
+        .maybeSingle() as { data: any }
+      gear6Data = cached?.output_data
+    }
+
+    const listing     = gear6Data?.listing ?? gear6Data ?? {}
+    const productTitle = listing.title ?? listing.productTitle ?? 'Digital Product'
+    const productDesc  = listing.description ?? listing.productDescription ?? ''
+    const format       = listing.format ?? 'ebook'
+    const price        = Number(listing.price ?? listing.priceZar ?? 299)
+    const currency     = 'R'
+    const audience     = listing.targetAudience ?? listing.audience ?? 'professionals'
+
+    const { output, error } = await runGear7({
+      productTitle, productDesc, format, price, currency,
+      targetAudience: audience, tierId,
+      gear6Listing: listing,
+    })
+
+    if (error || !output) {
+      return NextResponse.json({ error: error ?? 'Gear 7 failed.' }, { status: 500 })
+    }
+
+    return NextResponse.json(output)
+  }
+
+  // ── CONFIRM: Mark session complete ────────────────────────
+  if (action === 'confirm') {
+    const sessionId = body.sessionId as string | undefined
+    if (sessionId) {
+      const sb = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      )
+      await (sb.from as any)('saved_projects').upsert({
+        session_id:   sessionId,
+        builder_id:   userId,
+        current_gear: 7,
+        status:       'complete',
+        updated_at:   new Date().toISOString(),
+      }, { onConflict: 'session_id' })
+    }
+    return NextResponse.json({ success: true, message: 'Product distribution complete.' })
+  }
+
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+}
+
 // ── GEAR OUTPUT CACHE ─────────────────────────────────────────
 async function getCachedGearOutput(
   sb: any,
@@ -223,11 +305,7 @@ export async function POST(
       case 4: return await runWithCache(handleGear4(user.id, tierId, action, body))
       case 5: return await runWithCache(handleGear5(user.id, tierId, action, body))
       case 6: return await runWithCache(handleGear6(user.id, tierId, action, body))
-      case 7:
-        return NextResponse.json(
-          { error: 'Gear ' + String(gearNumber) + ' is coming soon.' },
-          { status: 501 }
-        )
+      case 7: return await runWithCache(handleGear7(user.id, tierId, action, body))
       default:
         return NextResponse.json({ error: 'Unknown gear' }, { status: 400 })
     }
