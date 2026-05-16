@@ -98,7 +98,7 @@ async function synthesiseOpportunities(params: {
   rising:      { query: string; value: number }[]
   market:      any
   demographic: string
-}): Promise<any> {
+}): Promise<any[]> {
   const trendList    = params.trends.slice(0, 15).join(', ')
   const risingList   = params.rising.slice(0, 8).map(r => r.query).join(', ')
   const marketLabel  = params.market?.label ?? 'Global'
@@ -175,6 +175,16 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const { market } = await req.json()
+
+  // Tier gate: Bronze+ only
+  const sb2 = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
+  const { data: profile } = await (sb2.from as any)('profiles').select('paid_tier').eq('id', user.id).maybeSingle() as { data: any }
+  const blockedTiers = ['fam', 'free', 'starter']
+  const { normaliseTier } = await import('@/lib/v3/tier-config')
+  const userTier = normaliseTier(profile?.paid_tier ?? 'fam')
+  if (blockedTiers.includes(userTier)) {
+    return NextResponse.json({ error: 'Live market research requires Bronze tier or higher.', upgradeRequired: true }, { status: 403 })
+  }
 
   // Determine geo code
   const geo      = GEO_CODES[market?.country ?? ''] ?? 'US'

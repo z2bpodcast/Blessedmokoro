@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter }                      from 'next/navigation'
 import { supabase }                       from '@/lib/supabase'
 import { loadMarket, type TargetMarket }  from '@/components/v3/MarketSelector'
+import { normaliseTier }                   from '@/lib/v3/tier-config'
 import Link                               from 'next/link'
 
 const BG    = '#050A18'
@@ -58,10 +59,14 @@ function MarketResearchInner() {
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const [tierId,   setTierId]   = useState<string>('starter')
 
   useEffect(() => {
     const m = loadMarket()
     setMarket(m)
+    // Load tier for gate check
+    supabase.from('profiles').select('paid_tier').eq('id', (await supabase.auth.getUser()).data.user?.id ?? '').single()
+      .then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) })
   }, [])
 
   const discover = async () => {
@@ -136,23 +141,59 @@ function MarketResearchInner() {
           </Link>
         </div>
 
-        {/* Hero CTA — zero input required */}
+        {/* Hero CTA — Bronze+ only */}
         {!result && !loading && (
-          <div style={{ textAlign: 'center', padding: '32px 20px' }}>
-            <div style={{ fontSize: '56px', marginBottom: '16px' }}>📡</div>
-            <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,4vw,26px)', fontWeight: 900, color: W, marginBottom: '12px' }}>
-              What is the market telling us right now?
-            </h1>
-            <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '28px', maxWidth: '420px', margin: '0 auto 28px' }}>
-              4M fetches live Google Trends data for your market, analyses what people are searching for, and surfaces the product opportunities hiding in the demand.
-            </p>
-            <p style={{ fontSize: '12px', color: MUTED, marginBottom: '24px', fontStyle: 'italic' }}>
-              No input needed. Just press discover.
-            </p>
-            <button onClick={discover}
-              style={{ padding: '16px 40px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', fontFamily: 'Cinzel,Georgia,serif' }}>
-              🔍 Discover What's Trending →
-            </button>
+          <div>
+            {/* Feature explanation */}
+            <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.15)', marginBottom: '20px' }}>
+              <div style={{ fontSize: '11px', color: CYAN, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>How 4M Market Research Works</div>
+              <div style={{ fontSize: '13px', color: W, lineHeight: 1.9, marginBottom: '12px' }}>
+                You set your market once. 4M simultaneously fetches <strong style={{ color: CYAN }}>live Google Trends</strong> for your country, rising business queries (demand gaps — the gold) and rising self-improvement signals.
+              </div>
+              <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '10px', fontSize: '12px', color: MUTED, fontStyle: 'italic', lineHeight: 1.8 }}>
+                Instead of showing "stress is trending" — 4M says: <span style={{ color: W, fontStyle: 'normal' }}>"The UK professional market is showing a spike in 'burnout recovery' and 'quiet quitting' — here is the product: <strong style={{ color: GOLD }}>The Corporate Detox Toolkit: 30 Days to Reclaim Your Mental Energy at Work</strong> · £27 · eBook + worksheets · ⚡ Very high demand"</span>
+              </div>
+              <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7 }}>
+                The builder never typed a word. 4M did the market analysis. 4M connected the dots. 4M named the product. All the builder does is press one button.
+              </div>
+            </div>
+
+            {/* Tier gate */}
+            {tierId === 'starter' || tierId === 'fam' || tierId === 'free' ? (
+              <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: '16px', border: '1px solid rgba(212,175,55,0.25)', background: 'rgba(212,175,55,0.06)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '14px' }}>🔒</div>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '10px' }}>
+                  Live Market Research — Bronze+
+                </div>
+                <div style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '20px', maxWidth: '380px', margin: '0 auto 20px' }}>
+                  Google Trends market intelligence is available from <strong style={{ color: GOLD }}>Bronze tier</strong> upwards. Upgrade to unlock real-time demand signals and let 4M find your next best-selling product automatically.
+                </div>
+                <a href="/pricing"
+                  style={{ display: 'inline-block', padding: '13px 32px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '14px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                  Upgrade to Bronze — R2,500 →
+                </a>
+                <div style={{ fontSize: '11px', color: MUTED, marginTop: '12px' }}>
+                  Already on Bronze or higher? <a href="/login" style={{ color: GOLD, textDecoration: 'none' }}>Log in again to refresh</a>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '32px 20px' }}>
+                <div style={{ fontSize: '56px', marginBottom: '16px' }}>📡</div>
+                <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,4vw,24px)', fontWeight: 900, color: W, marginBottom: '12px' }}>
+                  What is the market telling us right now?
+                </h1>
+                <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '8px' }}>
+                  No input needed. 4M does the analysis. You press one button.
+                </p>
+                <p style={{ fontSize: '12px', color: CYAN, marginBottom: '24px' }}>
+                  Live Google Trends · {market?.label ?? 'Global market'}
+                </p>
+                <button onClick={discover}
+                  style={{ padding: '16px 40px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', fontFamily: 'Cinzel,Georgia,serif' }}>
+                  🔍 Discover What's Trending →
+                </button>
+              </div>
+            )}
           </div>
         )}
 
