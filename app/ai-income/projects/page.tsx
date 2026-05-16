@@ -199,7 +199,7 @@ function MyProjectsInner() {
                       </button>
                     ) : (
                       <button onClick={() => router.push('/marketplace')}
-                        style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: GREEN, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
+                        style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: GREEN, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
                         View on Marketplace →
                       </button>
                     )}
