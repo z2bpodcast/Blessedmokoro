@@ -194,7 +194,7 @@ function MyProjectsInner() {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {project.status !== 'complete' ? (
                       <button onClick={() => resumeProject(project)}
-                        style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: project.status === 'draft' ? 'rgba(212,175,55,0.12)' : 'rgba(139,92,246,0.12)', border: '1px solid ' + (project.status === 'draft' ? 'rgba(212,175,55,0.3)' : 'rgba(139,92,246,0.3)'), color: project.status === 'draft' ? GOLD : VIO, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
+                        style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: project.status === 'draft' ? 'rgba(212,175,55,0.12)' : 'rgba(139,92,246,0.12)', border: '1px solid ' + (project.status === 'draft' ? 'rgba(212,175,55,0.3)' : 'rgba(139,92,246,0.3)'), color: project.status === 'draft' ? GOLD : VIO, fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
                         {project.status === 'draft' ? 'Resume →' : 'Start Building →'}
                       </button>
                     ) : (
