@@ -131,6 +131,7 @@ export async function check4MAccess(builderId: string): Promise<AccessCheckResul
     }
 
   if (error || !profile) {
+    console.error('[checkGearAccess] Profile not found for builderId:', builderId, '| error:', error)
     return { allowed: false, reason: 'Profile not found', redirect: '/login' }
   }
 
@@ -190,12 +191,14 @@ export async function checkGearAccess(
     }
 
   if (error || !profile) {
+    console.error('[checkGearAccess] Profile not found for builderId:', builderId, '| error:', error)
     return { allowed: false, reason: 'Profile not found', redirect: '/login' }
   }
 
   const tier = normaliseTier(profile.paid_tier || 'fam')
 
   if (tier === 'fam') {
+    console.error('[checkGearAccess] FAM block — raw paid_tier:', profile.paid_tier, '| normalised:', tier, '| builderId:', builderId)
     return { allowed: false, reason: 'Free tier cannot access the 4M Machine', redirect: '/pricing' }
   }
   if (profile.bfm_status === 'overdue' || profile.bfm_status === 'suspended') {
