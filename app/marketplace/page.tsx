@@ -108,7 +108,7 @@ function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isL
           <button
             onClick={() => alert('Payment integration coming soon. Contact us to purchase this product.')}
             style={{ width: '100%', padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
-            Get This Product — R{(product.retail_price ?? product.price_once ?? 299 ?? 0).toLocaleString()}
+            Get This Product — R{(product.retail_price ?? product.price_once ?? 299).toLocaleString()}
           </button>
         ) : (
           <Link href="/login?redirect=/marketplace"
