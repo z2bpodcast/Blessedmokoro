@@ -156,7 +156,7 @@ function MarketplaceInner() {
   const formats    = ['all', ...Array.from(new Set(products.map(p => p.format).filter(Boolean)))]
   const filtered   = products
     .filter(p => {
-      const matchSearch = !search || p.title ?? p.name?.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
+      const matchSearch = !search || (p.title ?? p.name ?? "").toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
       const matchFormat = formatFilter === 'all' || p.format === formatFilter
       return matchSearch && matchFormat
     })
