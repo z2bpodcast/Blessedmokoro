@@ -255,7 +255,12 @@ function FourMHomeInner() {
           ))}
         </div>
 
+      {/* Footer */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '20px', textAlign: 'center', fontSize: '11px', color: '#64748B', lineHeight: 1.9 }}>
+        Z2B Legacy Builders · <a href="mailto:payments@z2blegacybuilders.co.za" style={{ color: '#D4AF37', textDecoration: 'none' }}>payments@z2blegacybuilders.co.za</a>
+        {' · '}<a href="mailto:support@z2blegacybuilders.co.za" style={{ color: '#D4AF37', textDecoration: 'none' }}>support@z2blegacybuilders.co.za</a>
       </div>
+    </div>
     </div>
   )
 }

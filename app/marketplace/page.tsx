@@ -167,10 +167,10 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
                 {method === 'atm' ? '🏧 ATM Deposit Details' : '🏦 EFT Details'}
               </div>
               {[
-                ['Bank',           'First National Bank (FNB)'],
+                ['Bank',           'Nedbank'],
                 ['Account Name',   'Z2B Legacy Builders'],
-                ['Account Number', '62XXXXXXXXX'],
-                ['Branch Code',    '250655'],
+                ['Account Number', '1234567890'],
+                ['Branch Code',    '198765'],
                 ['Amount',         `R${price.toLocaleString()}`],
                 ['Reference',      eftRef],
               ].map(([k, v]) => (
@@ -181,7 +181,7 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
               ))}
             </div>
             <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8, marginBottom: '16px' }}>
-              Email proof of payment to <span style={{ color: GOLD }}>payments@z2blegacybuilders.co.za</span> with your reference. Download link sent within 2 hours.
+              Email proof of payment or ATM deposit slip to <span style={{ color: GOLD }}>payments@z2blegacybuilders.co.za</span> with your reference. Download link sent within 2 hours after confirmation.
             </div>
             <button onClick={onClose}
               style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '14px', fontFamily: 'Cinzel,Georgia,serif' }}>
@@ -347,7 +347,7 @@ function MarketplaceInner() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
               {Z2B_FEATURED.map(feat => (
                 <div key={feat.id} style={{ borderRadius: '18px', border: '1px solid ' + feat.border, background: feat.bg, padding: '22px', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '14px', right: '14px', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: feat.color + '20', color: feat.color, border: '1px solid ' + feat.border }}>
+                  <div style={{ display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: feat.color + '20', color: feat.color, border: '1px solid ' + feat.border, marginBottom: '12px' }}>
                     {feat.badge}
                   </div>
                   <div style={{ fontSize: '36px', marginBottom: '12px' }}>{feat.icon}</div>
@@ -404,7 +404,7 @@ function MarketplaceInner() {
                           {product.format ?? 'ebook'}
                         </span>
                         {(product.sales_count ?? 0) > 0 && (
-                          <span style={{ fontSize: '10px', color: GREEN }}>🔥 {product.sales_count} sold</span>
+                          <span style={{ fontSize: '10px', color: GREEN, marginLeft: '8px' }}>🔥 {product.sales_count} sold</span>
                         )}
                       </div>
                       <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '6px', lineHeight: 1.3 }}>

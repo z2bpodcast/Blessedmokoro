@@ -46,7 +46,7 @@ const TIERS = [
       'Enhancement (Gear 5)',
       'Live market research',
       'Multi-platform distribution',
-      'Builder PWA',
+      'Progressive Web App (PWA)',
     ],
   },
   {
@@ -73,7 +73,7 @@ const TIERS = [
     locked: [
       'Enhancement assets (Gear 5)',
       'Multi-platform distribution (Gear 7)',
-      'Builder PWA',
+      'Progressive Web App (PWA)',
     ],
   },
   {
@@ -152,7 +152,7 @@ const TIERS = [
       '5 Builder PWAs + paid community',
       'Auto-distribute on Gear 7 confirm',
       '28% ISP on membership sales',
-      'CEO Competitions — top prizes',
+      'CEO Competitions — open to paid members (not FAM) · Top prizes each season',
     ],
     locked: ['White-label branding'],
   },
@@ -177,7 +177,7 @@ const TIERS = [
       'Paid community on every PWA',
       'Priority AI queue',
       '30% ISP — highest rate',
-      'CEO Awards — top tier recognition',
+      'CEO Awards — open to ALL members paying Business Fuel Maintenance (BFM) · Top prizes each season',
     ],
     locked: [],
   },
@@ -236,7 +236,7 @@ function PricingInner() {
                   <span style={{ fontSize: '13px', fontWeight: 400, color: MUTED }}> once-off</span>
                 </div>
                 <div style={{ fontSize: '11px', color: MUTED, marginTop: '4px' }}>
-                  + {formatR(tier.bfm)}/month BFM from day 61
+                  + {formatR(tier.bfm)}/month Business Fuel Maintenance (BFM) from day 61
                 </div>
               </div>
 
@@ -301,9 +301,9 @@ function PricingInner() {
                   { label: 'Products / month', values: TIERS.map(t => t.products === -1 ? '∞' : String(t.products)) },
                   { label: 'Live market research', values: TIERS.map(t => t.market ? '✓' : '—') },
                   { label: 'Gear 7 distribution', values: TIERS.map(t => t.gear7 ? '✓' : '—') },
-                  { label: 'Builder PWA', values: TIERS.map(t => t.pwa === 0 ? '—' : t.pwa === -1 ? '∞' : String(t.pwa)) },
+                  { label: 'Progressive Web App (PWA)', values: TIERS.map(t => t.pwa === 0 ? '—' : t.pwa === -1 ? '∞' : String(t.pwa)) },
                   { label: 'ISP rate', values: ['10%','18%','22%','25%','28%','30%'] },
-                  { label: 'BFM from day 61', values: TIERS.map(t => formatR(t.bfm) + '/mo') },
+                  { label: 'Business Fuel Maintenance (BFM) from day 61', values: TIERS.map(t => formatR(t.bfm) + '/mo') },
                 ].map((row, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
                     <td style={{ padding: '10px 16px', color: MUTED }}>{row.label}</td>
@@ -324,6 +324,7 @@ function PricingInner() {
             { q: 'Can I upgrade anytime?', a: 'Yes. Pay the difference and your engine upgrades immediately. Your existing products stay live.' },
             { q: 'What is the 4M Machine?', a: 'An AI-powered digital product factory. From idea to marketplace in one session — without design skills, coding or a big budget.' },
             { q: 'Is there a free tier?', a: 'The Free Affiliate Marketer (FAM) tier is available by invitation when you refer members to the marketplace. Paid tiers start at R700.' },
+            { q: 'What are QPB · TSC · TLI · CEO Awards?', a: 'These are your Z2B compensation plan earnings. QPB (Quarterly Performance Bonus), TSC (Team Structure Commission), TLI (Team Leader Income) and CEO Awards reward your growth and team building. View full details at app.z2blegacybuilders.co.za/compensation' },
             { q: 'Do I own what the 4M Machine creates?', a: '100%. Every product the 4M Machine builds for you is yours to keep, sell and distribute however you choose. Sell on Z2B, Selar, Gumroad, Payhip, Etsy, Udemy, ClickBank, Whop, your own website — anywhere. The 5% Z2B fee only applies to sales made on the Z2B Marketplace.' },
           ].map((faq, i) => (
             <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>

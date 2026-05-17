@@ -132,7 +132,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     priceZar:         2500,
     gearAccess:       4,
     accessDays:       60,
-    bfmMonthlyZar:    750,
+    bfmMonthlyZar:    850,
     automationMode:   'none',
     ideaIgnitionDepth:'enhanced',
     maxOpportunities: 3,

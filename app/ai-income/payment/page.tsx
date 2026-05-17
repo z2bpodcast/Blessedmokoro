@@ -61,15 +61,25 @@ function PaymentInner() {
       return
     }
 
-    // PayFast payment initiation
-    const res  = await fetch('/api/payment/initiate', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ tier, amount, name, method, email, fullName }),
-    })
-    const data = await res.json()
-    if (data.redirect) window.location.href = data.redirect
-    else setLoading(false)
+    try {
+      // Payment initiation — Yoco/PayFast
+      const res  = await fetch('/api/payment/initiate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ tier, amount, name, method, email, fullName }),
+      })
+      const data = await res.json()
+      if (data.redirect ?? data.redirectUrl ?? data.checkoutUrl) {
+        window.location.href = data.redirect ?? data.redirectUrl ?? data.checkoutUrl
+      } else {
+        // Fallback: show EFT details if payment gateway unavailable
+        setEftRef('Z2B-' + Date.now().toString().slice(-8))
+        setLoading(false)
+      }
+    } catch (_) {
+      setEftRef('Z2B-' + Date.now().toString().slice(-8))
+      setLoading(false)
+    }
   }
 
   return (
@@ -105,10 +115,10 @@ function PaymentInner() {
           <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.25)', marginBottom: '20px' }}>
             <div style={{ fontSize: '13px', fontWeight: 700, color: CYAN, marginBottom: '12px' }}>Manual EFT Details</div>
             <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.9 }}>
-              <div><strong style={{ color: W }}>Bank:</strong> First National Bank (FNB)</div>
+              <div><strong style={{ color: W }}>Bank:</strong> Nedbank</div>
               <div><strong style={{ color: W }}>Account Name:</strong> Z2B Legacy Builders</div>
-              <div><strong style={{ color: W }}>Account Number:</strong> 62XXXXXXXXX</div>
-              <div><strong style={{ color: W }}>Branch Code:</strong> 250655</div>
+              <div><strong style={{ color: W }}>Account Number:</strong> 1234567890</div>
+              <div><strong style={{ color: W }}>Branch Code:</strong> 198765</div>
               <div><strong style={{ color: W }}>Amount:</strong> R{amount.toLocaleString()}</div>
               <div><strong style={{ color: W }}>Reference:</strong> <span style={{ color: GOLD, fontWeight: 900 }}>{efeRef}</span></div>
             </div>

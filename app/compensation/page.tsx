@@ -13,7 +13,7 @@ const ISP_RATES: Record<string,number> = {
   free:5, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30,
   silver_rocket:25, gold_rocket:28, platinum_rocket:30,
 }
-const BFM: Record<string,number> = {
+const Business Fuel Maintenance (BFM): Record<string,number> = {
   starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800,
   silver_rocket:2550, gold_rocket:5250, platinum_rocket:10500,
 }
@@ -185,7 +185,7 @@ export default function CompensationPage() {
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>Free and Starter builders earn R0 ISP. ISP starts at Bronze (18%).</div>
             </div>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              ISP applies on: (1) monthly BFM (Business Fuel Maintenance) payments after 60 days, and (2) Bronze+ tier upgrade purchases by yourself and your team.
+              ISP applies on: (1) monthly Business Fuel Maintenance (BFM) (Business Fuel Maintenance) payments after 60 days, and (2) Bronze+ tier upgrade purchases by yourself and your team.
             </p>
             {Object.entries(ISP_RATES).map(([tier, rate]) => {
               const noISP = tier === 'free' || tier === 'starter'
@@ -199,7 +199,7 @@ export default function CompensationPage() {
                   </div>
                   {!noISP && (
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'5px' }}>
-                      {Object.entries(BFM).map(([t, bfm]) => (
+                      {Object.entries(Business Fuel Maintenance (BFM)).map(([t, bfm]) => (
                         <div key={t} style={{ textAlign:'center', background:'rgba(167,139,250,0.08)', borderRadius:'8px', padding:'5px' }}>
                           <div style={{ fontSize:'9px', color:'rgba(255,255,255,0.35)', textTransform:'capitalize' }}>{t.replace(/_/g,' ')}</div>
                           <div style={{ fontSize:'11px', fontWeight:700, color:'#A78BFA' }}>R{Math.round(rate/100*bfm).toLocaleString()}/mo</div>
@@ -383,7 +383,7 @@ export default function CompensationPage() {
               Available to <strong style={{color:'#FCD34D'}}>Starter+ builders</strong>. Automatically save a % of your earnings toward your next tier upgrade. The money is always yours.
             </p>
             {[
-              {step:'1', text:'Choose your save % (20%, 30% or custom)'},
+              {step:'1', text:'Choose your save % (5%, 30% or custom)'},
               {step:'2', text:'Z2B auto-deducts your chosen % from every earning'},
               {step:'3', text:'Safe balance grows until it reaches next tier price'},
               {step:'4', text:'You get notified — one tap to activate your upgrade'},
