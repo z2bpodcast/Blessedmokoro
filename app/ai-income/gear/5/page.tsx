@@ -205,7 +205,6 @@ function Gear5Inner() {
         try {
           const saved = JSON.parse(g5done)
           setAssets(saved.assets ?? [])
-          setBundle(saved.bundle ?? null)
           setStep('review')
           return
         } catch (_) {}
