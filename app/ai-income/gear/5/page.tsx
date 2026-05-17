@@ -163,14 +163,33 @@ function Gear5Inner() {
       let loadedIntent: IntentDefinition | null = null
       let loadedDraft:  ContentDraft | null     = null
       try {
-        const ri = sessionStorage.getItem('v3_gear1_intent')
-        // MEDIUM #5: prefer quality-revised draft if saved by Gear 4
+        const ri  = sessionStorage.getItem('v3_gear1_intent')
         const rd4 = sessionStorage.getItem('v3_gear4_draft')
         const rd3 = sessionStorage.getItem('v3_gear3_draft')
-        const rd  = rd4 ?? rd3  // Gear 4 revised draft takes priority
+        const rd  = rd4 ?? rd3
         if (ri) loadedIntent = JSON.parse(ri)
         if (rd) loadedDraft  = JSON.parse(rd)
       } catch (_) {}
+
+      // FALLBACK: load from database if sessionStorage was cleared
+      if ((!loadedIntent || !loadedDraft) && sid) {
+        try {
+          const dbRes = await fetch('/api/gear/5', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ action: 'load_from_db', sessionId: sid }),
+          })
+          const dbData = await dbRes.json()
+          if (dbData.intent && !loadedIntent) {
+            loadedIntent = dbData.intent
+            sessionStorage.setItem('v3_gear1_intent', JSON.stringify(dbData.intent))
+          }
+          if (dbData.draft && !loadedDraft) {
+            loadedDraft = dbData.draft
+            sessionStorage.setItem('v3_gear3_draft', JSON.stringify(dbData.draft))
+          }
+        } catch (_) {}
+      }
 
       if (!loadedIntent || !loadedDraft || !sid) {
         setErrorMsg('Could not load product data. Please return to Gear 4.')

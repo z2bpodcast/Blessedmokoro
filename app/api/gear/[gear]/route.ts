@@ -8,7 +8,7 @@
 //          This route validates, gates, and delegates.
 // ============================================================
 
-import { runGear7, PLATFORMS } from "@/lib/v3/gear7-engine"
+import { runGear7, PLATFORMS } from '@/lib/v3/gear7-engine'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }              from '@supabase/supabase-js'
 import { normaliseTier }             from '@/lib/v3/tier-config'
@@ -511,9 +511,37 @@ async function handleGear5(
   body:    Record<string, unknown>
 ): Promise<NextResponse> {
 
-  const validActions = ['get_directive', 'generate_asset', 'confirm']
+  const validActions = ['get_directive', 'generate_asset', 'confirm', 'load_from_db']
   if (!validActions.includes(action)) {
     return NextResponse.json({ error: 'Invalid action for Gear 5' }, { status: 400 })
+  }
+
+  // ── LOAD FROM DB: restore sessionStorage data from gear_sessions ──
+  if (action === 'load_from_db') {
+    const { sessionId } = body as { sessionId: string }
+    if (!sessionId) return NextResponse.json({ error: 'No session ID' }, { status: 400 })
+
+    const sb = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const { data: gs } = await (sb.from as any)('gear_sessions')
+      .select('intent_data, structure_data, content_draft, enhancement_assets')
+      .eq('id', sessionId)
+      .eq('builder_id', user.id)
+      .maybeSingle() as { data: any }
+
+    if (!gs) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+
+    const intent = gs.intent_data
+      ? (typeof gs.intent_data === 'string' ? JSON.parse(gs.intent_data) : gs.intent_data)
+      : null
+    const draft = gs.content_draft
+      ? (typeof gs.content_draft === 'string' ? JSON.parse(gs.content_draft) : gs.content_draft)
+      : null
+
+    return NextResponse.json({ intent, draft, hasEnhancement: !!gs.enhancement_assets })
   }
 
   // ── GET DIRECTIVE: GPT-5.x plans assets ───────────────────
