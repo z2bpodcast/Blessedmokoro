@@ -22,22 +22,21 @@ const MUTED = '#64748B'
 const GREEN = '#10B981'
 
 interface MarketplaceProduct {
-  id:          string
-  title:       string
-  description: string
+  id:           string
+  title:        string
+  name:         string
+  description:  string
   price:        number
   retail_price: number
   price_once:   number
-  name:         string
+  format:       string
+  keywords:     string | string[]
+  seller_id:    string
   seller_name:  string
   sales_count:  number
-  format:      string
-  keywords:    string | string[]
-  seller_id:   string
-  created_at:  string
-  session_id?: string
-  // joined from profiles
-  seller_name?: string
+  status:       string
+  session_id:   string
+  created_at:   string
 }
 
 const FORMAT_EMOJIS: Record<string, string> = {
