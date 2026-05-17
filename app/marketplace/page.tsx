@@ -25,7 +25,12 @@ interface MarketplaceProduct {
   id:          string
   title:       string
   description: string
-  price:       number
+  price:        number
+  retail_price: number
+  price_once:   number
+  name:         string
+  seller_name:  string
+  sales_count:  number
   format:      string
   keywords:    string | string[]
   seller_id:   string
