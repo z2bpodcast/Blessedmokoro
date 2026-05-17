@@ -13,7 +13,7 @@ const ISP_RATES: Record<string,number> = {
   free:5, starter:10, bronze:18, copper:22, silver:25, gold:28, platinum:30,
   silver_rocket:25, gold_rocket:28, platinum_rocket:30,
 }
-const Business Fuel Maintenance (BFM): Record<string,number> = {
+const BFM_MONTHLY: Record<string,number> = {
   starter:850, bronze:1050, copper:1300, silver:2000, gold:3200, platinum:5800,
   silver_rocket:2550, gold_rocket:5250, platinum_rocket:10500,
 }
