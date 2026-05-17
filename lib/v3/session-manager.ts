@@ -389,7 +389,7 @@ export async function advanceGear(
 
   // Sync gear_outputs — keeps both session systems in sync
   try {
-    await supabase.from('gear_outputs').upsert({ session_id: sessionId, builder_id: builderId, gear_number: gearNumber, output_data: gearOutput, status: 'complete', updated_at: new Date().toISOString() }, { onConflict: 'session_id,gear_number' })
+    await (supabase as any).from('gear_outputs').upsert({ session_id: sessionId, builder_id: builderId, gear_number: gearNumber, output_data: gearOutput, status: 'complete', updated_at: new Date().toISOString() }, { onConflict: 'session_id,gear_number' })
   } catch (_) {}
 
   try {
