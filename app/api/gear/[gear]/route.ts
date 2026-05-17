@@ -529,7 +529,6 @@ async function handleGear5(
     const { data: gs } = await (sb.from as any)('gear_sessions')
       .select('intent_data, structure_data, content_draft, enhancement_assets')
       .eq('id', sessionId)
-      .eq('builder_id', user.id)
       .maybeSingle() as { data: any }
 
     if (!gs) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
