@@ -199,6 +199,17 @@ function Gear5Inner() {
       setIntent(loadedIntent)
       setDraft(loadedDraft)
 
+      // Check if gear 5 already completed this session
+      const g5done = sessionStorage.getItem('v3_gear5_complete_' + sid)
+      if (g5done) {
+        try {
+          const saved = JSON.parse(g5done)
+          setAssets(saved.assets ?? [])
+          setBundle(saved.bundle ?? null)
+          setStep('review')
+          return
+        } catch (_) {}
+      }
       if (!hasRun.current) {
         hasRun.current = true
         await fetchDirectiveAndBuild(token, loadedIntent, loadedDraft, sid)
