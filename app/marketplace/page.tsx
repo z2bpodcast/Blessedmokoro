@@ -27,7 +27,6 @@ interface MarketplaceProduct {
   description: string
   price:        number
   retail_price: number
-  price:        number
   price_once:   number
   name:         string
   seller_name:  string
