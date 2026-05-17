@@ -70,7 +70,7 @@ function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isL
             </div>
           </div>
           <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: GOLD }}>
-            R{(product.retail_price ?? product.price_once ?? 299 ?? 0).toLocaleString()}
+            R{(product.retail_price ?? product.price_once ?? 299).toLocaleString()}
           </div>
         </div>
 
