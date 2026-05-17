@@ -324,6 +324,7 @@ function PricingInner() {
             { q: 'Can I upgrade anytime?', a: 'Yes. Pay the difference and your engine upgrades immediately. Your existing products stay live.' },
             { q: 'What is the 4M Machine?', a: 'An AI-powered digital product factory. From idea to marketplace in one session — without design skills, coding or a big budget.' },
             { q: 'Is there a free tier?', a: 'The Free Affiliate Marketer (FAM) tier is available by invitation when you refer members to the marketplace. Paid tiers start at R700.' },
+            { q: 'Do I own what the 4M Machine creates?', a: '100%. Every product the 4M Machine builds for you is yours to keep, sell and distribute however you choose. Sell on Z2B, Selar, Gumroad, Payhip, Etsy, Udemy, ClickBank, Whop, your own website — anywhere. The 5% Z2B fee only applies to sales made on the Z2B Marketplace.' },
           ].map((faq, i) => (
             <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div style={{ fontSize: '13px', fontWeight: 700, color: W, marginBottom: '8px' }}>{faq.q}</div>

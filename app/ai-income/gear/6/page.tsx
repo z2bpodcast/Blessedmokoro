@@ -153,7 +153,7 @@ function Gear6Inner() {
       } catch (_) {}
 
       if (!loadedIntent || !loadedDraft || !sid) {
-        setErrorMsg('Could not load product data. Please return to Gear 5.')
+        setErrorMsg('Could not load product data. Please return to Gear 5. (Tip: try refreshing — your work is saved)')
         setStep('error')
         return
       }

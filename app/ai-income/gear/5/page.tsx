@@ -199,16 +199,6 @@ function Gear5Inner() {
       setIntent(loadedIntent)
       setDraft(loadedDraft)
 
-      // Check if gear 5 already completed this session
-      const g5done = sessionStorage.getItem('v3_gear5_complete_' + sid)
-      if (g5done) {
-        try {
-          const saved = JSON.parse(g5done)
-          setAssets(saved.assets ?? [])
-          setStep('review')
-          return
-        } catch (_) {}
-      }
       if (!hasRun.current) {
         hasRun.current = true
         await fetchDirectiveAndBuild(token, loadedIntent, loadedDraft, sid)
@@ -357,7 +347,7 @@ function Gear5Inner() {
                 <h2 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(17px,4vw,24px)', fontWeight:900, color:W, margin:'0 0 6px' }}>
                   Your premium assets are ready.
                 </h2>
-                <p style={{ fontSize:'12px', color:MUTED, margin:0 }}>Tap any asset to preview. Then confirm your bundle.</p>
+                <p style={{ fontSize:'12px', color:MUTED, margin:0 }}>This is YOUR product. You own every asset — sell on any platform, anywhere in the world.. Then confirm your bundle.</p>
               </div>
 
               <div style={{ padding:'12px 16px', borderRadius:'12px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.15)', marginBottom:'16px' }}>

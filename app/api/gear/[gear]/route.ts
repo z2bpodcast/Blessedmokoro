@@ -436,13 +436,38 @@ async function handleGear6(
     const { data: product, error: productError } = await sb
       .from('marketplace_products')
       .insert({
+        // Required NOT NULL fields
+        name:        listing.title ?? listing.productTitle ?? 'Digital Product',
+        slug:        (listing.title ?? listing.productTitle ?? 'product')
+                       .toLowerCase()
+                       .replace(/[^a-z0-9]+/g, '-')
+                       .slice(0, 80) + '-' + Date.now().toString().slice(-6),
+        tagline:     listing.subtitle ?? listing.tagline ?? '',
+        description: listing.description ?? listing.productDescription ?? '',
+        category:    listing.format ?? listing.category ?? 'ebook',
+        // Seller info
         seller_id:   userId,
-        title:       listing.title,
-        description: listing.description,
-        price:       listing.priceZar,        // column 'price' in marketplace_products
-        format:      listing.format,
-        keywords:    JSON.stringify(listing.keywords ?? []), // MEDIUM #7: safe JSONB
-        status:      'active',
+        builder_id:  userId,
+        seller_name: listing.sellerName ?? '',
+        // Pricing
+        retail_price:    Math.round(Number(listing.priceZar ?? listing.price ?? 299)),
+        price_once:      Math.round(Number(listing.priceZar ?? listing.price ?? 299)),
+        // Commission structure:
+        // Z2B listing fee: 5% always
+        // Affiliate commission: 20% (goes to referrer — seller keeps if own link)
+        // Seller base earnings: 75% (+ 20% if seller uses own affiliate link = 95%)
+        seller_earnings: Math.round(Number(listing.priceZar ?? listing.price ?? 299) * 0.75),
+        z2b_commission:  Math.round(Number(listing.priceZar ?? listing.price ?? 299) * 0.05),
+        affiliate_enabled: true,
+        currency:        'ZAR',
+        // Product details
+        title:       listing.title ?? listing.productTitle ?? 'Digital Product',
+        subtitle:    listing.subtitle ?? listing.tagline ?? '',
+        format:      listing.format ?? 'ebook',
+        status:      'listed',
+        is_active:   true,
+        product_type: 'z2b_product',
+        affiliate_enabled: true,
         session_id:  sessionId,
       })
       .select('id')
@@ -529,6 +554,7 @@ async function handleGear5(
     const { data: gs } = await (sb.from as any)('gear_sessions')
       .select('intent_data, structure_data, content_draft, enhancement_assets')
       .eq('id', sessionId)
+      .eq('builder_id', user.id)
       .maybeSingle() as { data: any }
 
     if (!gs) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
