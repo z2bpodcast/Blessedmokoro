@@ -66,12 +66,12 @@ function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isL
             </div>
           </div>
           <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: GOLD }}>
-            R{(product.price ?? 0).toLocaleString()}
+            R{(product.retail_price ?? product.price_once ?? 299 ?? 0).toLocaleString()}
           </div>
         </div>
 
         <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '8px', lineHeight: 1.3 }}>
-          {product.title}
+          {product.title ?? product.name}
         </div>
 
         <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7, marginBottom: '10px' }}>
@@ -104,7 +104,7 @@ function ProductCard({ product, isLoggedIn }: { product: MarketplaceProduct; isL
           <button
             onClick={() => alert('Payment integration coming soon. Contact us to purchase this product.')}
             style={{ width: '100%', padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '13px', fontFamily: 'Cinzel,Georgia,serif' }}>
-            Get This Product — R{(product.price ?? 0).toLocaleString()}
+            Get This Product — R{(product.retail_price ?? product.price_once ?? 299 ?? 0).toLocaleString()}
           </button>
         ) : (
           <Link href="/login?redirect=/marketplace"
@@ -141,8 +141,8 @@ function MarketplaceInner() {
     try {
       const { data, error } = await supabase
         .from('marketplace_products')
-        .select('id, title, description, price, format, keywords, seller_id, created_at, session_id')
-        .eq('status', 'active')
+        .select('id, name, title, tagline, description, retail_price, price_once, format, status, seller_id, seller_name, builder_id, listed_at, session_id, sales_count, affiliate_enabled')
+        .eq('status', 'listed')
         .order('created_at', { ascending: false })
         .limit(50) as { data: MarketplaceProduct[] | null; error: unknown }
 
@@ -156,7 +156,7 @@ function MarketplaceInner() {
   const formats    = ['all', ...Array.from(new Set(products.map(p => p.format).filter(Boolean)))]
   const filtered   = products
     .filter(p => {
-      const matchSearch = !search || p.title?.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
+      const matchSearch = !search || p.title ?? p.name?.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
       const matchFormat = formatFilter === 'all' || p.format === formatFilter
       return matchSearch && matchFormat
     })

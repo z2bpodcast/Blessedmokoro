@@ -1,23 +1,15 @@
 'use client'
 // ============================================================
-// Z2B 4M V3 — 4M MACHINE HUB PAGE
+// Z2B V3 — 4M MACHINE HOME PAGE (REVAMPED)
 // File: app/ai-income/page.tsx
-// Laws: Tier-gated entry · Session resume · Portfolio view
-//       Mobile-first · No orchestration exposed
+// Laws: Intro · How-to · My Projects widget · Engine badge
 // ============================================================
 
-import { useState, useEffect, Suspense, memo } from 'react'
-import { useRouter }                             from 'next/navigation'
-import { supabase }                              from '@/lib/supabase'
-import Link                                      from 'next/link'
-import {
-  ActiveSessionCard,
-  CompletedProductCard,
-  NoSessionCard,
-  type ActiveSessionData,
-  type CompletedProductData,
-} from '@/components/v3/GearStatusCard'
-import { getTier, normaliseTier } from '@/lib/v3/tier-config'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter }                      from 'next/navigation'
+import { supabase }                       from '@/lib/supabase'
+import { normaliseTier, getTier }         from '@/lib/v3/tier-config'
+import Link                               from 'next/link'
 
 const BG    = '#050A18'
 const SURF  = '#0D1629'
@@ -28,266 +20,250 @@ const W     = '#F0F9FF'
 const MUTED = '#64748B'
 const GREEN = '#10B981'
 
-// ── STAT CARD ─────────────────────────────────────────────────
-const StatCard = memo(function StatCard({ label, value, color = W }: { label: string; value: string | number; color?: string }) {
-  return (
-    <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-      <div style={{ fontSize: '22px', fontWeight: 900, color, fontFamily: 'Cinzel,Georgia,serif', marginBottom: '3px' }}>{value}</div>
-      <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px' }}>{label}</div>
-    </div>
-  )
-})
+const ENGINE_ICONS: Record<string, string> = {
+  manual: '🔧', automatic: '⚙️', electric: '⚡', rocket: '🚀',
+}
+const ENGINE_NAMES: Record<string, string> = {
+  manual: 'Manual Engine', automatic: 'Automatic Engine',
+  electric: 'Electric Engine', rocket: 'Rocket Engine',
+}
 
-function AiIncomeInner() {
+const STEPS = [
+  { icon: '💡', gear: 'Idea Ignition', desc: 'Choose your source — self-discovery, market research, topic or paste a script. The AI finds your best opportunity.' },
+  { icon: '🎯', gear: 'Gear 1 — Intent', desc: 'Define exactly what your product is, who it\'s for, and what transformation it delivers.' },
+  { icon: '🗺️', gear: 'Gear 2 — Blueprint', desc: 'The machine maps your full product structure — every section, every chapter, every key point.' },
+  { icon: '✍️', gear: 'Gear 3 — Content', desc: 'AI writes each section of your product. You review. 530-675 words per section. Complete in minutes.' },
+  { icon: '✅', gear: 'Gear 4 — Quality', desc: 'A strict AI evaluator reviews and strengthens your content automatically. Quality-approved before you see it.' },
+  { icon: '🧰', gear: 'Gear 5 — Enhancement', desc: 'Templates, checklists, workbooks and tools are generated to make your product implementation-ready.' },
+  { icon: '🚀', gear: 'Gear 6 — Distribution', desc: 'Your marketplace listing, pricing and social posts are written and published. Product goes live.' },
+]
+
+const TIPS = [
+  '💡 Idea Ignition is free for all tiers — explore as many ideas as you want before committing.',
+  '🔖 Save any idea you like with the bookmark button — find them in Saved Ideas.',
+  '⬅️ Pressing Back never restarts a gear — your work is always saved.',
+  '💰 Products are suggested a price by the machine — you can adjust before publishing.',
+  '📊 Every product you publish earns ISP on every sale — check your earnings dashboard.',
+  '🏪 Your products appear on the Z2B Marketplace automatically after Gear 6.',
+]
+
+interface ProjectSummary {
+  total:    number
+  ideas:    number
+  drafts:   number
+  complete: number
+  recent:   { title: string; status: string; current_gear: number }[]
+}
+
+interface MachineInfo {
+  tierId:      string
+  tierLabel:   string
+  engineType:  string
+  gearAccess:  number
+  productsThisMonth: number
+  maxProducts: number
+}
+
+function FourMHomeInner() {
   const router = useRouter()
-
-  const [loading,    setLoading]    = useState(true)
-  const [tierId,     setTierId]     = useState('fam')
-  const [tierLabel,  setTierLabel]  = useState('Free Member')
-  const [firstName,  setFirstName]  = useState('')
-  const [bfmStatus,  setBfmStatus]  = useState('none')
-  const [session,    setSession]    = useState<ActiveSessionData | null>(null)
-  const [products,   setProducts]   = useState<CompletedProductData[]>([])
-  const [totalWords, setTotalWords] = useState(0)
-  const [isRocket,   setIsRocket]   = useState(false)
+  const [machine,   setMachine]   = useState<MachineInfo | null>(null)
+  const [projects,  setProjects]  = useState<ProjectSummary | null>(null)
+  const [loading,   setLoading]   = useState(true)
+  const [tipIndex,  setTipIndex]  = useState(0)
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) { router.push('/login'); return }
-
-      // Load profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('paid_tier, full_name, bfm_status, gear_access')
-        .eq('id', user.id)
-        .single() as { data: { paid_tier: string | null; full_name: string | null; bfm_status: string | null; gear_access: number | null } | null }
-
-      const tier = normaliseTier(profile?.paid_tier ?? 'fam')
-      const tierDef = getTier(tier)
-      setTierId(tier)
-      setTierLabel(tierDef.label)
-      setFirstName(profile?.full_name?.split(' ')[0] ?? '')
-      setBfmStatus(profile?.bfm_status ?? 'none')
-      setIsRocket(tierDef.isRocket)
-
-      // Load active session
-      const { data: activeSessions } = await (supabase.from as any)('gear_sessions')
-        .select('id, opportunity_data, phase_current, gear_access, product_status, updated_at')
-        .eq('builder_id', user.id)
-        .eq('session_status', 'active')
-        .order('updated_at', { ascending: false })
-        .limit(1) as { data: any[] | null }
-
-      if (activeSessions?.[0]) {
-        const s = activeSessions[0]
-        const oppData = s.opportunity_data as { title?: string } | null
-        setSession({
-          sessionId:     s.id,
-          productTitle:  oppData?.title ?? 'Product in progress',
-          currentGear:   s.phase_current ?? 0,
-          gearAccess:    s.gear_access ?? tierDef.gearAccess,
-          productStatus: s.product_status,
-          updatedAt:     s.updated_at,
-        })
-      }
-
-      // Load completed products
-      const { data: completedSessions } = await (supabase.from as any)('gear_sessions')
-        .select('id, opportunity_data, distribution_data, completed_at, marketplace_id')
-        .eq('builder_id', user.id)
-        .eq('session_status', 'completed')
-        .order('completed_at', { ascending: false })
-        .limit(10) as { data: any[] | null }
-
-      if (completedSessions?.length) {
-        const mapped: CompletedProductData[] = completedSessions
-          .filter((s: any) => s.completed_at)
-          .map((s: any) => {
-            const opp  = s.opportunity_data as any
-            const dist = s.distribution_data as any
-            return {
-              productId:   s.marketplace_id ?? s.id,
-              sessionId:   s.id,
-              title:       dist?.productTitle ?? opp?.title ?? 'Completed Product',
-              priceZar:    dist?.priceZar ?? opp?.priceRangeMin ?? 0,
-              format:      dist?.format ?? opp?.format ?? 'eBook',
-              completedAt: s.completed_at,
-            }
-          })
-        setProducts(mapped)
-
-        // Estimate total words (not exposed as exact number)
-        setTotalWords(mapped.length * 3500)
-      }
-
-      setLoading(false)
-    })
+    loadData()
+    const interval = setInterval(() => setTipIndex(i => (i + 1) % TIPS.length), 5000)
+    return () => clearInterval(interval)
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid ' + GOLD, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      </div>
-    )
+  async function loadData() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/login'); return }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('paid_tier')
+      .eq('id', user.id)
+      .single() as { data: { paid_tier: string | null } | null }
+
+    const tier    = normaliseTier(profile?.paid_tier ?? 'fam')
+    const tierDef = getTier(tier)
+    const engineMap: Record<string, string> = {
+      fam: 'manual', starter: 'manual', bronze: 'manual',
+      copper: 'automatic', silver: 'electric', gold: 'rocket', platinum: 'rocket',
+    }
+
+    setMachine({
+      tierId:     tier,
+      tierLabel:  tierDef.label,
+      engineType: engineMap[tier] ?? 'manual',
+      gearAccess: tierDef.gearAccess,
+      productsThisMonth: 0,
+      maxProducts: (tierDef as any).maxProductsPerMonth ?? -1,
+    })
+
+    const { data: proj } = await (supabase.from as any)('saved_projects')
+      .select('title, status, current_gear')
+      .eq('builder_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(20) as { data: any[] | null }
+
+    const all = proj ?? []
+    setProjects({
+      total:    all.length,
+      ideas:    all.filter(p => p.status === 'idea').length,
+      drafts:   all.filter(p => p.status === 'draft').length,
+      complete: all.filter(p => p.status === 'complete').length,
+      recent:   all.slice(0, 3),
+    })
+
+    setLoading(false)
   }
 
-  const canAccess4M   = tierId !== 'fam' && tierId !== 'free'
-  const isBfmOverdue  = bfmStatus === 'overdue' || bfmStatus === 'suspended'
-  const tierDef       = getTier(tierId)
+  const canAccess = machine && machine.tierId !== 'fam'
 
   return (
     <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif' }}>
 
       {/* Nav */}
-      <nav style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', background: BG + 'EE', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <nav style={{ padding: '12px 20px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
         <Link href="/dashboard" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>← Dashboard</Link>
-        <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', fontWeight: 900, color: GOLD }}>4M Machine</span>
-        <span style={{ fontSize: '11px', color: tierDef.isRocket ? CYAN : GOLD, background: tierDef.isRocket ? 'rgba(6,182,212,0.12)' : 'rgba(212,175,55,0.12)', border: '1px solid ' + (tierDef.isRocket ? 'rgba(6,182,212,0.3)' : 'rgba(212,175,55,0.3)'), padding: '3px 10px', borderRadius: '20px' }}>
-          {tierDef.emoji} {tierLabel}
-        </span>
+        <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: GOLD }}>4M Machine</span>
+        <Link href="/ai-income/projects" style={{ fontSize: '12px', color: GOLD, textDecoration: 'none' }}>My Projects</Link>
       </nav>
 
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '24px 20px' }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 20px 60px' }}>
 
-        {/* Greeting */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 900, color: W, margin: '0 0 6px' }}>
-            {firstName ? `Welcome back, ${firstName}.` : 'Your 4M Machine'}
+        {/* Hero */}
+        <div style={{ textAlign: 'center', padding: '32px 0 28px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚙️</div>
+          <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, color: W, margin: '0 0 10px' }}>
+            The 4M Machine
           </h1>
-          <p style={{ fontSize: '13px', color: MUTED, margin: 0 }}>
-            {session ? 'You have a product in progress.' : canAccess4M ? 'Start your next digital product.' : 'Upgrade to unlock the 4M Machine.'}
+          <p style={{ fontSize: '14px', color: MUTED, lineHeight: 1.8, marginBottom: '16px', maxWidth: '480px', margin: '0 auto 16px' }}>
+            {projects && projects.complete > 0
+              ? `You have ${projects.complete} product${projects.complete > 1 ? 's' : ''} live on the marketplace. The machine is ready for your next one.`
+              : 'Your AI-powered digital product factory. From idea to marketplace in one session.'}
           </p>
-        </div>
-
-        {/* BFM overdue warning */}
-        {isBfmOverdue && (
-          <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', marginBottom: '16px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#F87171', marginBottom: '4px' }}>⚠️ BFM Payment Overdue</div>
-            <div style={{ fontSize: '12px', color: MUTED }}>Your product creation access is suspended. Please contact admin to resolve your payment.</div>
-          </div>
-        )}
-
-        {/* Stats row */}
-        {canAccess4M && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '24px' }}>
-            <StatCard label="Products Live" value={products.length} color={GREEN} />
-            <StatCard label="In Progress"   value={session ? 1 : 0}  color={GOLD} />
-            <StatCard label="Gears Access"  value={tierDef.gearAccess === 7 ? 'All 7' : `1–${tierDef.gearAccess}`} color={CYAN} />
-          </div>
-        )}
-
-        {/* Active session */}
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>
-            Current Session
-          </div>
-          {!canAccess4M || isBfmOverdue ? (
-            <NoSessionCard tierId={tierId} />
-          ) : session ? (
-            <ActiveSessionCard session={session} />
-          ) : (
-            <NoSessionCard tierId={tierId} />
+          {machine && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', color: GOLD, border: '1px solid rgba(212,175,55,0.2)' }}>
+              <span>{ENGINE_ICONS[machine.engineType]}</span>
+              <span>{ENGINE_NAMES[machine.engineType]} · {machine.tierLabel} · {machine.gearAccess} Gears</span>
+            </div>
           )}
         </div>
 
-        {/* Start new product button */}
-        {canAccess4M && !isBfmOverdue && (
-          <Link href="/ai-income/ignition"
-            style={{
-              display: 'block', width: '100%', padding: '15px', borderRadius: '14px', textAlign: 'center',
-              background: session ? 'transparent' : 'linear-gradient(135deg,#D4AF37,#B8860B)',
-              border: session ? '1px solid rgba(212,175,55,0.3)' : 'none',
-              color: session ? GOLD : '#050A18',
-              fontWeight: 900, fontSize: '14px', textDecoration: 'none',
-              fontFamily: 'Cinzel,Georgia,serif', boxSizing: 'border-box',
-              marginBottom: '24px',
-            }}>
-            {session ? '+ Start New Product' : '🌱 Start Idea Ignition →'}
-          </Link>
-        )}
-
-        {/* Rocket automation status */}
-        {isRocket && (
-          <div style={{ padding: '16px', borderRadius: '14px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', marginBottom: '24px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: CYAN, marginBottom: '6px' }}>
-              🚀 {tierLabel} — Automation Active
-            </div>
-            <div style={{ fontSize: '11px', color: MUTED, lineHeight: 1.7 }}>
-              {tierId === 'rocket_platinum'
-                ? 'Ultra automation (95%) — social posts, CRM and marketplace listing handled automatically after Gear 6.'
-                : 'High automation — 30-day social campaign and CRM follow-up queued automatically after each product launch.'
-              }
-            </div>
+        {/* CTA */}
+        {!loading && (
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '32px', flexWrap: 'wrap' }}>
+            {canAccess ? (
+              <>
+                <Link href="/ai-income/ignition"
+                  style={{ padding: '13px 28px', borderRadius: '14px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '15px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                  🌱 Start New Product →
+                </Link>
+                <Link href="/ai-income/projects"
+                  style={{ padding: '13px 22px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '14px', textDecoration: 'none' }}>
+                  My Projects
+                </Link>
+              </>
+            ) : (
+              <Link href="/pricing"
+                style={{ padding: '13px 28px', borderRadius: '14px', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '14px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                Upgrade to Start Building →
+              </Link>
+            )}
           </div>
         )}
 
-        {/* Completed products */}
-        {products.length > 0 && (
-          <div>
-            <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Your Products</span>
-              <span style={{ color: GREEN, fontWeight: 700 }}>{products.length} LIVE</span>
+        {/* My Projects widget */}
+        {projects && projects.total > 0 && (
+          <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: W }}>My Projects</div>
+              <Link href="/ai-income/projects" style={{ fontSize: '11px', color: GOLD, textDecoration: 'none' }}>View all →</Link>
             </div>
-            {products.map(p => <CompletedProductCard key={p.productId} product={p} />)}
-          </div>
-        )}
-
-        {/* Gear map */}
-        {canAccess4M && (
-          <div style={{ marginTop: '24px', padding: '16px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>
-              Your Gear Access
-            </div>
-            {[
-              { g: 1, name: 'Intent Engine',           tier: 'Starter+',  color: GOLD },
-              { g: 2, name: 'Structure Engine',         tier: 'Starter+',  color: GOLD },
-              { g: 3, name: 'Content Engine',           tier: 'Starter+',  color: GOLD },
-              { g: 4, name: 'Quality Control',          tier: 'Bronze+',   color: '#CD7F32' },
-              { g: 5, name: 'Value Enhancement',        tier: 'Copper+',   color: '#B87333' },
-              { g: 6, name: 'Distribution Engine',      tier: 'Silver+',   color: '#C0C0C0' },
-            ].map(({ g, name, tier, color }) => {
-              const hasAccess = tierDef.gearAccess >= g
-              return (
-                <div key={g} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{
-                    width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: hasAccess ? `rgba(212,175,55,0.12)` : 'rgba(255,255,255,0.04)',
-                    fontSize: '11px', fontWeight: 900,
-                    color: hasAccess ? color : 'rgba(255,255,255,0.2)',
-                  }}>
-                    {hasAccess ? g : '🔒'}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '12px', color: hasAccess ? W : 'rgba(255,255,255,0.3)', fontWeight: hasAccess ? 700 : 400 }}>
-                      Gear {g} — {name}
-                    </div>
-                    {!hasAccess && (
-                      <div style={{ fontSize: '10px', color: MUTED }}>Requires {tier}</div>
-                    )}
-                  </div>
-                  {hasAccess && <div style={{ fontSize: '10px', color: GREEN }}>✓</div>}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '14px' }}>
+              {[
+                { label: 'Ideas',    count: projects.ideas,    color: VIO },
+                { label: 'Drafts',   count: projects.drafts,   color: GOLD },
+                { label: 'Complete', count: projects.complete, color: GREEN },
+              ].map(s => (
+                <div key={s.label} style={{ textAlign: 'center', padding: '10px 8px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)' }}>
+                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '22px', fontWeight: 900, color: s.color }}>{s.count}</div>
+                  <div style={{ fontSize: '10px', color: MUTED }}>{s.label}</div>
                 </div>
-              )
-            })}
+              ))}
+            </div>
+            {projects.recent.map((p, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: i === 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                <div style={{ fontSize: '12px', color: W, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{p.title}</div>
+                <div style={{ fontSize: '10px', color: p.status === 'complete' ? GREEN : p.status === 'draft' ? GOLD : VIO, marginLeft: '8px', flexShrink: 0 }}>
+                  {p.status === 'draft' ? `Gear ${p.current_gear}` : p.status}
+                </div>
+              </div>
+            ))}
           </div>
         )}
+
+        {/* Rotating tip */}
+        <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', marginBottom: '28px', minHeight: '48px', display: 'flex', alignItems: 'center' }}>
+          <div style={{ fontSize: '12px', color: CYAN, lineHeight: 1.7 }}>{TIPS[tipIndex]}</div>
+        </div>
+
+        {/* How-to guide */}
+        <div style={{ marginBottom: '28px' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', fontWeight: 900, color: W, marginBottom: '16px' }}>
+            How the 4M Machine Works
+          </div>
+          {STEPS.slice(0, machine?.gearAccess ? Math.min(machine.gearAccess + 1, STEPS.length) : STEPS.length).map((step, i) => (
+            <div key={i} style={{ display: 'flex', gap: '14px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
+                {step.icon}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: GOLD, marginBottom: '3px' }}>{step.gear}</div>
+                <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7 }}>{step.desc}</div>
+              </div>
+            </div>
+          ))}
+          {machine && machine.gearAccess < 6 && (
+            <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', fontSize: '12px', color: MUTED }}>
+              🔒 Gears {machine.gearAccess + 1}–6 unlock when you upgrade. <Link href="/pricing" style={{ color: GOLD }}>View packages →</Link>
+            </div>
+          )}
+        </div>
+
+        {/* Idea sources */}
+        <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', fontWeight: 900, color: W, marginBottom: '14px' }}>
+          4 Ways to Find Your Next Idea
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {[
+            { href: '/ai-income/ignition/self',    icon: '🪞', title: 'Self Discovery',    desc: 'Find ideas in your own skills and experience' },
+            { href: '/ai-income/ignition/market',  icon: '📊', title: 'Market Research',   desc: 'AI scans 90+ opportunities in the market' },
+            { href: '/ai-income/ignition/topical', icon: '🎯', title: 'Topical / Theme',   desc: 'Enter any topic and get tailored product ideas' },
+            { href: '/ai-income/ignition/script',  icon: '📄', title: 'Script / PDF Upload', desc: 'Paste a script or upload a PDF to generate ideas' },
+          ].map(source => (
+            <Link key={source.href} href={canAccess ? source.href : '/pricing'}
+              style={{ padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', textDecoration: 'none', display: 'block', opacity: canAccess ? 1 : 0.5 }}>
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>{source.icon}</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: W, marginBottom: '4px', fontFamily: 'Cinzel,Georgia,serif' }}>{source.title}</div>
+              <div style={{ fontSize: '11px', color: MUTED, lineHeight: 1.6 }}>{source.desc}</div>
+            </Link>
+          ))}
+        </div>
 
       </div>
     </div>
   )
 }
 
-export default function AiIncomePage() {
+export default function FourMHomePage() {
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#050A18', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37', fontFamily: 'Georgia,serif' }}>
-        Loading...
-      </div>
-    }>
-      <AiIncomeInner />
+    <Suspense fallback={<div style={{ minHeight:'100vh',background:'#050A18',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37',fontFamily:'Georgia,serif' }}>Loading 4M Machine...</div>}>
+      <FourMHomeInner />
     </Suspense>
   )
 }

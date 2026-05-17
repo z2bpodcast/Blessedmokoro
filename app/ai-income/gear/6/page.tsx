@@ -123,6 +123,9 @@ function Gear6Inner() {
   const [errorMsg,    setErrorMsg]   = useState('')
   const [activeTab,   setActiveTab]  = useState<'listing'|'social'>('listing')
   const hasRun = useRef(false)
+  const [productId,    setProductId]   = useState('')
+  const [referralCode, setReferralCode] = useState('')
+  const [copiedLink,   setCopiedLink]  = useState(false)
 
   useEffect(() => {
     if (step !== 'generating') return
@@ -142,6 +145,11 @@ function Gear6Inner() {
         .from('profiles').select('gear_access').eq('id', session.user.id).single() as
         { data: { gear_access: number | null } | null }
       setGearAccess(profile?.gear_access ?? 7)
+      supabase.from('profiles').select('referral_code').eq('id', session.user.id).single()
+        .then(({ data: p }) => { if ((p as any)?.referral_code) setReferralCode((p as any).referral_code) })
+      // Load referral code for affiliate link
+      const { data: prof2 } = await supabase.from('profiles').select('referral_code').eq('id', session.user.id).single() as { data: { referral_code: string | null } | null }
+      if (prof2?.referral_code) setReferralCode(prof2.referral_code)
 
       let loadedIntent: IntentDefinition | null = null
       let loadedDraft:  ContentDraft | null     = null
@@ -252,6 +260,9 @@ function Gear6Inner() {
     } catch (_) {}
 
     setStep('live')
+          if (res2?.productId ?? res2?.product_id ?? res2?.id) {
+            setProductId(res2.productId ?? res2.product_id ?? res2.id)
+          }
     setTimeout(() => router.push(data.redirect ?? '/dashboard'), 3000)
   }
 
@@ -415,7 +426,38 @@ function Gear6Inner() {
               <div style={{ padding:'16px', borderRadius:'14px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.2)', marginBottom:'12px', textAlign:'left' }}>
                 <div style={{ fontSize:'12px', color:GREEN, fontWeight:700, marginBottom:'6px' }}>✅ What happens next:</div>
                 <div style={{ fontSize:'11px', color:MUTED, lineHeight:1.8 }}>
-                  Your product is live · Share the social posts we prepared · Earn ISP on every sale · Track sales in your dashboard
+                  Your product is live. Share it everywhere. You earn 75% of every sale — automatically tracked in your dashboard.
+                </div>
+              </div>
+
+              {/* COMMISSION + AFFILIATE LINK */}
+              <div style={{ padding:'14px 16px', borderRadius:'14px', background:'rgba(212,175,55,0.08)', border:'1px solid rgba(212,175,55,0.2)', marginBottom:'12px', textAlign:'left' }}>
+                <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'12px', fontWeight:900, color:GOLD, marginBottom:'8px' }}>💰 Earnings per sale</div>
+                <div style={{ fontSize:'12px', color:W, lineHeight:1.9 }}>
+                  <span style={{ color:GREEN }}>75%</span> → You (creator) &nbsp;·&nbsp;
+                  <span style={{ color:CYAN }}>20%</span> → Affiliate referrer &nbsp;·&nbsp;
+                  <span style={{ color:MUTED }}>5%</span> → Z2B fee<br/>
+                  <strong style={{ color:GOLD }}>Share your own link → you keep 95% (75% + 20%)</strong>
+                </div>
+              </div>
+              <div style={{ padding:'14px 16px', borderRadius:'14px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', marginBottom:'12px', textAlign:'left' }}>
+                <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'12px', fontWeight:900, color:GREEN, marginBottom:'8px' }}>🔗 Your Affiliate Link — Share to Earn 95%</div>
+                <div style={{ display:'flex', gap:'8px', alignItems:'center', marginBottom:'10px' }}>
+                  <div style={{ flex:1, padding:'8px 10px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', fontSize:'10px', color:W, wordBreak:'break-all', fontFamily:'monospace' }}>
+                    {`https://app.z2blegacybuilders.co.za/marketplace?ref=${referralCode || 'YOUR_CODE'}`}
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText('https://app.z2blegacybuilders.co.za/marketplace?ref='+(referralCode||'YOUR_CODE')); setCopiedLink(true); setTimeout(()=>setCopiedLink(false),2000) }}
+                    style={{ padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'pointer', background:copiedLink?GREEN:GOLD, color:'#050A18', fontWeight:900, fontSize:'12px', fontFamily:'Cinzel,Georgia,serif', flexShrink:0 }}>
+                    {copiedLink ? '✓' : 'Copy'}
+                  </button>
+                </div>
+                <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
+                  {(['💬 WhatsApp','📘 Facebook','🐦 Twitter/X','💼 LinkedIn'] as const).map(s => (
+                    <span key={s} style={{ fontSize:'11px', padding:'4px 10px', borderRadius:'20px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:W, fontWeight:700, cursor:'pointer' }}
+                      onClick={() => { const u = 'https://app.z2blegacybuilders.co.za/marketplace?ref='+(referralCode||'YOUR_CODE'); window.open('https://wa.me/?text='+encodeURIComponent('Check out my digital product: '+u),'_blank') }}>
+                      {s}
+                    </span>
+                  ))}
                 </div>
               </div>
 
