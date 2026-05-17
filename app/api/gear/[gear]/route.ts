@@ -467,7 +467,6 @@ async function handleGear6(
         status:      'listed',
         is_active:   true,
         product_type: 'z2b_product',
-        affiliate_enabled: true,
         session_id:  sessionId,
       })
       .select('id')
