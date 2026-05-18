@@ -1398,8 +1398,8 @@ async function handleGear1(
       .eq('builder_id', userId)
 
     const result = await adjustGear1({
-      currentIntent: currentIntent as any,
-      adjustment:    adjustment.trim(),
+      opportunity: (currentIntent ?? {}) as any,
+      adjustments: { adjustment: adjustment.trim() },
       tierId,
     })
 
