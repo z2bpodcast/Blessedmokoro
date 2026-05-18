@@ -83,7 +83,7 @@ function IntentCard({ intent, onEdit }: { intent: IntentDefinition; onEdit: (fie
     { label: 'For',               value: intent.targetAudience,  key: 'targetAudience',  editable: true },
     { label: 'Before (their now)',value: intent.beforeState,      key: 'beforeState',     editable: false },
     { label: 'After (their goal)',value: intent.afterState,       key: 'afterState',      editable: false },
-    { label: 'Format',            value: (formatDef?.emoji ?? '') + ' ' + (formatDef?.label ?? intent.productFormat), key: 'productFormat', editable: false },
+    { label: 'Format',            value: formatDef ?? intent.productFormat ?? intent.format ?? '', key: 'productFormat', editable: false },
     { label: 'Audience Level',    value: AUDIENCE_LEVEL_LABELS[intent.audienceLevel] ?? intent.audienceLevel, key: 'audienceLevel', editable: false },
     { label: 'Recommended Price', value: 'R' + intent.priceRecommended.toLocaleString(), key: 'priceRecommended', editable: true },
   ]
