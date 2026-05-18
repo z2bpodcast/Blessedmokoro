@@ -212,11 +212,11 @@ Be strict. No compromises. No pity passes.
 PRODUCT BEING EVALUATED:
 Title: "${draft.productTitle}"
 Target audience: "${intent.targetAudience}"
-Promise: "${intent.promiseStatement}"
+Promise: "${intent.promiseStatement ?? ""}"
 Before state: "${intent.beforeState}"
 After state: "${intent.afterState}"
 Key problems: ${(intent.keyProblems??[]).join(', ')}
-Recommended price: R${intent.priceRecommended}
+Recommended price: R${intent.priceRecommended ?? intent.suggestedPrice ?? 299}
 Total sections: ${draft.totalSections}
 Total words: ${draft.wordCountTotal}
 
@@ -228,7 +228,7 @@ EVALUATION CRITERIA (each scored 0-100):
 2. implementationReady — Can reader ACT on this today? (not just learn)
 3. noFluff — Is every paragraph earning its place? (100 = zero fluff)
 4. transformationEvident — Does content move reader from before to after?
-5. premiumFeel — Would someone pay R${intent.priceRecommended} for this?
+5. premiumFeel — Would someone pay R${intent.priceRecommended ?? intent.suggestedPrice ?? 299} for this?
 6. justifiesPrice — Does the depth match the price point?
 
 PASS THRESHOLD: 75+ overall (weighted average of all criteria)

@@ -226,7 +226,7 @@ Format: ${intent.productFormat ?? intent.format ?? ""}
 Audience level: ${intent.audienceLevel ?? intent.difficulty ?? "beginner"}
 Content tone: ${intent.contentTone ?? "professional and motivating"}
 Key problems solved: ${(intent.keyProblems ?? []).join(" · ")}
-Promise: "${intent.promiseStatement}"
+Promise: "${intent.promiseStatement ?? ""}"
 Geography context: ${intent.geographyContext ?? "global"}
 
 Structure requirements:

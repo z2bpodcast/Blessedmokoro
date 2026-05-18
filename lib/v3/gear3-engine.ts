@@ -238,7 +238,7 @@ Write complete content for this section of a digital product.
 PRODUCT:
 Title: "${intent.productTitle}"
 For: "${intent.targetAudience}"
-Promise: "${intent.promiseStatement}"
+Promise: "${intent.promiseStatement ?? ""}"
 Before → After: "${intent.beforeState}" → "${intent.afterState}"
 
 DIRECTIVE:

@@ -151,13 +151,13 @@ PRODUCT DETAILS:
 Title: "${intent.productTitle}"
 For: "${intent.targetAudience}"
 Transformation: "${intent.beforeState}" → "${intent.afterState}"
-Promise: "${intent.promiseStatement}"
-Format: ${intent.productFormat}
-Audience level: ${intent.audienceLevel}
-Key problems solved: ${intent.keyProblems.join(', ')}
+Promise: "${intent.promiseStatement ?? ""}"
+Format: ${intent.productFormat ?? intent.format ?? "ebook"}
+Audience level: ${intent.audienceLevel ?? intent.difficulty ?? "beginner"}
+Key problems solved: ${(intent.keyProblems ?? []).join(" and ")}
 Content: ${wordCount} words across ${sections} sections
-Price: R${intent.priceRecommended}
-Geography: ${intent.geographyContext}
+Price: R${intent.priceRecommended ?? intent.suggestedPrice ?? 299}
+Geography: ${intent.geographyContext ?? "global"}
 
 WRITING RULES:
 - Never use "make money", "earn income", "get rich" or "join my team"
@@ -175,8 +175,8 @@ Return ONLY valid JSON:
   "description": "paragraph 1 — the problem\\n\\nparagraph 2 — the solution\\n\\nparagraph 3 — the transformation",
   "targetAudience": "specific person description",
   "keyBenefits": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"],
-  "priceZar": ${intent.priceRecommended},
-  "format": "${intent.productFormat}",
+  "priceZar": ${intent.priceRecommended ?? intent.suggestedPrice ?? 299},
+  "format": "${intent.productFormat ?? intent.format ?? "ebook"}",
   "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "promotionalAngle": "the one hook for social posts"
 }`
@@ -190,7 +190,7 @@ Tagline: "${listing.tagline}"
 Promotional angle: "${listing.promotionalAngle}"
 For: "${intent.targetAudience}"
 Price: R${listing.priceZar}
-Geography: ${intent.geographyContext}
+Geography: ${intent.geographyContext ?? "global"}
 
 RULES (CRITICAL):
 - NEVER use: "make money", "earn income", "get rich", "join my team", "passive income"

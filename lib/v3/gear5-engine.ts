@@ -190,8 +190,8 @@ function buildAssetPrompt(
 PRODUCT CONTEXT:
 Product: "${draft.productTitle}"
 For: "${intent.targetAudience}"
-Promise: "${intent.promiseStatement}"
-Audience level: ${intent.audienceLevel}
+Promise: "${intent.promiseStatement ?? ""}"
+Audience level: ${intent.audienceLevel ?? intent.difficulty ?? "beginner"}
 
 ASSET TO CREATE:
 Type: ${plan.type} — ${formats[plan.type]}
