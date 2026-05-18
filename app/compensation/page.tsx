@@ -185,7 +185,7 @@ export default function CompensationPage() {
               <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.6)' }}>Free and Starter builders earn R0 ISP. ISP starts at Bronze (18%).</div>
             </div>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
-              ISP applies on: (1) monthly Business Fuel Maintenance (BFM) (Business Fuel Maintenance) payments after 60 days, and (2) Bronze+ tier upgrade purchases by yourself and your team.
+              ISP applies on: (1) monthly BFM_MONTHLY (Business Fuel Maintenance) payments after 60 days, and (2) Bronze+ tier upgrade purchases by yourself and your team.
             </p>
             {Object.entries(ISP_RATES).map(([tier, rate]) => {
               const noISP = tier === 'free' || tier === 'starter'
@@ -199,7 +199,7 @@ export default function CompensationPage() {
                   </div>
                   {!noISP && (
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'5px' }}>
-                      {Object.entries(Business Fuel Maintenance (BFM)).map(([t, bfm]) => (
+                      {Object.entries(BFM_MONTHLY).map(([t, bfm]) => (
                         <div key={t} style={{ textAlign:'center', background:'rgba(167,139,250,0.08)', borderRadius:'8px', padding:'5px' }}>
                           <div style={{ fontSize:'9px', color:'rgba(255,255,255,0.35)', textTransform:'capitalize' }}>{t.replace(/_/g,' ')}</div>
                           <div style={{ fontSize:'11px', fontWeight:700, color:'#A78BFA' }}>R{Math.round(rate/100*bfm).toLocaleString()}/mo</div>
