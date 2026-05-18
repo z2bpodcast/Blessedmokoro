@@ -83,9 +83,9 @@ Plan ${assetCount} premium implementation assets for this digital product:
 
 Product: "${params.intent.productTitle}"
 For: "${params.intent.targetAudience}"
-Promise: "${params.intent.promiseStatement}"
-Format: ${params.intent.productFormat}
-Audience level: ${params.intent.audienceLevel}
+Promise: "${(params.intent.promiseStatement??"")}"
+Format: ${(params.intent.productFormat??params.intent.format??"ebook")}
+Audience level: ${(params.intent.audienceLevel??params.intent.difficulty??"beginner")}
 Sections: ${params.draft.sections.map(s => s.sectionTitle).join(', ')}
 
 Select ${assetCount} assets that DIRECTLY help the reader implement the product content.

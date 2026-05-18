@@ -61,11 +61,11 @@ Product: "${params.intent.productTitle}"
 Target audience: "${params.intent.targetAudience}"
 Before state: "${params.intent.beforeState}"
 After state: "${params.intent.afterState}"
-Audience level: ${params.intent.audienceLevel}
-Content tone: ${params.intent.contentTone}
-Geography context: ${params.intent.geographyContext}
-Promise: "${params.intent.promiseStatement}"
-Key problems: ${params.intent.keyProblems.join(', ')}
+Audience level: ${(params.intent.audienceLevel??params.intent.difficulty??"beginner")}
+Content tone: ${(params.intent.contentTone??"professional")}
+Geography context: ${(params.intent.geographyContext??"global")}
+Promise: "${(params.intent.promiseStatement??"")}"
+Key problems: ${(params.intent.keyProblems??[]).join(', ')}
 Sections to write: ${params.structure.totalSections}
 Estimated length: ${params.structure.estimatedLength}
 

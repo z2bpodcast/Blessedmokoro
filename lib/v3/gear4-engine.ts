@@ -157,7 +157,7 @@ export async function runMinorRevision(params: {
 
 Product: "${params.intent.productTitle}"
 For: "${params.intent.targetAudience}"
-Promise: "${params.intent.promiseStatement}"
+Promise: "${(params.intent.promiseStatement??"")}"
 
 SECTION TO REVISE:
 Title: "${original.sectionTitle}"
@@ -215,7 +215,7 @@ Target audience: "${intent.targetAudience}"
 Promise: "${intent.promiseStatement}"
 Before state: "${intent.beforeState}"
 After state: "${intent.afterState}"
-Key problems: ${intent.keyProblems.join(', ')}
+Key problems: ${(intent.keyProblems??[]).join(', ')}
 Recommended price: R${intent.priceRecommended}
 Total sections: ${draft.totalSections}
 Total words: ${draft.wordCountTotal}
