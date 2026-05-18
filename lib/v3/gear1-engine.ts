@@ -184,3 +184,122 @@ export function offerToOpportunity(offer: OfferArchitecture): SelectedOpportunit
     difficulty:     offer.difficulty,
   }
 }
+
+
+// ============================================================
+// BACKWARDS COMPATIBILITY SHIMS
+// These exports preserve compatibility with:
+//   - app/ai-income/gear/1/page.tsx
+//   - app/api/gear/[gear]/route.ts
+// The new Offer Architecture Engine is the primary implementation
+// These shims delegate to the new engine
+// ============================================================
+
+// Label maps used by Gear 1 page UI
+export const FORMAT_LABELS: Record<string, string> = {
+  ebook:       '📚 eBook / Guide',
+  toolkit:     '🧰 Toolkit & Templates',
+  course:      '🎓 Course / Masterclass',
+  framework:   '📋 Framework / Protocol',
+  template:    '📄 Template Pack',
+  printable:   '🖨️ Printable / Planner',
+  audio:       '🎵 Audio Product',
+  video:       '🎬 Video Product',
+  community:   '👥 Community',
+  software:    '💻 Software / Tool',
+  workbook:    '📓 Workbook',
+  checklist:   '✅ Checklist',
+}
+
+export const AUDIENCE_LEVEL_LABELS: Record<string, string> = {
+  beginner:     '🌱 Beginner — no prior experience needed',
+  intermediate: '⚡ Intermediate — some background helpful',
+  advanced:     '🚀 Advanced — experienced audience',
+}
+
+// IntentDefinition type — used by Gear 1 page and downstream gears
+export interface IntentDefinition {
+  productTitle:   string
+  subtitle?:      string
+  targetAudience: string
+  problemSolved:  string
+  format:         string
+  difficulty:     string
+  suggestedPrice?: number
+  currency?:      string
+  hookLine?:      string
+  corePromise?:   string
+  primaryTrigger?: string
+  beforeState?:   string
+  afterState?:    string
+  persona?:       any
+}
+
+// runGear1 — delegates to buildOfferArchitecture
+export async function runGear1(params: {
+  opportunity:    SelectedOpportunity
+  adjustments?:   Record<string, string>
+  market?:        any
+  selfData?:      any
+  tierId?:        string
+  personaData?:   any
+}): Promise<{ intent: IntentDefinition | null; error: string | null; tokensUsed?: number }> {
+
+  const rawIdea = [
+    params.opportunity.title,
+    params.opportunity.problemSolved,
+    params.opportunity.targetAudience,
+  ].filter(Boolean).join('. ')
+
+  const { offer, error } = await buildOfferArchitecture({
+    rawIdea,
+    market:    params.market ?? {},
+    selfData:  params.selfData ?? params.personaData,
+    tierId:    params.tierId ?? 'starter',
+  })
+
+  if (error || !offer) return { intent: null, error: error ?? 'Gear 1 failed' }
+
+  const intent: IntentDefinition = {
+    productTitle:   offer.productTitle,
+    subtitle:       offer.productSubtitle,
+    targetAudience: offer.targetAudience,
+    problemSolved:  offer.problemSolved,
+    format:         offer.format,
+    difficulty:     offer.difficulty,
+    suggestedPrice: offer.suggestedPrice,
+    currency:       offer.currency,
+    hookLine:       offer.hookLine,
+    corePromise:    offer.corePromise,
+    primaryTrigger: offer.primaryTrigger,
+    beforeState:    offer.beforeState,
+    afterState:     offer.afterState,
+  }
+
+  return { intent, error: null, tokensUsed: 0 }
+}
+
+// adjustGear1 — re-runs with adjustments applied
+export async function adjustGear1(params: {
+  opportunity:  SelectedOpportunity
+  adjustments:  Record<string, string>
+  market?:      any
+  tierId?:      string
+}): Promise<{ intent: IntentDefinition | null; error: string | null }> {
+  return runGear1(params)
+}
+
+// toGear2Handoff — converts intent to Gear 2 format
+export function toGear2Handoff(intent: IntentDefinition): Record<string, unknown> {
+  return {
+    productTitle:   intent.productTitle,
+    targetAudience: intent.targetAudience,
+    problemSolved:  intent.problemSolved,
+    format:         intent.format,
+    difficulty:     intent.difficulty,
+    hookLine:       intent.hookLine,
+    corePromise:    intent.corePromise,
+    beforeState:    intent.beforeState,
+    afterState:     intent.afterState,
+  }
+}
