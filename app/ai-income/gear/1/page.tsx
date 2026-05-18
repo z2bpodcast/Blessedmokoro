@@ -76,7 +76,7 @@ const GearProgressBar = memo(function GearProgressBar({ current, gearAccess }: {
 
 // ── INTENT CARD ───────────────────────────────────────────────
 function IntentCard({ intent, onEdit }: { intent: IntentDefinition; onEdit: (field: string) => void }) {
-  const formatDef = FORMAT_LABELS[intent.productFormat]
+  const formatDef = FORMAT_LABELS[intent.productFormat ?? intent.format ?? ""]
 
   const fields = [
     { label: 'Product Title',     value: intent.productTitle,    key: 'productTitle',    editable: true },
