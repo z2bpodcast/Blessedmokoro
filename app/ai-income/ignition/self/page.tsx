@@ -187,8 +187,8 @@ function SelfDiscoveryInner() {
     try {
       sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({
         title:          opp.title,
-        targetAudience: opp.audience ?? opp.targetAudience,
-        problemSolved:  opp.transformation ?? opp.problemSolved,
+        targetAudience: opp.audience,
+        problemSolved:  opp.transformation,
         format:         opp.format,
         priceRangeMin:  opp.priceRangeMin,
         priceRangeMax:  opp.priceRangeMax,
