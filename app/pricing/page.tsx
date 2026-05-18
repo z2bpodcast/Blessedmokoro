@@ -334,6 +334,92 @@ function PricingInner() {
           ))}
         </div>
 
+        {/* NOTEPAD — Build story */}
+        <div style={{ marginTop: '48px', marginBottom: '32px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.02)' }}>
+          {/* Notepad title bar */}
+          <div style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {['#E24B4A','#EF9F27','#639922'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+            </div>
+            <span style={{ fontSize: '11px', color: MUTED, marginLeft: '8px', letterSpacing: '0.5px' }}>Z2B Legacy Builders · Build Notes</span>
+          </div>
+          {/* Notepad content */}
+          <div style={{ padding: '24px' }}>
+            <div style={{ fontSize: '12px', color: MUTED, marginBottom: '8px', fontFamily: 'monospace' }}>// This Business System was built with you in mind</div>
+            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '8px', lineHeight: 1.4 }}>
+              Built for employees and unemployed visionaries who refuse to retire broke.
+            </div>
+            <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '20px' }}>
+              Before you choose your package, we want you to know what went into building the machine you are about to access.
+            </p>
+            {/* Stats grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '10px', marginBottom: '20px' }}>
+              {[
+                { label: 'Sprints completed',  value: '100+',    sub: 'active build sessions' },
+                { label: 'Hours invested',     value: '~300',    sub: '3–6 hrs per session' },
+                { label: 'Calendar time',      value: '17 months',sub: 'Jan 2025 – May 2026' },
+                { label: 'Lines of code',      value: '25,000+', sub: '80+ files · TS · SQL · React' },
+              ].map(s => (
+                <div key={s.label} style={{ padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div style={{ fontSize: '9px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{s.label}</div>
+                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: GOLD, marginBottom: '2px' }}>{s.value}</div>
+                  <div style={{ fontSize: '10px', color: MUTED }}>{s.sub}</div>
+                </div>
+              ))}
+            </div>
+            {/* Pull quote */}
+            <div style={{ borderLeft: '2px solid rgba(212,175,55,0.4)', paddingLeft: '14px', marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, fontStyle: 'italic' }}>
+                A South African development agency would charge <strong style={{ color: W, fontStyle: 'normal' }}>R800,000 – R1,000,000+</strong> to build this from scratch. Timeline: 12–18 months. You are accessing it from <strong style={{ color: GOLD, fontStyle: 'normal' }}>R700.</strong>
+              </p>
+            </div>
+            <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.8, marginBottom: '12px' }}>
+              You are not buying software. You are buying 17 months of obsession, 300 hours of precision engineering, and a system designed specifically for someone in your situation — someone who has more to offer the world than their salary suggests.
+            </p>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}>// The convenience you get is priceless.</div>
+          </div>
+        </div>
+
+        {/* HOVER + CLICK CARD — Real cost of not buying */}
+        <div style={{ position: 'relative', marginBottom: '32px', zIndex: 50 }}>
+          <button
+            onClick={() => { const card = document.getElementById('z2b-cost-card'); if(card) { const showing = card.style.opacity === '1'; card.style.opacity = showing ? '0' : '1'; card.style.transform = showing ? 'translateY(8px)' : 'translateY(0)'; card.style.pointerEvents = showing ? 'none' : 'auto'; } }}
+            onMouseEnter={() => { const card = document.getElementById('z2b-cost-card'); if(card) { card.style.opacity='1'; card.style.transform='translateY(0)'; card.style.pointerEvents='auto'; } }}
+            onMouseLeave={() => { const card = document.getElementById('z2b-cost-card'); if(card) { card.style.opacity='0'; card.style.transform='translateY(8px)'; card.style.pointerEvents='none'; } }}
+            style={{ width: '100%', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', fontSize: '14px', color: W, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'Georgia,serif', textAlign: 'left' }}>
+            <span>The price you pay to access the Z2B 4M Machine and System is not your real cost...</span>
+            <span style={{ fontSize: '16px', color: GOLD, flexShrink: 0, marginLeft: '12px' }}>▼</span>
+          </button>
+          <div id="z2b-cost-card"
+            style={{ position: 'static', marginTop: '8px', opacity: 0, transform: 'translateY(8px)', transition: 'opacity 0.25s ease, transform 0.25s ease', pointerEvents: 'none', background: '#0D1629', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '16px', padding: '20px' }}>
+            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: W, marginBottom: '14px' }}>
+              The real cost is choosing <em>not</em> to start.
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { icon: '⏳', title: '40 years of salary dependence', desc: 'You trade 40 years of your life for a fixed income decided by someone else. No growth. No ownership. No legacy.' },
+                { icon: '📉', title: 'Inflation quietly erodes what you have', desc: 'Every year you wait, the money you earn buys less. A passive income stream today protects tomorrow.' },
+                { icon: '🚫', title: 'Retrenchment with no backup plan', desc: 'One company decision ends your income overnight. No second stream. No safety net. Nothing to fall back on.' },
+                { icon: '🏦', title: 'Settling for a government social grant', desc: 'R350/month. After 40 years of work, knowledge and potential — that is the default retirement for millions of South Africans.' },
+                { icon: '🔥', title: 'Your knowledge and dreams die with you', desc: 'Everything you know — your skills, your wisdom, your lived experience, your dreams — leaves the world when you do. The 4M Machine turns that into a legacy that outlives you.' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: W, marginBottom: '3px' }}>{item.title}</div>
+                    <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7 }}>{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ padding: '12px 14px', background: 'rgba(212,175,55,0.06)', borderLeft: '2px solid rgba(212,175,55,0.4)', borderRadius: '0 8px 8px 0', marginTop: '4px' }}>
+                <p style={{ fontSize: '13px', color: MUTED, fontStyle: 'italic', lineHeight: 1.7 }}>
+                  The price you pay for Z2B is not your cost. The cost is what you continue to lose every month you delay.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom CTA */}
         <div style={{ marginTop: '48px', textAlign: 'center', padding: '40px 20px', borderRadius: '20px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)' }}>
           <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(18px,3vw,28px)', fontWeight: 900, color: W, marginBottom: '10px' }}>
