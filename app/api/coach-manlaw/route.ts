@@ -1,129 +1,107 @@
 // ============================================================
-// Z2B 4M V3 — COACH MANLAW API ROUTE (UPGRADED)
+// Z2B — COACH MANLAW API (SPRINT 20 UPGRADE)
 // File: app/api/coach-manlaw/route.ts
-// Laws: Context-aware · Genuine AI · Session memory
-//       Replaces old programmed response system
+// Phase C: Premium models · Full copywriter identity
+// Claude Opus for psychology/copy · GPT-4o for execution plans
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }              from '@supabase/supabase-js'
-import { randomUUID }         from 'crypto'
-import {
-  loadBuilderContext,
-  generateCoachResponse,
-  buildStarterMessage,
-  type CoachMessage,
-} from '@/lib/v3/coach-engine'
+import { COACH_MANLAW_SYSTEM_PROMPT, getCoachModel } from '@/lib/v3/coach-manlaw-prompt'
 
-async function getAuthUser(req: NextRequest) {
-  const sb    = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+async function getUser(req: NextRequest) {
+  const sb    = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
-  if (!token) return { user: null, error: 'No token' }
-  const { data: { user }, error } = await sb.auth.getUser(token)
-  return { user, error: error?.message ?? null }
+  if (!token) return { user: null }
+  const { data: { user } } = await sb.auth.getUser(token)
+  return { user }
+}
+
+function detectTask(message: string): 'psychology' | 'structure' | 'copy' | 'execution' {
+  const m = message.toLowerCase()
+  if (m.includes('title') || m.includes('headline') || m.includes('description') || m.includes('copy') || m.includes('offer') || m.includes('write')) return 'copy'
+  if (m.includes('who') || m.includes('persona') || m.includes('buyer') || m.includes('audience') || m.includes('trigger')) return 'psychology'
+  if (m.includes('plan') || m.includes('step') || m.includes('how to') || m.includes('execute')) return 'execution'
+  return 'structure'
 }
 
 export async function POST(req: NextRequest) {
+  const { user } = await getUser(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const { message, history = [], sessionContext } = await req.json()
+  if (!message?.trim()) return NextResponse.json({ error: 'Message required' }, { status: 400 })
+
+  const task  = detectTask(message)
+  const model = getCoachModel(task)
+  const isOpus = model.includes('claude')
+
+  // Build conversation history
+  const messages = [
+    ...history.slice(-10), // last 10 exchanges for context
+    { role: 'user', content: message }
+  ]
+
+  // Add session context if available
+  const systemWithContext = sessionContext
+    ? `${COACH_MANLAW_SYSTEM_PROMPT}\n\n══ CURRENT SESSION CONTEXT ══\n${JSON.stringify(sessionContext, null, 2)}`
+    : COACH_MANLAW_SYSTEM_PROMPT
+
   try {
-    const body   = await req.json()
-    const action = body.action as string
+    let responseText = ''
 
-    if (!['init', 'message'].includes(action)) {
-      return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-    }
-
-    // Authenticate
-    const { user, error: authError } = await getAuthUser(req)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Session expired. Please log in.' }, { status: 401 })
-    }
-
-    // Load builder's real context — wrap in try/catch (MEDIUM #5)
-    let context
-    try {
-      context = await loadBuilderContext(user.id)
-    } catch (e) {
-      console.error('[coach-api] Context load failed:', e)
-      return NextResponse.json({ error: 'Could not load your profile. Please try again.' }, { status: 500 })
-    }
-
-    // ── INIT: Start new coach session ─────────────────────────
-    if (action === 'init') {
-      const starterMessage = buildStarterMessage(context)
-      const firstMessage: CoachMessage = {
-        id:        randomUUID(),
-        role:      'coach',
-        content:   starterMessage,
-        timestamp: new Date().toISOString(),
-      }
-      return NextResponse.json({
-        message: firstMessage,
-        context: {
-          firstName:        context.firstName,
-          tierLabel:        context.tierLabel,
-          hasActiveSession: context.hasActiveSession,
-          currentGear:      context.currentGear,
-          productTitle:     context.productTitle,
-          productsLive:     context.productsLive,
+    if (isOpus) {
+      // ── CLAUDE OPUS — Psychology, copy, offer architecture ──
+      const res  = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         process.env.ANTHROPIC_API_KEY!,
+          'anthropic-version': '2023-06-01',
         },
+        body: JSON.stringify({
+          model:      model,
+          max_tokens: 2000,
+          system:     systemWithContext,
+          messages,
+        }),
       })
+      const data = await res.json()
+      responseText = data.content?.[0]?.text ?? ''
+    } else {
+      // ── GPT-4o — Structure, frameworks, execution plans ──
+      const res  = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
+        },
+        body: JSON.stringify({
+          model:       model,
+          max_tokens:  2000,
+          temperature: 0.8,
+          messages: [
+            { role: 'system', content: systemWithContext },
+            ...messages,
+          ],
+        }),
+      })
+      const data = await res.json()
+      responseText = data.choices?.[0]?.message?.content ?? ''
     }
 
-    // ── MESSAGE: Process builder message ──────────────────────
-    if (action === 'message') {
-      const { message, history } = body as {
-        message: string
-        history: CoachMessage[]
-      }
-
-      if (!message?.trim()) {
-        return NextResponse.json({ error: 'No message provided.' }, { status: 400 })
-      }
-
-      if (message.trim().length > 1000) {
-        return NextResponse.json({ error: 'Message too long. Please keep it under 1000 characters.' }, { status: 400 })
-      }
-
-      // HIGH: Rate limit via message count in this session (client-enforced)
-      // Server-side: validate history length to prevent abuse
-      const safeHistory = (history ?? [])
-        .filter((m: CoachMessage) => m.role === 'user' || m.role === 'coach')  // MEDIUM #4: strip any injected roles
-        .slice(-20)  // max 20 messages in history
-        .map((m: CoachMessage) => ({ ...m, content: String(m.content).slice(0, 2000) }))  // cap each message
-
-      if (safeHistory.length >= 50) {
-        return NextResponse.json({ error: 'Session limit reached. Please start a new conversation.' }, { status: 429 })
-      }
-
-      const result = await generateCoachResponse({
-        messages:   safeHistory,
-        newMessage: message.trim(),
-        context,
-      })
-
-      if (result.error) {
-        return NextResponse.json({ error: result.error }, { status: 500 })
-      }
-
-      const responseMessage: CoachMessage = {
-        id:        randomUUID(),
-        role:      'coach',
-        content:   result.response,
-        timestamp: new Date().toISOString(),
-      }
-
-      return NextResponse.json({ message: responseMessage })
+    if (!responseText) {
+      return NextResponse.json({ error: 'Coach Manlaw is thinking — please try again.' }, { status: 500 })
     }
 
-    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+    return NextResponse.json({
+      response: responseText,
+      model:    isOpus ? 'Claude Opus' : 'GPT-4o',
+      task,
+    })
 
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Server error'
-    console.error('[coach-manlaw-api] Unhandled error:', msg)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+    console.error('[coach-manlaw]', e)
+    return NextResponse.json({ error: 'Coach Manlaw is unavailable. Please try again.' }, { status: 500 })
   }
 }

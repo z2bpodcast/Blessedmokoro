@@ -1,297 +1,186 @@
 // ============================================================
-// Z2B 4M V3 — GEAR 1 INTENT ENGINE
-// File: lib/v3/gear1-engine.ts
-// Laws: GPT-5.x orchestrates · Modular · Extensible
-// Purpose: Transform Idea Ignition opportunity into a
-//          precise product intent definition. This feeds
-//          directly into Gear 2 Structure Engine.
+// Z2B 4M V3 — GEAR 1: OFFER ARCHITECTURE ENGINE (PHASE A)
+// File: lib/v3/gear1-engine.ts (UPGRADED)
+// Was: Intent Engine — product title + audience + problem
+// Now: Offer Architecture — WHO · WHAT · TRANSFORMATION · PROMISE · TRIGGER
 // ============================================================
 
-import { orchestrate, parseAIJson } from '@/lib/v3/orchestration-router'
+import { COACH_MANLAW_SYSTEM_PROMPT, getCoachModel } from '@/lib/v3/coach-manlaw-prompt'
 
-// ── TYPES ────────────────────────────────────────────────────
-
-export interface SelectedOpportunity {
-  title:          string
-  audience:       string
-  transformation: string
-  format:         string
-  priceRangeMin?: number
-  priceRangeMax?: number
+export interface OfferArchitecture {
+  // The ONE person
+  targetPerson:       string  // Ultra-specific — name the exact human
+  targetSituation:    string  // Their daily reality in their own words
+  
+  // The ONE problem
+  surfaceProblem:     string  // What they say the problem is
+  realProblem:        string  // The deeper fear/frustration driving it
+  problemInTheirWords:string  // How they would describe it to a friend
+  
+  // The ONE product
+  productTitle:       string  // Specific, compelling, identity-driven
+  productSubtitle:    string  // The promise in one line
+  format:             string  // ebook | toolkit | course | framework | template | printable | audio | video | community
+  
+  // The ONE transformation
+  beforeState:        string  // Where they are now (vivid, specific)
+  afterState:         string  // Where they will be (vivid, specific)
+  transformationBridge: string // How this product gets them from before to after
+  
+  // The ONE promise
+  corePromise:        string  // If they do X, they get Y in Z time
+  
+  // The psychological angle
+  primaryTrigger:     string  // The #1 trigger for this specific buyer
+  secondaryTriggers:  string[] // 2-3 supporting triggers
+  
+  // Pricing
+  suggestedPrice:     number
+  currency:           string
+  priceJustification: string  // Why this price feels right for this buyer
+  
+  // The offer hook
+  hookLine:           string  // The first line that makes them say "this is for me"
+  
+  // Metadata
+  difficulty:         'beginner' | 'intermediate' | 'advanced'
+  targetAudience:     string // summary for downstream gears
+  problemSolved:      string // summary for downstream gears
 }
 
-export type AudienceLevel =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
-  | 'beginner_intermediate'
-  | 'intermediate_advanced'
-  | 'all_levels'
+// ── OFFER ARCHITECTURE ENGINE ─────────────────────────────────
+export async function buildOfferArchitecture(params: {
+  rawIdea:    string  // What the builder said their idea is
+  market:     any     // Target market from MarketSelector
+  selfData?:  any     // Self-discovery data if available
+  tierId:     string
+}): Promise<{ offer: OfferArchitecture | null; error: string | null }> {
 
-export type ProductFormat =
-  | 'ebook'
-  | 'course'
-  | 'template'
-  | 'checklist'
-  | 'workbook'
-  | 'toolkit'
-  | 'masterclass'
-  | 'guide'
-  | 'swipe_file'
-  | 'planner'
+  const marketContext = params.market?.label ?? 'South Africa'
+  const currency      = params.market?.currency ?? 'ZAR (R)'
+  const demographic   = params.market?.demographic ?? 'employed professionals'
 
-export interface IntentDefinition {
-  // Core intent fields (shown to builder for confirmation)
-  productTitle:      string       // refined title
-  productPurpose:    string       // what transformation this delivers
-  targetAudience:    string       // specific person description
-  beforeState:       string       // their situation before the product
-  afterState:        string       // their situation after using the product
-  productFormat:     ProductFormat
-  audienceLevel:     AudienceLevel
-  priceRecommended:  number       // ZAR
-  // Implementation notes (used by Gear 2 — not shown to builder directly)
-  keyProblems:       string[]     // 3 core problems the product solves
-  promiseStatement:  string       // "This product will help [audience] [achieve X] by [method]"
-  contentTone:       string       // writing tone recommendation
-  geographyContext:  string       // SA / Nigeria / Global etc.
-}
+  const prompt = `${COACH_MANLAW_SYSTEM_PROMPT}
 
-export interface Gear1Result {
-  intent:     IntentDefinition | null
-  tokensUsed: number
-  error:      string | null
-}
+══════════════════════════════════════════════════
+OFFER ARCHITECTURE SESSION
+══════════════════════════════════════════════════
 
-// ── FORMAT LABELS ─────────────────────────────────────────────
-export const FORMAT_LABELS: Record<ProductFormat, { label: string; emoji: string; description: string }> = {
-  ebook:      { label: 'eBook',           emoji: '📖', description: 'A comprehensive written guide' },
-  course:     { label: 'Online Course',   emoji: '🎓', description: 'Structured learning with modules' },
-  template:   { label: 'Template Pack',   emoji: '📋', description: 'Ready-to-use files and frameworks' },
-  checklist:  { label: 'Checklist',       emoji: '✅', description: 'Step-by-step action list' },
-  workbook:   { label: 'Workbook',        emoji: '📓', description: 'Interactive guided exercises' },
-  toolkit:    { label: 'Toolkit',         emoji: '🧰', description: 'Bundle of practical resources' },
-  masterclass:{ label: 'Masterclass',     emoji: '🏆', description: 'In-depth premium training' },
-  guide:      { label: 'Step-by-Step Guide', emoji: '🗺️', description: 'Practical implementation guide' },
-  swipe_file: { label: 'Swipe File',      emoji: '📂', description: 'Collection of proven examples' },
-  planner:    { label: 'Planner',         emoji: '📅', description: 'Structured planning system' },
-}
+A builder has come to you with a raw idea. Your job is to architect a complete offer — not just a product.
 
-export const AUDIENCE_LEVEL_LABELS: Record<AudienceLevel, string> = {
-  beginner:             'Complete Beginners',
-  intermediate:         'Intermediate (some experience)',
-  advanced:             'Advanced Practitioners',
-  beginner_intermediate:'Beginners to Intermediate',
-  intermediate_advanced:'Intermediate to Advanced',
-  all_levels:           'All Levels',
-}
+BUILDER'S RAW IDEA: "${params.rawIdea}"
+TARGET MARKET: ${marketContext}
+TARGET DEMOGRAPHIC: ${demographic}
+CURRENCY: ${currency}
+${params.selfData ? `BUILDER BACKGROUND: ${JSON.stringify(params.selfData)}` : ''}
 
-// ── GEAR 1 ENGINE ─────────────────────────────────────────────
+Apply the 5 Foundations of Offer Architecture:
+1. Define THE ONE PERSON with shocking specificity
+2. Surface THE REAL PROBLEM beneath what they said
+3. Craft THE TRANSFORMATION as a vivid before/after
+4. Write THE PROMISE — specific, measurable, believable
+5. Select THE PRIMARY TRIGGER that will open this buyer's purse
 
-export async function runGear1(params: {
-  opportunity: SelectedOpportunity
-  tierId:      string
-  geography?:  string
-}): Promise<Gear1Result> {
-  const geo = params.geography ?? 'South Africa'
+Then apply the Law of Specificity to the product title.
+The title must make the exact target buyer say "This is for ME."
 
-  const prompt = buildIntentPrompt({
-    opportunity: params.opportunity,
-    geo,
-    tierId:      params.tierId,
-  })
+IMPORTANT: Think like a $100M copywriter, not a product manager.
+You are not categorising knowledge. You are architecting desire.
 
-  const result = await orchestrate('intent_definition', prompt)
-
-  if (result.error) {
-    return { intent: null, tokensUsed: result.tokensUsed, error: result.error }
-  }
-
-  const { data, error: parseError } = parseAIJson<IntentDefinition>(result.content)
-
-  if (parseError || !data) {
-    return { intent: null, tokensUsed: result.tokensUsed, error: 'Could not process intent. Please try again.' }
-  }
-
-  // Validate required fields are present
-  const required: (keyof IntentDefinition)[] = [
-    'productTitle', 'productPurpose', 'targetAudience',
-    'beforeState', 'afterState', 'productFormat', 'audienceLevel',
-  ]
-  const missing = required.filter(k => !data[k])
-  if (missing.length > 0) {
-    return { intent: null, tokensUsed: result.tokensUsed, error: 'Incomplete intent generated. Please try again.' }
-  }
-
-  // Validate format is a known value
-  const validFormats = Object.keys(FORMAT_LABELS) as ProductFormat[]
-  if (!validFormats.includes(data.productFormat)) {
-    data.productFormat = mapToValidFormat(data.productFormat as string)
-  }
-
-  // Validate audience level
-  const validLevels = Object.keys(AUDIENCE_LEVEL_LABELS) as AudienceLevel[]
-  if (!validLevels.includes(data.audienceLevel)) {
-    data.audienceLevel = 'beginner'
-  }
-
-  // Ensure price is reasonable (between R99 and R5000)
-  if (!data.priceRecommended || data.priceRecommended < 99 || data.priceRecommended > 5000) {
-    data.priceRecommended = deriveDefaultPrice(params.opportunity)
-  }
-  // Hard clamp — prevent any price slipping through out of range
-  data.priceRecommended = Math.max(99, Math.min(4999, Math.round(data.priceRecommended)))
-
-  // Ensure key problems array exists
-  if (!Array.isArray(data.keyProblems) || data.keyProblems.length === 0) {
-    data.keyProblems = ['Identified from opportunity data']
-  }
-
-  return { intent: data, tokensUsed: result.tokensUsed, error: null }
-}
-
-// ── INTENT ADJUSTMENT ─────────────────────────────────────────
-// Called when builder wants to modify the generated intent
-
-export async function adjustGear1(params: {
-  currentIntent: IntentDefinition
-  adjustment:    string
-  tierId:        string
-}): Promise<Gear1Result> {
-  const prompt = `You generated this product intent definition:
-${JSON.stringify(params.currentIntent, null, 2)}
-
-The builder wants to adjust it with this request:
-"${params.adjustment}"
-
-Apply ONLY the requested changes. Keep everything else exactly the same.
-Return the complete updated intent definition as valid JSON matching the original structure exactly.`
-
-  const result = await orchestrate('intent_definition', prompt)
-
-  if (result.error) {
-    return { intent: null, tokensUsed: result.tokensUsed, error: result.error }
-  }
-
-  const { data, error: parseError } = parseAIJson<IntentDefinition>(result.content)
-
-  if (parseError || !data) {
-    return { intent: params.currentIntent, tokensUsed: result.tokensUsed, error: null }
-  }
-
-  // Clamp price after adjustment too (LOW #10)
-  if (data.priceRecommended) {
-    data.priceRecommended = Math.max(99, Math.min(4999, Math.round(data.priceRecommended)))
-  }
-  return { intent: data, tokensUsed: result.tokensUsed, error: null }
-}
-
-// ── PROMPT BUILDER ────────────────────────────────────────────
-
-function buildIntentPrompt(p: {
-  opportunity: SelectedOpportunity
-  geo:         string
-  tierId:      string
-}): string {
-  const priceRange = p.opportunity.priceRangeMin && p.opportunity.priceRangeMax
-    ? `R${p.opportunity.priceRangeMin}–R${p.opportunity.priceRangeMax}`
-    : 'R149–R499'
-
-  return `You are the Gear 1 Intent Engine.
-
-A Z2B builder has selected this digital product opportunity:
-Title: "${p.opportunity.title}"
-Audience: "${p.opportunity.audience}"
-Transformation: "${p.opportunity.transformation}"
-Format: "${p.opportunity.format}"
-Price range: ${priceRange}
-Geography: ${p.geo}
-
-Your task: Define the precise INTENT for this digital product.
-
-Rules:
-- targetAudience must be MORE specific than what was given — add age, context, pain specifics
-- beforeState and afterState must be vivid and concrete (not generic)
-- productTitle may be refined to be more compelling but must match the original concept
-- priceRecommended must be in ZAR, realistic for ${p.geo}, between R99 and R4999
-- audienceLevel must be one of: beginner, intermediate, advanced, beginner_intermediate, intermediate_advanced, all_levels
-- productFormat must be one of: ebook, course, template, checklist, workbook, toolkit, masterclass, guide, swipe_file, planner
-- keyProblems: exactly 3 specific problems this product solves
-- contentTone: one of: conversational, professional, inspiring, practical, bold
-- promiseStatement: "This product will help [specific person] [achieve specific result] by [specific method]"
-- geographyContext: note any ZAR pricing, local examples, or market-specific context needed
-
-Return ONLY valid JSON:
+Respond ONLY with valid JSON matching this exact structure:
 {
-  "productTitle": "refined compelling title",
-  "productPurpose": "one sentence — the core transformation this delivers",
-  "targetAudience": "specific person: age, situation, exact pain, context",
-  "beforeState": "vivid description of their current struggle",
-  "afterState": "vivid description of their life after using this product",
-  "productFormat": "ebook|course|template|checklist|workbook|toolkit|masterclass|guide|swipe_file|planner",
-  "audienceLevel": "beginner|intermediate|advanced|beginner_intermediate|intermediate_advanced|all_levels",
-  "priceRecommended": 299,
-  "keyProblems": ["problem 1", "problem 2", "problem 3"],
-  "promiseStatement": "This product will help...",
-  "contentTone": "conversational|professional|inspiring|practical|bold",
-  "geographyContext": "context note for content generation"
+  "targetPerson": "Ultra-specific description of the ONE person",
+  "targetSituation": "Their daily reality in their own words",
+  "surfaceProblem": "What they say the problem is",
+  "realProblem": "The deeper fear/frustration beneath the surface",
+  "problemInTheirWords": "How they would describe it to a trusted friend",
+  "productTitle": "Specific, identity-driven product title",
+  "productSubtitle": "The promise in one compelling line",
+  "format": "ebook|toolkit|course|framework|template|printable|audio|video|community",
+  "beforeState": "Where they are now — vivid and specific",
+  "afterState": "Where they will be — vivid and specific",
+  "transformationBridge": "How this product gets them from before to after",
+  "corePromise": "If they do X, they get Y in Z timeframe",
+  "primaryTrigger": "The #1 psychological trigger for this buyer",
+  "secondaryTriggers": ["trigger2", "trigger3"],
+  "suggestedPrice": 299,
+  "currency": "R",
+  "priceJustification": "Why this price feels right — not too cheap, not scary",
+  "hookLine": "The first line that makes them say THIS IS FOR ME",
+  "difficulty": "beginner|intermediate|advanced",
+  "targetAudience": "One-line summary for downstream systems",
+  "problemSolved": "One-line summary for downstream systems"
 }`
+
+  try {
+    const model = getCoachModel('psychology')
+    const isOpus = model.includes('claude')
+
+    let content = ''
+
+    if (isOpus) {
+      const res  = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         process.env.ANTHROPIC_API_KEY!,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      content = data.content?.[0]?.text ?? ''
+    } else {
+      const res  = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
+        body:    JSON.stringify({
+          model,
+          max_tokens: 2000,
+          temperature: 0.85,
+          response_format: { type: 'json_object' },
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      content = data.choices?.[0]?.message?.content ?? ''
+    }
+
+    const offer = JSON.parse(content.replace(/```json|```/g, '').trim()) as OfferArchitecture
+    return { offer, error: null }
+
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    console.error('[gear1-offer-engine]', msg)
+    return { offer: null, error: 'Could not architect offer. Please try again.' }
+  }
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
-
-function mapToValidFormat(raw: string): ProductFormat {
-  const lower = raw.toLowerCase()
-  const map: Record<string, ProductFormat> = {
-    'e-book':   'ebook',
-    'e book':   'ebook',
-    'book':     'ebook',
-    'pdf':      'ebook',
-    'video':    'course',
-    'program':  'course',
-    'training': 'course',
-    'template': 'template',
-    'bundle':   'toolkit',
-    'pack':     'toolkit',
-    'class':    'masterclass',
-    'workshop': 'course',
-    'plan':     'planner',
-    'system':   'guide',
-  }
-  for (const [key, val] of Object.entries(map)) {
-    if (lower.includes(key)) return val
-  }
-  console.warn('[gear1-engine] Unknown format:', raw, '— defaulting to ebook')
-  return 'ebook' // safe default
+// ── BACKWARDS COMPATIBILITY — keep old interface working ──────
+export interface SelectedOpportunity {
+  id:              string
+  title:           string
+  category:        string
+  targetAudience:  string
+  problemSolved:   string
+  format:          string
+  priceRange:      string
+  difficulty:      string
 }
 
-function deriveDefaultPrice(opp: SelectedOpportunity): number {
-  if (opp.priceRangeMin && opp.priceRangeMax && opp.priceRangeMin > 0) {
-    return Math.max(99, Math.round((opp.priceRangeMin + opp.priceRangeMax) / 2))
-  }
-  const formatPrices: Record<string, number> = {
-    masterclass: 499, course: 399, toolkit: 349, workbook: 249,
-    guide: 199, ebook: 199, template: 149, checklist: 99, planner: 149,
-  }
-  return formatPrices[opp.format?.toLowerCase() ?? ''] ?? 199
-}
-
-// ── INTENT SUMMARY FOR HANDOFF ─────────────────────────────────
-// Stripped version passed to Gear 2 (no internal fields)
-export function toGear2Handoff(intent: IntentDefinition | null): Record<string, unknown> | null {
-  if (!intent) return null
+export function offerToOpportunity(offer: OfferArchitecture): SelectedOpportunity {
   return {
-    productTitle:     intent.productTitle,
-    productPurpose:   intent.productPurpose,
-    targetAudience:   intent.targetAudience,
-    beforeState:      intent.beforeState,
-    afterState:       intent.afterState,
-    productFormat:    intent.productFormat,
-    audienceLevel:    intent.audienceLevel,
-    priceRecommended: intent.priceRecommended,
-    keyProblems:      intent.keyProblems,
-    promiseStatement: intent.promiseStatement,
-    contentTone:      intent.contentTone,
-    geographyContext: intent.geographyContext,
+    id:             'offer-' + Date.now(),
+    title:          offer.productTitle,
+    category:       offer.format,
+    targetAudience: offer.targetAudience,
+    problemSolved:  offer.problemSolved,
+    format:         offer.format,
+    priceRange:     `${offer.currency}${offer.suggestedPrice}`,
+    difficulty:     offer.difficulty,
   }
 }
