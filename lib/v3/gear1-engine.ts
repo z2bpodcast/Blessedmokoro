@@ -235,6 +235,7 @@ export interface IntentDefinition {
   fascinations?:      string[]
   primaryTrigger?:    string
   hookLine?:          string
+  keyProblems?:       string[]
   difficulty:     string
   suggestedPrice?: number
   currency?:      string

@@ -122,7 +122,7 @@ function IntentCard({ intent, onEdit }: { intent: IntentDefinition; onEdit: (fie
         <div style={{ fontSize: '10px', color: MUTED, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
           3 Problems This Solves
         </div>
-        {intent.keyProblems.map((p, i) => (
+        {(intent.keyProblems ?? []).map((p, i) => (
           <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
             <span style={{ color: CYAN, flexShrink: 0 }}>{'→'}</span>
             <span>{p}</span>
