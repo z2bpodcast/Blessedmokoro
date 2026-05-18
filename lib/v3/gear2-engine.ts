@@ -218,16 +218,16 @@ function buildArchitectPrompt(intent: IntentDefinition, config: StructureConfig)
 
 Product to structure:
 Title: "${intent.productTitle}"
-Purpose: "${intent.productPurpose}"
+Purpose: "${intent.productPurpose ?? intent.problemSolved ?? ""}"
 Target audience: "${intent.targetAudience}"
 Before state: "${intent.beforeState}"
 After state: "${intent.afterState}"
-Format: ${intent.productFormat}
-Audience level: ${intent.audienceLevel}
-Content tone: ${intent.contentTone}
+Format: ${intent.productFormat ?? intent.format ?? ""}
+Audience level: ${intent.audienceLevel ?? intent.difficulty ?? "beginner"}
+Content tone: ${intent.contentTone ?? "professional and motivating"}
 Key problems solved: ${intent.keyProblems.join(', ')}
 Promise: "${intent.promiseStatement}"
-Geography context: ${intent.geographyContext}
+Geography context: ${intent.geographyContext ?? "global"}
 
 Structure requirements:
 - Section count: ${config.minSections} to ${config.maxSections} sections

@@ -242,6 +242,9 @@ export interface IntentDefinition {
   beforeState?:   string
   afterState?:    string
   persona?:       any
+  productPurpose?:      string
+  contentTone?:         string
+  geographyContext?:    string
 }
 
 // runGear1 — delegates to buildOfferArchitecture
