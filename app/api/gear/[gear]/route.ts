@@ -1330,11 +1330,11 @@ async function handleGear1(
       userId,
       {
         title:          opportunity.title,
-        audience:       opportunity.audience,
-        transformation: opportunity.transformation,
+        audience:       opportunity.targetAudience,
+        transformation: opportunity.problemSolved,
         format:         opportunity.format,
-        priceRangeMin:  opportunity.priceRangeMin,
-        priceRangeMax:  opportunity.priceRangeMax,
+        priceRangeMin:  opportunity.priceRange,
+        priceRangeMax:  opportunity.priceRange,
       }
     )
 
