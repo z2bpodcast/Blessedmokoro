@@ -33,7 +33,7 @@ function TopicalInner() {
 
   const selectOpp = (opp: Opp) => {
     sessionStorage.setItem('v3_selected_opportunity', JSON.stringify({ id: opp.id, title: opp.title, category: opp.category, targetAudience: opp.audience, problemSolved: opp.problemSolved, format: opp.format, priceRange: `R${opp.priceRangeMin}–R${opp.priceRangeMax}`, difficulty: opp.difficulty }))
-    router.push('/ai-income/ignition/self')
+    router.push('/ai-income/gear/1')
   }
 
   const saveOpp = async (opp: Opp) => {

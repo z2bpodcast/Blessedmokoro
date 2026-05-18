@@ -98,7 +98,7 @@ function MarketResearchInner() {
       priceRange: `${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMin}–${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMax}`,
       difficulty: opp.difficulty,
     }))
-    router.push('/ai-income/ignition/self')
+    router.push('/ai-income/gear/1')
   }
 
   const saveOpp = async (opp: Opportunity) => {
