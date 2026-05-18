@@ -1319,7 +1319,6 @@ async function handleGear1(
     const result = await runGear1({
       opportunity,
       tierId,
-      geography: body.geography as string | undefined,
     })
 
     if (result.error || !result.intent) {
