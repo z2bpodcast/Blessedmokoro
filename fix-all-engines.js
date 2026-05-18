@@ -1,0 +1,25 @@
+const fs = require('fs')
+const engines = ['lib/v3/gear3-engine.ts','lib/v3/gear4-engine.ts','lib/v3/gear5-engine.ts','lib/v3/gear6-engine.ts','lib/v3/gear7-engine.ts','lib/v3/gear1-engine.ts','lib/v3/gear2-engine.ts']
+engines.forEach(path => {
+  try {
+    let c = fs.readFileSync(path, 'utf8')
+    c = c.replace(/intent\.keyProblems\.join\([^)]*\)/g, '(intent.keyProblems ?? []).join(" and ")')
+    c = c.replace(/params\.intent\.keyProblems\.join\([^)]*\)/g, '(params.intent.keyProblems ?? []).join(" and ")')
+    c = c.replace(/\$\{intent\.geographyContext\}/g, '${intent.geographyContext ?? "global"}')
+    c = c.replace(/\$\{params\.intent\.geographyContext\}/g, '${params.intent.geographyContext ?? "global"}')
+    c = c.replace(/\$\{intent\.promiseStatement\}/g, '${intent.promiseStatement ?? ""}')
+    c = c.replace(/\$\{params\.intent\.promiseStatement\}/g, '${params.intent.promiseStatement ?? ""}')
+    c = c.replace(/\$\{intent\.contentTone\}/g, '${intent.contentTone ?? "professional"}')
+    c = c.replace(/\$\{params\.intent\.contentTone\}/g, '${params.intent.contentTone ?? "professional"}')
+    c = c.replace(/\$\{intent\.productFormat\}/g, '${intent.productFormat ?? intent.format ?? "ebook"}')
+    c = c.replace(/\$\{params\.intent\.productFormat\}/g, '${params.intent.productFormat ?? params.intent.format ?? "ebook"}')
+    c = c.replace(/\$\{intent\.productPurpose\}/g, '${intent.productPurpose ?? intent.problemSolved ?? ""}')
+    c = c.replace(/\$\{params\.intent\.productPurpose\}/g, '${params.intent.productPurpose ?? params.intent.problemSolved ?? ""}')
+    c = c.replace(/\$\{intent\.audienceLevel\}/g, '${intent.audienceLevel ?? intent.difficulty ?? "beginner"}')
+    c = c.replace(/\$\{params\.intent\.audienceLevel\}/g, '${params.intent.audienceLevel ?? params.intent.difficulty ?? "beginner"}')
+    c = c.replace(/\$\{intent\.priceRecommended\}/g, '${intent.priceRecommended ?? intent.suggestedPrice ?? 299}')
+    c = c.replace(/\$\{params\.intent\.priceRecommended\}/g, '${params.intent.priceRecommended ?? params.intent.suggestedPrice ?? 299}')
+    fs.writeFileSync(path, c)
+    console.log('fixed', path)
+  } catch(e) { console.log('skip', path) }
+})

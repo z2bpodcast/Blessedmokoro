@@ -358,7 +358,26 @@ function Gear5Inner() {
               {assets.map(asset => <AssetCard key={asset.id} asset={asset} />)}
 
               <div style={{ marginTop:'20px', display:'flex', flexDirection:'column', gap:'10px' }}>
-                <button onClick={handleConfirm}
+                <button onClick={async () => {
+            const { data: { session: s } } = await supabase.auth.getSession()
+            if (!s) return
+            const sid = sessionStorage.getItem('v3_current_session_id') ?? ''
+            const res = await fetch('/api/gear/download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.access_token },
+              body: JSON.stringify({ sessionId: sid }),
+            })
+            if (!res.ok) return
+            const blob = await res.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url; a.download = 'my-product-complete.txt'; a.click()
+            URL.revokeObjectURL(url)
+          }}
+            style={{ width:'100%', padding:'11px', borderRadius:'10px', border:'1px solid rgba(6,182,212,0.3)', background:'rgba(6,182,212,0.06)', color:'#06B6D4', fontSize:'12px', cursor:'pointer', fontFamily:'Georgia,serif', fontWeight:700, marginBottom:'8px' }}>
+            ⬇️ Download Product + Assets — Sell Anywhere
+          </button>
+          <button onClick={handleConfirm}
                   style={{ width:'100%', padding:'16px', borderRadius:'14px', border:'none', cursor:'pointer', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:'15px', fontFamily:'Cinzel,Georgia,serif' }}>
                   {isGear5Endpoint(tierId) ? '✅ Bundle complete — Deliver My Product →' : '✅ Bundle approved — Move to Packaging →'}
                 </button>

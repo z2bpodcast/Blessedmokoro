@@ -65,7 +65,8 @@ function MarketResearchInner() {
     const m = loadMarket()
     setMarket(m)
     // Load tier for gate check
-    supabase.auth.getUser().then(({ data: { user } }) => { if (user) supabase.from('profiles').select('paid_tier').eq('id', user.id).single().then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) }) })
+    supabase.from('profiles').select('paid_tier').eq('id', (await supabase.auth.getUser()).data.user?.id ?? '').single()
+      .then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) })
   }, [])
 
   const discover = async () => {
@@ -248,9 +249,15 @@ function MarketResearchInner() {
                 </button>
 
                 <button onClick={() => selectOpp(opp)} style={{ width: '100%', textAlign: 'left', padding: '18px 56px 14px 18px', background: 'transparent', border: 'none', cursor: 'pointer', color: W, fontFamily: 'Georgia,serif' }}>
-                  {/* Demand signal */}
-                  <div style={{ fontSize: '11px', color: DEMAND_COLORS[opp.demandLevel] ?? GOLD, marginBottom: '6px', fontWeight: 700 }}>
-                    {DEMAND_LABELS[opp.demandLevel] ?? '📊 In demand'}
+                  {/* Demand signal + data source label */}
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '11px', color: DEMAND_COLORS[opp.demandLevel] ?? GOLD, fontWeight: 700 }}>
+                      {DEMAND_LABELS[opp.demandLevel] ?? '📊 In demand'}
+                    </span>
+                    {result.liveData
+                      ? <span style={{ fontSize: '9px', color: CYAN, background: 'rgba(6,182,212,0.1)', padding: '2px 6px', borderRadius: '6px' }}>📡 Live Trends</span>
+                      : <span style={{ fontSize: '9px', color: MUTED, background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '6px' }}>🧠 AI Intelligence</span>
+                    }
                   </div>
 
                   {/* Title */}
