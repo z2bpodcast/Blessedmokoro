@@ -180,6 +180,7 @@ export function offerToOpportunity(offer: OfferArchitecture): SelectedOpportunit
     targetAudience: offer.targetAudience,
     problemSolved:  offer.problemSolved,
     format:         offer.format,
+    productFormat:  offer.format,
     priceRange:     `${offer.currency}${offer.suggestedPrice}`,
     difficulty:     offer.difficulty,
   }
@@ -224,6 +225,7 @@ export interface IntentDefinition {
   targetAudience: string
   problemSolved:  string
   format:         string
+  productFormat?:  string
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
