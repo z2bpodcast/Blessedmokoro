@@ -1307,7 +1307,7 @@ async function handleGear1(
   if (action === 'generate') {
     const opportunity = body.opportunity as SelectedOpportunity | undefined
 
-    if (!opportunity?.title || !opportunity?.audience || !opportunity?.transformation) {
+    if (!opportunity?.title || !opportunity?.targetAudience || !opportunity?.problemSolved) {
       return NextResponse.json(
         { error: 'Missing opportunity data. Please return to Idea Ignition.' },
         { status: 400 }
