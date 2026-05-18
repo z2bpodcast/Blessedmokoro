@@ -219,10 +219,10 @@ function buildFallbackListing(intent: IntentDefinition): MarketplaceListing {
     description:      `${intent.beforeState}\n\n${intent.productTitle} gives you a clear, practical system to change that.\n\n${intent.afterState}`,
     targetAudience:   intent.targetAudience,
     keyBenefits:      (intent.keyProblems ?? []).slice(0, 3).map(p => 'Solve: ' + p).concat(['Clear implementation steps', 'Built for your context']),
-    priceZar:         intent.priceRecommended,
-    format:           intent.productFormat,
-    keywords:         [intent.productTitle.split(' ').slice(0, 2).join(' '), intent.productFormat, 'South Africa', 'digital product', intent.audienceLevel],
-    promotionalAngle: intent.promiseStatement,
+    priceZar:         intent.priceRecommended ?? intent.suggestedPrice ?? 299,
+    format:           intent.productFormat ?? intent.format ?? "ebook",
+    keywords:         [(intent.productTitle ?? "").split(' ').slice(0, 2).join(' '), intent.productFormat ?? intent.format ?? "ebook", 'South Africa', 'digital product', intent.audienceLevel ?? intent.difficulty ?? "beginner"],
+    promotionalAngle: intent.promiseStatement ?? "",
   }
 }
 
