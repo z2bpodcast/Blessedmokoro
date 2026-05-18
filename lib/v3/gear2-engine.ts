@@ -322,7 +322,7 @@ function normaliseStructure(
     bonusSection:     config.hasBonus ? raw.bonusSection : undefined,
     contentFlow:      raw.contentFlow
       || 'Each section builds on the previous, guiding the reader from problem awareness to full implementation.',
-    transformationArc:raw.transformationArc || intent.promiseStatement,
+    transformationArc:raw.transformationArc || intent.promiseStatement || "",
   }
 }
 
