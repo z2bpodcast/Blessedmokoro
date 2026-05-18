@@ -240,7 +240,6 @@ export interface IntentDefinition {
   currency?:      string
   hookLine?:      string
   corePromise?:   string
-  primaryTrigger?: string
   beforeState?:   string
   afterState?:    string
   persona?:       any
