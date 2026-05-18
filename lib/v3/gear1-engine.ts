@@ -238,7 +238,6 @@ export interface IntentDefinition {
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
-  hookLine?:      string
   corePromise?:   string
   beforeState?:   string
   afterState?:    string
