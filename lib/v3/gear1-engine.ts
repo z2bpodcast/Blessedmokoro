@@ -227,7 +227,14 @@ export interface IntentDefinition {
   format:         string
   productFormat?:  string
   audienceLevel?:  string
-  priceRecommended?: number
+  priceRecommended?:  number
+  promiseStatement?:  string
+  targetPerson?:      string
+  realProblem?:       string
+  storyOpener?:       string
+  fascinations?:      string[]
+  primaryTrigger?:    string
+  hookLine?:          string
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
