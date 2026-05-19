@@ -1,3 +1,4 @@
+import { COACH_MANLAW_SYSTEM_PROMPT } from '@/lib/v3/coach-manlaw-prompt'
 // ============================================================
 // Z2B 4M V3 — GEAR 1: OFFER ARCHITECTURE ENGINE (PHASE A)
 // File: lib/v3/gear1-engine.ts (UPGRADED)
