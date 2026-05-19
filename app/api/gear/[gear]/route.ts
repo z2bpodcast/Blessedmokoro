@@ -1398,7 +1398,6 @@ async function handleGear1(
     const result = await adjustGear1({
       opportunity: (currentIntent ?? {}) as any,
       adjustments: { adjustment: adjustment.trim() },
-      tierId,
     })
 
     if (result.error) {
