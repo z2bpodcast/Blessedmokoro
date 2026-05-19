@@ -119,7 +119,7 @@ export async function check4MAccess(builderId: string): Promise<AccessCheckResul
     .from('profiles')
     .select('paid_tier, gear_access, bfm_status, access_expires, v3_enrolled')
     .eq('id', builderId)
-    .single() as {
+    .maybeSingle() as {
       data: {
         paid_tier:      string | null
         gear_access:    number | null
