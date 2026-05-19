@@ -5,7 +5,6 @@
 // Now: Offer Architecture — WHO · WHAT · TRANSFORMATION · PROMISE · TRIGGER
 // ============================================================
 
-import { COACH_MANLAW_SYSTEM_PROMPT, getCoachModel } from '@/lib/v3/coach-manlaw-prompt'
 
 export interface OfferArchitecture {
   // The ONE person
@@ -113,14 +112,9 @@ Respond ONLY with valid JSON matching this exact structure:
 }`
 
   try {
-    const model = getCoachModel('psychology')
-    const isOpus = model.includes('claude')
-
     let content = ''
 
-    if (isOpus) {
-      content = data.choices?.[0]?.message?.content ?? ""
-    } else {
+    {
       const res  = await fetch('https://api.openai.com/v1/chat/completions', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
