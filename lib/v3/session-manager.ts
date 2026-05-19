@@ -234,7 +234,7 @@ export async function createGearSession(
     .from('profiles')
     .select('paid_tier, gear_access')
     .eq('id', builderId)
-    .single() as {
+    .maybeSingle() as {
       data: { paid_tier: string | null; gear_access: number | null } | null
       error: unknown
     }
