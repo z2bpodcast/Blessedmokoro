@@ -98,7 +98,7 @@ async function synthesiseOpportunities(params: {
   rising:      { query: string; value: number }[]
   market:      any
   demographic: string
-}): Promise<any[]> {
+}): Promise<Record<string,unknown>> {
   const trendList    = params.trends.slice(0, 15).join(', ')
   const risingList   = params.rising.slice(0, 8).map(r => r.query).join(', ')
   const marketLabel  = params.market?.label ?? 'Global'
