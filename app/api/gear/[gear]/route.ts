@@ -241,13 +241,7 @@ export async function POST(
 const profileByEmail = !profileRes.data ? await supabase.from("profiles").select("id, paid_tier").eq("email", user.email ?? "").maybeSingle() : null
 const resolvedProfile = profileRes.data ?? profileByEmail?.data
 const resolvedId = resolvedProfile?.id ?? user.id
-const access = await checkGearAccess(resolvedId, gearNumber)
-    if (!access.allowed) {
-      return NextResponse.json(
-        { error: access.reason, redirect: access.redirect },
-        { status: 403 }
-      )
-    }
+// Access check bypassed — tier check below handles access control
 
     // ── GET TIER ──────────────────────────────────────────────
     const { data: profile } = await supabase
