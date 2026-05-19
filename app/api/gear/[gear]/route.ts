@@ -237,7 +237,11 @@ export async function POST(
     }
 
     // ── GEAR ACCESS GATE ──────────────────────────────────────
-    const access = await checkGearAccess(user.id, gearNumber)
+    const profileRes = await supabase.from("profiles").select("id, paid_tier").eq("id", user.id).maybeSingle()
+const profileByEmail = !profileRes.data ? await supabase.from("profiles").select("id, paid_tier").eq("email", user.email ?? "").maybeSingle() : null
+const resolvedProfile = profileRes.data ?? profileByEmail?.data
+const resolvedId = resolvedProfile?.id ?? user.id
+const access = await checkGearAccess(resolvedId, gearNumber)
     if (!access.allowed) {
       return NextResponse.json(
         { error: access.reason, redirect: access.redirect },
