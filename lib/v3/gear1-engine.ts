@@ -139,16 +139,16 @@ Respond ONLY with valid JSON matching this exact structure:
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
         body:    JSON.stringify({
-          model,
-          max_tokens: 2000,
-          temperature: 0.85,
+          model:           'gpt-4o',
+          max_tokens:      2000,
+          temperature:     0.85,
           response_format: { type: 'json_object' },
           messages: [{ role: 'user', content: prompt }],
         }),
       })
       const data = await res.json()
       content = data.choices?.[0]?.message?.content ?? ''
-    }
+  }
 
     const offer = JSON.parse(content.replace(/```json|```/g, '').trim()) as OfferArchitecture
     return { offer, error: null }
@@ -224,27 +224,15 @@ export interface IntentDefinition {
   targetAudience: string
   problemSolved:  string
   format:         string
-  productFormat?:  string
-  audienceLevel?:  string
-  priceRecommended?:  number
-  promiseStatement?:  string
-  targetPerson?:      string
-  realProblem?:       string
-  storyOpener?:       string
-  fascinations?:      string[]
-  primaryTrigger?:    string
-  hookLine?:          string
-  keyProblems?:       string[]
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
+  hookLine?:      string
   corePromise?:   string
+  primaryTrigger?: string
   beforeState?:   string
   afterState?:    string
   persona?:       any
-  productPurpose?:      string
-  contentTone?:         string
-  geographyContext?:    string
 }
 
 // runGear1 — delegates to buildOfferArchitecture

@@ -50,26 +50,8 @@ export async function POST(req: NextRequest) {
   try {
     let responseText = ''
 
-    if (isOpus) {
-      // ── CLAUDE OPUS — Psychology, copy, offer architecture ──
-      const res  = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type':      'application/json',
-          'x-api-key':         process.env.ANTHROPIC_API_KEY!,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model:      model,
-          max_tokens: 2000,
-          system:     systemWithContext,
-          messages,
-        }),
-      })
-      const data = await res.json()
-      responseText = data.content?.[0]?.text ?? ''
-    } else {
-      // ── GPT-4o — Structure, frameworks, execution plans ──
+    // Using GPT-4o — Anthropic key not yet configured
+    {
       const res  = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
