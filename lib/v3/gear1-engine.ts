@@ -242,7 +242,6 @@ export interface IntentDefinition {
   productPurpose?:    string
   contentTone?:       string
   geographyContext?:  string
-  productFormat?:  string
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
