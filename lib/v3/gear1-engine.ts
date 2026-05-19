@@ -225,6 +225,8 @@ export interface IntentDefinition {
   problemSolved:  string
   format:         string
   productFormat?:  string
+  audienceLevel?:  string
+  priceRecommended?: number
   productFormat?:  string
   difficulty:     string
   suggestedPrice?: number
