@@ -227,6 +227,21 @@ export interface IntentDefinition {
   productFormat?:  string
   audienceLevel?:  string
   priceRecommended?: number
+  promiseStatement?:  string
+  targetPerson?:      string
+  realProblem?:       string
+  storyOpener?:       string
+  fascinations?:      string[]
+  keyProblems?:       string[]
+  hookLine?:          string
+  corePromise?:       string
+  primaryTrigger?:    string
+  beforeState?:       string
+  afterState?:        string
+  persona?:           any
+  productPurpose?:    string
+  contentTone?:       string
+  geographyContext?:  string
   productFormat?:  string
   difficulty:     string
   suggestedPrice?: number
