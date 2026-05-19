@@ -119,21 +119,7 @@ Respond ONLY with valid JSON matching this exact structure:
     let content = ''
 
     if (isOpus) {
-      const res  = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type':      'application/json',
-          'x-api-key':         process.env.ANTHROPIC_API_KEY!,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: 2000,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      })
-      const data = await res.json()
-      content = data.content?.[0]?.text ?? ''
+      content = data.choices?.[0]?.message?.content ?? ""
     } else {
       const res  = await fetch('https://api.openai.com/v1/chat/completions', {
         method:  'POST',
