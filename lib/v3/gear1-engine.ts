@@ -265,7 +265,7 @@ export async function runGear1(params: {
   const { offer, error } = await buildOfferArchitecture({
     rawIdea,
     market:    params.market ?? {},
-    selfData:  params.selfData ?? params.personaData,
+    selfData:  params.personaData,
     tierId:    params.tierId ?? 'starter',
   })
 
