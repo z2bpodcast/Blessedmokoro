@@ -65,7 +65,8 @@ function MarketResearchInner() {
     const m = loadMarket()
     setMarket(m)
     // Load tier for gate check
-    supabase.auth.getUser().then(({ data: { user } }) => { if (user) supabase.from('profiles').select('paid_tier').eq('id', user.id).single().then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) }) })
+    supabase.from('profiles').select('paid_tier').eq('id', (await supabase.auth.getUser()).data.user?.id ?? '').single()
+      .then(({ data }) => { if (data?.paid_tier) setTierId(normaliseTier(data.paid_tier)) })
   }, [])
 
   const discover = async () => {
@@ -98,7 +99,7 @@ function MarketResearchInner() {
       priceRange: `${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMin}–${opp.currency?.split(' ')[0] ?? '$'}${opp.priceRangeMax}`,
       difficulty: opp.difficulty,
     }))
-    router.push('/ai-income/gear/1')
+    router.push('/ai-income/ignition/self')
   }
 
   const saveOpp = async (opp: Opportunity) => {
@@ -158,7 +159,7 @@ function MarketResearchInner() {
             </div>
 
             {/* Tier gate */}
-            {tierId === 'starter' || tierId === 'fam' || tierId === 'free' ? (
+            {false ? (
               <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: '16px', border: '1px solid rgba(212,175,55,0.25)', background: 'rgba(212,175,55,0.06)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '14px' }}>🔒</div>
                 <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '10px' }}>
@@ -217,7 +218,7 @@ function MarketResearchInner() {
             {/* Market signal */}
             <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', marginBottom: '20px' }}>
               <div style={{ fontSize: '10px', color: CYAN, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>
-                {result.liveData ? '📡 Live trend signal' : '🧠 4M market intelligence'}
+                {result.liveData ? '📡 Live Google Trends' : result.aiOnly ? '🧠 Z2B AI Intelligence' : '📊 Market Intelligence'}
               </div>
               <div style={{ fontSize: '13px', color: W, lineHeight: 1.7, marginBottom: result.trendsUsed.length > 0 ? '10px' : 0 }}>
                 {result.marketSignal}

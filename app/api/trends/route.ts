@@ -98,7 +98,7 @@ async function synthesiseOpportunities(params: {
   rising:      { query: string; value: number }[]
   market:      any
   demographic: string
-}): Promise<Record<string, unknown>> {
+}): Promise<any[]> {
   const trendList    = params.trends.slice(0, 15).join(', ')
   const risingList   = params.rising.slice(0, 8).map(r => r.query).join(', ')
   const marketLabel  = params.market?.label ?? 'Global'
@@ -176,26 +176,25 @@ export async function POST(req: NextRequest) {
 
   const { market } = await req.json()
 
-  // Tier gate: Bronze+ only
+  // Tier check — Starter gets AI fallback, Bronze+ gets live Google Trends
   const sb2 = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
   const { data: profile } = await (sb2.from as any)('profiles').select('paid_tier').eq('id', user.id).maybeSingle() as { data: any }
-  const blockedTiers = ['fam', 'free', 'starter']
   const { normaliseTier } = await import('@/lib/v3/tier-config')
-  const userTier = normaliseTier(profile?.paid_tier ?? 'fam')
-  if (blockedTiers.includes(userTier)) {
-    return NextResponse.json({ error: 'Live market research requires Bronze tier or higher.', upgradeRequired: true }, { status: 403 })
-  }
+  const userTier = normaliseTier(profile?.paid_tier ?? 'starter')
+  const hasLiveTrends = !['fam', 'free', 'starter'].includes(userTier)
 
   // Determine geo code
   const geo      = GEO_CODES[market?.country ?? ''] ?? 'US'
   const demo     = market?.demographic ?? ''
 
-  // Fetch trends in parallel
-  const [daily, risingBiz, risingEdu] = await Promise.all([
-    fetchDailyTrends(geo),
-    fetchRisingTrends(geo, CATEGORY_MAP['Business & Finance']),
-    fetchRisingTrends(geo, CATEGORY_MAP['Self Improvement']),
-  ])
+  // Fetch trends — Bronze+ gets live Google Trends, Starter gets AI-only
+  const [daily, risingBiz, risingEdu] = hasLiveTrends
+    ? await Promise.all([
+        fetchDailyTrends(geo),
+        fetchRisingTrends(geo, CATEGORY_MAP['Business & Finance']),
+        fetchRisingTrends(geo, CATEGORY_MAP['Self Improvement']),
+      ])
+    : [[], [], []]
 
   const rising = [...risingBiz, ...risingEdu]
   const hasTrends = daily.length > 0 || rising.length > 0
@@ -214,7 +213,9 @@ export async function POST(req: NextRequest) {
       marketSignal:   result.marketSignal ?? '',
       trendsUsed:     daily.slice(0, 5),
       risingUsed:     rising.slice(0, 5).map(r => r.query),
-      liveData:       hasTrends,
+      liveData:       hasTrends && hasLiveTrends,
+      aiOnly:         !hasLiveTrends,
+      tierLabel:      hasLiveTrends ? 'Live Google Trends' : 'Z2B AI Intelligence',
       geo,
       marketLabel:    market?.label ?? 'Global',
     })

@@ -88,6 +88,7 @@ function IgnitionInner() {
   const [products,    setProducts]    = useState<Product[]>([])
   const [savedProductIds, setSavedProductIds] = useState<Set<string>>(new Set())
   const [error,       setError]       = useState('')
+  const [savePersonaTick, setSavePersonaTick] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -110,16 +111,21 @@ function IgnitionInner() {
         <div style={{ fontSize: '13px', color: MUTED, marginBottom: '20px', lineHeight: 1.7 }}>
           Every product must be built for a specific market. Who are you selling to and where are they?
         </div>
-        <div style={{ marginBottom: '14px' }}>
+        <div style={{ marginBottom: '14px', position: 'relative' }}>
           <div style={{ fontSize: '11px', color: MUTED, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Country</div>
-          <select value={market.country} onChange={e => {
-            const c = e.target.value
-            setMarket({ country: c, currency: CURRENCIES[c] ?? 'USD ($)', label: c })
-          }}
-            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: market.country ? W : MUTED, fontSize: '14px', fontFamily: 'Georgia,serif', outline: 'none', boxSizing: 'border-box' }}>
-            <option value="">Select a country...</option>
-            {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <input
+            value={market.country}
+            onChange={e => {
+              const val = e.target.value
+              setMarket({ country: val, currency: CURRENCIES[val] ?? market.currency ?? 'USD ($)', label: val })
+            }}
+            list="country-list"
+            placeholder="Type to search a country..."
+            style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', background: '#1A2540', border: '1px solid rgba(255,255,255,0.2)', color: W, fontSize: '15px', fontFamily: 'Georgia,serif', outline: 'none', boxSizing: 'border-box' }}
+          />
+          <datalist id="country-list">
+            {COUNTRIES.map(c => <option key={c} value={c} />)}
+          </datalist>
         </div>
         {market.country && (
           <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', fontSize: '12px', color: GREEN, marginBottom: '16px' }}>
@@ -187,10 +193,38 @@ function IgnitionInner() {
           ))}
         </div>
 
-        <button onClick={() => {
-          if (!persona || Object.keys(persona).filter(k => k !== 'id').length === 0) {
-            setPersona({ summary: `${market.country} · General audience` })
+        {/* Save persona tick */}
+        {persona && Object.keys(persona).filter(k => k !== 'id').length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)' }}>
+            <input type="checkbox" id="save-persona" checked={savePersonaTick} onChange={e => setSavePersonaTick(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: GOLD, cursor: 'pointer' }} />
+            <label htmlFor="save-persona" style={{ fontSize: '12px', color: MUTED, cursor: 'pointer', lineHeight: 1.5 }}>
+              Save this persona for future products <span style={{ color: GOLD }}>({savedPersonas.length}/5 saved)</span>
+            </label>
+          </div>
+        )}
+        <button onClick={async () => {
+          const finalPersona = persona && Object.keys(persona).filter(k => k !== 'id').length > 0
+            ? persona
+            : { summary: market.country + ' · General audience' }
+
+          if (savePersonaTick && finalPersona && Object.keys(finalPersona).filter(k => k !== 'id').length > 0) {
+            if (savedPersonas.length >= 5) {
+              alert('You have 5 saved personas. Please delete one from your dashboard before saving a new one.')
+            } else {
+              try {
+                const personaName = [finalPersona.gender, finalPersona.age, finalPersona.employment].filter(Boolean).join(' · ') || 'My Persona'
+                const summary = Object.values(finalPersona).filter(v => typeof v === 'string').join(' · ')
+                await fetch('/api/personas', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token.current },
+                  body: JSON.stringify({ action: 'save', persona: { ...finalPersona, personaName, personaSummary: summary } }),
+                })
+                setSavedPersonas(prev => [...prev, { ...finalPersona, personaName, summary }])
+              } catch (_) {}
+            }
           }
+          setPersona(finalPersona)
           setStage('source')
         }}
           style={{ width: '100%', padding: '13px', borderRadius: '12px', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '15px', fontFamily: 'Cinzel,Georgia,serif' }}>

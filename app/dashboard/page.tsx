@@ -55,17 +55,43 @@ function DashboardInner() {
     setLoading(true)
     const sb = supabase as any
 
+    // Load profile — try by auth ID first, then by email fallback
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    const profileId = authUser?.id ?? uid
+    
     const [projRes, ideasRes, personasRes, profileRes] = await Promise.all([
-      sb.from('saved_projects').select('*').eq('builder_id', uid).order('updated_at', { ascending: false }),
-      sb.from('saved_ideas').select('*').eq('builder_id', uid).order('created_at', { ascending: false }),
-      sb.from('builder_personas').select('*').eq('builder_id', uid).order('created_at', { ascending: false }),
-      sb.from('profiles').select('*').eq('id', uid).single(),
+      sb.from('saved_projects').select('*').eq('builder_id', profileId).order('updated_at', { ascending: false }),
+      sb.from('saved_ideas').select('*').eq('builder_id', profileId).order('created_at', { ascending: false }),
+      sb.from('builder_personas').select('*').eq('builder_id', profileId).order('created_at', { ascending: false }),
+      sb.from('profiles').select('*').eq('id', profileId).maybeSingle(),
     ])
+    
+    // If profile not found by auth ID, try by email
+    let finalProfile = profileRes.data
+    if (!finalProfile && authUser?.email) {
+      const emailRes = await sb.from('profiles').select('*').eq('email', authUser.email).maybeSingle()
+      finalProfile = emailRes.data
+      // If found by email, reload projects with correct profile ID
+      if (finalProfile?.id && finalProfile.id !== profileId) {
+        const correctedId = finalProfile.id
+        const [p2, i2, per2] = await Promise.all([
+          sb.from('saved_projects').select('*').eq('builder_id', correctedId).order('updated_at', { ascending: false }),
+          sb.from('saved_ideas').select('*').eq('builder_id', correctedId).order('created_at', { ascending: false }),
+          sb.from('builder_personas').select('*').eq('builder_id', correctedId).order('created_at', { ascending: false }),
+        ])
+        setProjects(p2.data ?? [])
+        setSavedIdeas(i2.data ?? [])
+        setPersonas(per2.data ?? [])
+        setProfile(finalProfile)
+        setLoading(false)
+        return
+      }
+    }
 
     setProjects(projRes.data ?? [])
     setSavedIdeas(ideasRes.data ?? [])
     setPersonas(personasRes.data ?? [])
-    setProfile(profileRes.data)
+    setProfile(finalProfile)
     setLoading(false)
   }
 

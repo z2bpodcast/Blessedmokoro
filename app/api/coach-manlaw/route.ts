@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       response: responseText,
-      model:    isOpus ? 'Claude Opus' : 'GPT-4o',
+      model:    'Z2B Intelligence Engine',
       task,
     })
 
