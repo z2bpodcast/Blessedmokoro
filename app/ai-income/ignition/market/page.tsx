@@ -49,6 +49,8 @@ interface TrendsResult {
   trendsUsed:    string[]
   risingUsed:    string[]
   liveData:      boolean
+  aiOnly?:       boolean
+  tierLabel?:    string
   marketLabel:   string
 }
 
