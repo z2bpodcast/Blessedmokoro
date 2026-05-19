@@ -1,274 +1,254 @@
 'use client'
-// ============================================================
-// Z2B V3 — 4M MACHINE HOME PAGE (REVAMPED)
 // File: app/ai-income/page.tsx
-// Laws: Intro · How-to · My Projects widget · Engine badge
-// ============================================================
+// 4M Machine Introduction — rebuilt Sprint 21
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter }                      from 'next/navigation'
-import { supabase }                       from '@/lib/supabase'
-import { normaliseTier, getTier }         from '@/lib/v3/tier-config'
-import Link                               from 'next/link'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
-const BG    = '#050A18'
-const SURF  = '#0D1629'
-const GOLD  = '#D4AF37'
-const CYAN  = '#06B6D4'
-const VIO   = '#8B5CF6'
-const W     = '#F0F9FF'
-const MUTED = '#64748B'
-const GREEN = '#10B981'
+const BG   = '#050A18'
+const GOLD = '#D4AF37'
+const CYAN = '#06B6D4'
+const W    = '#F0F9FF'
+const MUTED= '#64748B'
+const GREEN= '#10B981'
+const VIO  = '#8B5CF6'
+const SURF = '#0D1629'
 
-const ENGINE_ICONS: Record<string, string> = {
-  manual: '🔧', automatic: '⚙️', electric: '⚡', rocket: '🚀',
-}
-const ENGINE_NAMES: Record<string, string> = {
-  manual: 'Manual Engine', automatic: 'Automatic Engine',
-  electric: 'Electric Engine', rocket: 'Rocket Engine',
-}
-
-const STEPS = [
-  { icon: '💡', gear: 'Idea Ignition', desc: 'Choose your source — self-discovery, market research, topic or paste a script. The AI finds your best opportunity.' },
-  { icon: '🎯', gear: 'Gear 1 — Intent', desc: 'Define exactly what your product is, who it\'s for, and what transformation it delivers.' },
-  { icon: '🗺️', gear: 'Gear 2 — Blueprint', desc: 'The machine maps your full product structure — every section, every chapter, every key point.' },
-  { icon: '✍️', gear: 'Gear 3 — Content', desc: 'AI writes each section of your product. You review. 530-675 words per section. Complete in minutes.' },
-  { icon: '✅', gear: 'Gear 4 — Quality', desc: 'A strict AI evaluator reviews and strengthens your content automatically. Quality-approved before you see it.' },
-  { icon: '🧰', gear: 'Gear 5 — Enhancement', desc: 'Templates, checklists, workbooks and tools are generated to make your product implementation-ready.' },
-  { icon: '🚀', gear: 'Gear 6 — Distribution', desc: 'Your marketplace listing, pricing and social posts are written and published. Product goes live.' },
+const HOW_IT_WORKS = [
+  { icon: '💡', step: 'Idea Ignition', desc: 'Choose your idea source. Set your market and persona. 4M researches demand via Google Trends and surfaces ranked opportunities.' },
+  { icon: '🎯', step: 'Gear 1 — Intent', desc: 'The Offer Architecture Engine defines exactly who the product is for, what transformation it delivers, and which psychological trigger opens the buyer\'s decision.' },
+  { icon: '🗺️', step: 'Gear 2 — Blueprint', desc: 'The machine maps your full product structure — every section, every chapter, every key insight — before writing begins.' },
+  { icon: '✍️', step: 'Gear 3 — Content', desc: 'AI writes each section. 530–675 words per section. A complete 9,000+ word product written in minutes.' },
+  { icon: '✅', step: 'Gear 4 — Quality', desc: 'A strict AI evaluator reviews and strengthens your content automatically. Quality-approved before you see it.' },
+  { icon: '🧰', step: 'Gear 5 — Enhancement', desc: 'Templates, checklists, workbooks and frameworks are generated to make your product implementation-ready.' },
+  { icon: '🚀', step: 'Gear 6 — Distribution', desc: 'Your marketplace listing, pricing and social posts are written and published. Product goes live on Z2B, Selar, Gumroad, Payhip and WhatsApp.' },
+  { icon: '🎬', step: 'Gear 7 — Video', desc: '1-minute and 3-minute videos are auto-generated from your product. 5 and 10-minute deep-dives available as add-ons. Silver and above.' },
 ]
 
-const TIPS = [
-  '💡 Idea Ignition is free for all tiers — explore as many ideas as you want before committing.',
-  '🔖 Save any idea you like with the bookmark button — find them in Saved Ideas.',
-  '⬅️ Pressing Back never restarts a gear — your work is always saved.',
-  '💰 Products are suggested a price by the machine — you can adjust before publishing.',
-  '📊 Every product you publish earns ISP on every sale — check your earnings dashboard.',
-  '🏪 Your products appear on the Z2B Marketplace automatically after Gear 6.',
+const PROOF = {
+  title:    'The Corporate Calm Stress Management Toolkit',
+  words:    '9,489',
+  sections: 14,
+  price:    'R299',
+  note:     'Built by Rev Mokoro Manana — founder of Z2B — using the 4M Machine. Proof before promotion.',
+}
+
+const TIERS = [
+  { name: 'Starter',  price: 'R700',    color: '#B4B2A9' },
+  { name: 'Bronze',   price: 'R2,500',  color: '#CD7F32' },
+  { name: 'Copper',   price: 'R5,000',  color: '#B87333' },
+  { name: 'Silver',   price: 'R12,000', color: '#C0C0C0' },
+  { name: 'Gold',     price: 'R25,000', color: GOLD },
+  { name: 'Platinum', price: 'R50,000', color: '#E5E4E2' },
 ]
 
-interface ProjectSummary {
-  total:    number
-  ideas:    number
-  drafts:   number
-  complete: number
-  recent:   { title: string; status: string; current_gear: number }[]
+function Footer() {
+  return (
+    <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '28px 24px', textAlign: 'center', background: SURF }}>
+      <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', color: GOLD, marginBottom: '8px', fontStyle: 'italic' }}>
+        "If they underpay you or don't want to employ you — Deploy Yourself."
+      </div>
+      <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.9 }}>
+        Zero 2 Billionaires Legacy Builders &nbsp;·&nbsp;
+        <a href="mailto:payments@z2blegacybuilders.co.za" style={{ color: GOLD, textDecoration: 'none' }}>payments@z2blegacybuilders.co.za</a>
+        &nbsp;·&nbsp;
+        <a href="mailto:support@z2blegacybuilders.co.za" style={{ color: GOLD, textDecoration: 'none' }}>support@z2blegacybuilders.co.za</a>
+      </div>
+      <div style={{ marginTop: '12px', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        {[
+          { label: 'Pricing', href: '/pricing' },
+          { label: 'Marketplace', href: '/marketplace' },
+          { label: 'Compensation', href: '/compensation' },
+          { label: '4M vs Chatbot', href: '/about/4m-not-a-chatbot' },
+        ].map(l => (
+          <Link key={l.label} href={l.href} style={{ fontSize: '11px', color: MUTED, textDecoration: 'none' }}>{l.label}</Link>
+        ))}
+      </div>
+    </footer>
+  )
 }
 
-interface MachineInfo {
-  tierId:      string
-  tierLabel:   string
-  engineType:  string
-  gearAccess:  number
-  productsThisMonth: number
-  maxProducts: number
-}
-
-function FourMHomeInner() {
-  const router = useRouter()
-  const [machine,   setMachine]   = useState<MachineInfo | null>(null)
-  const [projects,  setProjects]  = useState<ProjectSummary | null>(null)
-  const [loading,   setLoading]   = useState(true)
-  const [tipIndex,  setTipIndex]  = useState(0)
+function IntroInner() {
+  const [user,     setUser]     = useState<any>(null)
+  const [projects, setProjects] = useState(0)
 
   useEffect(() => {
-    loadData()
-    const interval = setInterval(() => setTipIndex(i => (i + 1) % TIPS.length), 5000)
-    return () => clearInterval(interval)
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (!u) return
+      setUser(u);
+      (supabase.from as any)('saved_projects')
+        .select('id', { count: 'exact', head: true })
+        .eq('builder_id', u.id)
+        .then(({ count }: { count: number | null }) => setProjects(count ?? 0))
+    })
   }, [])
-
-  async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('paid_tier')
-      .eq('id', user.id)
-      .single() as { data: { paid_tier: string | null } | null }
-
-    const tier    = normaliseTier(profile?.paid_tier ?? 'fam')
-    const tierDef = getTier(tier)
-    const engineMap: Record<string, string> = {
-      fam: 'manual', starter: 'manual', bronze: 'manual',
-      copper: 'automatic', silver: 'electric', gold: 'rocket', platinum: 'rocket',
-    }
-
-    setMachine({
-      tierId:     tier,
-      tierLabel:  tierDef.label,
-      engineType: engineMap[tier] ?? 'manual',
-      gearAccess: tierDef.gearAccess,
-      productsThisMonth: 0,
-      maxProducts: (tierDef as any).maxProductsPerMonth ?? -1,
-    })
-
-    const { data: proj } = await (supabase.from as any)('saved_projects')
-      .select('title, status, current_gear')
-      .eq('builder_id', user.id)
-      .order('updated_at', { ascending: false })
-      .limit(20) as { data: any[] | null }
-
-    const all = proj ?? []
-    setProjects({
-      total:    all.length,
-      ideas:    all.filter(p => p.status === 'idea').length,
-      drafts:   all.filter(p => p.status === 'draft').length,
-      complete: all.filter(p => p.status === 'complete').length,
-      recent:   all.slice(0, 3),
-    })
-
-    setLoading(false)
-  }
-
-  const canAccess = machine && machine.tierId !== 'fam'
 
   return (
     <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif' }}>
 
       {/* Nav */}
-      <nav style={{ padding: '12px 20px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
-        <Link href="/dashboard" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>← Dashboard</Link>
-        <span style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: GOLD }}>4M Machine</span>
-        <Link href="/ai-income/projects" style={{ fontSize: '12px', color: GOLD, textDecoration: 'none' }}>My Projects</Link>
-      </nav>
-
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 20px 60px' }}>
-
-        {/* Hero */}
-        <div style={{ textAlign: 'center', padding: '32px 0 28px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚙️</div>
-          <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, color: W, margin: '0 0 10px' }}>
-            The 4M Machine
-          </h1>
-          <p style={{ fontSize: '14px', color: MUTED, lineHeight: 1.8, marginBottom: '16px', maxWidth: '480px', margin: '0 auto 16px' }}>
-            {projects && projects.complete > 0
-              ? `You have ${projects.complete} product${projects.complete > 1 ? 's' : ''} live on the marketplace. The machine is ready for your next one.`
-              : 'Your AI-powered digital product factory. From idea to marketplace in one session.'}
-          </p>
-          {machine && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', color: GOLD, border: '1px solid rgba(212,175,55,0.2)' }}>
-              <span>{ENGINE_ICONS[machine.engineType]}</span>
-              <span>{ENGINE_NAMES[machine.engineType]} · {machine.tierLabel} · {machine.gearAccess} Gears</span>
-            </div>
+      <nav style={{ padding: '12px 24px', background: 'rgba(5,10,24,0.95)', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(12px)' }}>
+        <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', fontWeight: 900, color: GOLD }}>Z2B · 4M Machine</div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link href="/marketplace" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>Marketplace</Link>
+          <Link href="/pricing" style={{ fontSize: '12px', color: MUTED, textDecoration: 'none' }}>Pricing</Link>
+          {user ? (
+            <Link href="/dashboard" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+              Dashboard →
+            </Link>
+          ) : (
+            <Link href="/register" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+              Start Free →
+            </Link>
           )}
         </div>
+      </nav>
 
-        {/* CTA */}
-        {!loading && (
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '32px', flexWrap: 'wrap' }}>
-            {canAccess ? (
-              <>
-                <Link href="/ai-income/ignition"
-                  style={{ padding: '13px 28px', borderRadius: '14px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '15px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-                  🌱 Start New Product →
-                </Link>
-                <Link href="/ai-income/projects"
-                  style={{ padding: '13px 22px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '14px', textDecoration: 'none' }}>
-                  My Projects
-                </Link>
-              </>
-            ) : (
-              <Link href="/pricing"
-                style={{ padding: '13px 28px', borderRadius: '14px', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '14px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-                Upgrade to Start Building →
+      {/* Hero */}
+      <div style={{ textAlign: 'center', padding: 'clamp(60px,10vw,100px) 24px 48px', maxWidth: '780px', margin: '0 auto' }}>
+        <div style={{ fontSize: '11px', color: GOLD, letterSpacing: '5px', textTransform: 'uppercase', marginBottom: '16px' }}>Zero 2 Billionaires · Legacy Builders</div>
+        <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(28px,5vw,54px)', fontWeight: 900, color: W, lineHeight: 1.15, marginBottom: '20px' }}>
+          If they underpay you<br/>
+          or don't want to employ you —<br/>
+          <span style={{ color: GOLD }}>Deploy Yourself.</span>
+        </h1>
+        <p style={{ fontSize: 'clamp(15px,2vw,19px)', color: MUTED, lineHeight: 1.85, marginBottom: '36px', maxWidth: '600px', margin: '0 auto 36px' }}>
+          The 4M Machine is an AI-powered digital product factory. It turns what you already know into sellable digital products — without design skills, coding or a big budget. From idea to marketplace in one session.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {user ? (
+            <>
+              <Link href="/ai-income/ignition" style={{ padding: '14px 36px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                {projects > 0 ? `Build Your Next Product →` : `Start Your First Product →`}
               </Link>
-            )}
-          </div>
-        )}
+              <Link href="/dashboard" style={{ padding: '14px 24px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '14px', textDecoration: 'none' }}>
+                My Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href="/ai-income/choose-plan" style={{ padding: '14px 36px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                Start from R700 →
+              </Link>
+              <Link href="/pricing" style={{ padding: '14px 24px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '14px', textDecoration: 'none' }}>
+                View all packages
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
 
-        {/* My Projects widget */}
-        {projects && projects.total > 0 && (
-          <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: W }}>My Projects</div>
-              <Link href="/ai-income/projects" style={{ fontSize: '11px', color: GOLD, textDecoration: 'none' }}>View all →</Link>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '14px' }}>
-              {[
-                { label: 'Ideas',    count: projects.ideas,    color: VIO },
-                { label: 'Drafts',   count: projects.drafts,   color: GOLD },
-                { label: 'Complete', count: projects.complete, color: GREEN },
-              ].map(s => (
-                <div key={s.label} style={{ textAlign: 'center', padding: '10px 8px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)' }}>
-                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '22px', fontWeight: 900, color: s.color }}>{s.count}</div>
-                  <div style={{ fontSize: '10px', color: MUTED }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-            {projects.recent.map((p, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: i === 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                <div style={{ fontSize: '12px', color: W, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{p.title}</div>
-                <div style={{ fontSize: '10px', color: p.status === 'complete' ? GREEN : p.status === 'draft' ? GOLD : VIO, marginLeft: '8px', flexShrink: 0 }}>
-                  {p.status === 'draft' ? `Gear ${p.current_gear}` : p.status}
-                </div>
+      {/* Proof */}
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 64px' }}>
+        <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(212,175,55,0.07)', border: '1px solid rgba(212,175,55,0.2)', textAlign: 'center' }}>
+          <div style={{ fontSize: '10px', color: GOLD, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '10px' }}>Proven in production</div>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(16px,3vw,22px)', fontWeight: 900, color: W, marginBottom: '8px' }}>{PROOF.title}</div>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
+            {[
+              { label: 'Words written', value: PROOF.words },
+              { label: 'Sections',      value: String(PROOF.sections) },
+              { label: 'Selling price', value: PROOF.price },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '22px', fontWeight: 900, color: GOLD }}>{s.value}</div>
+                <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px' }}>{s.label}</div>
               </div>
             ))}
           </div>
-        )}
-
-        {/* Rotating tip */}
-        <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', marginBottom: '28px', minHeight: '48px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ fontSize: '12px', color: CYAN, lineHeight: 1.7 }}>{TIPS[tipIndex]}</div>
+          <div style={{ fontSize: '12px', color: MUTED, fontStyle: 'italic' }}>{PROOF.note}</div>
         </div>
+      </div>
 
-        {/* How-to guide */}
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', fontWeight: 900, color: W, marginBottom: '16px' }}>
+      {/* How it works */}
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,3vw,32px)', fontWeight: 900, color: W, marginBottom: '10px' }}>
             How the 4M Machine Works
           </div>
-          {STEPS.slice(0, machine?.gearAccess ? Math.min(machine.gearAccess + 1, STEPS.length) : STEPS.length).map((step, i) => (
-            <div key={i} style={{ display: 'flex', gap: '14px', marginBottom: '14px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
-                {step.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: GOLD, marginBottom: '3px' }}>{step.gear}</div>
-                <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.7 }}>{step.desc}</div>
+          <div style={{ fontSize: '13px', color: MUTED }}>Idea Ignition through Gear 7 — from thought to product to video</div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '14px' }}>
+          {HOW_IT_WORKS.map((item, i) => (
+            <div key={i} style={{ padding: '20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '28px', flexShrink: 0 }}>{item.icon}</div>
+              <div>
+                <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: W, marginBottom: '6px' }}>{item.step}</div>
+                <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.75 }}>{item.desc}</div>
               </div>
             </div>
           ))}
-          {machine && machine.gearAccess < 6 && (
-            <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', fontSize: '12px', color: MUTED }}>
-              🔒 Gears {machine.gearAccess + 1}–6 unlock when you upgrade. <Link href="/pricing" style={{ color: GOLD }}>View packages →</Link>
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Idea sources */}
-        <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '16px', fontWeight: 900, color: W, marginBottom: '14px' }}>
-          4 Ways to Find Your Next Idea
+      {/* Phunyeletso section */}
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ padding: '32px', borderRadius: '20px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '11px', color: VIO, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '14px' }}>A Student's Challenge · MBD's Response</div>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(18px,3vw,24px)', fontWeight: 900, color: W, marginBottom: '14px', lineHeight: 1.3 }}>
+            "ChatGPT can do the same thing. This app just returns text."
+          </div>
+          <div style={{ fontSize: '13px', color: MUTED, lineHeight: 1.85, marginBottom: '18px' }}>
+            Phunyeletso Manana — Computer Science student, Applied Mathematics major — challenged the 4M Machine directly. His question was sharp. His reasoning was logical. And he was not entirely wrong.
+          </div>
+          <div style={{ fontSize: '13px', color: MUTED, lineHeight: 1.85, marginBottom: '20px' }}>
+            ChatGPT is a brilliant brain with no hands, no memory and no address. The 4M Machine is a factory — with a conveyor belt, quality control, packaging, distribution, a shop front, and a payment system that pays the right people the right amounts automatically.
+          </div>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', marginBottom: '18px', fontSize: '13px', color: GOLD, fontStyle: 'italic', lineHeight: 1.7 }}>
+            "The text product is the intellectual foundation. The video is the distribution channel. The 4M Machine produces both."
+          </div>
+          <Link href="/about/4m-not-a-chatbot" style={{ display: 'inline-block', padding: '10px 22px', borderRadius: '10px', border: '1px solid rgba(139,92,246,0.4)', color: VIO, fontSize: '13px', textDecoration: 'none', fontWeight: 700 }}>
+            Read the full conversation →
+          </Link>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          {[
-            { href: '/ai-income/ignition/self',    icon: '🪞', title: 'Self Discovery',    desc: 'Find ideas in your own skills and experience' },
-            { href: '/ai-income/ignition/market',  icon: '📊', title: 'Market Research',   desc: 'AI scans 90+ opportunities in the market' },
-            { href: '/ai-income/ignition/topical', icon: '🎯', title: 'Topical / Theme',   desc: 'Enter any topic and get tailored product ideas' },
-            { href: '/ai-income/ignition/script',  icon: '📄', title: 'Script / PDF Upload', desc: 'Paste a script or upload a PDF to generate ideas' },
-          ].map(source => (
-            <Link key={source.href} href={canAccess ? source.href : '/pricing'}
-              style={{ padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', textDecoration: 'none', display: 'block', opacity: canAccess ? 1 : 0.5 }}>
-              <div style={{ fontSize: '24px', marginBottom: '8px' }}>{source.icon}</div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: W, marginBottom: '4px', fontFamily: 'Cinzel,Georgia,serif' }}>{source.title}</div>
-              <div style={{ fontSize: '11px', color: MUTED, lineHeight: 1.6 }}>{source.desc}</div>
+      </div>
+
+      {/* Tier ladder */}
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(18px,3vw,28px)', fontWeight: 900, color: W, marginBottom: '8px' }}>Six engines. One machine.</div>
+          <div style={{ fontSize: '13px', color: MUTED }}>Start at the level that suits you. Upgrade as you grow.</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+          {TIERS.map((t, i) => (
+            <Link key={i} href={`/ai-income/payment?tier=${t.name.toLowerCase()}&amount=${t.price.replace(/[^0-9]/g,'')}&name=${t.name}`}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderRadius: '12px', border: '1px solid ' + t.color + '30', background: 'rgba(255,255,255,0.02)', textDecoration: 'none' }}>
+              <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 700, color: t.color }}>{t.name}</div>
+              <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: t.color }}>{t.price}</div>
             </Link>
           ))}
         </div>
-
-      {/* Footer */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '20px', textAlign: 'center', fontSize: '11px', color: '#64748B', lineHeight: 1.9 }}>
-        Z2B Legacy Builders · <a href="mailto:payments@z2blegacybuilders.co.za" style={{ color: '#D4AF37', textDecoration: 'none' }}>payments@z2blegacybuilders.co.za</a>
-        {' · '}<a href="mailto:support@z2blegacybuilders.co.za" style={{ color: '#D4AF37', textDecoration: 'none' }}>support@z2blegacybuilders.co.za</a>
+        <div style={{ textAlign: 'center' }}>
+          <Link href="/pricing" style={{ fontSize: '13px', color: CYAN, textDecoration: 'none' }}>Compare all features and engines →</Link>
+        </div>
       </div>
-    </div>
+
+      {/* Final CTA */}
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 80px', textAlign: 'center' }}>
+        <div style={{ padding: '48px 32px', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(139,92,246,0.06))', border: '1px solid rgba(212,175,55,0.2)' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(20px,4vw,34px)', fontWeight: 900, color: W, marginBottom: '12px', lineHeight: 1.3 }}>
+            The world is your market.<br/>Your knowledge is the product.
+          </div>
+          <div style={{ fontSize: '14px', color: MUTED, marginBottom: '28px', lineHeight: 1.8 }}>
+            50+ countries · Any language · Any niche · Multiple income streams<br/>
+            Built for employees and unemployed visionaries who refuse to retire broke.
+          </div>
+          <Link href={user ? '/ai-income/ignition' : '/ai-income/choose-plan'}
+            style={{ display: 'inline-block', padding: '15px 40px', borderRadius: '14px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+            {user ? 'Build Your Next Product →' : 'Deploy Yourself — Start from R700 →'}
+          </Link>
+        </div>
+      </div>
+
+      <Footer />
     </div>
   )
 }
 
-export default function FourMHomePage() {
+export default function AiIncomePage() {
   return (
-    <Suspense fallback={<div style={{ minHeight:'100vh',background:'#050A18',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37',fontFamily:'Georgia,serif' }}>Loading 4M Machine...</div>}>
-      <FourMHomeInner />
+    <Suspense fallback={<div style={{ minHeight:'100vh',background:'#050A18',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37',fontFamily:'Georgia,serif' }}>Loading...</div>}>
+      <IntroInner />
     </Suspense>
   )
 }
