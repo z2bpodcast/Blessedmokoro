@@ -245,12 +245,6 @@ export interface IntentDefinition {
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
-  hookLine?:      string
-  corePromise?:   string
-  primaryTrigger?: string
-  beforeState?:   string
-  afterState?:    string
-  persona?:       any
 }
 
 // runGear1 — delegates to buildOfferArchitecture
@@ -258,7 +252,6 @@ export async function runGear1(params: {
   opportunity:    SelectedOpportunity
   adjustments?:   Record<string, string>
   market?:        any
-  selfData?:      any
   tierId?:        string
   personaData?:   any
 }): Promise<{ intent: IntentDefinition | null; error: string | null; tokensUsed?: number }> {
@@ -301,8 +294,6 @@ export async function runGear1(params: {
 export async function adjustGear1(params: {
   opportunity:  SelectedOpportunity
   adjustments:  Record<string, string>
-  market?:      any
-  tierId?:      string
 }): Promise<{ intent: IntentDefinition | null; error: string | null }> {
   return runGear1(params)
 }
