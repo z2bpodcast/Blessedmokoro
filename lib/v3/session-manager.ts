@@ -254,7 +254,8 @@ export async function createGearSession(
 
   if (
     tierDef.parallelSessions > 0 &&
-    (activeSessions ?? 0) >= tierDef.parallelSessions
+    (activeSessions ?? 0) >= tierDef.parallelSessions &&
+    tierId !== "platinum" && tierId !== "gold"
   ) {
     return {
       session: null,
