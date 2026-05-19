@@ -247,8 +247,8 @@ const resolvedId = resolvedProfile?.id ?? user.id
     const { data: profile } = await supabase
       .from('profiles')
       .select('paid_tier')
-      .eq('id', user.id)
-      .single() as { data: { paid_tier: string | null } | null }
+      .eq('id', resolvedId)
+      .maybeSingle() as { data: { paid_tier: string | null } | null }
 
     const tierId = normaliseTier(profile?.paid_tier || 'fam')
 
