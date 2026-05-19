@@ -1419,7 +1419,7 @@ async function handleGear1(
     }
 
     // Server-side intent field validation (HIGH #2)
-    const requiredFields = ['productTitle','targetAudience','beforeState','afterState','productFormat','audienceLevel']
+    const requiredFields = ['productTitle','targetAudience']
     const missingFields  = requiredFields.filter(f => !intent[f] || String(intent[f]).trim().length < 3)
     if (missingFields.length > 0) {
       return NextResponse.json(
