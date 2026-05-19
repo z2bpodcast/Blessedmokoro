@@ -116,8 +116,8 @@ function PaymentInner() {
             <div style={{ fontSize: '13px', fontWeight: 700, color: CYAN, marginBottom: '12px' }}>Manual EFT Details</div>
             <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.9 }}>
               <div><strong style={{ color: W }}>Bank:</strong> Nedbank</div>
-              <div><strong style={{ color: W }}>Account Name:</strong> Z2B Legacy Builders</div>
-              <div><strong style={{ color: W }}>Account Number:</strong> 1234567890</div>
+              <div><strong style={{ color: W }}>Account Name:</strong> Zero2billionaires Amavulandlela</div>
+              <div><strong style={{ color: W }}>Account Number:</strong> 1318257727</div>
               <div><strong style={{ color: W }}>Branch Code:</strong> 198765</div>
               <div><strong style={{ color: W }}>Amount:</strong> R{amount.toLocaleString()}</div>
               <div><strong style={{ color: W }}>Reference:</strong> <span style={{ color: GOLD, fontWeight: 900 }}>{efeRef}</span></div>

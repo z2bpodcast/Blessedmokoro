@@ -168,8 +168,8 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
               </div>
               {[
                 ['Bank',           'Nedbank'],
-                ['Account Name',   'Z2B Legacy Builders'],
-                ['Account Number', '1234567890'],
+                ['Account Name',   'Zero2billionaires Amavulandlela'],
+                ['Account Number', '1318257727'],
                 ['Branch Code',    '198765'],
                 ['Amount',         `R${price.toLocaleString()}`],
                 ['Reference',      eftRef],

@@ -321,10 +321,10 @@ function PricingInner() {
         <div style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: '16px' }}>
           {[
             { q: 'What is BFM?', a: 'Business Facilitation Monthly — a small operational fee starting day 61 that covers your AI production costs. Your product sales should cover it by then.' },
-            { q: 'Can I upgrade anytime?', a: 'Yes. Pay the difference and your engine upgrades immediately. Your existing products stay live.' },
+            { q: 'Can I upgrade anytime?', a: 'Yes. Upgrading requires full payment of the new tier — not a top-up of the difference. Your existing products stay live. Good news: new members enjoy 60 days without Business Fuel Maintenance (BFM) payments, giving you time to generate income before maintenance begins.' },
             { q: 'What is the 4M Machine?', a: 'An AI-powered digital product factory. From idea to marketplace in one session — without design skills, coding or a big budget.' },
             { q: 'Is there a free tier?', a: 'The Free Affiliate Marketer (FAM) tier is available by invitation when you refer members to the marketplace. Paid tiers start at R700.' },
-            { q: 'What are QPB · TSC · TLI · CEO Awards?', a: 'These are your Z2B compensation plan earnings. QPB (Quarterly Performance Bonus), TSC (Team Structure Commission), TLI (Team Leader Income) and CEO Awards reward your growth and team building. View full details at app.z2blegacybuilders.co.za/compensation' },
+            { q: 'What are QPB · TSC · TLI · CEO Awards?', a: 'These are your Z2B compensation plan earnings. QPB (Quick Performance Bonus), TSC (Team Sales Commission), TLI (Team Leader Incentives) and CEO Awards reward your growth and team building. View full details at app.z2blegacybuilders.co.za/compensation' },
             { q: 'Do I own what the 4M Machine creates?', a: '100%. Every product the 4M Machine builds for you is yours to keep, sell and distribute however you choose. Sell on Z2B, Selar, Gumroad, Payhip, Etsy, Udemy, ClickBank, Whop, your own website — anywhere. The 5% Z2B fee only applies to sales made on the Z2B Marketplace.' },
           ].map((faq, i) => (
             <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -417,6 +417,18 @@ function PricingInner() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Footer slogan */}
+        <div style={{ textAlign: 'center', padding: '16px 0 8px', borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: '16px' }}>
+          <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', color: GOLD, fontStyle: 'italic', marginBottom: '6px' }}>
+            "If they underpay you or don't want to employ you — Deploy Yourself."
+          </div>
+          <div style={{ fontSize: '11px', color: MUTED }}>
+            <a href="mailto:payments@z2blegacybuilders.co.za" style={{ color: GOLD, textDecoration: 'none' }}>payments@z2blegacybuilders.co.za</a>
+            {' · '}
+            <a href="mailto:support@z2blegacybuilders.co.za" style={{ color: GOLD, textDecoration: 'none' }}>support@z2blegacybuilders.co.za</a>
           </div>
         </div>
 
