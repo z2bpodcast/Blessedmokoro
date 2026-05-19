@@ -180,7 +180,7 @@ export async function checkGearAccess(
     .from('profiles')
     .select('paid_tier, gear_access, bfm_status, access_expires')
     .eq('id', builderId)
-    .single() as {
+    .maybeSingle() as {
       data: {
         paid_tier:      string | null
         gear_access:    number | null
