@@ -185,6 +185,17 @@ function CompleteInner() {
         </div>
 
       </div>
+          <div style={{ display:'flex', gap:'12px', marginTop:'24px', flexWrap:'wrap' }}>
+        <a href="/dashboard" style={{ flex:1, padding:'13px', borderRadius:'12px', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Cinzel,Georgia,serif' }}>
+          Go to Dashboard →
+        </a>
+        <a href="/marketplace" style={{ flex:1, padding:'13px', borderRadius:'12px', border:'1px solid rgba(212,175,55,0.3)', color:'#D4AF37', fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Georgia,serif' }}>
+          View Marketplace
+        </a>
+        <a href="/ai-income/ignition" style={{ flex:1, padding:'13px', borderRadius:'12px', border:'1px solid rgba(255,255,255,0.1)', color:'#64748B', fontSize:'14px', textDecoration:'none', textAlign:'center', fontFamily:'Georgia,serif' }}>
+          Build Another Product
+        </a>
+      </div>
     </div>
   )
 }

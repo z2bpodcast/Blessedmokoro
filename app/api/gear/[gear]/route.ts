@@ -1314,8 +1314,10 @@ async function handleGear1(
 
     // Run engine FIRST — create session only on success (HIGH #1)
     // This prevents orphaned sessions if AI call fails
+    const market = body.market ?? {}
     const result = await runGear1({
       opportunity,
+      market,
       tierId,
     })
 
