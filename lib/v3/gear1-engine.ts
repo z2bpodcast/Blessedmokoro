@@ -224,6 +224,22 @@ export interface IntentDefinition {
   targetAudience: string
   problemSolved:  string
   format:         string
+  productFormat?:  string
+  audienceLevel?:  string
+  priceRecommended?: number
+  promiseStatement?: string
+  targetPerson?:   string
+  realProblem?:    string
+  keyProblems?:    string[]
+  hookLine?:       string
+  corePromise?:    string
+  primaryTrigger?: string
+  beforeState?:    string
+  afterState?:     string
+  persona?:        any
+  productPurpose?: string
+  contentTone?:    string
+  geographyContext?: string
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
