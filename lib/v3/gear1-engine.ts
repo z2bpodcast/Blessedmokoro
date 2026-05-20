@@ -202,6 +202,7 @@ export const AUDIENCE_LEVEL_LABELS: Record<string, string> = {
 // IntentDefinition type — used by Gear 1 page and downstream gears
 export interface IntentDefinition {
   subtitle?:      string
+  format:          string
   productFormat?:  string
   audienceLevel?:  string
   priceRecommended?: number
