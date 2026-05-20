@@ -362,7 +362,7 @@ function Gear5Inner() {
             const { data: { session: s } } = await supabase.auth.getSession()
             if (!s) return
             const sid = sessionStorage.getItem('v3_current_session_id') ?? ''
-            const res = await fetch('/api/gear/download', {
+            const res = await fetch('/api/download-package', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.access_token },
               body: JSON.stringify({ sessionId: sid }),

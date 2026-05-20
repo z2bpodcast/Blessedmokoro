@@ -260,7 +260,9 @@ function Gear6Inner() {
     } catch (_) {}
 
     setStep('live')
-          if (data?.productId ?? data?.product_id ?? data?.id) { setProductId(data.productId ?? data.product_id ?? data.id) }
+          if (res2?.productId ?? res2?.product_id ?? res2?.id) {
+            setProductId(res2.productId ?? res2.product_id ?? res2.id)
+          }
     setTimeout(() => router.push(data.redirect ?? '/dashboard'), 3000)
   }
 

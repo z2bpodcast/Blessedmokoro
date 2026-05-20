@@ -1,4 +1,3 @@
-import { COACH_MANLAW_SYSTEM_PROMPT } from '@/lib/v3/coach-manlaw-prompt'
 // ============================================================
 // Z2B 4M V3 — GEAR 1: OFFER ARCHITECTURE ENGINE (PHASE A)
 // File: lib/v3/gear1-engine.ts (UPGRADED)
@@ -6,6 +5,7 @@ import { COACH_MANLAW_SYSTEM_PROMPT } from '@/lib/v3/coach-manlaw-prompt'
 // Now: Offer Architecture — WHO · WHAT · TRANSFORMATION · PROMISE · TRIGGER
 // ============================================================
 
+import { COACH_MANLAW_SYSTEM_PROMPT, getCoachModel } from '@/lib/v3/coach-manlaw-prompt'
 
 export interface OfferArchitecture {
   // The ONE person
@@ -113,9 +113,28 @@ Respond ONLY with valid JSON matching this exact structure:
 }`
 
   try {
+    const model = getCoachModel('psychology')
+    const isOpus = model.includes('claude')
+
     let content = ''
 
-    {
+    if (isOpus) {
+      const res  = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         process.env.ANTHROPIC_API_KEY!,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      content = data.content?.[0]?.text ?? ''
+    } else {
       const res  = await fetch('https://api.openai.com/v1/chat/completions', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
@@ -205,27 +224,15 @@ export interface IntentDefinition {
   targetAudience: string
   problemSolved:  string
   format:         string
-  productFormat?:  string
-  audienceLevel?:  string
-  priceRecommended?: number
-  promiseStatement?:  string
-  targetPerson?:      string
-  realProblem?:       string
-  storyOpener?:       string
-  fascinations?:      string[]
-  keyProblems?:       string[]
-  hookLine?:          string
-  corePromise?:       string
-  primaryTrigger?:    string
-  beforeState?:       string
-  afterState?:        string
-  persona?:           any
-  productPurpose?:    string
-  contentTone?:       string
-  geographyContext?:  string
   difficulty:     string
   suggestedPrice?: number
   currency?:      string
+  hookLine?:      string
+  corePromise?:   string
+  primaryTrigger?: string
+  beforeState?:   string
+  afterState?:    string
+  persona?:       any
 }
 
 // runGear1 — delegates to buildOfferArchitecture
@@ -233,6 +240,7 @@ export async function runGear1(params: {
   opportunity:    SelectedOpportunity
   adjustments?:   Record<string, string>
   market?:        any
+  selfData?:      any
   tierId?:        string
   personaData?:   any
 }): Promise<{ intent: IntentDefinition | null; error: string | null; tokensUsed?: number }> {
@@ -246,7 +254,7 @@ export async function runGear1(params: {
   const { offer, error } = await buildOfferArchitecture({
     rawIdea,
     market:    params.market ?? {},
-    selfData:  params.personaData,
+    selfData:  params.selfData ?? params.personaData,
     tierId:    params.tierId ?? 'starter',
   })
 
@@ -275,6 +283,8 @@ export async function runGear1(params: {
 export async function adjustGear1(params: {
   opportunity:  SelectedOpportunity
   adjustments:  Record<string, string>
+  market?:      any
+  tierId?:      string
 }): Promise<{ intent: IntentDefinition | null; error: string | null }> {
   return runGear1(params)
 }
@@ -287,6 +297,8 @@ export function toGear2Handoff(intent: IntentDefinition): Record<string, unknown
     problemSolved:  intent.problemSolved,
     format:         intent.format,
     difficulty:     intent.difficulty,
+    priceRecommended: intent.priceRecommended ?? intent.suggestedPrice ?? 299,
+    currency:       intent.currency ?? 'R',
     hookLine:       intent.hookLine,
     corePromise:    intent.corePromise,
     beforeState:    intent.beforeState,
