@@ -283,7 +283,7 @@ const resolvedId = resolvedProfile?.id ?? user.id
                 ?? 'Untitled Project'
               await (supabase.from as any)('saved_projects').upsert({
                 session_id:   sessionId,
-                builder_id:   user.id,
+                builder_id:   resolvedId ?? user.id,
                 title,
                 current_gear: gearNumber,
                 status:       gearNumber >= 6 ? 'complete' : 'draft',
