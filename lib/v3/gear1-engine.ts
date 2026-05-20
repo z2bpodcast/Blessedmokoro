@@ -121,7 +121,6 @@ Respond ONLY with valid JSON matching this exact structure:
     })
     const data = await res.json()
     content = data.choices?.[0]?.message?.content ?? ''
-  }
 
     const offer = JSON.parse(content.replace(/```json|```/g, '').trim()) as OfferArchitecture
     return { offer, error: null }
