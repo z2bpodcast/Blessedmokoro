@@ -159,11 +159,23 @@ export interface SelectedOpportunity {
   id:              string
   title:           string
   category:        string
+  targetAudience:  string
+  problemSolved:   string
+  format:          string
   priceRange:      string
+  difficulty?:     string
 }
 
 export function offerToOpportunity(offer: OfferArchitecture): SelectedOpportunity {
   return {
+    id:             'offer-' + Date.now(),
+    title:          offer.productTitle,
+    category:       offer.format,
+    targetAudience: offer.targetAudience,
+    problemSolved:  offer.problemSolved,
+    format:         offer.format,
+    priceRange:     offer.currency + offer.suggestedPrice,
+    difficulty:     offer.difficulty,
   }
 }
 
