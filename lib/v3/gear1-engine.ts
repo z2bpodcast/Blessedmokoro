@@ -106,7 +106,7 @@ Respond ONLY with valid JSON matching this exact structure:
   "primaryTrigger": "The #1 psychological trigger for this buyer",
   "secondaryTriggers": ["trigger2", "trigger3"],
   "suggestedPrice": 299,
-  "currency": "",
+  "currency": "${currencySymbol}",
   "priceJustification": "Why this price feels right — not too cheap, not scary",
   "hookLine": "The first line that makes them say THIS IS FOR ME",
   "difficulty": "beginner|intermediate|advanced",
