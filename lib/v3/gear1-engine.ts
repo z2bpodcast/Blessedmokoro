@@ -201,16 +201,31 @@ export const AUDIENCE_LEVEL_LABELS: Record<string, string> = {
 
 // IntentDefinition type — used by Gear 1 page and downstream gears
 export interface IntentDefinition {
-  subtitle?:      string
-  format:          string
-  productFormat?:  string
-  audienceLevel?:  string
+  productTitle:      string
+  subtitle?:         string
+  targetAudience:    string
+  problemSolved:     string
+  format:            string
+  productFormat?:    string
+  difficulty:        string
+  audienceLevel?:    string
+  suggestedPrice?:   number
   priceRecommended?: number
+  currency?:         string
+  hookLine?:         string
+  corePromise?:      string
+  primaryTrigger?:   string
+  beforeState?:      string
+  afterState?:       string
   promiseStatement?: string
-  keyProblems?:    string[]
-  persona?:        any
-  productPurpose?: string
-  contentTone?:    string
+  targetPerson?:     string
+  realProblem?:      string
+  storyOpener?:      string
+  fascinations?:     string[]
+  keyProblems?:      string[]
+  persona?:          any
+  productPurpose?:   string
+  contentTone?:      string
   geographyContext?: string
 }
 
@@ -218,6 +233,8 @@ export interface IntentDefinition {
 export async function runGear1(params: {
   opportunity:    SelectedOpportunity
   adjustments?:   Record<string, string>
+  market?:        any
+  tierId?:        string
   personaData?:   any
 }): Promise<{ intent: IntentDefinition | null; error: string | null; tokensUsed?: number }> {
 
