@@ -57,7 +57,9 @@ export async function buildOfferArchitecture(params: {
 }): Promise<{ offer: OfferArchitecture | null; error: string | null }> {
 
   const marketContext = params.market?.label ?? 'South Africa'
-  const currency      = params.market?.currency ?? 'ZAR (R)'
+  const currencyFull  = params.market?.currency ?? "ZAR (R)"
+  const currencySymbol = currencyFull.split(" ")[0] === "ZAR" ? "R" : currencyFull.match(/[(](.+)[)]/)?.[1] ?? "R"
+  const currency       = currencyFull
   const demographic   = params.market?.demographic ?? 'employed professionals'
 
   const prompt = `${COACH_MANLAW_SYSTEM_PROMPT}
@@ -71,7 +73,7 @@ A builder has come to you with a raw idea. Your job is to architect a complete o
 BUILDER'S RAW IDEA: "${params.rawIdea}"
 TARGET MARKET: ${marketContext}
 TARGET DEMOGRAPHIC: ${demographic}
-CURRENCY: ${currency}
+CURRENCY: ${currencyFull} (use symbol: ${currencySymbol})
 ${params.selfData ? `BUILDER BACKGROUND: ${JSON.stringify(params.selfData)}` : ''}
 
 Apply the 5 Foundations of Offer Architecture:
@@ -104,7 +106,7 @@ Respond ONLY with valid JSON matching this exact structure:
   "primaryTrigger": "The #1 psychological trigger for this buyer",
   "secondaryTriggers": ["trigger2", "trigger3"],
   "suggestedPrice": 299,
-  "currency": "R",
+  "currency": "",
   "priceJustification": "Why this price feels right — not too cheap, not scary",
   "hookLine": "The first line that makes them say THIS IS FOR ME",
   "difficulty": "beginner|intermediate|advanced",
