@@ -98,6 +98,8 @@ async function synthesiseOpportunities(params: {
   rising:      { query: string; value: number }[]
   market:      any
   demographic: string
+  themeInput?: string
+  source?: string
 }): Promise<Record<string,unknown>> {
   const trendList    = params.trends.slice(0, 15).join(', ')
   const risingList   = params.rising.slice(0, 8).map(r => r.query).join(', ')
@@ -113,6 +115,7 @@ Rising fast (demand gaps): ${risingList || 'not available'}
 
 TARGET MARKET: ${marketLabel}
 TARGET DEMOGRAPHIC: ${demographic}
+BUILDER FOCUS: ${params.themeInput ? "The builder specifically wants products related to: " + params.themeInput + ". All 8 opportunities MUST be relevant to this theme." : "Find the best opportunities in this market."}
 CURRENCY: ${currency}
 
 YOUR TASK:
@@ -174,7 +177,7 @@ export async function POST(req: NextRequest) {
   const { user } = await getUser(req)
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const { market } = await req.json()
+  const { market, themeInput, selfAnswers, scriptContent, source } = await req.json()
 
   // Tier check — Starter gets AI fallback, Bronze+ gets live Google Trends
   const sb2 = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
@@ -206,6 +209,8 @@ export async function POST(req: NextRequest) {
       rising,
       market,
       demographic: demo,
+      themeInput: themeInput ?? "",
+      source: source ?? "choice",
     })
 
     return NextResponse.json({
