@@ -184,7 +184,7 @@ function Gear1Inner() {
       let opp: SelectedOpportunity | null = null
       try {
         const raw = sessionStorage.getItem('v3_selected_opportunity')
-        if (raw) opp = JSON.parse(raw)
+        if (raw) { const parsed = JSON.parse(raw); opp = parsed; try { const mkt = parsed.market ? JSON.parse(parsed.market) : {}; sessionStorage.setItem("v3_market", JSON.stringify(mkt)); } catch(_){} }
       } catch (_) {}
 
       if (!opp?.title) {
@@ -230,7 +230,7 @@ function Gear1Inner() {
       res = await fetch('/api/gear/1', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body:    JSON.stringify({ action: 'generate', opportunity: opp }),
+        body: JSON.stringify({ action: 'generate', opportunity: opp, market: JSON.parse(sessionStorage.getItem("v3_market") ?? "{}") }),
         signal:  controller.signal,
       })
       clearTimeout(timeout)
