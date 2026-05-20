@@ -136,14 +136,9 @@ Respond ONLY with valid JSON matching this exact structure:
       content = data.content?.[0]?.text ?? ''
     } else {
       const res  = await fetch('https://api.openai.com/v1/chat/completions', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
-        body:    JSON.stringify({
           model:           'gpt-4o',
-          max_tokens:      2000,
           temperature:     0.85,
           response_format: { type: 'json_object' },
-          messages: [{ role: 'user', content: prompt }],
         }),
       })
       const data = await res.json()
@@ -165,23 +160,11 @@ export interface SelectedOpportunity {
   id:              string
   title:           string
   category:        string
-  targetAudience:  string
-  problemSolved:   string
-  format:          string
   priceRange:      string
-  difficulty:      string
 }
 
 export function offerToOpportunity(offer: OfferArchitecture): SelectedOpportunity {
   return {
-    id:             'offer-' + Date.now(),
-    title:          offer.productTitle,
-    category:       offer.format,
-    targetAudience: offer.targetAudience,
-    problemSolved:  offer.problemSolved,
-    format:         offer.format,
-    priceRange:     `${offer.currency}${offer.suggestedPrice}`,
-    difficulty:     offer.difficulty,
   }
 }
 
@@ -219,45 +202,22 @@ export const AUDIENCE_LEVEL_LABELS: Record<string, string> = {
 
 // IntentDefinition type — used by Gear 1 page and downstream gears
 export interface IntentDefinition {
-  productTitle:   string
   subtitle?:      string
-  targetAudience: string
-  problemSolved:  string
-  format:         string
   productFormat?:  string
   audienceLevel?:  string
   priceRecommended?: number
   promiseStatement?: string
-  targetPerson?:   string
-  realProblem?:    string
   keyProblems?:    string[]
-  hookLine?:       string
-  corePromise?:    string
-  primaryTrigger?: string
-  beforeState?:    string
-  afterState?:     string
   persona?:        any
   productPurpose?: string
   contentTone?:    string
   geographyContext?: string
-  difficulty:     string
-  suggestedPrice?: number
-  currency?:      string
-  hookLine?:      string
-  corePromise?:   string
-  primaryTrigger?: string
-  beforeState?:   string
-  afterState?:    string
-  persona?:       any
 }
 
 // runGear1 — delegates to buildOfferArchitecture
 export async function runGear1(params: {
   opportunity:    SelectedOpportunity
   adjustments?:   Record<string, string>
-  market?:        any
-  selfData?:      any
-  tierId?:        string
   personaData?:   any
 }): Promise<{ intent: IntentDefinition | null; error: string | null; tokensUsed?: number }> {
 
@@ -269,27 +229,35 @@ export async function runGear1(params: {
 
   const { offer, error } = await buildOfferArchitecture({
     rawIdea,
-    market:    params.market ?? {},
-    selfData:  params.selfData ?? params.personaData,
-    tierId:    params.tierId ?? 'starter',
+    market:   params.market ?? {},
+    selfData: params.personaData,
+    tierId:   params.tierId ?? 'starter',
   })
 
   if (error || !offer) return { intent: null, error: error ?? 'Gear 1 failed' }
 
   const intent: IntentDefinition = {
-    productTitle:   offer.productTitle,
-    subtitle:       offer.productSubtitle,
-    targetAudience: offer.targetAudience,
-    problemSolved:  offer.problemSolved,
-    format:         offer.format,
-    difficulty:     offer.difficulty,
-    suggestedPrice: offer.suggestedPrice,
-    currency:       offer.currency,
-    hookLine:       offer.hookLine,
-    corePromise:    offer.corePromise,
-    primaryTrigger: offer.primaryTrigger,
-    beforeState:    offer.beforeState,
-    afterState:     offer.afterState,
+    productTitle:    offer.productTitle,
+    subtitle:        offer.productSubtitle,
+    targetAudience:  offer.targetAudience,
+    problemSolved:   offer.problemSolved,
+    format:          offer.format,
+    productFormat:   offer.format,
+    difficulty:      offer.difficulty,
+    audienceLevel:   offer.difficulty,
+    suggestedPrice:  offer.suggestedPrice,
+    priceRecommended:offer.suggestedPrice,
+    currency:        offer.currency,
+    hookLine:        offer.hookLine,
+    corePromise:     offer.corePromise,
+    primaryTrigger:  offer.primaryTrigger,
+    beforeState:     offer.beforeState,
+    afterState:      offer.afterState,
+    promiseStatement:offer.corePromise,
+    targetPerson:    offer.targetPerson,
+    realProblem:     offer.realProblem,
+    keyProblems:     [],
+    persona:         params.personaData,
   }
 
   return { intent, error: null, tokensUsed: 0 }
@@ -308,16 +276,16 @@ export async function adjustGear1(params: {
 // toGear2Handoff — converts intent to Gear 2 format
 export function toGear2Handoff(intent: IntentDefinition): Record<string, unknown> {
   return {
-    productTitle:   intent.productTitle,
-    targetAudience: intent.targetAudience,
-    problemSolved:  intent.problemSolved,
-    format:         intent.format,
-    difficulty:     intent.difficulty,
-    priceRecommended: intent.priceRecommended ?? intent.suggestedPrice ?? 299,
-    currency:       intent.currency ?? 'R',
-    hookLine:       intent.hookLine,
-    corePromise:    intent.corePromise,
-    beforeState:    intent.beforeState,
-    afterState:     intent.afterState,
+    productTitle:    intent.productTitle,
+    targetAudience:  intent.targetAudience,
+    problemSolved:   intent.problemSolved,
+    format:          intent.format,
+    difficulty:      intent.difficulty,
+    hookLine:        intent.hookLine,
+    corePromise:     intent.corePromise,
+    beforeState:     intent.beforeState,
+    afterState:      intent.afterState,
+    priceRecommended:intent.priceRecommended ?? intent.suggestedPrice ?? 299,
+    currency:        intent.currency ?? 'R',
   }
 }
