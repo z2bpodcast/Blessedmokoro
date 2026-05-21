@@ -19,10 +19,10 @@ export default function ReaderPage() {
         .then(({ data }) => {
           const tier = data?.paid_tier || 'fam'
           const isPaid = data?.is_paid_member || data?.payment_status === 'paid'
-          const access = isPaid || ['bronze','copper','silver','gold','platinum'].includes(tier)
+          const access = isPaid || ['starter','bronze','copper','silver','gold','platinum'].includes(tier)
           setHasAccess(access)
           setLoading(false)
-          if (!access) router.push('/book?buy=r700')
+
         })
     })
   }, [])
@@ -33,7 +33,7 @@ export default function ReaderPage() {
     </div>
   )
 
-  if (!hasAccess) return null
+
 
   return (
     <div className="min-h-screen" style={{ background: '#080608' }}>
