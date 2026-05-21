@@ -288,6 +288,7 @@ const resolvedId = resolvedProfile?.id ?? user.id
                 current_gear: gearNumber,
                 status:       gearNumber >= 6 ? 'complete' : 'draft',
                 updated_at:   new Date().toISOString(),
+                created_at:   new Date().toISOString(),
               }, { onConflict: 'session_id' })
             } catch (_) {}
           }

@@ -70,6 +70,10 @@ function Footer() {
 }
 
 function IntroInner() {
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
   const [user,     setUser]     = useState<any>(null)
   const [projects, setProjects] = useState(0)
 

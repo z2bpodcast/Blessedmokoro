@@ -35,6 +35,10 @@ function Footer() {
 }
 
 function DashboardInner() {
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
   const [user,      setUser]      = useState<any>(null)
   const [profile,   setProfile]   = useState<any>(null)
   const [projects,  setProjects]  = useState<any[]>([])
@@ -150,7 +154,10 @@ function DashboardInner() {
       <nav style={{ padding: '12px 24px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
         <Link href="/ai-income" style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '14px', fontWeight: 900, color: GOLD, textDecoration: 'none' }}>← 4M Machine</Link>
         <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '13px', color: W }}>My Dashboard</div>
-        <Link href="/ai-income/ignition" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+        <Link onClick={handleLogout} style={{ padding: '7px 12px', borderRadius: '8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, fontSize: '11px', cursor: 'pointer', fontFamily: 'Georgia,serif', marginRight: '8px' }}>
+              Sign Out
+            </button>
+            <Link href="/ai-income/ignition" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
           + New Product
         </Link>
       </nav>
