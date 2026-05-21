@@ -377,6 +377,30 @@ function Gear5Inner() {
             style={{ width:'100%', padding:'11px', borderRadius:'10px', border:'1px solid rgba(6,182,212,0.3)', background:'rgba(6,182,212,0.06)', color:'#06B6D4', fontSize:'12px', cursor:'pointer', fontFamily:'Georgia,serif', fontWeight:700, marginBottom:'8px' }}>
             ⬇️ Download Product + Assets — Sell Anywhere
           </button>
+          {/* Pricing confirmation */}
+          <div style={{ padding:'16px', borderRadius:'12px', background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.2)', marginBottom:'10px' }}>
+            <div style={{ fontSize:'12px', color:MUTED, marginBottom:'10px' }}>
+              💰 Set your price — 4M suggests based on your market and format
+            </div>
+            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+              <input
+                type="text"
+                id="product-currency"
+                defaultValue={intent?.currency ?? 'R'}
+                style={{ width:'60px', padding:'10px', borderRadius:'8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', color:W, fontSize:'14px', fontFamily:'Georgia,serif', outline:'none', textAlign:'center' }}
+              />
+              <input
+                type="number"
+                id="product-price"
+                defaultValue={intent?.priceRecommended ?? intent?.suggestedPrice ?? 299}
+                min={1}
+                style={{ flex:1, padding:'10px', borderRadius:'8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', color:W, fontSize:'16px', fontFamily:'Cinzel,Georgia,serif', fontWeight:900, outline:'none' }}
+              />
+            </div>
+            <div style={{ fontSize:'10px', color:MUTED, marginTop:'6px' }}>
+              4M suggested: {intent?.currency ?? 'R'}{intent?.priceRecommended ?? intent?.suggestedPrice ?? 299} · You have full control over your final price
+            </div>
+          </div>
           <button onClick={handleConfirm}
                   style={{ width:'100%', padding:'16px', borderRadius:'14px', border:'none', cursor:'pointer', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:'15px', fontFamily:'Cinzel,Georgia,serif' }}>
                   {isGear5Endpoint(tierId) ? '✅ Bundle complete — Deliver My Product →' : '✅ Bundle approved — Move to Packaging →'}
