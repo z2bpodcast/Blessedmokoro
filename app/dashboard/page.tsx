@@ -70,10 +70,10 @@ function EcosystemCard({ tier }: { tier: string }) {
   const isPaid = PAID_TIERS.includes(tier)
 
   const ITEMS = [
-    { icon:'📖', label:'eBook Reader',  desc:'Read online — any device', href:'/reader'                      },
-    { icon:'🔄', label:'Flipbook',      desc:'Page-flip experience',      href:'/flipbook'                    },
-    { icon:'📓', label:'Workbook',      desc:'Guided chapter exercises',  href:'/workbook'                    },
-    { icon:'🎧', label:'Audio Reader',  desc:'Listen while you work',     href:'/audio-reader'                },
+    { icon:'📖', label:'eBook Reader',  desc:'Read online — any device', href:'/z2b_reader.html'                      },
+    { icon:'🔄', label:'Flipbook',      desc:'Page-flip experience',      href:'/z2b_flipbook_v2.html'                    },
+    { icon:'📓', label:'Workbook',      desc:'Guided chapter exercises',  href:'/z2b_workbook.html'                    },
+    { icon:'🎧', label:'Audio Reader',  desc:'Listen while you work',     href:'/z2b_audio_reader.html'                },
     { icon:'⬇️', label:'Download PDF',  desc:'Print-ready — yours forever',href:'/Zero2Billionaires_eBook.pdf'},
   ]
 
