@@ -1,250 +1,133 @@
-// v2026-03-28 01:25 — Content Engine commissions
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import crypto from 'crypto'
-import { tierVehicleCap } from '@/lib/fourm-access'
 
+// ═══════════════════════════════════════════════════════════════════
 // FILE: app/api/yoco/route.ts
-// Yoco payment webhook + checkout creation
-// Signature verified using YOCO_WEBHOOK_SECRET
+// Z2B UNIFIED PAYMENT GATEWAY
+// Handles: Tier Upgrades + Marketplace Sales
+// Payments: Yoco Card | EFT | Nedbank ATM
+// ═══════════════════════════════════════════════════════════════════
 
 const getSupabase = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const YOCO_SECRET_KEY     = process.env.YOCO_SECRET_KEY || ''
-const YOCO_WEBHOOK_SECRET = process.env.YOCO_WEBHOOK_SECRET || ''
-const APP_URL             = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
+const YOCO_SECRET_KEY = process.env.YOCO_SECRET_KEY || ''
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
 
+// ── TIER AMOUNTS ──────────────────────────────────────────────────
 const AMOUNT_TO_TIER: Record<number, string> = {
-  500:   'fam',
+  700:   'starter',
   2500:  'bronze',
   5000:  'copper',
   12000: 'silver',
-  24000: 'gold',
+  25000: 'gold',
   50000: 'platinum',
 }
 
-function tierFromAmount(amountRands: number): string {
-  return AMOUNT_TO_TIER[amountRands] || 'bronze'
+// ── ISP RATES PER TIER ────────────────────────────────────────────
+const ISP_RATES: Record<string, number> = {
+  fam:      0.10,
+  starter:  0.10,
+  bronze:   0.18,
+  copper:   0.22,
+  silver:   0.25,
+  gold:     0.28,
+  platinum: 0.30,
 }
 
-async function syncFourmUnlockForTier(supabase: any, userId: string, tier: string, refCode: string | null) {
-  // Starter Pack / free tier: remove entitlement row (preview only)
-  if (!tier || tier === 'fam') {
-    await supabase.from('ai_income_unlocks').delete().eq('user_id', userId)
-    return
-  }
-
-  const cap = tierVehicleCap(tier)
-  await supabase.from('ai_income_unlocks').upsert(
-    {
-      user_id: userId,
-      referred_by: refCode || null,
-      amount_paid: 0,
-      four_m_vehicle_scope: cap,
-      four_m_unlock_source: 'membership_tier',
-    },
-    { onConflict: 'user_id' }
-  )
+// ── MARKETPLACE PRODUCTS ──────────────────────────────────────────
+const MARKETPLACE_PRODUCTS: Record<string, { name: string; price: number }> = {
+  'zero2billionaires-ebook': {
+    name:  'Zero2Billionaires eBook',
+    price: 200,
+  },
+  // Future products added here
 }
 
-function verifyYocoSignature(rawBody: string, signature: string, secret: string): boolean {
-  try {
-    const hmac     = crypto.createHmac('sha256', secret)
-    const expected = hmac.update(rawBody).digest('hex')
-    return crypto.timingSafeEqual(
-      Buffer.from(expected, 'hex'),
-      Buffer.from(signature, 'hex')
-    )
-  } catch {
-    return false
-  }
-}
+const MARKETPLACE_COMMISSION_RATE = 0.20 // 20% flat — no upline
 
-// ── Shared commission processor ──────────────────────────────────────────────
-async function processCommissions(
-  supabase: any,
-  buyerUserId: string,
-  refCode: string,
-  amountRands: number,
-  productLabel: string
-) {
-  const ispRates: Record<string,number> = {
-    fam:0.10, bronze:0.18, copper:0.22,
-    silver:0.25, gold:0.28, platinum:0.30
-  }
-
-  // ── ISP — Direct sponsor ─────────────────────────────────────────────────
-  const { data: sponsor } = await supabase.from('profiles')
-    .select('id,paid_tier,full_name,referral_code').eq('referral_code', refCode).single()
-
-  if (!sponsor) return
-
-  const ispRate   = ispRates[sponsor.paid_tier] || 0.10
-  const ispAmount = amountRands * ispRate
-
-  await supabase.from('comp_earnings').insert({
-    builder_id:       sponsor.id,
-    earning_type:     'ISP',
-    amount:           ispAmount,
-    rate:             ispRate,
-    source_builder_id:buyerUserId,
-    sale_amount:      amountRands,
-    status:           'confirmed',
-    notes:            `ISP on R${amountRands} — ${productLabel}`,
-  })
-
-  // ── TSC — Walk up the upline tree ────────────────────────────────────────
-  const tscRates: Record<number,number> = {
-    2:0.10, 3:0.05, 4:0.03, 5:0.02,
-    6:0.01, 7:0.01, 8:0.01, 9:0.01, 10:0.01,
-  }
-  const maxGenByTier: Record<string,number> = {
-    fam:0, bronze:3, copper:4, silver:6, gold:8, platinum:10
-  }
-
-  let currentRefCode = sponsor.referral_code
-  let gen = 2
-
-  while (gen <= 10 && currentRefCode) {
-    const { data: upline } = await supabase.from('profiles')
-      .select('id,paid_tier,full_name,referred_by_code')
-      .eq('referral_code', currentRefCode)
-      .single()
-    if (!upline) break
-
-    const { data: uplinesUpline } = await supabase.from('profiles')
-      .select('id,paid_tier,full_name,referral_code')
-      .eq('referral_code', upline.referred_by_code || '')
-      .single()
-    if (!uplinesUpline) break
-
-    const maxGen = maxGenByTier[uplinesUpline.paid_tier] || 0
-    if (gen > maxGen) { currentRefCode = uplinesUpline.referral_code; gen++; continue }
-
-    const tscRate   = tscRates[gen] || 0
-    const tscAmount = amountRands * tscRate
-
-    if (tscAmount > 0) {
-      await supabase.from('comp_earnings').insert({
-        builder_id:       uplinesUpline.id,
-        earning_type:     'TSC',
-        amount:           tscAmount,
-        rate:             tscRate,
-        source_builder_id:buyerUserId,
-        generation:       gen,
-        sale_amount:      amountRands,
-        status:           'confirmed',
-        notes:            `TSC Gen${gen} on R${amountRands} — ${productLabel}`,
-      })
-    }
-
-    currentRefCode = uplinesUpline.referral_code
-    gen++
-  }
-}
-
+// ═══════════════════════════════════════════════════════════════════
+// POST — handles both checkout creation AND Yoco webhook
+// ═══════════════════════════════════════════════════════════════════
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase()
+
   try {
-    const rawBody = await req.text()
-    const body    = JSON.parse(rawBody)
+    const body = await req.json()
 
-    // ── WEBHOOK from Yoco ────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // 1. YOCO WEBHOOK — payment.succeeded
+    // ────────────────────────────────────────────────────────────────
     if (body.type === 'payment.succeeded') {
-      const supabase = getSupabase()
+      const payment     = body.payload
+      const metadata    = payment.metadata || {}
+      const userId      = metadata.user_id
+      const refCode     = metadata.ref_code || null
+      const saleType    = metadata.sale_type || 'tier'      // 'tier' | 'marketplace'
+      const productId   = metadata.product_id || null
+      const buyerEmail  = metadata.buyer_email || null
+      const buyerName   = metadata.buyer_name  || null
+      const amountRands = Math.round(payment.amount / 100)  // Yoco sends cents
 
-      if (YOCO_WEBHOOK_SECRET) {
-        const signature = req.headers.get('x-yoco-signature') || ''
-        if (!signature || !verifyYocoSignature(rawBody, signature, YOCO_WEBHOOK_SECRET)) {
-          console.error('Yoco signature verification failed')
-          return new NextResponse('Invalid signature', { status: 401 })
+      // ── MARKETPLACE SALE ────────────────────────────────────────
+      if (saleType === 'marketplace' && productId) {
+        const product    = MARKETPLACE_PRODUCTS[productId]
+        const commission = refCode
+          ? amountRands * MARKETPLACE_COMMISSION_RATE
+          : 0
+
+        // Record sale
+        await supabase.from('marketplace_sales').insert({
+          product_id:       productId,
+          product_name:     product?.name || productId,
+          amount:           amountRands,
+          affiliate_ref:    refCode,
+          commission_amount: commission,
+          commission_rate:  MARKETPLACE_COMMISSION_RATE,
+          payment_method:   'yoco',
+          yoco_charge_id:   payment.id,
+          buyer_email:      buyerEmail,
+          buyer_name:       buyerName,
+          status:           'paid',
+          created_at:       new Date().toISOString(),
+        })
+
+        // Credit affiliate — 20% flat, NO upline
+        if (refCode && commission > 0) {
+          await supabase.from('affiliate_commissions').insert({
+            ref_code:         refCode,
+            product_id:       productId,
+            commission_amount: commission,
+            payment_method:   'yoco',
+            yoco_charge_id:   payment.id,
+            buyer_email:      buyerEmail,
+            status:           'approved',
+            created_at:       new Date().toISOString(),
+          })
         }
+
+        // TODO: trigger eBook delivery email via Resend
+        return new NextResponse('Marketplace sale recorded', { status: 200 })
       }
 
-      const payment      = body.payload
-      const metadata     = payment.metadata || {}
-      const userId       = metadata.user_id
-      const refCode      = metadata.ref_code
-      const amountRands  = Math.round(payment.amount / 100)
-      const checkoutTier = (metadata.tier as string) || ''
-      const newTier      = checkoutTier || tierFromAmount(amountRands)
-      const productType  = metadata.product_type || 'membership'
-      const isContentEngine = productType === 'content_engine'
-      const cePlan       = metadata.ce_plan || null
-
+      // ── TIER UPGRADE ─────────────────────────────────────────────
       if (!userId) {
         console.error('No user_id in Yoco webhook metadata')
         return new NextResponse('Missing user_id', { status: 400 })
       }
 
-      // ── CONTENT ENGINE PAYMENT ───────────────────────────────────────────
-      if (isContentEngine && cePlan) {
-        await supabase.rpc('admin_grant_ce_plan', {
-          target_user_id: userId,
-          plan_name:      cePlan,
-        })
-        await supabase.from('transactions').insert({
-          user_id:        userId,
-          amount:         amountRands,
-          tier:           `ce_${cePlan}`,
-          pf_payment_id:  payment.id,
-          payment_method: 'yoco',
-          status:         'confirmed',
-          referred_by:    refCode || null,
-          notes:          `Content Engine ${cePlan} plan`,
-        })
-        if (refCode) {
-          await processCommissions(supabase, userId, refCode, amountRands, `Content Engine ${cePlan}`)
-        }
-        console.log(`✅ Content Engine: ${userId} → ${cePlan} (R${amountRands})`)
-        return new NextResponse('OK', { status:200 })
-      }
+      const newTier = AMOUNT_TO_TIER[amountRands] || 'starter'
 
-      // ── AI INCOME PAYMENT ────────────────────────────────────────────────
-      if (newTier === 'ai_income') {
-        await supabase.from('ai_income_unlocks').upsert(
-          {
-            user_id: userId,
-            referred_by: refCode || null,
-            amount_paid: amountRands,
-            four_m_vehicle_scope: 'manual',
-            four_m_unlock_source: 'payment_ai_income',
-          },
-          { onConflict: 'user_id' }
-        )
-
-        if (refCode) {
-          const { data: referrer } = await supabase
-            .from('profiles').select('id').eq('referral_code', refCode).single()
-          if (referrer) {
-            await supabase.from('ai_income_commissions').insert({
-              referrer_id: referrer.id,
-              referred_id: userId,
-              amount: 200,
-              status: 'pending',
-            })
-          }
-        }
-
-        fetch(`${APP_URL}/api/email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'payment', user_id: userId, data: { tier: 'ai_income', amount: amountRands } }),
-        }).catch(() => {})
-
-        console.log(`✅ AI Income unlocked: ${userId}`)
-        return new NextResponse('OK', { status: 200 })
-      }
-
-      // ── MEMBERSHIP PAYMENT ───────────────────────────────────────────────
+      // Update profile tier
       await supabase.from('profiles').update({
         paid_tier:      newTier,
         payment_status: 'paid',
         upgraded_at:    new Date().toISOString(),
       }).eq('id', userId)
 
+      // Record transaction
       await supabase.from('transactions').insert({
         user_id:        userId,
         amount:         amountRands,
@@ -255,57 +138,75 @@ export async function POST(req: NextRequest) {
         referred_by:    refCode || null,
       })
 
+      // ISP commission for sponsor — full comp plan applies
       if (refCode) {
-        await processCommissions(supabase, userId, refCode, amountRands, `${newTier} membership`)
-        await supabase.from('invitation_dispatches')
-          .update({ registered:true, registered_at:new Date().toISOString() })
-          .eq('ref_code', refCode)
-          .eq('registered', false)
-          .order('dispatched_at', { ascending:false })
-          .limit(1)
+        const { data: sponsor } = await supabase
+          .from('profiles')
+          .select('id, paid_tier, full_name')
+          .eq('referral_code', refCode)
+          .single()
+
+        if (sponsor) {
+          const ispAmount = amountRands * (ISP_RATES[sponsor.paid_tier] || 0.10)
+
+          await supabase.from('comp_earnings').insert({
+            user_id:        sponsor.id,
+            builder_name:   sponsor.full_name,
+            earning_type:   'ISP',
+            amount:         ispAmount,
+            source_user_id: userId,
+            status:         'confirmed',
+            notes:          `ISP on R${amountRands} ${newTier} upgrade`,
+          })
+
+          // Mark referral as converted
+          await supabase
+            .from('referrals')
+            .update({ status: 'converted', converted_at: new Date().toISOString() })
+            .eq('ref_code', refCode)
+            .eq('referred_user_id', userId)
+        }
       }
 
-      await supabase.from('builder_badges').upsert({
-        user_id:    userId,
-        badge_id:   'bronze_legacy',
-        badge_name: 'Bronze Legacy',
-        awarded_at: new Date().toISOString(),
-      }, { onConflict:'user_id,badge_id' })
-
-      await supabase.from('builder_unlocks').upsert({ user_id:userId }, { onConflict:'user_id' })
-      await supabase.from('torch_streaks').upsert({ user_id:userId }, { onConflict:'user_id' })
-
-      fetch(`${APP_URL}/api/email`, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ type:'payment', user_id:userId, data:{ tier:newTier, amount:amountRands } })
-      }).catch(()=>{})
-
-      await syncFourmUnlockForTier(supabase, userId, newTier, refCode || null)
-
-      console.log(`✅ Yoco payment: ${userId} → ${newTier} (R${amountRands})`)
-      return new NextResponse('OK', { status:200 })
+      return new NextResponse('Tier upgrade processed', { status: 200 })
     }
 
-    // ── CREATE CHECKOUT ──────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // 2. CREATE YOCO CHECKOUT — called from /register page
+    // ────────────────────────────────────────────────────────────────
     if (body.action === 'create_checkout') {
-      const { user_id, ref_code, tier } = body
-      const tierAmounts: Record<string,number> = {
-        fam:500, bronze:2500, copper:5000, silver:12000, gold:24000, platinum:50000,
-        ce_starter: 400, ce_pro: 900,
-        ai_income: 500,
-      }
-      const amountRands  = tierAmounts[tier] || 500
-      const isCECheckout = tier.startsWith('ce_')
-      const cePlanName   = isCECheckout ? tier.replace('ce_','') : null
-      const amountCents  = amountRands * 100
+      const {
+        user_id,
+        ref_code,
+        tier,
+        amount,
+        // Marketplace fields
+        sale_type   = 'tier',
+        product_id  = null,
+        buyer_email = null,
+        buyer_name  = null,
+      } = body
 
-      if (!YOCO_SECRET_KEY) {
-        console.error('YOCO_SECRET_KEY is not set in environment variables')
-        return NextResponse.json({ error: 'Payment not configured. Contact support.' }, { status: 503 })
-      }
+      const amountCents = Math.round(amount * 100)
 
-      console.log(`Creating Yoco checkout: tier=${tier} amount=R${amountRands} user=${user_id}`)
+      // Build display name
+      const isMarketplace = sale_type === 'marketplace'
+      const product       = product_id ? MARKETPLACE_PRODUCTS[product_id] : null
+      const displayName   = isMarketplace
+        ? `Z2B Marketplace — ${product?.name || product_id}`
+        : `Z2B Legacy Builders — ${tier?.charAt(0).toUpperCase() + tier?.slice(1)} Membership`
+
+      // Build success / cancel URLs
+      const successUrl = isMarketplace
+        ? `${APP_URL}/marketplace?payment=success&product=${product_id}&ref=${ref_code || ''}`
+        : `${APP_URL}/pay/success?tier=${tier}`
+      const cancelUrl = isMarketplace
+        ? `${APP_URL}/marketplace?payment=cancelled`
+        : `${APP_URL}/pricing`
+      const failureUrl = isMarketplace
+        ? `${APP_URL}/marketplace?payment=failed`
+        : `${APP_URL}/pricing?error=payment_failed`
+
       const response = await fetch('https://payments.yoco.com/api/checkouts', {
         method:  'POST',
         headers: {
@@ -315,50 +216,108 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           amount:     amountCents,
           currency:   'ZAR',
-          cancelUrl:  `${APP_URL}/pricing`,
-          successUrl: isCECheckout
-            ? `${APP_URL}/content-studio-plus?activated=true`
-            : tier === 'ai_income'
-              ? `${APP_URL}/ai-income?activated=true`
-              : `${APP_URL}/pay/success?tier=${tier}`,
-          failureUrl: `${APP_URL}/pricing?error=payment_failed`,
+          cancelUrl,
+          successUrl,
+          failureUrl,
           metadata: {
-            user_id,
-            ref_code:     ref_code||'',
-            tier,
-            product_type: isCECheckout ? 'content_engine' : 'membership',
-            ce_plan:      cePlanName || '',
+            user_id:     user_id    || null,
+            ref_code:    ref_code   || null,
+            tier:        tier       || null,
+            sale_type,
+            product_id,
+            buyer_email,
+            buyer_name,
           },
           lineItems: [{
-            displayName: `Z2B Table Banquet — ${tier.charAt(0).toUpperCase()+tier.slice(1)} Membership`,
+            displayName,
             quantity: 1,
-            pricingDetails: { price: amountCents }
-          }]
-        })
+            pricingDetails: { price: amountCents },
+          }],
+        }),
       })
 
-      let checkout: any = {}
-      const yocoText = await response.text()
-      try { if (yocoText) checkout = JSON.parse(yocoText) } catch {}
+      const checkout = await response.json()
+      if (!response.ok) throw new Error(checkout.message || 'Yoco checkout failed')
 
-      if (!response.ok) {
-        const errMsg = checkout.message || checkout.error || checkout.displayMessage || `Yoco error ${response.status}`
-        console.error('Yoco checkout failed:', response.status, yocoText)
-        return NextResponse.json({ error: errMsg }, { status: 502 })
-      }
-
-      if (!checkout.redirectUrl) {
-        console.error('Yoco returned no redirectUrl:', yocoText)
-        return NextResponse.json({ error: 'Yoco did not return a payment URL. Check YOCO_SECRET_KEY.' }, { status: 502 })
-      }
-
-      return NextResponse.json({ checkoutUrl:checkout.redirectUrl, checkoutId:checkout.id })
+      return NextResponse.json({
+        checkoutUrl: checkout.redirectUrl,
+        checkoutId:  checkout.id,
+      })
     }
 
-    return NextResponse.json({ error:'Unknown action' }, { status:400 })
+    // ────────────────────────────────────────────────────────────────
+    // 3. RECORD MANUAL PAYMENT (EFT / Nedbank ATM)
+    //    Called when buyer clicks "I have made payment" button
+    // ────────────────────────────────────────────────────────────────
+    if (body.action === 'record_manual_payment') {
+      const {
+        payment_method, // 'eft' | 'nedbank_atm'
+        sale_type = 'tier',
+        product_id,
+        amount,
+        ref_code,
+        buyer_email,
+        buyer_name,
+        user_id,
+        tier,
+      } = body
 
-  } catch(e: any) {
-    console.error('Yoco error:', e)
-    return NextResponse.json({ error:e.message }, { status:500 })
+      const isMarketplace = sale_type === 'marketplace'
+
+      if (isMarketplace && product_id) {
+        const commission = ref_code
+          ? amount * MARKETPLACE_COMMISSION_RATE
+          : 0
+
+        await supabase.from('marketplace_sales').insert({
+          product_id,
+          product_name:     MARKETPLACE_PRODUCTS[product_id]?.name || product_id,
+          amount,
+          affiliate_ref:    ref_code || null,
+          commission_amount: commission,
+          commission_rate:  MARKETPLACE_COMMISSION_RATE,
+          payment_method,
+          buyer_email,
+          buyer_name,
+          status:           'pending', // pending until admin confirms EFT/ATM
+          created_at:       new Date().toISOString(),
+        })
+
+        // Affiliate commission stays pending until admin confirms
+        if (ref_code && commission > 0) {
+          await supabase.from('affiliate_commissions').insert({
+            ref_code,
+            product_id,
+            commission_amount: commission,
+            payment_method,
+            buyer_email,
+            status:     'pending',
+            created_at: new Date().toISOString(),
+          })
+        }
+
+        return NextResponse.json({ success: true, status: 'pending' })
+      }
+
+      // Tier — record pending transaction
+      if (user_id && tier) {
+        await supabase.from('transactions').insert({
+          user_id,
+          amount,
+          tier,
+          payment_method,
+          status:      'pending',
+          referred_by: ref_code || null,
+        })
+      }
+
+      return NextResponse.json({ success: true, status: 'pending' })
+    }
+
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+
+  } catch (e: any) {
+    console.error('Z2B Yoco gateway error:', e)
+    return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }

@@ -1,9 +1,10 @@
 'use client'
 // ============================================================
-// Z2B — CENTRALIZED MARKETPLACE (SPRINT 19)
+// Z2B — CENTRALIZED MARKETPLACE (SPRINT 19 — UPDATED)
 // File: app/marketplace/page.tsx
-// One marketplace. All products. Structured categories.
-// Payment: Yoco · PayFast · EFT · ATM
+// Changes: eBook anchor card pinned in Z2B_FEATURED
+//          Commission split: 75% seller / 20% affiliate / 5% Z2B
+//          refCode flows through all payment methods
 // ============================================================
 
 import { useState, useEffect, Suspense } from 'react'
@@ -19,6 +20,10 @@ const VIO   = '#8B5CF6'
 const W     = '#F0F9FF'
 const MUTED = '#64748B'
 const GREEN = '#10B981'
+const PURP  = '#2d1b69'
+
+// ── BOOK COVER ───────────────────────────────────────────────
+const BOOK_COVER = 'https://udfjauogxptlkfrmdtsg.supabase.co/storage/v1/object/public/public-assets/book-cover.jpg'
 
 // ── CATEGORIES ───────────────────────────────────────────────
 const CATEGORIES = [
@@ -35,36 +40,55 @@ const CATEGORIES = [
 ]
 
 // ── Z2B FEATURED PRODUCTS (pinned cards) ─────────────────────
+// ⭐ eBook is ANCHOR — always first
 const Z2B_FEATURED = [
   {
-    id:       'z2b-book-services',
-    category: 'z2b',
-    icon:     '📖',
-    badge:    'Z2B SERVICE',
-    title:    'Digital Book Services',
-    subtitle: 'I Turn Authors Into Brands',
-    desc:     'Done-for-you digital book creation, publishing and distribution. Your knowledge becomes a professional digital product that sells on global marketplaces.',
-    price:    null,
-    cta:      'Get a Quote →',
-    href:     'mailto:books@z2blegacybuilders.co.za',
-    color:    VIO,
-    bg:       'rgba(139,92,246,0.08)',
-    border:   'rgba(139,92,246,0.3)',
+    id:          'z2b-ebook',
+    category:    'ebook',
+    isEbook:     true,                          // triggers floating book cover render
+    badge:       'ANCHOR EBOOK',
+    title:       'Zero2Billionaires',
+    subtitle:    'From Salary Struggles to Digital Freedom',
+    desc:        'The foundational Kingdom business book. Learn the 4 Legs of the Billionaire Table, the 4M Machine Power System and how to build digital income streams rooted in Genesis 1:28.',
+    price:       200,
+    cta:         'Get the eBook — R200 →',
+    productId:   'zero2billionaires-ebook',
+    sellerRef:   'REVMOK2B',                    // 75% always goes to Rev as product owner
+    color:       GOLD,
+    bg:          'rgba(212,175,55,0.06)',
+    border:      'rgba(212,175,55,0.3)',
   },
   {
-    id:       'z2b-4m-machine',
-    category: 'z2b',
-    icon:     '⚙️',
-    badge:    'Z2B PLATFORM',
-    title:    'The 4M Machine',
-    subtitle: 'Build. Sell. Earn. Repeat.',
-    desc:     'AI-powered digital product factory. From idea to marketplace in one session. Build eBooks, toolkits, templates and more — then sell on 5 platforms automatically.',
-    price:    700,
-    cta:      'Start Building →',
-    href:     '/ai-income/choose-plan',
-    color:    GOLD,
-    bg:       'rgba(212,175,55,0.08)',
-    border:   'rgba(212,175,55,0.3)',
+    id:          'z2b-book-services',
+    category:    'z2b',
+    isEbook:     false,
+    icon:        '📖',
+    badge:       'Z2B SERVICE',
+    title:       'Digital Book Services',
+    subtitle:    'I Turn Authors Into Brands',
+    desc:        'Done-for-you digital book creation, publishing and distribution. Your knowledge becomes a professional digital product that sells on global marketplaces.',
+    price:       null,
+    cta:         'Get a Quote →',
+    href:        'mailto:books@z2blegacybuilders.co.za',
+    color:       VIO,
+    bg:          'rgba(139,92,246,0.08)',
+    border:      'rgba(139,92,246,0.3)',
+  },
+  {
+    id:          'z2b-4m-machine',
+    category:    'z2b',
+    isEbook:     false,
+    icon:        '⚙️',
+    badge:       'Z2B PLATFORM',
+    title:       'The 4M Machine',
+    subtitle:    'Build. Sell. Earn. Repeat.',
+    desc:        'AI-powered digital product factory. From idea to marketplace in one session. Build eBooks, toolkits, templates and more — then sell on 5 platforms automatically.',
+    price:       700,
+    cta:         'Start Building →',
+    href:        '/ai-income/choose-plan',
+    color:       GOLD,
+    bg:          'rgba(212,175,55,0.08)',
+    border:      'rgba(212,175,55,0.3)',
   },
 ]
 
@@ -88,12 +112,270 @@ interface Product {
   affiliate_enabled: boolean
 }
 
-interface PaymentModal {
-  product: Product
-  open:    boolean
+// ── EBOOK PAYMENT MODAL ───────────────────────────────────────
+// Handles the Zero2Billionaires eBook with full commission split
+function EbookModal({
+  onClose,
+  refCode,
+  buyerEmail: initEmail,
+}: {
+  onClose:    () => void
+  refCode:    string
+  buyerEmail: string
+}) {
+  const PRICE       = 200
+  const PRODUCT_ID  = 'zero2billionaires-ebook'
+  const SELLER_REF  = 'REVMOK2B'
+
+  const [method,     setMethod]     = useState<'yoco' | 'eft' | 'atm'>('yoco')
+  const [buyerName,  setBuyerName]  = useState('')
+  const [buyerEmail, setBuyerEmail] = useState(initEmail)
+  const [loading,    setLoading]    = useState(false)
+  const [eftRef,     setEftRef]     = useState('')
+  const [copied,     setCopied]     = useState<string | null>(null)
+
+  const canPay = buyerName.trim() && buyerEmail.trim()
+  const ref    = eftRef || ('Z2B-EBOOK-' + Date.now().toString().slice(-8))
+
+  function copyText(text: string, key: string) {
+    navigator.clipboard.writeText(text)
+    setCopied(key)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  // Record commission split in Supabase
+  async function recordCommission(method: string, status: 'paid' | 'pending') {
+    const affiliateCommission = PRICE * 0.20   // 20% to affiliate
+    const sellerShare         = PRICE * 0.75   // 75% to Rev (product owner)
+    const platformShare       = PRICE * 0.05   // 5%  to Z2B
+
+    // Record the sale
+    await supabase.from('marketplace_sales').insert({
+      product_id:        PRODUCT_ID,
+      product_name:      'Zero2Billionaires eBook',
+      amount:            PRICE,
+      seller_ref:        SELLER_REF,
+      seller_share:      sellerShare,
+      affiliate_ref:     refCode || null,
+      commission_amount: refCode ? affiliateCommission : 0,
+      commission_rate:   0.20,
+      platform_share:    platformShare,
+      payment_method:    method,
+      buyer_email:       buyerEmail,
+      buyer_name:        buyerName,
+      status,
+      created_at:        new Date().toISOString(),
+    })
+
+    // Credit affiliate — 20% flat, no upline
+    if (refCode && status !== 'pending') {
+      await supabase.from('affiliate_commissions').insert({
+        ref_code:          refCode,
+        product_id:        PRODUCT_ID,
+        commission_amount: affiliateCommission,
+        payment_method:    method,
+        buyer_email:       buyerEmail,
+        status:            'approved',
+        created_at:        new Date().toISOString(),
+      })
+    } else if (refCode && status === 'pending') {
+      // Pending until admin confirms EFT/ATM
+      await supabase.from('affiliate_commissions').insert({
+        ref_code:          refCode,
+        product_id:        PRODUCT_ID,
+        commission_amount: affiliateCommission,
+        payment_method:    method,
+        buyer_email:       buyerEmail,
+        status:            'pending',
+        created_at:        new Date().toISOString(),
+      })
+    }
+  }
+
+  async function handleYoco() {
+    if (!canPay || loading) return
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token ?? ''
+
+      const res  = await fetch('/api/marketplace/checkout', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({
+          productId:   PRODUCT_ID,
+          amount:      PRICE,
+          provider:    'yoco',
+          buyerEmail,
+          buyerName,
+          refCode:     refCode || null,
+          sellerRef:   SELLER_REF,
+          // Commission metadata passed through to webhook
+          commissions: {
+            seller:    { ref: SELLER_REF,  amount: PRICE * 0.75, rate: 0.75 },
+            affiliate: { ref: refCode,     amount: PRICE * 0.20, rate: 0.20 },
+            platform:  { amount: PRICE * 0.05, rate: 0.05 },
+          },
+        }),
+      })
+      const data = await res.json()
+      if (data.redirectUrl)  window.location.href = data.redirectUrl
+      else if (data.checkoutUrl) window.location.href = data.checkoutUrl
+      else { alert('Could not initiate payment. Please try again.'); setLoading(false) }
+    } catch {
+      alert('Network error. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  async function handleManual(payMethod: 'eft' | 'atm') {
+    if (!canPay) return
+    const newRef = 'Z2B-EBOOK-' + Date.now().toString().slice(-8)
+    setEftRef(newRef)
+    await recordCommission(payMethod, 'pending')
+  }
+
+  const METHODS = [
+    { id: 'yoco', icon: '💳', label: 'Card Payment via Yoco', desc: 'Visa · Mastercard — instant confirmation' },
+    { id: 'eft',  icon: '🏦', label: 'EFT / Bank Transfer',   desc: 'Direct transfer — confirmed within 24hrs'  },
+    { id: 'atm',  icon: '🏧', label: 'Nedbank ATM Deposit',   desc: 'Cash deposit at any Nedbank ATM'           },
+  ]
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.82)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', backdropFilter:'blur(10px)' }}>
+      <div style={{ width:'100%', maxWidth:'460px', background:SURF, borderRadius:'20px', border:'1px solid rgba(212,175,55,0.25)', borderTop:'3px solid '+GOLD, overflow:'hidden', maxHeight:'90vh', overflowY:'auto' }}>
+
+        {/* Header with floating book */}
+        <div style={{ padding:'24px 20px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', gap:'16px', alignItems:'center', background:'linear-gradient(135deg,rgba(45,27,105,0.4) 0%,rgba(13,22,41,0.8) 100%)', position:'relative' }}>
+          {/* Floating book cover */}
+          <div style={{ flexShrink:0, width:72, filter:'drop-shadow(0 12px 24px rgba(212,175,55,0.3))', animation:'ebFloat 4s ease-in-out infinite' }}>
+            <img src={BOOK_COVER} alt="Zero2Billionaires" style={{ width:'100%', borderRadius:4, display:'block' }} />
+          </div>
+          <style>{`@keyframes ebFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-6px)}}`}</style>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:9, letterSpacing:4, color:GOLD, fontFamily:'Georgia,serif', marginBottom:4 }}>ANCHOR EBOOK</div>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:16, fontWeight:900, color:W, marginBottom:2 }}>Zero2Billionaires</div>
+            <div style={{ fontSize:11, color:'rgba(212,175,55,0.6)', fontStyle:'italic', marginBottom:6 }}>From Salary Struggles to Digital Freedom</div>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:24, fontWeight:900, color:GOLD }}>R200</div>
+          </div>
+          <button onClick={onClose} style={{ position:'absolute', top:12, right:14, background:'transparent', border:'none', color:MUTED, cursor:'pointer', fontSize:18 }}>✕</button>
+        </div>
+
+        {/* Affiliate badge */}
+        {refCode && (
+          <div style={{ padding:'8px 20px', background:'rgba(212,175,55,0.06)', borderBottom:'1px solid rgba(212,175,55,0.1)', fontSize:10, color:GOLD, letterSpacing:3, fontFamily:'Georgia,serif' }}>
+            ◆ REFERRED BY {refCode} · AFFILIATE EARNS R{(200*0.20).toFixed(0)} COMMISSION
+          </div>
+        )}
+
+        {/* EFT / ATM bank details shown after confirming */}
+        {eftRef ? (
+          <div style={{ padding:'20px' }}>
+            <div style={{ padding:'16px', borderRadius:'12px', background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.25)', marginBottom:'16px' }}>
+              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:13, fontWeight:900, color:CYAN, marginBottom:12 }}>
+                {method === 'atm' ? '🏧 Nedbank ATM Deposit Details' : '🏦 EFT Bank Details'}
+              </div>
+              {[
+                { k:'Bank',           v:'Nedbank',                            id:'k1'          },
+                { k:'Account Name',   v:'Zero2billionaires Amavulandlela',    id:'k2'          },
+                { k:'Account Number', v:'1318257727',                         id:'k3', hl:true },
+                { k:'Branch Code',    v:'198765',                             id:'k4'          },
+                { k:'Amount',         v:'R200.00',                            id:'k5', hl:true },
+                { k:'Reference',      v:eftRef,                               id:'k6', hl:true },
+              ].map(({ k, v, id, hl }) => (
+                <div key={id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6, fontSize:12 }}>
+                  <span style={{ color:MUTED }}>{k}:</span>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ color: hl ? GOLD : W, fontWeight: hl ? 900 : 400 }}>{v}</span>
+                    <button onClick={() => copyText(v, id)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:10, color:'rgba(212,175,55,0.45)', fontFamily:'Georgia,serif' }}>
+                      {copied === id ? '✓' : 'COPY'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize:12, color:MUTED, lineHeight:1.8, marginBottom:16 }}>
+              {method === 'atm'
+                ? `📍 Go to any Nedbank ATM → Deposits → Account number above → R200 cash → use reference ${eftRef}.`
+                : `⚠️ Use reference ${eftRef} so we can match your payment.`
+              } Your eBook will be delivered to <span style={{ color:W }}>{buyerEmail}</span> within 24 hours of confirmation.
+            </div>
+            <button onClick={onClose} style={{ width:'100%', padding:12, borderRadius:10, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:14, fontFamily:'Cinzel,Georgia,serif' }}>
+              Done — I have made the payment →
+            </button>
+          </div>
+
+        ) : (
+          <div style={{ padding:'20px' }}>
+            {/* Buyer details */}
+            <div style={{ fontSize:10, color:MUTED, letterSpacing:3, textTransform:'uppercase', marginBottom:8 }}>Your Details</div>
+            <input
+              placeholder="Full name"
+              value={buyerName}
+              onChange={e => setBuyerName(e.target.value)}
+              style={{ width:'100%', padding:'10px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:13, fontFamily:'Georgia,serif', outline:'none', marginBottom:8 }}
+            />
+            <input
+              type="email"
+              placeholder="Email address"
+              value={buyerEmail}
+              onChange={e => setBuyerEmail(e.target.value)}
+              style={{ width:'100%', padding:'10px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:13, fontFamily:'Georgia,serif', outline:'none', marginBottom:16 }}
+            />
+
+            {/* Method selection */}
+            <div style={{ fontSize:10, color:MUTED, letterSpacing:3, textTransform:'uppercase', marginBottom:10 }}>Choose Payment Method</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:16 }}>
+              {METHODS.map(m => (
+                <div key={m.id} onClick={() => setMethod(m.id as any)}
+                  style={{ padding:'12px 14px', borderRadius:10, border:'2px solid '+(method===m.id ? GOLD : 'rgba(255,255,255,0.08)'), background:method===m.id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)', cursor:'pointer', display:'flex', alignItems:'center', gap:12 }}>
+                  <span style={{ fontSize:20 }}>{m.icon}</span>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:700, color:method===m.id ? GOLD : W }}>{m.label}</div>
+                    <div style={{ fontSize:11, color:MUTED }}>{m.desc}</div>
+                  </div>
+                  <div style={{ marginLeft:'auto', fontSize:9, letterSpacing:2, padding:'3px 7px', borderRadius:4, border:'1px solid', ...(m.id==='yoco' ? { color:'#6ee7b7', borderColor:'rgba(5,150,105,0.35)', background:'rgba(5,150,105,0.1)' } : m.id==='atm' ? { color:'#93c5fd', borderColor:'rgba(59,130,246,0.35)', background:'rgba(59,130,246,0.1)' } : { color:'#fcd34d', borderColor:'rgba(217,119,6,0.35)', background:'rgba(217,119,6,0.1)' }) }}>
+                    {m.id==='yoco' ? 'INSTANT' : m.id==='atm' ? 'SAME DAY' : '24 HRS'}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pay button */}
+            {method === 'yoco' ? (
+              <button onClick={handleYoco} disabled={!canPay || loading}
+                style={{ width:'100%', padding:14, borderRadius:12, border:'none', cursor: (!canPay||loading) ? 'not-allowed' : 'pointer', background: (!canPay||loading) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#D4AF37,#B8860B)', color: (!canPay||loading) ? MUTED : '#050A18', fontWeight:900, fontSize:15, fontFamily:'Cinzel,Georgia,serif', opacity: !canPay ? 0.5 : 1 }}>
+                {loading ? 'Redirecting to Yoco...' : 'Pay R200 via Card →'}
+              </button>
+            ) : (
+              <button onClick={() => handleManual(method as 'eft'|'atm')} disabled={!canPay}
+                style={{ width:'100%', padding:14, borderRadius:12, border:'none', cursor: !canPay ? 'not-allowed' : 'pointer', background: !canPay ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#D4AF37,#B8860B)', color: !canPay ? MUTED : '#050A18', fontWeight:900, fontSize:15, fontFamily:'Cinzel,Georgia,serif', opacity: !canPay ? 0.5 : 1 }}>
+                {method==='atm' ? 'Show ATM Deposit Details →' : 'Show EFT Bank Details →'}
+              </button>
+            )}
+
+            {!canPay && (
+              <div style={{ textAlign:'center', fontSize:11, color:'rgba(212,175,55,0.38)', fontStyle:'italic', marginTop:8 }}>
+                Enter your name and email to unlock payment
+              </div>
+            )}
+
+            <div style={{ textAlign:'center', fontSize:11, color:MUTED, marginTop:10 }}>
+              🔒 Secure checkout · Kingdom backed · Instant delivery
+            </div>
+
+            {/* Commission split info */}
+            <div style={{ marginTop:14, padding:'10px 12px', borderRadius:8, background:'rgba(212,175,55,0.04)', border:'1px solid rgba(212,175,55,0.1)', fontSize:10, color:MUTED, lineHeight:1.8 }}>
+              💰 <span style={{ color:GOLD }}>Commission:</span> Seller 75% · {refCode ? `Affiliate (${refCode}) 20%` : 'Affiliate 20% (share your link to earn)'} · Z2B 5%
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
-// ── PAYMENT MODAL ─────────────────────────────────────────────
+// ── EXISTING PAYMENT MODAL (unchanged — for Supabase products) ──
 function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onClose: () => void; buyerEmail: string }) {
   const [method,   setMethod]   = useState<'yoco' | 'payfast' | 'eft' | 'atm'>('yoco')
   const [loading,  setLoading]  = useState(false)
@@ -109,16 +391,13 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
 
   async function handlePay() {
     setLoading(true)
-
     if (method === 'eft' || method === 'atm') {
       setEftRef('Z2B-MP-' + Date.now().toString().slice(-8))
       setLoading(false)
       return
     }
-
     const { data: { session } } = await supabase.auth.getSession()
     const token = session?.access_token ?? ''
-
     if (method === 'yoco') {
       const res  = await fetch('/api/marketplace/checkout', {
         method:  'POST',
@@ -129,7 +408,6 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
       if (data.redirectUrl) window.location.href = data.redirectUrl
       else if (data.checkoutUrl) window.location.href = data.checkoutUrl
     }
-
     if (method === 'payfast') {
       const res  = await fetch('/api/marketplace/checkout', {
         method:  'POST',
@@ -145,21 +423,13 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: '440px', background: SURF, borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' }}>
-
-        {/* Header */}
         <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '4px' }}>
-              {product.title ?? product.name}
-            </div>
-            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '22px', fontWeight: 900, color: GOLD }}>
-              R{price.toLocaleString()}
-            </div>
+            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: W, marginBottom: '4px' }}>{product.title ?? product.name}</div>
+            <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '22px', fontWeight: 900, color: GOLD }}>R{price.toLocaleString()}</div>
           </div>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: MUTED, cursor: 'pointer', fontSize: '20px', padding: '4px' }}>✕</button>
         </div>
-
-        {/* Manual EFT / ATM details */}
         {eftRef ? (
           <div style={{ padding: '20px' }}>
             <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.25)', marginBottom: '16px' }}>
@@ -181,16 +451,14 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
               ))}
             </div>
             <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8, marginBottom: '16px' }}>
-              Email proof of payment or ATM deposit slip to <span style={{ color: GOLD }}>payments@z2blegacybuilders.co.za</span> with your reference. Download link sent within 2 hours after confirmation.
+              Email proof of payment to <span style={{ color: GOLD }}>payments@z2blegacybuilders.co.za</span> with your reference. Download link sent within 2 hours.
             </div>
-            <button onClick={onClose}
-              style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '14px', fontFamily: 'Cinzel,Georgia,serif' }}>
+            <button onClick={onClose} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: GOLD, color: '#050A18', fontWeight: 900, fontSize: '14px', fontFamily: 'Cinzel,Georgia,serif' }}>
               Done — I will send proof →
             </button>
           </div>
         ) : (
           <div style={{ padding: '20px' }}>
-            {/* Method selection */}
             <div style={{ fontSize: '11px', color: MUTED, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Choose Payment Method</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               {METHODS.map(m => (
@@ -204,7 +472,6 @@ function PaymentModal({ product, onClose, buyerEmail }: { product: Product; onCl
                 </div>
               ))}
             </div>
-
             <button onClick={handlePay} disabled={loading}
               style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', cursor: loading ? 'default' : 'pointer', background: loading ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#D4AF37,#B8860B)', color: loading ? MUTED : '#050A18', fontWeight: 900, fontSize: '15px', fontFamily: 'Cinzel,Georgia,serif' }}>
               {loading ? 'Processing...' : `Pay R${price.toLocaleString()} →`}
@@ -230,6 +497,7 @@ function MarketplaceInner() {
   const [category,   setCategory]   = useState('all')
   const [search,     setSearch]     = useState('')
   const [payment,    setPayment]    = useState<{ product: Product } | null>(null)
+  const [ebookOpen,  setEbookOpen]  = useState(false)   // ← eBook modal
   const [userId,     setUserId]     = useState<string | null>(null)
   const [userEmail,  setUserEmail]  = useState('')
   const [refSaved,   setRefSaved]   = useState(false)
@@ -238,6 +506,10 @@ function MarketplaceInner() {
     loadProducts()
     checkUser()
     if (refCode) saveRefCode(refCode)
+    // Auto-open success state if returning from Yoco
+    if (params.get('payment') === 'success' && params.get('product') === 'zero2billionaires-ebook') {
+      setEbookOpen(true)
+    }
   }, [])
 
   async function checkUser() {
@@ -248,9 +520,7 @@ function MarketplaceInner() {
   async function saveRefCode(code: string) {
     if (refSaved) return
     setRefSaved(true)
-    try {
-      sessionStorage.setItem('z2b_ref', code)
-    } catch (_) {}
+    try { sessionStorage.setItem('z2b_ref', code) } catch (_) {}
   }
 
   async function loadProducts() {
@@ -271,14 +541,14 @@ function MarketplaceInner() {
 
   function getCategoryFromFormat(format: string): string {
     const map: Record<string, string> = {
-      ebook:       'ebook', guide: 'ebook', book: 'ebook',
-      toolkit:     'toolkit', template: 'toolkit', workbook: 'toolkit', checklist: 'toolkit',
-      course:      'course', masterclass: 'course', workshop: 'course',
-      framework:   'framework', protocol: 'framework',
-      printable:   'printable', planner: 'printable',
-      audio:       'audio_video', video: 'audio_video', podcast: 'audio_video',
-      software:    'software', tool: 'software', app: 'software',
-      community:   'community',
+      ebook:'ebook', guide:'ebook', book:'ebook',
+      toolkit:'toolkit', template:'toolkit', workbook:'toolkit', checklist:'toolkit',
+      course:'course', masterclass:'course', workshop:'course',
+      framework:'framework', protocol:'framework',
+      printable:'printable', planner:'printable',
+      audio:'audio_video', video:'audio_video', podcast:'audio_video',
+      software:'software', tool:'software', app:'software',
+      community:'community',
     }
     return map[format?.toLowerCase()] ?? 'ebook'
   }
@@ -292,7 +562,7 @@ function MarketplaceInner() {
     return matchCat && matchSearch
   })
 
-  const showFeatured = category === 'all' || category === 'z2b'
+  const showFeatured = category === 'all' || category === 'z2b' || category === 'ebook'
 
   return (
     <div style={{ minHeight: '100vh', background: BG, color: W, fontFamily: 'Georgia,serif' }}>
@@ -340,36 +610,80 @@ function MarketplaceInner() {
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 20px 60px' }}>
 
-        {/* Z2B Featured Cards — always pinned at top */}
+        {/* ── Z2B FEATURED — eBook ANCHOR always first ── */}
         {showFeatured && (
           <div style={{ marginBottom: '32px' }}>
             <div style={{ fontSize: '10px', color: MUTED, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '14px' }}>⭐ Z2B Featured</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
-              {Z2B_FEATURED.map(feat => (
-                <div key={feat.id} style={{ borderRadius: '18px', border: '1px solid ' + feat.border, background: feat.bg, padding: '22px', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: feat.color + '20', color: feat.color, border: '1px solid ' + feat.border, marginBottom: '12px' }}>
-                    {feat.badge}
-                  </div>
-                  <div style={{ fontSize: '36px', marginBottom: '12px' }}>{feat.icon}</div>
-                  <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '4px' }}>{feat.title}</div>
-                  <div style={{ fontSize: '13px', color: feat.color, marginBottom: '10px', fontWeight: 700 }}>{feat.subtitle}</div>
-                  <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8, marginBottom: '16px' }}>{feat.desc}</div>
-                  {feat.price && (
-                    <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: feat.color, marginBottom: '14px' }}>
-                      From R{feat.price.toLocaleString()}
+              {Z2B_FEATURED.map(feat => {
+
+                // ── EBOOK ANCHOR CARD ──────────────────────────
+                if (feat.isEbook) return (
+                  <div key={feat.id} style={{ borderRadius:18, border:'1px solid '+feat.border, background:feat.bg, overflow:'hidden', display:'flex', flexDirection:'column', gridColumn: 'span 2' }}>
+                    {/* Gold top bar */}
+                    <div style={{ height:3, background:'linear-gradient(90deg,'+GOLD+',#f0c040,'+GOLD+')' }} />
+                    <div style={{ padding:'22px', display:'flex', gap:'24px', alignItems:'center', flexWrap:'wrap' }}>
+                      {/* Floating book */}
+                      <div style={{ flexShrink:0, width:110, filter:'drop-shadow(0 20px 40px rgba(212,175,55,0.25))', animation:'ftFloat 6s ease-in-out infinite' }}>
+                        <img src={BOOK_COVER} alt="Zero2Billionaires" style={{ width:'100%', borderRadius:4, display:'block' }} />
+                      </div>
+                      <style>{`@keyframes ftFloat{0%,100%{transform:translateY(0px) rotate(-1deg)}50%{transform:translateY(-10px) rotate(1deg)}}`}</style>
+                      <div style={{ flex:1, minWidth:200 }}>
+                        <div style={{ display:'inline-block', fontSize:9, fontWeight:700, padding:'3px 10px', borderRadius:20, background:GOLD+'20', color:GOLD, border:'1px solid '+feat.border, marginBottom:10 }}>
+                          ⭐ {feat.badge}
+                        </div>
+                        <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:22, fontWeight:900, color:W, marginBottom:2 }}>{feat.title}</div>
+                        <div style={{ fontSize:13, color:GOLD, marginBottom:10, fontStyle:'italic' }}>{feat.subtitle}</div>
+                        <div style={{ fontSize:12, color:MUTED, lineHeight:1.8, marginBottom:14 }}>{feat.desc}</div>
+                        {refCode && (
+                          <div style={{ fontSize:10, color:GOLD, letterSpacing:3, marginBottom:12 }}>
+                            ◆ REFERRED BY {refCode} · AFFILIATE EARNS R{(200*0.20).toFixed(0)} ON THIS SALE
+                          </div>
+                        )}
+                        <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+                          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:28, fontWeight:900, color:GOLD }}>R200</div>
+                          <button
+                            onClick={() => setEbookOpen(true)}
+                            style={{ padding:'11px 26px', borderRadius:10, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:14, fontFamily:'Cinzel,Georgia,serif' }}>
+                            {feat.cta}
+                          </button>
+                          <div style={{ fontSize:10, color:MUTED }}>🔒 Yoco · EFT · Nedbank ATM</div>
+                        </div>
+                        <div style={{ marginTop:12, fontSize:10, color:MUTED }}>
+                          💰 Affiliates earn 20% (R40) per sale · Seller 75% · Z2B 5%
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <Link href={feat.href}
-                    style={{ display: 'inline-block', padding: '10px 22px', borderRadius: '10px', background: feat.color, color: '#050A18', fontWeight: 900, fontSize: '13px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-                    {feat.cta}
-                  </Link>
-                </div>
-              ))}
+                  </div>
+                )
+
+                // ── STANDARD FEATURED CARD ─────────────────────
+                return (
+                  <div key={feat.id} style={{ borderRadius: '18px', border: '1px solid ' + feat.border, background: feat.bg, padding: '22px', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: feat.color + '20', color: feat.color, border: '1px solid ' + feat.border, marginBottom: '12px' }}>
+                      {feat.badge}
+                    </div>
+                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>{(feat as any).icon}</div>
+                    <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '4px' }}>{feat.title}</div>
+                    <div style={{ fontSize: '13px', color: feat.color, marginBottom: '10px', fontWeight: 700 }}>{feat.subtitle}</div>
+                    <div style={{ fontSize: '12px', color: MUTED, lineHeight: 1.8, marginBottom: '16px' }}>{feat.desc}</div>
+                    {feat.price && (
+                      <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: feat.color, marginBottom: '14px' }}>
+                        From R{feat.price.toLocaleString()}
+                      </div>
+                    )}
+                    <Link href={(feat as any).href}
+                      style={{ display: 'inline-block', padding: '10px 22px', borderRadius: '10px', background: feat.color, color: '#050A18', fontWeight: 900, fontSize: '13px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                      {feat.cta}
+                    </Link>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
 
-        {/* Products grid */}
+        {/* Products grid — unchanged */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <div style={{ width: '40px', height: '40px', border: '3px solid ' + GOLD, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
@@ -397,7 +711,6 @@ function MarketplaceInner() {
                 const price = getPrice(product)
                 return (
                   <div key={product.id} style={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    {/* Product card header */}
                     <div style={{ padding: '16px 16px 10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                         <span style={{ fontSize: '10px', color: GOLD, background: 'rgba(212,175,55,0.1)', padding: '3px 8px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -417,7 +730,6 @@ function MarketplaceInner() {
                         <div style={{ fontSize: '10px', color: MUTED }}>by {product.seller_name}</div>
                       )}
                     </div>
-                    {/* Price + CTA */}
                     <div style={{ marginTop: 'auto', padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '20px', fontWeight: 900, color: GOLD }}>
                         R{price.toLocaleString()}
@@ -456,11 +768,19 @@ function MarketplaceInner() {
         </div>
       </div>
 
-      {/* Payment modal */}
+      {/* eBook modal */}
+      {ebookOpen && (
+        <EbookModal
+          onClose={() => setEbookOpen(false)}
+          refCode={refCode}
+          buyerEmail={userEmail}
+        />
+      )}
+
+      {/* Standard product payment modal */}
       {payment && (
         <PaymentModal product={payment.product} buyerEmail={userEmail} onClose={() => setPayment(null)} />
       )}
-
     </div>
   )
 }
