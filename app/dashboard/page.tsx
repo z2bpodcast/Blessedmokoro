@@ -142,6 +142,22 @@ function DashboardInner() {
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:900, color:W, marginBottom:'14px' }}>
           Your Z2B Platform
         </div>
+        <div style={{ borderRadius:'16px', overflow:'hidden', background:'linear-gradient(135deg,#0f0d18,#2d1b69,#0f0d18)', border:'1px solid rgba(201,162,39,0.4)', marginBottom:'32px', position:'relative' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'4px', background:'linear-gradient(90deg,#c9a227,#f0c040,#c9a227)' }} />
+          <div style={{ padding:'28px 24px' }}>
+            <div style={{ fontSize:'10px', letterSpacing:'4px', textTransform:'uppercase', color:'#c9a227', marginBottom:'10px' }}>Your Member Benefit</div>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'22px', fontWeight:900, color:'#f5f0e8', marginBottom:'6px' }}>Zero 2 Billionaires</div>
+            <div style={{ fontSize:'13px', fontStyle:'italic', color:'#c9a227', marginBottom:'14px' }}>From Salary Struggles to Digital Freedom</div>
+            <div style={{ fontSize:'12px', color:'rgba(245,240,232,0.6)', lineHeight:1.8, marginBottom:'20px' }}>The book that started everything — available in four formats for all members.</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'8px' }}>
+              {[{icon:'📖',label:'eBook Reader',href:'/reader'},{icon:'🔄',label:'Flipbook',href:'/flipbook'},{icon:'📓',label:'Workbook',href:'/workbook'},{icon:'⬇️',label:'Download PDF',href:'/Zero2Billionaires_eBook.pdf'}].map(item=>(
+              <a key={item.label} href={item.href} style={{ padding:'12px 14px', borderRadius:'10px', background:'rgba(201,162,39,0.08)', border:'1px solid rgba(201,162,39,0.2)', textDecoration:'none', display:'flex', alignItems:'center', gap:'10px' }}>
+                <span style={{ fontSize:'20px' }}>{item.icon}</span>
+                <div style={{ fontSize:'13px', fontWeight:700, color:'#f0c040', fontFamily:'Cinzel,Georgia,serif' }}>{item.label}</div>
+              </a>))}
+            </div>
+          </div>
+        </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'10px', marginBottom:'32px' }}>
           {NAV_ITEMS.map(item => (
             <Link key={item.label} href={item.href}
