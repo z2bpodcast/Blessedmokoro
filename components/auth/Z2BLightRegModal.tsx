@@ -372,7 +372,7 @@ export default function Z2BLightRegModal({ variant, refCode = '', onClose, onSuc
                   <em>Welcome</em> to the Kingdom!
                 </div>
                 <div className="z2b-lr-success-sub">
-                  Account created! Taking you to {cfg.variant === 'machine' ? 'the 4M Machine' : cfg.variant === 'book' ? 'complete your purchase' : 'the marketplace'}...
+                  Account created! Taking you to {variant === 'machine' ? 'the 4M Machine' : variant === 'book' ? 'complete your purchase' : 'the marketplace'}...
                 </div>
               </div>
             )}
