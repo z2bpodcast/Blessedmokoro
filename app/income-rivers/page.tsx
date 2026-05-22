@@ -416,7 +416,7 @@ function IncomeRiversInner() {
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               {/* WhatsApp */}
               <a
-                href={'https://wa.me/?text=' + encodeURIComponent('4 Income Rivers — Zero2Billionaires\n\nRiver 1: 4M Machine\nRiver 2: Affiliate Marketing\nRiver 3: Compensation Plan\nRiver 4: Builder PWA Store\n\nhttps://app.z2blegacybuilders.co.za/income-rivers' + (refCode ? '?ref=' + refCode : ''))}
+                href={'https://wa.me/?text=' + encodeURIComponent('Check this out! Just as one river from Eden flowed into four streams, one vision should create multiple streams of income.\n\nZero2Billionaires - One Vision Four Rivers\n\nRiver 1: 4M Machine\nRiver 2: Affiliate Marketing\nRiver 3: Compensation Plan\nRiver 4: Builder PWA Store\n\nhttps://app.z2blegacybuilders.co.za/income-rivers' + (refCode ? '?ref=' + refCode : ''))}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'12px', borderRadius:10, background:'rgba(37,211,102,0.1)', border:'1px solid rgba(37,211,102,0.3)', color:'#25D166', textDecoration:'none', fontSize:13, fontWeight:700, fontFamily:'Cinzel,Georgia,serif' }}>
