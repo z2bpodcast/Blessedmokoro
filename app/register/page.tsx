@@ -27,6 +27,26 @@ function RegisterInner() {
   const tier   = params.get('tier') ?? 'starter'
   const info   = TIER_INFO[tier.toLowerCase()] ?? TIER_INFO['starter']
 
+  // Auto-redirect logged-in FAM members straight to payment
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      const { data: profile } = await (supabase as any)
+        .from('profiles')
+        .select('paid_tier')
+        .eq('id', user.id)
+        .single()
+      const t = profile?.paid_tier ?? 'fam'
+      // If already paid tier, go to dashboard
+      if (t !== 'fam' && t !== 'free') {
+        router.push('/dashboard')
+        return
+      }
+      // FAM user — skip registration, go straight to payment
+      router.push('/ai-income/payment?tier=' + tier + '&amount=' + info.price + '&name=' + encodeURIComponent(tierName))
+    })
+  }, [])
+
   const [fullName, setFullName] = useState('')
   const [email,    setEmail]    = useState('')
   const [phone,    setPhone]    = useState('')
