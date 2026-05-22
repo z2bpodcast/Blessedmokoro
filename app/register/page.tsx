@@ -1,7 +1,7 @@
 'use client'
 // File: app/register/page.tsx
 // Light registration — name, email, phone → straight to payment
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
