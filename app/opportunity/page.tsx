@@ -70,7 +70,7 @@ export default function OpportunityPage() {
           The Z2B Opportunity
         </span>
         <div style={{ marginLeft:'auto' }}>
-          <Link href={user ? '/ai-income/choose-plan' : '/signup'} style={{ padding:'8px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
+          <Link href='/income-rivers' style={{ padding:'8px 20px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
             {user ? 'Upgrade Now →' : 'Deploy Yourself →'}
           </Link>
         </div>
@@ -92,7 +92,7 @@ export default function OpportunityPage() {
             </span>
           </div>
           <p style={{ fontSize:'16px', color:MUTED, lineHeight:1.8, marginBottom:'32px' }}>
-            Z2B Legacy Builders gives every ambitious employee the AI tools, digital products platform and income community they need to build income alongside their job — and eventually beyond it.
+            Z2B Legacy Builders gives every ambitious employee the AI tools, digital products platform and 4 Income Rivers to build income alongside their job — and eventually beyond it. Just as Genesis 2:10 describes four rivers flowing from Eden, Z2B gives you four income rivers flowing simultaneously.
           </p>
           <div style={{ display:'flex', gap:'10px', justifyContent:'center', flexWrap:'wrap' }}>
             <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
@@ -143,7 +143,7 @@ export default function OpportunityPage() {
           <div style={{ textAlign:'center', marginBottom:'48px' }}>
             <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'10px' }}>⚡ Your Deployment Engine</div>
             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(24px,4vw,40px)', fontWeight:900, color:W, marginBottom:'12px' }}>The 4M Machine</div>
-            <p style={{ fontSize:'15px', color:MUTED, maxWidth:'560px', margin:'0 auto' }}>Four stages. One journey. From your first R500 to unlimited income.</p>
+            <p style={{ fontSize:'15px', color:MUTED, maxWidth:'560px', margin:'0 auto' }}>Four stages. One journey. Four income rivers. From your first R500 to unlimited income.</p>
           </div>
 
           {/* Vehicle tabs */}
@@ -245,7 +245,7 @@ export default function OpportunityPage() {
       <section style={{ padding:'80px 20px' }}>
         <div style={{ maxWidth:'1000px', margin:'0 auto', textAlign:'center' }}>
           <div style={{ fontSize:'11px', color:CYAN, letterSpacing:'3px', textTransform:'uppercase', marginBottom:'10px' }}>💰 9 Income Streams</div>
-          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(22px,3.5vw,36px)', fontWeight:900, color:W, marginBottom:'12px' }}>One platform. Nine ways to earn.</div>
+          <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(22px,3.5vw,36px)', fontWeight:900, color:W, marginBottom:'12px' }}>One platform. 4 Income Rivers. 9 Compensation Streams.</div>
           <p style={{ fontSize:'14px', color:MUTED, marginBottom:'40px' }}>NSB · ISP · QPB · TSC · TLI · CEO Competition · CEO Awards · Marketplace Income · Distribution Rights</p>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:'12px', marginBottom:'32px' }}>
             {[

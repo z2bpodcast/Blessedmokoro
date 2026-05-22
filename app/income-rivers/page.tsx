@@ -29,7 +29,10 @@ const RIVERS = [
     verse:    '"The one that winds through the land of Havilah, where there is gold." — Genesis 2:11',
     desc:     'The 4M Machine is an AI-powered Digital Products Factory that transforms your knowledge into premium sellable digital products — eBooks, toolkits, courses, frameworks and more — in a single session.',
     items: [
-      { label:'Your share',       value:'75% of every sale'                    },
+      { label:'Ownership',        value:'100% yours — always. The 4M Machine builds YOUR product' },
+      { label:'Sell yourself',     value:'WhatsApp · Your PWA Store → Keep 100%'                 },
+      { label:'Z2B Marketplace',   value:'75% you · 20% affiliate · 5% Z2B platform fee'         },
+      { label:'Other platforms',   value:'Selar · Gumroad · Payhip → their platform split applies' },
       { label:'Platform fee',     value:'5% to Z2B'                            },
       { label:'Affiliate cut',    value:'20% to your referrer'                 },
       { label:'Platforms',        value:'Z2B · Selar · Gumroad · Payhip · WhatsApp' },

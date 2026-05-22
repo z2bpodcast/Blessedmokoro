@@ -100,6 +100,7 @@ export default function Home() {
               <Link href="/dashboard" style={{ padding:'8px 16px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'10px', color:W, fontSize:'12px', fontWeight:700 }}>
                 Dashboard →
               </Link>
+              <Link href="/income-rivers" style={{ padding:'8px 14px', border:`1px solid ${BORDER}`, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700 }}>4 Rivers</Link>
               <Link href="/ai-income" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
                 4M Machine
               </Link>
