@@ -428,7 +428,7 @@ export default function IncomeRiversPage() {
                 )}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'12px', borderRadius:10, background:'rgba(37,211,102,0.1)', border:'1px solid rgba(37,211,102,0.3)', color:'#25D166', textDecoration:'none', fontSize:13, fontWeight:700, fontFamily:'Cinzel,Georgia,serif' }}>
-                💬 WhatsApp
+                {'💬'} WhatsApp
               </a>
               {/* Copy Link */}
               <button
