@@ -1,7 +1,7 @@
 'use client'
 import { Suspense } from 'react'
 // File: app/income-rivers/page.tsx
-// Z2B — The 4 Income Rivers
+// Z2B — One Vision, Four Income Rivers — Zero2Billionaires
 // Genesis 2:10 — Kingdom Income Framework
 
 import { useState, useEffect } from 'react'
