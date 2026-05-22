@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 // Genesis 2:10 — Kingdom Income Framework
 
 import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -124,7 +125,21 @@ const BFM_TIERS = [
 
 function IncomeRiversInner() {
   const searchParams = useSearchParams()
-  const refCode = searchParams.get('ref') ?? ''
+  const urlRef = searchParams.get('ref') ?? ''
+  const [refCode, setRefCode] = useState(urlRef)
+
+  useEffect(() => {
+    if (urlRef) { setRefCode(urlRef); return }
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      const { data } = await (supabase as any)
+        .from('profiles')
+        .select('referral_code')
+        .eq('id', user.id)
+        .single()
+      if (data?.referral_code) setRefCode(data.referral_code)
+    })
+  }, [])
   const [copied, setCopied] = useState(false)
   const [openRiver, setOpenRiver] = useState<number | null>(null)
   const [openStream, setOpenStream] = useState<number | null>(null)
