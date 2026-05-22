@@ -209,7 +209,7 @@ export default function IncomeRiversPage() {
           <img
             src="/income-rivers-illustration.svg"
             alt="The 4 Income Rivers — Garden of Eden"
-            style={{ width:'100%', maxWidth:680, borderRadius:16, border:'1px solid rgba(212,175,55,0.2)' }}
+            style={{ width:'100%', maxWidth:900, borderRadius:16, border:'1px solid rgba(212,175,55,0.2)', display:'block', margin:'0 auto' }}
           />
         </div>
 
