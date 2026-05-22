@@ -246,6 +246,8 @@ export default function CompensationPage() {
             <h2 style={{ color:'#38BDF8', fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🔗 TSC — Team Sales Commission</h2>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'16px', lineHeight:1.8 }}>
               Earn on new tier purchases by your downline team. Same rate as your ISP. Free and Starter = personal sales only. TLI starts at Copper tier.
+
+            ⛽ BFM REQUIRED — TSC is only paid when you are in your 60-day grace period OR actively paying BFM. Without active BFM, TSC earnings are paused.
             </p>
             {[
               {t:'Free / Starter', g:'Personal sales only', c:'rgba(255,255,255,0.3)'},
@@ -269,7 +271,9 @@ export default function CompensationPage() {
           <div style={card(`${GOLD}30`)}>
             <h2 style={{ color:GOLD, fontSize:'17px', fontWeight:900, marginBottom:'6px' }}>🏆 TLI — Team Leadership Income</h2>
             <p style={{ fontSize:'12px', color:'rgba(255,255,255,0.55)', marginBottom:'4px', lineHeight:1.8 }}>
-              Once-off rank achievement bonus paid when you FIRST qualify for each level. Evaluated quarterly. Silver+ only.
+              Once-off rank achievement bonus paid when you FIRST qualify for each level. Evaluated quarterly. Copper+ only.
+
+            ⛽ BFM REQUIRED — You must be in your 60-day grace period OR actively paying BFM to qualify for TLI.
             </p>
             {TLI.map(t => (
               <div key={t.l} style={{ background:`${GOLD}06`, border:`1px solid ${GOLD}20`, borderRadius:'10px', padding:'10px 14px', marginBottom:'5px' }}>

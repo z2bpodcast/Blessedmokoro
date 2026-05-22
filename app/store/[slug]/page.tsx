@@ -784,7 +784,7 @@ function StoreInner() {
               <div style={{ padding:16, borderRadius:12, background:`${accent}08`, border:`1px solid ${accent}20`, marginTop:8 }}>
                 <div style={{ fontSize:11, color:accent, letterSpacing:2, textTransform:'uppercase', marginBottom:8 }}>Custom Domain Setup</div>
                 <div style={{ fontSize:12, color:MUTED, lineHeight:1.8 }}>
-                  1. Buy your domain at <a href="https://www.domains.co.za" target="_blank" style={{ color:accent }}>domains.co.za →</a><br/>
+                  1. Buy your domain at <a href="https://www.domains.co.za/billing/aff.php?aff=5163" target="_blank" style={{ color:accent }}>domains.co.za →</a><br/>
                   2. Add a CNAME record pointing to: <strong style={{ color:W }}>app.z2blegacybuilders.co.za</strong><br/>
                   3. Contact support to connect your domain to this store.
                 </div>
