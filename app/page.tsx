@@ -109,8 +109,8 @@ export default function Home() {
               <Link href="/login" style={{ padding:'8px 14px', border:`1px solid ${BORDER}`, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700 }}>
                 Sign In
               </Link>
-              <Link href="/signup" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
-                Deploy Yourself →
+              <Link href="/register" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
+                Join Free →
               </Link>
             </>
           )}
@@ -173,7 +173,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Link href="/signup" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
+                <Link href="/register" style={{ padding:'14px 32px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '40'}` }}>
                   🚀 Deploy Yourself — ✦ Earn your First R500 in 14 days
                 </Link>
                 <Link href="/marketplace" style={{ padding:'14px 28px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'14px', fontWeight:700 }}>
@@ -252,7 +252,7 @@ export default function Home() {
           </div>
 
           <div style={{ textAlign:'center', marginTop:'32px' }}>
-            <Link href={user ? '/ai-income' : '/signup'} style={{ display:'inline-block', padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '30'}` }}>
+            <Link href={user ? '/ai-income' : '/register'} style={{ display:'inline-block', padding:'14px 36px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'15px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 30px ${GOLD + '30'}` }}>
               {user ? '⚡ Open My 4M Machine →' : '⚡ Start Your Deployment →'}
             </Link>
           </div>
@@ -313,7 +313,7 @@ export default function Home() {
                 <Link href="/marketplace" style={{ padding:'12px 24px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'12px', color:'#050A18', fontSize:'13px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
                   🏪 Browse Marketplace
                 </Link>
-                <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'12px 20px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
+                <Link href={user ? '/ai-income' : '/register'} style={{ padding:'12px 20px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', color:W, fontSize:'13px', fontWeight:700 }}>
                   Create a Product →
                 </Link>
               </div>
@@ -446,7 +446,7 @@ export default function Home() {
             We built them.
           </p>
           <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' }}>
-            <Link href={user ? '/ai-income' : '/signup'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD + '40'}` }}>
+            <Link href={user ? '/ai-income' : '/register'} style={{ padding:'16px 40px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'14px', color:'#050A18', fontSize:'16px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif', boxShadow:`0 0 40px ${GOLD + '40'}` }}>
               {user ? '⚡ Open 4M Machine →' : '🚀 Deploy Yourself — ✦ Earn your First R500 in 14 days'}
             </Link>
             <Link href="/marketplace" style={{ padding:'16px 28px', background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'14px', color:W, fontSize:'15px', fontWeight:700 }}>

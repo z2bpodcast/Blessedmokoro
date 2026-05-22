@@ -102,8 +102,8 @@ function IntroInner() {
               Dashboard →
             </Link>
           ) : (
-            <Link href="/register" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-              Start Free →
+            <Link href="/pricing" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+              Join Free →
             </Link>
           )}
         </div>
@@ -112,10 +112,13 @@ function IntroInner() {
       {/* Hero */}
       <div style={{ textAlign: 'center', padding: 'clamp(60px,10vw,100px) 24px 48px', maxWidth: '780px', margin: '0 auto' }}>
         <div style={{ fontSize: '11px', color: GOLD, letterSpacing: '5px', textTransform: 'uppercase', marginBottom: '16px' }}>Zero 2 Billionaires · Legacy Builders</div>
-        <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(28px,5vw,54px)', fontWeight: 900, color: W, lineHeight: 1.15, marginBottom: '20px' }}>
-          If they underpay you<br/>
-          or don't want to employ you —<br/>
-          <span style={{ color: GOLD }}>Deploy Yourself.</span>
+        <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(11px,1.5vw,13px)', color: MUTED, fontStyle: 'italic', marginBottom: '12px', letterSpacing: '1px' }}>
+          "If they underpay you or don't want to employ you — Deploy Yourself."
+        </div>
+        <h1 style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: 'clamp(28px,5vw,54px)', fontWeight: 900, color: W, lineHeight: 1.1, marginBottom: '20px' }}>
+          Welcome to the<br/>
+          <span style={{ color: GOLD }}>4M: Mobile Money</span><br/>
+          Making Machine
         </h1>
         <p style={{ fontSize: 'clamp(15px,2vw,19px)', color: MUTED, lineHeight: 1.85, marginBottom: '36px', maxWidth: '600px', margin: '0 auto 36px' }}>
           The 4M Machine is an AI-powered digital product factory. It turns what you already know into sellable digital products — without design skills, coding or a big budget. From idea to marketplace in one session.
@@ -132,11 +135,11 @@ function IntroInner() {
             </>
           ) : (
             <>
-              <Link href="/ai-income/choose-plan" style={{ padding: '14px 36px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-                Start from R700 →
+              <Link href="/register" style={{ padding: '14px 36px', borderRadius: '12px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
+                Join Free →
               </Link>
               <Link href="/pricing" style={{ padding: '14px 24px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', color: MUTED, fontSize: '14px', textDecoration: 'none' }}>
-                View all packages
+                Compare Packages →
               </Link>
             </>
           )}
@@ -237,9 +240,9 @@ function IntroInner() {
             50+ countries · Any language · Any niche · Multiple income streams<br/>
             Built for employees and unemployed visionaries who refuse to retire broke.
           </div>
-          <Link href={user ? '/ai-income/ignition' : '/ai-income/choose-plan'}
+          <Link href={user ? '/ai-income/ignition' : '/register'}
             style={{ display: 'inline-block', padding: '15px 40px', borderRadius: '14px', background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#050A18', fontWeight: 900, fontSize: '16px', textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-            {user ? 'Build Your Next Product →' : 'Deploy Yourself — Start from R700 →'}
+            {user ? 'Build Your Next Product →' : 'Join Free →'}
           </Link>
         </div>
       </div>
