@@ -195,10 +195,11 @@ function IncomeRiversInner() {
             Genesis 2:10
           </div>
           <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(32px,6vw,64px)', fontWeight:900, color:W, lineHeight:1.1, marginBottom:20 }}>
-            The 4 Income<br/>
+            ONE VISION, FOUR<br/>
             <span style={{ background:`linear-gradient(135deg,${R1},${R2},${R3},${R4})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
-              Rivers
+              INCOME RIVERS
             </span>
+            <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'clamp(14px,2vw,20px)', color:GOLD, marginTop:8 }}>Zero2Billionaires</div>
           </h1>
           <blockquote style={{ fontFamily:'Cormorant Garamond,Georgia,serif', fontStyle:'italic', fontSize:'clamp(15px,2.5vw,20px)', color:`${W}99`, lineHeight:1.8, marginBottom:32, maxWidth:560, margin:'0 auto 32px' }}>
             "A river watering the garden flowed from Eden;<br/>
