@@ -107,6 +107,7 @@ export default function Home() {
             </>
           ) : (
             <>
+              <Link href="/income-rivers" style={{ padding:'8px 14px', border:`1px solid ${BORDER}`, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700 }}>4 Rivers</Link>
               <Link href="/login" style={{ padding:'8px 14px', border:`1px solid ${BORDER}`, borderRadius:'10px', color:MUTED, fontSize:'12px', fontWeight:700 }}>
                 Sign In
               </Link>
