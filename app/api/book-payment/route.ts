@@ -18,7 +18,7 @@ const PACKAGES: Record<string, { amount: string; item: string; tier: string }> =
 
 export async function POST(req: NextRequest) {
   try {
-    const { fullName, email, phone, pkg, ref } = await req.json()
+    const { fullName, email, phone, pkg, ref, password } = await req.json()
 
     if (!fullName || !email || !phone || !pkg) {
       return NextResponse.json({ error: 'All fields required' }, { status: 400 })
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       // Create new FAM account
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: email.toLowerCase().trim(),
-        password: body.password || Math.random().toString(36).slice(2, 10) + 'Z2B!',
+        password: password || Math.random().toString(36).slice(2, 10) + 'Z2B!',
         email_confirm: true,
         user_metadata: { full_name: fullName },
       })
