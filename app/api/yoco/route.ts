@@ -16,7 +16,7 @@ const getSupabase = () => createClient(
 const YOCO_SECRET_KEY = process.env.YOCO_SECRET_KEY || ''
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.z2blegacybuilders.co.za'
 
-// ── TIER AMOUNTS ──────────────────────────────────────────────────
+// ── TIER AMOUNTS — FULL PRICE ONLY (no top-up) ───────────────────────
 const AMOUNT_TO_TIER: Record<number, string> = {
   700:   'starter',
   2500:  'bronze',
@@ -24,6 +24,16 @@ const AMOUNT_TO_TIER: Record<number, string> = {
   12000: 'silver',
   25000: 'gold',
   50000: 'platinum',
+}
+
+// Full tier prices — Yoco must charge FULL amount, never a top-up
+const FULL_TIER_PRICES: Record<string, number> = {
+  starter:  700,
+  bronze:   2500,
+  copper:   5000,
+  silver:   12000,
+  gold:     25000,
+  platinum: 50000,
 }
 
 // ── ISP RATES PER TIER ────────────────────────────────────────────
@@ -118,13 +128,20 @@ export async function POST(req: NextRequest) {
         return new NextResponse('Missing user_id', { status: 400 })
       }
 
-      const newTier = AMOUNT_TO_TIER[amountRands] || 'starter'
+      // Validate FULL tier price — reject top-up attempts
+      if (!AMOUNT_TO_TIER[amountRands]) {
+        console.error('Invalid tier amount — top-ups not allowed:', amountRands)
+        return new NextResponse('Invalid payment amount', { status: 400 })
+      }
+      const newTier = AMOUNT_TO_TIER[amountRands]
 
       // Update profile tier
       await supabase.from('profiles').update({
         paid_tier:      newTier,
         payment_status: 'paid',
-        upgraded_at:    new Date().toISOString(),
+        upgraded_at:      new Date().toISOString(),
+        // BFM grace: 60 days from upgrade date
+        bfm_start_date:   new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
       }).eq('id', userId)
 
       // Record transaction
@@ -138,17 +155,20 @@ export async function POST(req: NextRequest) {
         referred_by:    refCode || null,
       })
 
-      // ISP commission for sponsor — full comp plan applies
+      // ── COMPENSATION ENGINE ─────────────────────────────────────
+      // ISP = Individual Performance — NO BFM required
+      // TSC = Team Sales Commission — BFM (active OR grace) required
+      // TLI = Team Leadership Income — BFM (active OR grace) required
       if (refCode) {
         const { data: sponsor } = await supabase
           .from('profiles')
-          .select('id, paid_tier, full_name')
+          .select('id, paid_tier, full_name, bfm_start_date, bfm_active, bfm_paid_month, referral_code')
           .eq('referral_code', refCode)
           .single()
 
         if (sponsor) {
+          // ── ISP — no BFM required ──────────────────────────────
           const ispAmount = amountRands * (ISP_RATES[sponsor.paid_tier] || 0.10)
-
           await supabase.from('comp_earnings').insert({
             user_id:        sponsor.id,
             builder_name:   sponsor.full_name,
@@ -156,10 +176,57 @@ export async function POST(req: NextRequest) {
             amount:         ispAmount,
             source_user_id: userId,
             status:         'confirmed',
-            notes:          `ISP on R${amountRands} ${newTier} upgrade`,
+            notes:          `ISP on R${amountRands} ${newTier} upgrade — no BFM required`,
           })
 
-          // Mark referral as converted
+          // ── BFM QUALIFICATION CHECK for TSC + TLI ─────────────
+          const now          = new Date()
+          const bfmStart     = sponsor.bfm_start_date ? new Date(sponsor.bfm_start_date) : null
+          const inGrace      = bfmStart ? (now.getTime() - bfmStart.getTime()) < (60 * 24 * 60 * 60 * 1000) : false
+          const currentMonth = now.toISOString().slice(0, 7) // YYYY-MM
+          const bfmQualified = inGrace || (sponsor.bfm_active && sponsor.bfm_paid_month === currentMonth)
+
+          // ── TSC — requires BFM qualification ──────────────────
+          if (bfmQualified && ['bronze','copper','silver','gold','platinum'].includes(sponsor.paid_tier)) {
+            const tscAmount = amountRands * (ISP_RATES[sponsor.paid_tier] || 0.18)
+            await supabase.from('comp_earnings').insert({
+              user_id:        sponsor.id,
+              builder_name:   sponsor.full_name,
+              earning_type:   'TSC',
+              amount:         tscAmount,
+              source_user_id: userId,
+              status:         'confirmed',
+              notes:          `TSC on R${amountRands} ${newTier} — BFM qualified`,
+            })
+          } else if (!bfmQualified) {
+            // Log disqualified TSC
+            await supabase.from('comp_earnings').insert({
+              user_id:        sponsor.id,
+              builder_name:   sponsor.full_name,
+              earning_type:   'TSC',
+              amount:         0,
+              source_user_id: userId,
+              status:         'disqualified',
+              notes:          `TSC disqualified — BFM not active or grace expired`,
+            })
+          }
+
+          // ── TLI — requires BFM + Copper tier minimum ──────────
+          const tliTiers = ['copper','silver','gold','platinum']
+          if (bfmQualified && tliTiers.includes(sponsor.paid_tier)) {
+            // TLI is paid as leadership milestone — record eligibility
+            await supabase.from('comp_earnings').insert({
+              user_id:        sponsor.id,
+              builder_name:   sponsor.full_name,
+              earning_type:   'TLI',
+              amount:         0, // TLI amount calculated separately based on team size
+              source_user_id: userId,
+              status:         'pending_calculation',
+              notes:          `TLI trigger — team sale recorded. BFM qualified. Calculate milestone.`,
+            })
+          }
+
+          // ── Mark referral converted ────────────────────────────
           await supabase
             .from('referrals')
             .update({ status: 'converted', converted_at: new Date().toISOString() })

@@ -81,7 +81,8 @@ export async function POST(req: NextRequest) {
       .update({
         paid_tier:      newTier,
         payment_status: 'paid',
-        upgraded_at:    new Date().toISOString(),
+        upgraded_at:      new Date().toISOString(),
+        bfm_start_date:   new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
       })
       .eq('id', userId)
 
