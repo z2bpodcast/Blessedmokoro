@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 // File: app/income-rivers/page.tsx
 // Z2B — The 4 Income Rivers
 // Genesis 2:10 — Kingdom Income Framework
@@ -121,7 +122,7 @@ const BFM_TIERS = [
   { tier:'Platinum', amount:'R12,000',bfm:12000 },
 ]
 
-export default function IncomeRiversPage() {
+function IncomeRiversInner() {
   const searchParams = useSearchParams()
   const refCode = searchParams.get('ref') ?? ''
   const [copied, setCopied] = useState(false)
@@ -476,5 +477,17 @@ export default function IncomeRiversPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function IncomeRiversPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight:'100vh', background:'#050A18', display:'flex', alignItems:'center', justifyContent:'center', color:'#D4AF37', fontFamily:'Georgia,serif' }}>
+        Loading...
+      </div>
+    }>
+      <IncomeRiversInner />
+    </Suspense>
   )
 }
