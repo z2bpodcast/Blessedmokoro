@@ -214,13 +214,14 @@ function EcosystemCard({ tier }: { tier: string }) {
 // ── SHARE WIDGET ──────────────────────────────────────────────
 // Replaces the basic referral div — WhatsApp + clipboard
 function ShareWidget({ refCode, firstName }: { refCode: string; firstName: string }) {
-  const [tab,    setTab]    = useState<'marketplace'|'platform'>('marketplace')
+  const [tab,    setTab]    = useState<'marketplace'|'platform'|'machine'>('marketplace')
   const [copied, setCopied] = useState(false)
 
   const BASE = 'https://app.z2blegacybuilders.co.za'
   const marketplaceLink = `${BASE}/marketplace?ref=${refCode}`
   const platformLink    = `${BASE}/?ref=${refCode}`
-  const activeLink      = tab === 'marketplace' ? marketplaceLink : platformLink
+  const machineLink     = `${BASE}/ai-income?ref=${refCode}`
+  const activeLink      = tab === 'marketplace' ? marketplaceLink : tab === 'machine' ? machineLink : platformLink
 
   const waMarketplace = encodeURIComponent(
     `👑 *I found something powerful for you.*\n\n` +
@@ -236,7 +237,13 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
     `✅ Earn while still employed — from R700\n\n` +
     `🚀 Join free here:\n${platformLink}\n\n— ${firstName}`
   )
-  const activeWA = tab === 'marketplace' ? waMarketplace : waPlatform
+  const waMachine = encodeURIComponent(
+    `👑 *Build digital products with AI.*\n\n` +
+    `The *4M Machine* — Digital Products Factory.\n\n` +
+    `✅ Build with AI\n✅ Sell on marketplace\n✅ Earn from R700\n\n` +
+    `⚙️ Start here:\n${BASE}/ai-income?ref=${refCode}\n\n— ${firstName}`
+  )
+  const activeWA = tab === 'marketplace' ? waMarketplace : tab === 'machine' ? waMachine : waPlatform
 
   function copyLink() {
     navigator.clipboard.writeText(activeLink)
@@ -245,7 +252,9 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
   }
 
   function copyMessage() {
-    const msg = tab === 'marketplace'
+    const msg = tab === 'machine'
+      ? `👑 Build digital products with AI.\n\nThe 4M Machine — Digital Products Factory.\n✅ Build with AI\n✅ Sell on marketplace\n✅ From R700\n\n${BASE}/ai-income?ref=${refCode}\n\n— ${firstName}`
+      : tab === 'marketplace'
       ? `👑 I found something powerful for you.\n\nThe Zero2Billionaires eBook — From Salary Struggles to Digital Freedom.\n\nOnly R200:\n${marketplaceLink}\n\n— ${firstName}`
       : `👑 Are you tired of just working for a salary?\n\nJoin me on Zero2Billionaires Legacy Builders.\n✅ Free 18-session Workshop\n✅ AI 4M Machine\n✅ Earn from R700\n\n${platformLink}\n\n— ${firstName}`
     navigator.clipboard.writeText(msg)
@@ -270,6 +279,7 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
       <div style={{ display:'flex', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         {[
           { id:'marketplace', label:'📚 Share eBook',    sub:'R40 per sale'    },
+          { id:'machine',     label:'⚙️ 4M Machine',    sub:'Full comp plan'  },
           { id:'platform',    label:'🚀 Share Platform', sub:'Full comp plan'  },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}

@@ -576,11 +576,11 @@ function MarketplaceInner() {
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {userId ? (
               <Link href="/ai-income" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif', whiteSpace: 'nowrap' }}>
-                Build a Product →
+                Free Affiliate Marketing — 20% Commission →
               </Link>
             ) : (
               <Link href="/register" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif' }}>
-                Join Free →
+                Free Affiliate Marketing — 20% Commission →
               </Link>
             )}
           </div>

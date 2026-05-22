@@ -110,7 +110,7 @@ export default function Home() {
                 Sign In
               </Link>
               <Link href="/register" style={{ padding:'8px 16px', background:`linear-gradient(135deg,${GOLD},#D97706)`, borderRadius:'10px', color:'#050A18', fontSize:'12px', fontWeight:900, fontFamily:'Cinzel,Georgia,serif' }}>
-                Join Free →
+                Create Your First Digital Product →
               </Link>
             </>
           )}
