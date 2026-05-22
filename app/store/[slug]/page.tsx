@@ -149,6 +149,8 @@ function StoreInner() {
   // Post form
   const [postText,   setPostText]   = useState('')
   const [postImg,    setPostImg]    = useState('')
+  const [postAudio,  setPostAudio]  = useState('')
+  const [postVideo,  setPostVideo]  = useState('')
   const [postLoading,setPostLoading]= useState(false)
 
   // Admin
@@ -349,10 +351,14 @@ function StoreInner() {
       author_id:   u?.id,
       author_name: u?.user_metadata?.full_name ?? 'Builder',
       content:     postText,
-      image_url:   postImg || null,
+      image_url:   postImg   || null,
+      audio_url:   postAudio || null,
+      video_url:   postVideo || null,
     })
     setPostText('')
     setPostImg('')
+    setPostAudio('')
+    setPostVideo('')
     setPostLoading(false)
     setModal(null)
     loadAll()
