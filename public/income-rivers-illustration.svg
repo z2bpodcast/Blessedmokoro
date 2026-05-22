@@ -16,11 +16,11 @@
   <ellipse cx="400" cy="50" rx="55" ry="24" fill="white" opacity="0.12"/>
 
   <!-- Welcome to Abundance -->
-  <text x="340" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="white" font-weight="bold" opacity="0.9" font-style="italic">Welcome to Abundance</text>
+  <text x="340" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="white" font-weight="bold" opacity="0.95" font-style="italic">Welcome to Abundance</text>
 
   <!-- Subtitle -->
-  <text x="340" y="72" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="white" opacity="0.65" font-style="italic">Just as four rivers flowed from the Garden of Eden to water the whole earth,</text>
-  <text x="340" y="85" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="white" opacity="0.65" font-style="italic">Z2B gives every builder four income rivers — watering your financial garden day and night.</text>
+  <text x="340" y="96" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="white" opacity="0.65" font-style="italic">Just as four rivers flowed from the Garden of Eden to water the whole earth,</text>
+  <text x="340" y="110" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="white" opacity="0.65" font-style="italic">Z2B gives every builder four income rivers — watering your financial garden day and night.</text>
 
   <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
