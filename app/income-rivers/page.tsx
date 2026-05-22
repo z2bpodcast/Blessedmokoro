@@ -414,7 +414,7 @@ export default function IncomeRiversPage() {
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               {/* WhatsApp */}
-              
+              <a
                 href={'https://wa.me/?text=' + encodeURIComponent('4 Income Rivers — Zero2Billionaires\n\nRiver 1: 4M Machine\nRiver 2: Affiliate Marketing\nRiver 3: Compensation Plan\nRiver 4: Builder PWA Store\n\nhttps://app.z2blegacybuilders.co.za/income-rivers' + (refCode ? '?ref=' + refCode : ''))}
                 target="_blank"
                 rel="noopener noreferrer"
