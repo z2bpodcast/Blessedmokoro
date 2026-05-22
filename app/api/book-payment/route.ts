@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       // Create new FAM account
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: email.toLowerCase().trim(),
-        password: Math.random().toString(36).slice(2, 10) + 'Z2B!',
+        password: body.password || Math.random().toString(36).slice(2, 10) + 'Z2B!',
         email_confirm: true,
         user_metadata: { full_name: fullName },
       })

@@ -723,8 +723,10 @@ async function proceedToPayment(pkg) {
   var name=document.getElementById('reg-name').value.trim();
   var email=document.getElementById('reg-email').value.trim();
   var phone=document.getElementById('reg-phone').value.trim();
+  var password=document.getElementById('reg-password').value.trim();
   var errEl=document.getElementById('reg-error');
-  if(!name||!email||!phone){errEl.textContent='Please fill in all fields.';errEl.style.display='block';return;}
+  if(!name||!email||!phone||!password){errEl.textContent='Please fill in all fields.';errEl.style.display='block';return;}
+  if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
   if(!email.includes('@')){errEl.textContent='Please enter a valid email.';errEl.style.display='block';return;}
   errEl.style.display='none';
 
@@ -738,7 +740,7 @@ async function proceedToPayment(pkg) {
     var res=await fetch('/api/book-payment',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({fullName:name,email:email,phone:phone,pkg:pkg,ref:ref})
+      body:JSON.stringify({fullName:name,email:email,phone:phone,password:password,pkg:pkg,ref:ref})
     });
     var data=await res.json();
     
