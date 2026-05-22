@@ -175,7 +175,7 @@ function IncomeRiversInner() {
       {/* ── NAV ── */}
       <nav style={{ padding:'12px 20px', background:`${SURF}f0`, backdropFilter:'blur(12px)', borderBottom:`1px solid ${GOLD}20`, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
         <Link href="/" style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:14, fontWeight:900, color:GOLD, textDecoration:'none' }}>← Z2B Home</Link>
-        <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:13, color:W, fontWeight:700 }}>The 4 Income Rivers</span>
+        <span style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:13, color:W, fontWeight:700 }}>One Vision, Four Income Rivers</span>
         <Link href="/register" style={{ padding:'7px 16px', borderRadius:8, background:GOLD, color:BG, fontSize:12, fontWeight:900, textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
           Start Now →
         </Link>
@@ -228,7 +228,7 @@ function IncomeRiversInner() {
         <div style={{ maxWidth:900, margin:'0 auto', padding:'0 20px 32px', textAlign:'center' }}>
           <img
             src="/income-rivers-illustration.svg"
-            alt="The 4 Income Rivers — Garden of Eden"
+            alt="One Vision, Four Income Rivers — Zero2Billionaires"
             style={{ width:'100%', maxWidth:900, borderRadius:16, border:'1px solid rgba(212,175,55,0.2)', display:'block', margin:'0 auto' }}
           />
         </div>
@@ -422,7 +422,7 @@ function IncomeRiversInner() {
               🔗 Share This Page
             </div>
             <div style={{ fontSize:13, color:MUTED, marginBottom:20, lineHeight:1.7 }}>
-              Share the 4 Income Rivers with your prospects. Your referral code is automatically embedded — anyone who joins through your link credits you.
+              Share One Vision, Four Income Rivers with your prospects. Your referral code is automatically embedded — anyone who joins through your link credits you.
             </div>
             {/* Link display */}
             <div style={{ padding:'10px 14px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:`1px solid ${GOLD}20`, fontSize:12, color:MUTED, marginBottom:14, wordBreak:'break-all' }}>
