@@ -569,10 +569,10 @@ function MarketplaceInner() {
 
       {/* Nav */}
       <nav style={{ padding: '12px 20px', background: SURF, borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(12px)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
           <Link href="/" style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '15px', fontWeight: 900, color: GOLD, textDecoration: 'none' }}>Z2B</Link>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products..."
-            style={{ flex: 1, maxWidth: '320px', padding: '8px 14px', borderRadius: '20px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: W, fontSize: '13px', fontFamily: 'Georgia,serif', outline: 'none' }} />
+            style={{ flex: 1, minWidth: '120px', maxWidth: '320px', padding: '8px 14px', borderRadius: '20px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: W, fontSize: '13px', fontFamily: 'Georgia,serif', outline: 'none' }} />
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {userId ? (
               <Link href="/ai-income" style={{ padding: '7px 16px', borderRadius: '8px', background: GOLD, color: '#050A18', fontSize: '12px', fontWeight: 900, textDecoration: 'none', fontFamily: 'Cinzel,Georgia,serif', whiteSpace: 'nowrap' }}>
@@ -598,7 +598,7 @@ function MarketplaceInner() {
 
       {/* Category tabs */}
       <div style={{ overflowX: 'auto', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: SURF }}>
-        <div style={{ display: 'flex', gap: '8px', minWidth: 'max-content', maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', gap: '6px', minWidth: 'max-content', maxWidth: '1100px', margin: '0 auto', paddingBottom: '4px' }}>
           {CATEGORIES.map(cat => (
             <button key={cat.id} onClick={() => setCategory(cat.id)}
               style={{ padding: '7px 14px', borderRadius: '20px', border: '1px solid ' + (category === cat.id ? GOLD : 'rgba(255,255,255,0.1)'), background: category === cat.id ? 'rgba(212,175,55,0.12)' : 'transparent', color: category === cat.id ? GOLD : MUTED, fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia,serif', fontWeight: category === cat.id ? 700 : 400, whiteSpace: 'nowrap' }}>
@@ -608,18 +608,18 @@ function MarketplaceInner() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 20px 60px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '16px 12px 60px' }}>
 
         {/* ── Z2B FEATURED — eBook ANCHOR always first ── */}
         {showFeatured && (
           <div style={{ marginBottom: '32px' }}>
             <div style={{ fontSize: '10px', color: MUTED, letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '14px' }}>⭐ Z2B Featured</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '12px' }}>
               {Z2B_FEATURED.map(feat => {
 
                 // ── EBOOK ANCHOR CARD ──────────────────────────
                 if (feat.isEbook) return (
-                  <div key={feat.id} style={{ borderRadius:18, border:'1px solid '+feat.border, background:feat.bg, overflow:'hidden', display:'flex', flexDirection:'column', gridColumn: 'span 2' }}>
+                  <div key={feat.id} style={{ borderRadius:18, border:'1px solid '+feat.border, background:feat.bg, overflow:'hidden', display:'flex', flexDirection:'column', gridColumn: 'span 1' }}>
                     {/* Gold top bar */}
                     <div style={{ height:3, background:'linear-gradient(90deg,'+GOLD+',#f0c040,'+GOLD+')' }} />
                     <div style={{ padding:'22px', display:'flex', gap:'24px', alignItems:'center', flexWrap:'wrap' }}>
@@ -706,7 +706,7 @@ function MarketplaceInner() {
                 {filtered.length} product{filtered.length !== 1 ? 's' : ''} {search ? `matching "${search}"` : `in ${CATEGORIES.find(c => c.id === category)?.label ?? 'all categories'}`}
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '12px' }}>
               {filtered.map(product => {
                 const price = getPrice(product)
                 return (
