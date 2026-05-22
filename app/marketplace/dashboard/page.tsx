@@ -364,7 +364,7 @@ export default function MarketplaceDashboardPage() {
                   <p className="text-sm text-[rgba(255,255,255,0.6)] italic leading-relaxed mb-5"
                     style={{ fontFamily: 'Cormorant Garamond, serif' }}>
                     As a Z2B member you do not just earn affiliate commissions. You build a network, earn from your team's sales,
-                    access the full 4M Machine, and qualify for all 9 income streams.
+                    access the full 4M Machine, and qualify for all 4 Income Rivers and 9 compensation streams.
                   </p>
 
                   {/* Income comparison */}

@@ -376,7 +376,7 @@ export default function Home() {
               { icon:'✝', val:'Kingdom business',          desc:'Faith, purpose and profit aligned — we build businesses that honour God and serve people', color:VIO2 },
               { icon:'→', val:'Deploy, do not wait',        desc:'The employee mindset waits for permission. The Builder mindset acts', color:CYAN },
               { icon:'◈', val:'Build in public',            desc:'Every commission rand is tracked. Every split is transparent', color:BLUE },
-              { icon:'∞', val:'Every builder wins',         desc:'Your success is tied to those around you — 9 income streams, no ceiling', color:GREEN },
+              { icon:'∞', val:'Every builder wins',         desc:'Your success is tied to those around you — 4 Income Rivers · 9 compensation streams · no ceiling', color:GREEN },
             ].map(v => (
               <div key={v.val} style={{ background:SURF2, border:`1px solid ${BORDER}`, borderRadius:'12px', padding:'14px 18px', display:'flex', gap:'14px', alignItems:'flex-start' }}>
                 <span style={{ fontSize:'18px', color:v.color, fontWeight:900, flexShrink:0, marginTop:'2px' }}>{v.icon}</span>

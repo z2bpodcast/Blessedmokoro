@@ -31,7 +31,7 @@ const LEGACY_PRODUCTS = [
     items: [
       { id: 'silver-rocket', name: 'Silver Rocket Mode', price: 17000, commission: 10, tag: 'R17,000', desc: 'Once-off. AI creates 12 products/month. Global market research, AI website builder, full launch kit for WhatsApp, Facebook, TikTok. Keep 90% of sales.', url: '/pricing' },
       { id: 'gold-rocket', name: 'Gold Rocket Mode', price: 35000, commission: 10, tag: 'R35,000', desc: 'Once-off. 30 AI products/month. Live global research, demographic targeting, Google & Facebook Ads copy, 4-week content calendar per product.', url: '/pricing' },
-      { id: 'platinum-rocket', name: 'Platinum Rocket Mode', price: 70000, commission: 10, tag: 'R70,000', desc: 'Once-off. UNLIMITED AI products. Own branded marketplace, Distribution Rights, SEO + Ads + TikTok + Email promotion strategy. All 9 income streams.', url: '/pricing' },
+      { id: 'platinum-rocket', name: 'Platinum Rocket Mode', price: 70000, commission: 10, tag: 'R70,000', desc: 'Once-off. UNLIMITED AI products. Own branded marketplace, Distribution Rights, SEO + Ads + TikTok + Email promotion strategy. 4 Income Rivers · 9 compensation streams.', url: '/pricing' },
     ]
   },
   {

@@ -92,7 +92,7 @@ function InviteInner() {
               Everything you get — in one view
             </div>
             <p style={{ fontSize:'13px', color:MUTED, maxWidth:'440px', margin:'0 auto' }}>
-              One platform. 9 income streams. AI tools that create digital products. A global marketplace. An influencer engine. A community of builders.
+              One platform. 4 Income Rivers. 9 compensation streams. AI tools that create digital products. A global marketplace. An influencer engine. A community of builders.
             </p>
           </div>
           <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'20px', padding:'24px' }}>
