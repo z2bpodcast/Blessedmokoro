@@ -35,6 +35,7 @@ interface Affiliate {
   total_clicks: number
   total_sales:  number
   total_earned: number
+  commission_rate: number
   paid_out:     number
   joined_at:    string
 }
