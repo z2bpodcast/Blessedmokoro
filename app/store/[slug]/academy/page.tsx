@@ -453,7 +453,7 @@ function AcademyInner() {
 
                   return (
                     <div key={lesson.id} className="lesson-row"
-                      onClick={() => canAccess && loadLesson(lesson)}
+                      onClick={() => canAccess && setSelLesson(lesson)}
                       style={{ padding:'12px 16px', background:'rgba(255,255,255,0.02)', border:`1px solid ${accent}12`, borderTop:'none', borderRadius: li === (mod.academy_lessons?.length ?? 0) - 1 ? '0 0 10px 10px' : 0, cursor: canAccess ? 'pointer' : 'not-allowed', display:'flex', alignItems:'center', gap:12 }}>
                       <div style={{ width:28, height:28, borderRadius:'50%', background: isCompleted ? 'rgba(16,185,129,0.2)' : `${accent}15`, border:`1px solid ${isCompleted ? GREEN : accent+'30'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, flexShrink:0 }}>
                         {isCompleted ? '✓' : canAccess ? '▶' : '🔒'}
