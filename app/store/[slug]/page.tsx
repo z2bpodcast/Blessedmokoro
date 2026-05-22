@@ -36,6 +36,7 @@ interface Product {
   description: string
   price: number
   retail_price: number
+  price_once?: number
   format: string
   cover_url: string
   file_url: string
