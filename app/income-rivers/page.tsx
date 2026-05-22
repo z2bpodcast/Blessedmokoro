@@ -204,6 +204,15 @@ export default function IncomeRiversPage() {
         </div>
       </div>
 
+      {/* ── ILLUSTRATION ── */}
+        <div style={{ maxWidth:900, margin:'0 auto', padding:'0 20px 32px', textAlign:'center' }}>
+          <img
+            src="/income-rivers-illustration.svg"
+            alt="The 4 Income Rivers — Garden of Eden"
+            style={{ width:'100%', maxWidth:680, borderRadius:16, border:'1px solid rgba(212,175,55,0.2)' }}
+          />
+        </div>
+
       {/* ── RIVERS ── */}
       <div style={{ maxWidth:900, margin:'0 auto', padding:'0 20px 80px' }}>
 
