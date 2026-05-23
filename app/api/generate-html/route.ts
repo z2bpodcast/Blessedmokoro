@@ -795,7 +795,7 @@ body {
         ${assetList.length > 0 ? `<div class="cover-stat"><span class="cover-stat-val">${assetList.length}</span><span class="cover-stat-lbl">Bonus Assets</span></div>` : ''}
       </div>
     </div>
-    <div class="cover-price-tag">${currency}${price}</div>
+    
   </div>
 </div>
 
@@ -838,16 +838,15 @@ body {
       <h2 class="audio-heading">🎧 Listen to Your Product</h2>
       <p class="audio-sub">Select any chapter and press Play to listen. Adjust speed to your preference.</p>
 
-      ${sections.map((s: any, i: number) => {
-        const sTitle = s.title ?? s.heading ?? `Section ${i + 1}`
-        const raw    = String(s.content ?? s.text ?? s.body ?? '').replace(/<[^>]*>/g, '').slice(0, 2000)
-        return `
-      <div class="audio-player" id="audio-${i+1}">
-        <div class="audio-section-title">${i+1}. ${sTitle}</div>
+
+      <!-- Single global audio player -->
+      <div class="audio-player">
+        <div class="audio-section-title" id="now-playing-title">Press Play to begin reading</div>
         <div class="audio-controls">
-          <button class="audio-btn audio-btn-primary" onclick="playSection(${i+1})">▶ Play</button>
-          <button class="audio-btn audio-btn-secondary" onclick="pauseSection()">⏸ Pause</button>
-          <button class="audio-btn audio-btn-secondary" onclick="stopSection()">⏹ Stop</button>
+          <button class="audio-btn audio-btn-secondary" onclick="prevChapter()" id="btn-prev">⏮ Prev</button>
+          <button class="audio-btn audio-btn-primary"   onclick="togglePlay()"  id="btn-play">▶ Play</button>
+          <button class="audio-btn audio-btn-secondary" onclick="nextChapter()" id="btn-next">⏭ Next</button>
+          <button class="audio-btn audio-btn-secondary" onclick="stopAudio()">⏹ Stop</button>
           <div class="audio-speed">
             <span style="font-size:11px;color:var(--muted);margin-right:4px;">Speed:</span>
             <button class="speed-btn" onclick="setSpeed(0.75,this)">0.75×</button>
@@ -856,9 +855,35 @@ body {
             <button class="speed-btn" onclick="setSpeed(1.5,this)">1.5×</button>
           </div>
         </div>
-        <div class="audio-text" id="audio-text-${i+1}">${raw.replace(/"/g, '&quot;')}</div>
-      </div>`
-      }).join('')}
+        <!-- Progress bar -->
+        <div style="height:4px;border-radius:2px;background:var(--primary)20;margin-bottom:16px;">
+          <div id="audio-progress" style="height:100%;border-radius:2px;background:var(--primary);width:0%;transition:width 0.3s;"></div>
+        </div>
+        <div class="audio-text" id="audio-text-display">Select a chapter below and press Play to listen.</div>
+      </div>
+
+      <!-- Chapter list -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${sections.map((s: any, i: number) => {
+          const sTitle = s.title ?? s.heading ?? `Section ${i + 1}`
+          const raw    = String(s.content ?? s.text ?? s.body ?? '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+          return `
+        <div class="audio-chapter-item" id="chapter-item-${i}"
+          onclick="selectChapter(${i})"
+          style="padding:12px 16px;border-radius:10px;border:1px solid var(--primary)20;cursor:pointer;display:flex;align-items:center;gap:12px;background:var(--surface);">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--primary)18;border:1px solid var(--primary)30;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--primary);flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">${sTitle}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${Math.max(1,Math.round(raw.split(/\s+/).length/200))} min read</div>
+          </div>
+          <div id="chapter-status-${i}" style="font-size:11px;color:var(--muted);">▶</div>
+        </div>
+        <div id="chapter-text-${i}" style="display:none;">${raw.replace(/"/g,'&quot;')}</div>`
+        }).join('')}
+      </div>
     </div>
   </div>
 </div>
@@ -893,7 +918,7 @@ ${assetList.length > 0 ? `
   <div class="footer-logo">${title}</div>
   <div class="footer-meta">
     ${author ? `By ${author}<br>` : ''}
-    ${currency}${price} &nbsp;·&nbsp; ${FORMAT_LABEL[format] ?? 'Digital Product'}<br>
+    ${FORMAT_LABEL[format] ?? 'Digital Product'}<br>
     Created with <a href="https://app.z2blegacybuilders.co.za/ai-income">Z2B 4M Digital Products Factory</a>
   </div>
   <div class="footer-badge">Built with 4M Machine · Zero 2 Billionaires</div>
