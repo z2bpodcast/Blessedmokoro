@@ -75,10 +75,22 @@ export async function POST(req: NextRequest) {
   let sections: any[] = []
   if (Array.isArray(content.sections))               sections = content.sections
   else if (Array.isArray(content.generatedSections)) sections = content.generatedSections
+  else if (Array.isArray(content.chapters))          sections = content.chapters
   else if (Array.isArray(structure.sections))        sections = structure.sections
-  else if (typeof content === 'object') {
-    sections = Object.values(content).filter((v: any) => v?.title || v?.heading || v?.content)
+  else if (Array.isArray(structure.chapters))        sections = structure.chapters
+  else if (typeof content === 'object' && content !== null) {
+    // Try all array values
+    const arrays = Object.values(content).filter((v: any) => Array.isArray(v))
+    if (arrays.length > 0) sections = arrays[0] as any[]
+    else sections = Object.values(content).filter((v: any) => v?.title || v?.heading || v?.content || v?.text || v?.body)
   }
+  // Normalize sections — ensure each has content
+  sections = sections.map((s: any) => {
+    if (typeof s === 'string') return { title: 'Section', content: s }
+    // Merge all possible content fields
+    const body = s.content ?? s.text ?? s.body ?? s.generated ?? s.description ?? ''
+    return { ...s, content: body }
+  }).filter((s: any) => s.content || s.title)
 
   // ── EXTRACT ASSETS ────────────────────────────────────────
   let assetList: any[] = []
