@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     if (typeof s === 'string') return { title: 'Section', content: s }
     // Merge all possible content fields
     const body = s.content ?? s.text ?? s.body ?? s.generated ?? s.description ?? ''
-    return { ...s, content: body }
+    return { ...s, title: s.sectionTitle ?? s.title ?? s.heading ?? `Section ${i+1}`, content: body }
   }).filter((s: any) => s.content || s.title)
 
   // ── EXTRACT ASSETS ────────────────────────────────────────
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
   // ── BUILD SECTION HTML ────────────────────────────────────
   const sectionsHTML = sections.map((s: any, i: number) => {
     const raw    = s.content ?? s.text ?? s.body ?? s.generated ?? ''
-    const sTitle = s.title ?? s.heading ?? `Section ${i + 1}`
+    const sTitle = s.sectionTitle ?? s.title ?? s.heading ?? `Section ${i + 1}`
 
     // Split into paragraphs — handle various formats
     const paras = String(raw)
