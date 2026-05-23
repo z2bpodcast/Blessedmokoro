@@ -13,17 +13,17 @@ const GREEN= '#10B981'
 const PLANS = [
   {
     id: 'starter', name: 'Starter', price: 700, engine: '🔧 Manual',
-    color: '#B4B2A9', gears: '1–3', products: 2, bfm: 750,
+    color: '#B4B2A9', gears: '1–3', products: 2, bfm: 300,
     highlight: ['Idea Ignition (4 sources)', 'Gears 1–3: Intent + Blueprint + Content', 'Z2B Marketplace listing', '10% ISP · 20% Affiliate', 'Coach Manlaw AI'],
   },
   {
     id: 'bronze', name: 'Bronze', price: 2500, engine: '🔧 Manual',
-    color: '#CD7F32', gears: '1–4', products: 4, bfm: 750,
+    color: '#CD7F32', gears: '1–5', products: 5, bfm: 800,
     highlight: ['Everything in Starter', 'Gear 4: Quality Control', 'Live Google Trends market research', '4 products/month', '18% ISP'],
   },
   {
     id: 'copper', name: 'Copper', price: 5000, engine: '⚙️ Automatic',
-    color: '#B87333', gears: '1–5', products: 15, bfm: 1500,
+    color: '#B87333', gears: '1–6', products: 15, bfm: 1500,
     badge: 'Most Popular',
     highlight: ['Everything in Bronze', 'Gear 5: Templates + worksheets', 'Automatic Engine — less input needed', '15 products/month', '1 Builder PWA storefront', '22% ISP'],
   },

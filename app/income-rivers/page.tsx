@@ -42,7 +42,7 @@ const RIVERS = [
       { label:'Formats',          value:'eBooks · Toolkits · Courses · Workbooks · Audio · Video' },
     ],
     gears: [
-      { icon:'🔧', label:'Manual',    tier:'Starter – Bronze', desc:'Gears 1–5' },
+      { icon:'🔧', label:'Manual',    tier:'Starter – Bronze', desc:'Starter: Gears 1–3 · Bronze: Gears 1–5' },
       { icon:'⚙️', label:'Automatic', tier:'Copper',           desc:'Gears 1–6' },
       { icon:'⚡', label:'Electric',  tier:'Silver',           desc:'All 7 Gears' },
       { icon:'🚀', label:'Rocket',    tier:'Gold – Platinum',  desc:'All 7 · Full automation' },
@@ -115,8 +115,8 @@ const RIVERS = [
 ]
 
 const BFM_TIERS = [
-  { tier:'Starter',  amount:'R750',   bfm:750   },
-  { tier:'Bronze',   amount:'R1,050', bfm:1050  },
+  { tier:'Starter',  amount:'R300',   bfm:750   },
+  { tier:'Bronze',   amount:'R800',   bfm:800   },
   { tier:'Copper',   amount:'R1,500', bfm:1500  },
   { tier:'Silver',   amount:'R3,000', bfm:3000  },
   { tier:'Gold',     amount:'R7,000', bfm:7000  },

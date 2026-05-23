@@ -20,9 +20,9 @@ const PAYMENT_METHODS = [
 ]
 
 const TIER_DETAILS: Record<string, { engine: string; gears: string; bfm: number; color: string }> = {
-  starter:  { engine: '🔧 Manual',    gears: '1–3', bfm: 750,   color: '#B4B2A9' },
-  bronze:   { engine: '🔧 Manual',    gears: '1–4', bfm: 750,   color: '#CD7F32' },
-  copper:   { engine: '⚙️ Automatic', gears: '1–5', bfm: 1500,  color: '#B87333' },
+  starter:  { engine: '🔧 Manual',    gears: '1–3', bfm: 300,   color: '#B4B2A9' },
+  bronze:   { engine: '🔧 Manual',    gears: '1–5', bfm: 800,   color: '#CD7F32' },
+  copper:   { engine: '⚙️ Automatic', gears: '1–6', bfm: 1500,  color: '#B87333' },
   silver:   { engine: '⚡ Electric',  gears: '1–7', bfm: 3000,  color: '#C0C0C0' },
   gold:     { engine: '🚀 Rocket',    gears: '1–7', bfm: 7000,  color: GOLD },
   platinum: { engine: '🚀 Rocket',    gears: '1–7', bfm: 12000, color: '#E5E4E2' },
