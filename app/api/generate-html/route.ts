@@ -998,6 +998,7 @@ var synth=window.speechSynthesis,utterance=null,currentSpeed=1,currentChapter=-1
 function initAudio(){totalChapters=document.querySelectorAll('[id^=chapter-text-]').length;if(totalChapters>0)selectChapter(0);}
 function getVoice(){var v=synth.getVoices();return v.find(function(x){return x.lang.includes('en-ZA');})||v.find(function(x){return x.lang.includes('en-GB');})||v.find(function(x){return x.lang.includes('en');})||null;}
 function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var np=document.getElementById('now-playing-title');if(t&&np)np.innerText='Chapter '+(idx+1)+': '+t.innerText;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pg=document.getElementById('audio-progress');if(pg)pg.style.width=(totalChapters>1?Math.round(idx/(totalChapters-1)*100):0)+'%';}
+function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+tx.innerText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters)setTimeout(function(){speakChapter(idx+1);},1500);};synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.innerText="⏸ Pause";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
 function togglePlay(){if(currentChapter<0){speakChapter(0);return;}if(synth.speaking){if(synth.paused){synth.resume();var b=document.getElementById('btn-play');if(b)b.innerText='⏸ Pause';}else{synth.pause();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Resume';}}else{speakChapter(currentChapter);}}
 function nextChapter(){if(currentChapter+1<totalChapters)speakChapter(currentChapter+1);}
 function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
@@ -1006,52 +1007,5 @@ function setSpeed(speed,btn){currentSpeed=speed;document.querySelectorAll('.spee
 if(speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=function(){getVoice();};
 window.addEventListener('load',function(){initAudio();});
 
-function playSection(num) {
-  if (synth.speaking) synth.cancel();
-  var textEl = document.getElementById('audio-text-' + num);
-  if (!textEl) return;
-  utterance          = new SpeechSynthesisUtterance(textEl.innerText);
-  utterance.rate     = currentSpeed;
-  utterance.pitch    = 1;
-  utterance.lang     = 'en-ZA';
-  // Try South African English voice
-  var voices = synth.getVoices();
-  var zaVoice = voices.find(function(v) { return v.lang.includes('en-ZA') || v.lang.includes('en-GB'); });
-  if (zaVoice) utterance.voice = zaVoice;
-  synth.speak(utterance);
-}
 
-function pauseSection() {
-  if (synth.speaking) {
-    synth.paused ? synth.resume() : synth.pause();
-  }
-}
-
-function stopSection() {
-  if (synth.speaking) synth.cancel();
-}
-
-function setSpeed(speed, btn) {
-  currentSpeed = speed;
-  document.querySelectorAll('.speed-btn').forEach(function(b) { b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  if (utterance) utterance.rate = speed;
-}
-
-// Load voices
-if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = function() { synth.getVoices(); };
-}
 </script>
-
-</body>
-</html>`
-
-  const filename = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50) + '.html'
-  return new NextResponse(html, {
-    headers: {
-      'Content-Type':        'text/html; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-    },
-  })
-}
