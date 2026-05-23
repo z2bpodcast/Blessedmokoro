@@ -1009,3 +1009,14 @@ window.addEventListener('load',function(){initAudio();});
 
 
 </script>
+</body>
+</html>`
+
+  const filename = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 50) + ".html"
+  return new NextResponse(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+    },
+  })
+}
