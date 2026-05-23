@@ -892,7 +892,7 @@ body {
           style="padding:12px 16px;border-radius:10px;border:1px solid var(--primary)20;cursor:pointer;display:flex;align-items:center;gap:12px;background:var(--surface);">
           <div style="width:28px;height:28px;border-radius:50%;background:var(--primary)18;border:1px solid var(--primary)30;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--primary);flex-shrink:0;">${i+1}</div>
           <div style="flex:1;">
-            <div style="font-size:13px;font-weight:700;color:var(--text);">${sTitle}</div>
+            <div class="ch-title" style="font-size:13px;font-weight:700;color:var(--text);">${sTitle}</div>
             <div style="font-size:11px;color:var(--muted);margin-top:2px;">${Math.max(1,Math.round(raw.split(/\s+/).length/200))} min read</div>
           </div>
           <div id="chapter-status-${i}" style="font-size:11px;color:var(--muted);">▶</div>
@@ -993,10 +993,18 @@ window.addEventListener('load', function() {
   });
 });
 
-// ── AUDIO READER ───────────────────────────────────────────
-var synth       = window.speechSynthesis;
-var utterance   = null;
-var currentSpeed = 1;
+// ── GLOBAL AUDIO PLAYER ─────────────────────────────────────
+var synth=window.speechSynthesis,utterance=null,currentSpeed=1,currentChapter=-1,totalChapters=0;
+function initAudio(){totalChapters=document.querySelectorAll('[id^=chapter-text-]').length;if(totalChapters>0)selectChapter(0);}
+function getVoice(){var v=synth.getVoices();return v.find(function(x){return x.lang.includes('en-ZA');})||v.find(function(x){return x.lang.includes('en-GB');})||v.find(function(x){return x.lang.includes('en');})||null;}
+function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var np=document.getElementById('now-playing-title');if(t&&np)np.innerText='Chapter '+(idx+1)+': '+t.innerText;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pg=document.getElementById('audio-progress');if(pg)pg.style.width=(totalChapters>1?Math.round(idx/(totalChapters-1)*100):0)+'%';}
+function togglePlay(){if(currentChapter<0){speakChapter(0);return;}if(synth.speaking){if(synth.paused){synth.resume();var b=document.getElementById('btn-play');if(b)b.innerText='⏸ Pause';}else{synth.pause();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Resume';}}else{speakChapter(currentChapter);}}
+function nextChapter(){if(currentChapter+1<totalChapters)speakChapter(currentChapter+1);}
+function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
+function stopAudio(){synth.cancel();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Play';var np=document.getElementById('now-playing-title');if(np)np.innerText='Press Play to begin reading';}
+function setSpeed(speed,btn){currentSpeed=speed;document.querySelectorAll('.speed-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');if(synth.speaking){var idx=currentChapter;synth.cancel();setTimeout(function(){speakChapter(idx);},100);}}
+if(speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=function(){getVoice();};
+window.addEventListener('load',function(){initAudio();});
 
 function playSection(num) {
   if (synth.speaking) synth.cancel();
