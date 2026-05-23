@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     // Split into paragraphs — handle various formats
     const paras = String(raw)
-      .split(/\n\n+/)
+      .split(/\n\n+|\n(?=[A-Z])/)
       .filter((p: string) => p.trim().length > 10)
       .map((p: string) => {
         const trimmed = p.trim()
