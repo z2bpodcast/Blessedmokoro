@@ -39,7 +39,11 @@ export async function POST(req: NextRequest) {
 
   const intent    = session.intent_data        ?? {}
   const structure = session.structure_data     ?? {}
-  const content   = session.content_draft      ?? {}
+  // Parse content_draft — may come as string or object
+  let content: any = session.content_draft ?? {}
+  if (typeof content === 'string') {
+    try { content = JSON.parse(content) } catch(e) { content = {} }
+  }
   const assets    = session.enhancement_assets ?? {}
   const dist      = session.distribution_data  ?? {}
 
