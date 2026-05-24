@@ -81,7 +81,7 @@ export default function AdminMarketplacePage() {
 
   useEffect(() => {
     const session = sessionStorage.getItem('z2b_cmd_auth') || localStorage.getItem('z2b_cmd_auth')
-    if (session !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k/'); return }
+    if (session !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k'); return }
     loadAll()
   }, [])
 
