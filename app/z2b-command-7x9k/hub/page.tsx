@@ -153,11 +153,7 @@ export default function AdminHubPage() {
   const GATE_URL      = '/z2b-command-7x9k'
 
   const checkAccess = useCallback(async () => {
-    // Must have session token from gate page
-    if (typeof window !== 'undefined') {
-      const token = sessionStorage.getItem('z2b_cmd_auth')
-      if (token !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k'); return }
-    }
+    // Auth via Supabase role only
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/z2b-command-7x9k'); return }
     const { data: profile } = await supabase.from('profiles').select('user_role, full_name').eq('id', user.id).single()
