@@ -1,295 +1,517 @@
 'use client'
+// app/z2b-command-7x9k/marketplace/page.tsx
+// Z2B Marketplace Admin — Full Product Management
+// 4M Products + External Apps · List/Delist · Edit · Upload
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
-type Product = {
-  id?: string; name: string; tagline: string; description: string
-  category: string; price_monthly: number|null; price_once: number|null
-  badge: string; icon: string; color: string
-  is_active: boolean; is_coming_soon: boolean
-  features: string[]; slug: string; sort_order: number
+const BG   = '#0a0c14'
+const SURF = '#111827'
+const GOLD = '#D4AF37'
+const W    = '#F0F9FF'
+const MUTED= '#64748B'
+const GREEN= '#10B981'
+const RED  = '#EF4444'
+const VIO  = '#7C3AED'
+
+const CATEGORIES = ['ebook','toolkit','course','framework','template','workbook','checklist','app','pwa','service','other']
+const STATUSES   = ['listed','draft','delisted']
+const TYPES      = ['z2b_product','external_app','external_ebook','external_tool']
+
+interface Product {
+  id?:              string
+  name:             string
+  title?:           string
+  slug:             string
+  tagline:          string
+  description:      string
+  category:         string
+  format?:          string
+  icon?:            string
+  color?:           string
+  cover_url?:       string
+  product_url?:     string
+  retail_price?:    number
+  price_once?:      number
+  price_monthly?:   number
+  seller_id?:       string
+  seller_name?:     string
+  status:           string
+  is_active:        boolean
+  is_coming_soon?:  boolean
+  product_type?:    string
+  affiliate_enabled?:boolean
+  seller_earnings?: number
+  z2b_commission?:  number
+  session_id?:      string
+  sort_order?:      number
+  features?:        string[]
+  keywords?:        string[]
+  created_at?:      string
 }
 
-const EMPTY: Product = { name:'', tagline:'', description:'', category:'app', price_monthly:null, price_once:null, badge:'', icon:'🔧', color:'#7C3AED', is_active:false, is_coming_soon:false, features:[], slug:'', sort_order:0 }
+const EMPTY: Product = {
+  name:'', slug:'', tagline:'', description:'',
+  category:'ebook', status:'draft', is_active:false,
+  product_type:'external_app', retail_price:299,
+  affiliate_enabled:true, icon:'📦', color:VIO,
+  features:[], keywords:[],
+}
 
-const CATS = ['app','tool','template','course','service']
+const lbl: any = { fontSize:11, color:MUTED, letterSpacing:2, textTransform:'uppercase', display:'block', marginBottom:6, fontFamily:'Georgia,serif' }
+const inp: any = { width:'100%', padding:'10px 14px', borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:W, fontFamily:'Georgia,serif', fontSize:13, outline:'none', marginBottom:0, boxSizing:'border-box' }
 
 export default function AdminMarketplacePage() {
   const router = useRouter()
-  const [products, setProducts]   = useState<Product[]>([])
-  const [editing, setEditing]     = useState<Product|null>(null)
-  const [isNew, setIsNew]         = useState(false)
-  const [saving, setSaving]       = useState(false)
-  const [msg, setMsg]             = useState('')
-  const [featureInput, setFeatureInput] = useState('')
-  const [stats, setStats]         = useState({ total:0, active:0, subscribers:0, mrr:0 })
+
+  const [products,  setProducts]  = useState<Product[]>([])
+  const [editing,   setEditing]   = useState<Product|null>(null)
+  const [isNew,     setIsNew]     = useState(false)
+  const [saving,    setSaving]    = useState(false)
+  const [msg,       setMsg]       = useState('')
+  const [search,    setSearch]    = useState('')
+  const [filter,    setFilter]    = useState('all')
+  const [typeFilter,setTypeFilter]= useState('all')
+  const [stats,     setStats]     = useState({ total:0, listed:0, external:0, z2b:0 })
+  const [tagInput,  setTagInput]  = useState('')
+  const [sales,     setSales]     = useState<Record<string,number>>({})
+  const [confirmDel,setConfirmDel]= useState<string|null>(null)
 
   useEffect(() => {
-    // Auth check
     const session = sessionStorage.getItem('z2b_cmd_auth')
     if (session !== 'z2b_unlocked_2026') { router.push('/z2b-command-7x9k/'); return }
-    loadProducts()
-    loadStats()
+    loadAll()
   }, [])
 
-  const loadProducts = async () => {
-    const { data } = await supabase.from('marketplace_products').select('*').order('sort_order')
+  async function loadAll() {
+    const { data } = await (supabase as any).from('marketplace_products')
+      .select('*').order('created_at', { ascending: false })
     if (data) setProducts(data)
+
+    // Stats
+    const total    = data?.length ?? 0
+    const listed   = data?.filter((p: any) => p.status === 'listed' || p.is_active).length ?? 0
+    const external = data?.filter((p: any) => p.product_type && p.product_type !== 'z2b_product').length ?? 0
+    const z2b      = data?.filter((p: any) => p.product_type === 'z2b_product').length ?? 0
+    setStats({ total, listed, external, z2b })
+
+    // Sales counts
+    const { data: salesData } = await (supabase as any).from('pwa_sales')
+      .select('product_id').eq('status', 'paid')
+    const salesMap: Record<string,number> = {}
+    salesData?.forEach((s: any) => {
+      if (s.product_id) salesMap[s.product_id] = (salesMap[s.product_id] ?? 0) + 1
+    })
+    setSales(salesMap)
   }
 
-  const loadStats = async () => {
-    const [{ count: total }, { count: active }, subs] = await Promise.all([
-      supabase.from('marketplace_products').select('*', {count:'exact',head:true}),
-      supabase.from('marketplace_products').select('*', {count:'exact',head:true}).eq('is_active',true),
-      supabase.from('cs_plus_subscriptions').select('plan'),
-    ])
-    const subData = subs.data || []
-    const mrr = subData.reduce((sum: number, s: any) => {
-      const price = s.plan==='starter'?297:s.plan==='pro'?597:s.plan==='elite'?997:0
-      return sum + price
-    }, 0)
-    setStats({ total:total||0, active:active||0, subscribers:subData.length, mrr })
-  }
-
-  const startNew = () => { setEditing({...EMPTY}); setIsNew(true); setFeatureInput('') }
-  const startEdit = (p: Product) => { setEditing({...p}); setIsNew(false); setFeatureInput('') }
-  const cancelEdit = () => { setEditing(null); setIsNew(false) }
-
-  const addFeature = () => {
-    if (!featureInput.trim() || !editing) return
-    setEditing(prev => prev ? {...prev, features:[...prev.features, featureInput.trim()]} : prev)
-    setFeatureInput('')
-  }
-
-  const removeFeature = (idx: number) => {
+  async function saveProduct() {
     if (!editing) return
-    setEditing(prev => prev ? {...prev, features:prev.features.filter((_,i)=>i!==idx)} : prev)
-  }
+    setSaving(true)
+    const sb = supabase as any
 
-  const handleSave = async () => {
-    if (!editing) return
-    if (!editing.name || !editing.slug) { setMsg('Name and slug are required.'); return }
-    setSaving(true); setMsg('')
-    try {
-      if (isNew) {
-        const { error } = await supabase.from('marketplace_products').insert(editing)
-        if (error) throw error
-        setMsg('✅ Product created successfully')
-      } else {
-        const { error } = await supabase.from('marketplace_products').update(editing).eq('id', editing.id)
-        if (error) throw error
-        setMsg('✅ Product updated successfully')
-      }
-      await loadProducts()
-      setEditing(null); setIsNew(false)
-    } catch (err: any) {
-      setMsg(`❌ Error: ${err.message}`)
-    } finally {
-      setSaving(false)
+    // Auto-fill title from name
+    const record = {
+      ...editing,
+      title:          editing.title || editing.name,
+      name:           editing.name,
+      seller_earnings:Math.round((editing.retail_price ?? editing.price_once ?? 299) * 0.75),
+      z2b_commission: Math.round((editing.retail_price ?? editing.price_once ?? 299) * 0.05),
+      price_once:     editing.retail_price ?? editing.price_once,
     }
+
+    if (isNew) {
+      if (!record.slug) record.slug = record.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,80) + '-' + Date.now().toString().slice(-4)
+      const { error } = await sb.from('marketplace_products').insert(record)
+      if (error) { setMsg('❌ ' + error.message); setSaving(false); return }
+      setMsg('✅ Product created and ' + (record.status === 'listed' ? 'listed!' : 'saved as draft!'))
+    } else {
+      const { error } = await sb.from('marketplace_products').update(record).eq('id', editing.id)
+      if (error) { setMsg('❌ ' + error.message); setSaving(false); return }
+      setMsg('✅ Product updated!')
+    }
+
+    setSaving(false)
+    setEditing(null)
+    setIsNew(false)
+    loadAll()
+    setTimeout(() => setMsg(''), 3000)
   }
 
-  const toggleActive = async (p: Product) => {
-    await supabase.from('marketplace_products').update({ is_active: !p.is_active }).eq('id', p.id)
-    await loadProducts()
+  async function toggleStatus(p: Product) {
+    const sb = supabase as any
+    const newStatus  = p.status === 'listed' ? 'delisted' : 'listed'
+    const newActive  = newStatus === 'listed'
+    await sb.from('marketplace_products').update({ status: newStatus, is_active: newActive }).eq('id', p.id)
+    loadAll()
   }
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Delete this product? This cannot be undone.')) return
-    await supabase.from('marketplace_products').delete().eq('id', id)
-    await loadProducts()
+  async function deleteProduct(id: string) {
+    await (supabase as any).from('marketplace_products').delete().eq('id', id)
+    setConfirmDel(null)
+    loadAll()
+    setMsg('✅ Product deleted')
+    setTimeout(() => setMsg(''), 2500)
   }
 
-  const inp: React.CSSProperties = { width:'100%', background:'rgba(255,255,255,0.06)', border:'1.5px solid rgba(255,255,255,0.1)', borderRadius:'9px', padding:'10px 13px', color:'#F5F3FF', fontSize:'13px', fontFamily:'Georgia,serif', outline:'none', boxSizing:'border-box' }
-  const lbl: React.CSSProperties = { display:'block', fontSize:'10px', fontWeight:700, color:'rgba(212,175,55,0.7)', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'5px' }
+  function addTag(field: 'features'|'keywords') {
+    if (!tagInput.trim() || !editing) return
+    const arr = editing[field] ?? []
+    setEditing({ ...editing, [field]: [...arr, tagInput.trim()] })
+    setTagInput('')
+  }
+
+  function removeTag(field: 'features'|'keywords', idx: number) {
+    if (!editing) return
+    const arr = [...(editing[field] ?? [])]
+    arr.splice(idx, 1)
+    setEditing({ ...editing, [field]: arr })
+  }
+
+  const filtered = products.filter(p => {
+    const matchSearch = !search || (p.name + p.title + p.tagline + p.description).toLowerCase().includes(search.toLowerCase())
+    const matchFilter = filter === 'all' || p.status === filter || (filter === 'active' && p.is_active)
+    const matchType   = typeFilter === 'all' || p.product_type === typeFilter
+    return matchSearch && matchFilter && matchType
+  })
 
   return (
-    <div style={{ minHeight:'100vh', background:'#0A0818', fontFamily:'Georgia,serif', color:'#F5F3FF', padding:'0 0 60px' }}>
+    <div style={{ minHeight:'100vh', background:BG, color:W, fontFamily:'Georgia,serif' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap');
+        * { box-sizing:border-box; }
+        input,select,textarea { outline:none; }
+        .prod-row:hover { background:rgba(255,255,255,0.04) !important; }
+        .toggle-btn { transition:all 0.2s; }
+      `}</style>
 
-      {/* Header */}
-      <div style={{ background:'rgba(0,0,0,0.5)', borderBottom:'1px solid rgba(212,175,55,0.15)', padding:'18px 32px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <div>
-          <h1 style={{ margin:0, fontSize:'20px', fontWeight:700, color:'#D4AF37' }}>🏪 Marketplace Admin</h1>
-          <p style={{ margin:'3px 0 0', fontSize:'12px', color:'rgba(196,181,253,0.6)' }}>Manage products, tools and services</p>
+      {/* Nav */}
+      <div style={{ background:'rgba(0,0,0,0.6)', borderBottom:`1px solid ${GOLD}20`, padding:'14px 28px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:20 }}>
+          <a href="/z2b-command-7x9k/hub" style={{ fontSize:12, color:MUTED, textDecoration:'none', fontWeight:700 }}>← Hub</a>
+          <h1 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:18, fontWeight:900, color:GOLD, margin:0 }}>🏪 Marketplace Admin</h1>
         </div>
-        <div style={{ display:'flex', gap:'10px' }}>
-          <a href="/marketplace" target="_blank" style={{ padding:'9px 18px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'9px', color:'rgba(255,255,255,0.6)', fontSize:'12px', textDecoration:'none', fontFamily:'Georgia,serif' }}>View Marketplace ↗</a>
-          <button onClick={startNew} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'9px', color:'#F5D060', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif' }}>+ Add Product</button>
+        <div style={{ display:'flex', gap:10 }}>
+          <a href="/marketplace" target="_blank" style={{ padding:'8px 16px', borderRadius:8, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:MUTED, fontSize:12, textDecoration:'none' }}>
+            View Marketplace ↗
+          </a>
+          <button onClick={() => { setEditing({...EMPTY}); setIsNew(true); setTagInput('') }}
+            style={{ padding:'8px 18px', borderRadius:8, background:`linear-gradient(135deg,${GOLD},#B8860B)`, color:BG, fontSize:13, fontWeight:900, border:'none', cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
+            + Upload Product
+          </button>
         </div>
       </div>
 
-      <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'32px 24px' }}>
+      <div style={{ maxWidth:1200, margin:'0 auto', padding:'28px 24px' }}>
 
         {/* Stats */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'16px', marginBottom:'32px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:12, marginBottom:28 }}>
           {[
-            { label:'Total Products', value:stats.total, color:'#7C3AED' },
-            { label:'Active Listings', value:stats.active, color:'#059669' },
-            { label:'CS+ Subscribers', value:stats.subscribers, color:'#0EA5E9' },
-            { label:'CS+ MRR', value:`R${stats.mrr.toLocaleString()}`, color:'#D4AF37' },
+            { label:'Total Products',  value:stats.total,    color:VIO   },
+            { label:'Live Listings',   value:stats.listed,   color:GREEN },
+            { label:'4M Products',     value:stats.z2b,      color:GOLD  },
+            { label:'External Apps',   value:stats.external, color:'#06B6D4' },
           ].map(s => (
-            <div key={s.label} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'14px', padding:'20px' }}>
-              <div style={{ fontSize:'28px', fontWeight:700, color:s.color, marginBottom:'4px' }}>{s.value}</div>
-              <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.45)' }}>{s.label}</div>
+            <div key={s.label} style={{ padding:'18px 20px', borderRadius:12, background:SURF, border:`1px solid ${s.color}25` }}>
+              <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:28, fontWeight:900, color:s.color }}>{s.value}</div>
+              <div style={{ fontSize:11, color:MUTED, marginTop:4 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
         {msg && (
-          <div style={{ background:msg.startsWith('✅')?'rgba(16,185,129,0.1)':'rgba(239,68,68,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.3)'}`, borderRadius:'10px', padding:'12px 16px', color:msg.startsWith('✅')?'#6EE7B7':'#FCA5A5', fontSize:'13px', marginBottom:'20px' }}>
+          <div style={{ padding:'12px 16px', borderRadius:10, background: msg.startsWith('✅') ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', border:`1px solid ${msg.startsWith('✅') ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, color: msg.startsWith('✅') ? GREEN : RED, fontSize:13, marginBottom:20 }}>
             {msg}
           </div>
         )}
 
-        {/* Edit / New form */}
+        {/* ── EDIT/NEW FORM ── */}
         {editing && (
-          <div style={{ background:'rgba(255,255,255,0.04)', border:'1.5px solid rgba(212,175,55,0.25)', borderRadius:'18px', padding:'28px', marginBottom:'32px' }}>
-            <h3 style={{ margin:'0 0 24px', fontSize:'18px', fontWeight:700, color:'#D4AF37' }}>{isNew ? '+ New Product' : `Editing: ${editing.name}`}</h3>
+          <div style={{ background:SURF, border:`1.5px solid ${GOLD}30`, borderRadius:16, padding:28, marginBottom:32 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:24 }}>
+              <h3 style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:18, fontWeight:900, color:GOLD, margin:0 }}>
+                {isNew ? '+ Upload Product' : `Editing: ${editing.name || editing.title}`}
+              </h3>
+              <button onClick={() => setEditing(null)} style={{ background:'none', border:'none', color:MUTED, cursor:'pointer', fontSize:20 }}>✕</button>
+            </div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginBottom:'16px' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+
+              {/* Product Type */}
               <div>
-                <label style={lbl}>Product Name *</label>
-                <input value={editing.name} onChange={e=>setEditing(p=>p?{...p,name:e.target.value}:p)} style={inp} placeholder="e.g. Content Studio+" />
-              </div>
-              <div>
-                <label style={lbl}>Slug * (URL path)</label>
-                <input value={editing.slug} onChange={e=>setEditing(p=>p?{...p,slug:e.target.value.toLowerCase().replace(/\s+/g,'-')}:p)} style={inp} placeholder="e.g. cs-plus" />
-              </div>
-              <div style={{ gridColumn:'1/-1' }}>
-                <label style={lbl}>Tagline</label>
-                <input value={editing.tagline} onChange={e=>setEditing(p=>p?{...p,tagline:e.target.value}:p)} style={inp} placeholder="Short description shown on marketplace card" />
-              </div>
-              <div style={{ gridColumn:'1/-1' }}>
-                <label style={lbl}>Description</label>
-                <textarea value={editing.description} onChange={e=>setEditing(p=>p?{...p,description:e.target.value}:p)} rows={3} style={{ ...inp, resize:'vertical', cursor:'text' }} placeholder="Full product description" />
-              </div>
-              <div>
-                <label style={lbl}>Category</label>
-                <select value={editing.category} onChange={e=>setEditing(p=>p?{...p,category:e.target.value}:p)} style={inp}>
-                  {CATS.map(c=><option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
+                <label style={lbl}>Product Type</label>
+                <select value={editing.product_type ?? 'external_app'} onChange={e => setEditing({...editing, product_type:e.target.value})} style={inp}>
+                  <option value="z2b_product">4M Machine Product</option>
+                  <option value="external_app">External PWA / App</option>
+                  <option value="external_ebook">External eBook</option>
+                  <option value="external_tool">External Tool</option>
                 </select>
               </div>
+
+              {/* Status */}
+              <div>
+                <label style={lbl}>Status</label>
+                <select value={editing.status} onChange={e => setEditing({...editing, status:e.target.value, is_active:e.target.value==='listed'})} style={inp}>
+                  <option value="draft">Draft (not visible)</option>
+                  <option value="listed">Listed (live on marketplace)</option>
+                  <option value="delisted">Delisted (hidden)</option>
+                </select>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label style={lbl}>Product Name *</label>
+                <input value={editing.name || editing.title || ''} onChange={e => setEditing({...editing, name:e.target.value, title:e.target.value})} style={inp} placeholder="e.g. AI Budget Planner PWA" />
+              </div>
+
+              {/* Slug */}
+              <div>
+                <label style={lbl}>Slug (URL) — leave blank to auto-generate</label>
+                <input value={editing.slug} onChange={e => setEditing({...editing, slug:e.target.value.toLowerCase().replace(/\s+/g,'-')})} style={inp} placeholder="ai-budget-planner" />
+              </div>
+
+              {/* Tagline */}
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={lbl}>Tagline</label>
+                <input value={editing.tagline} onChange={e => setEditing({...editing, tagline:e.target.value})} style={inp} placeholder="One punchy line that sells the product" />
+              </div>
+
+              {/* Description */}
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={lbl}>Description</label>
+                <textarea value={editing.description} onChange={e => setEditing({...editing, description:e.target.value})} rows={4} style={{ ...inp, resize:'vertical' }} placeholder="Full product description — problem, solution, transformation" />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label style={lbl}>Category / Format</label>
+                <select value={editing.category || editing.format || 'app'} onChange={e => setEditing({...editing, category:e.target.value, format:e.target.value})} style={inp}>
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
+                </select>
+              </div>
+
+              {/* Icon */}
               <div>
                 <label style={lbl}>Icon (emoji)</label>
-                <input value={editing.icon} onChange={e=>setEditing(p=>p?{...p,icon:e.target.value}:p)} style={inp} placeholder="🔧" />
+                <input value={editing.icon ?? '📦'} onChange={e => setEditing({...editing, icon:e.target.value})} style={inp} placeholder="📦" />
               </div>
+
+              {/* Price */}
               <div>
-                <label style={lbl}>Monthly Price (R) — leave blank if once-off</label>
-                <input type="number" value={editing.price_monthly||''} onChange={e=>setEditing(p=>p?{...p,price_monthly:e.target.value?Number(e.target.value):null}:p)} style={inp} placeholder="e.g. 297" />
+                <label style={lbl}>Price (ZAR) — once-off</label>
+                <input type="number" value={editing.retail_price || editing.price_once || ''} onChange={e => setEditing({...editing, retail_price:Number(e.target.value), price_once:Number(e.target.value)})} style={inp} placeholder="299" />
               </div>
+
+              {/* Monthly Price */}
               <div>
-                <label style={lbl}>Once-off Price (R) — leave blank if monthly</label>
-                <input type="number" value={editing.price_once||''} onChange={e=>setEditing(p=>p?{...p,price_once:e.target.value?Number(e.target.value):null}:p)} style={inp} placeholder="e.g. 980" />
+                <label style={lbl}>Monthly Price (ZAR) — leave blank if once-off</label>
+                <input type="number" value={editing.price_monthly || ''} onChange={e => setEditing({...editing, price_monthly:e.target.value?Number(e.target.value):undefined})} style={inp} placeholder="97" />
               </div>
+
+              {/* Cover Image */}
               <div>
-                <label style={lbl}>Badge (e.g. NEW, Soon, Phase 2)</label>
-                <input value={editing.badge} onChange={e=>setEditing(p=>p?{...p,badge:e.target.value}:p)} style={inp} placeholder="NEW" />
+                <label style={lbl}>Cover Image URL</label>
+                <input value={editing.cover_url ?? ''} onChange={e => setEditing({...editing, cover_url:e.target.value})} style={inp} placeholder="https://..." />
               </div>
+
+              {/* Product URL (for external apps) */}
               <div>
-                <label style={lbl}>Accent Color</label>
-                <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-                  <input type="color" value={editing.color} onChange={e=>setEditing(p=>p?{...p,color:e.target.value}:p)} style={{ width:'44px', height:'38px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer', background:'none' }} />
-                  <input value={editing.color} onChange={e=>setEditing(p=>p?{...p,color:e.target.value}:p)} style={{ ...inp, flex:1 }} placeholder="#7C3AED" />
+                <label style={lbl}>Product URL (for PWAs / external apps)</label>
+                <input value={editing.product_url ?? ''} onChange={e => setEditing({...editing, product_url:e.target.value})} style={inp} placeholder="https://myapp.vercel.app" />
+              </div>
+
+              {/* Seller Name */}
+              <div>
+                <label style={lbl}>Seller / Builder Name</label>
+                <input value={editing.seller_name ?? ''} onChange={e => setEditing({...editing, seller_name:e.target.value})} style={inp} placeholder="Rev Manana" />
+              </div>
+
+              {/* Affiliate */}
+              <div style={{ display:'flex', alignItems:'center', gap:12, paddingTop:24 }}>
+                <input type="checkbox" checked={editing.affiliate_enabled ?? true} onChange={e => setEditing({...editing, affiliate_enabled:e.target.checked})} id="aff" />
+                <label htmlFor="aff" style={{ fontSize:13, color:W, cursor:'pointer' }}>Enable 20% affiliate commission</label>
+              </div>
+
+              {/* Features */}
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={lbl}>Key Features / Benefits</label>
+                <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                  <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => e.key==='Enter' && addTag('features')} style={{ ...inp, flex:1 }} placeholder="Type a feature and press Enter or Add" />
+                  <button onClick={() => addTag('features')} style={{ padding:'10px 16px', borderRadius:8, background:GOLD, color:BG, fontWeight:900, fontSize:12, border:'none', cursor:'pointer', whiteSpace:'nowrap' }}>Add</button>
+                </div>
+                <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                  {(editing.features ?? []).map((f,i) => (
+                    <div key={i} style={{ padding:'4px 10px', borderRadius:20, background:`${GOLD}15`, border:`1px solid ${GOLD}30`, fontSize:12, color:GOLD, display:'flex', alignItems:'center', gap:6 }}>
+                      {f} <span onClick={() => removeTag('features',i)} style={{ cursor:'pointer', color:RED }}>✕</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div>
-                <label style={lbl}>Sort Order (lower = first)</label>
-                <input type="number" value={editing.sort_order} onChange={e=>setEditing(p=>p?{...p,sort_order:Number(e.target.value)}:p)} style={inp} placeholder="0" />
-              </div>
-              <div>
-                <div style={{ display:'flex', gap:'20px', marginTop:'8px' }}>
-                  <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
-                    <input type="checkbox" checked={editing.is_active} onChange={e=>setEditing(p=>p?{...p,is_active:e.target.checked}:p)} style={{ width:'16px', height:'16px', accentColor:'#059669' }} />
-                    Active (visible on marketplace)
-                  </label>
-                  <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
-                    <input type="checkbox" checked={editing.is_coming_soon} onChange={e=>setEditing(p=>p?{...p,is_coming_soon:e.target.checked}:p)} style={{ width:'16px', height:'16px', accentColor:'#D4AF37' }} />
-                    Coming Soon
-                  </label>
+
+              {/* Keywords */}
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={lbl}>SEO Keywords</label>
+                <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                  <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => e.key==='Enter' && addTag('keywords')} style={{ ...inp, flex:1 }} placeholder="Type a keyword and press Enter or Add" />
+                  <button onClick={() => addTag('keywords')} style={{ padding:'10px 16px', borderRadius:8, background:`${VIO}cc`, color:W, fontWeight:900, fontSize:12, border:'none', cursor:'pointer', whiteSpace:'nowrap' }}>Add</button>
+                </div>
+                <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                  {(editing.keywords ?? []).map((k,i) => (
+                    <div key={i} style={{ padding:'4px 10px', borderRadius:20, background:`${VIO}15`, border:`1px solid ${VIO}30`, fontSize:12, color:'#A78BFA', display:'flex', alignItems:'center', gap:6 }}>
+                      {k} <span onClick={() => removeTag('keywords',i)} style={{ cursor:'pointer', color:RED }}>✕</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+
             </div>
 
-            {/* Features */}
-            <div style={{ marginBottom:'20px' }}>
-              <label style={lbl}>Features / Bullet Points</label>
-              <div style={{ display:'flex', gap:'8px', marginBottom:'10px' }}>
-                <input value={featureInput} onChange={e=>setFeatureInput(e.target.value)} onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault();addFeature()} }} style={{ ...inp, flex:1 }} placeholder="Type a feature and press Enter or Add" />
-                <button onClick={addFeature} style={{ padding:'10px 16px', background:'rgba(124,58,237,0.2)', border:'1px solid rgba(124,58,237,0.35)', borderRadius:'9px', color:'#C4B5FD', fontWeight:700, fontSize:'13px', cursor:'pointer', fontFamily:'Georgia,serif', flexShrink:0 }}>Add</button>
+            {/* Commission preview */}
+            {(editing.retail_price || editing.price_once) && (
+              <div style={{ marginTop:16, padding:'12px 16px', borderRadius:10, background:'rgba(212,175,55,0.06)', border:`1px solid ${GOLD}20`, fontSize:12, color:MUTED }}>
+                💰 Commission split — Seller: <strong style={{ color:GREEN }}>R{Math.round((editing.retail_price || editing.price_once || 0) * 0.75)}</strong> ·
+                Affiliate: <strong style={{ color:'#06B6D4' }}>R{Math.round((editing.retail_price || editing.price_once || 0) * 0.20)}</strong> ·
+                Z2B: <strong style={{ color:GOLD }}>R{Math.round((editing.retail_price || editing.price_once || 0) * 0.05)}</strong>
               </div>
-              {editing.features.map((f,i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'8px', padding:'8px 12px', marginBottom:'6px' }}>
-                  <span style={{ color:'#7C3AED', fontSize:'10px' }}>◆</span>
-                  <span style={{ flex:1, fontSize:'13px', color:'rgba(255,255,255,0.75)' }}>{f}</span>
-                  <button onClick={()=>removeFeature(i)} style={{ background:'none', border:'none', color:'rgba(239,68,68,0.6)', cursor:'pointer', fontSize:'16px', lineHeight:1, padding:'0 4px' }}>×</button>
-                </div>
-              ))}
-            </div>
+            )}
 
-            <div style={{ display:'flex', gap:'10px' }}>
-              <button onClick={handleSave} disabled={saving} style={{ padding:'12px 28px', background:saving?'rgba(255,255,255,0.05)':'linear-gradient(135deg,#4C1D95,#7C3AED)', border:'1.5px solid #D4AF37', borderRadius:'10px', color:saving?'rgba(255,255,255,0.3)':'#F5D060', fontWeight:700, fontSize:'14px', cursor:saving?'not-allowed':'pointer', fontFamily:'Georgia,serif' }}>
-                {saving ? 'Saving...' : isNew ? '✅ Create Product' : '✅ Save Changes'}
+            <div style={{ display:'flex', gap:12, marginTop:20 }}>
+              <button onClick={saveProduct} disabled={saving || !editing.name}
+                style={{ flex:1, padding:'13px', borderRadius:10, background:`linear-gradient(135deg,${GOLD},#B8860B)`, color:BG, fontWeight:900, fontSize:14, border:'none', cursor:saving?'wait':'pointer', fontFamily:'Cinzel,Georgia,serif', opacity:!editing.name?0.5:1 }}>
+                {saving ? 'Saving...' : isNew ? '🚀 Upload to Marketplace' : '💾 Save Changes'}
               </button>
-              <button onClick={cancelEdit} style={{ padding:'12px 20px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px', color:'rgba(255,255,255,0.5)', fontSize:'14px', cursor:'pointer', fontFamily:'Georgia,serif' }}>Cancel</button>
+              <button onClick={() => setEditing(null)}
+                style={{ padding:'13px 24px', borderRadius:10, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:MUTED, fontWeight:700, fontSize:13, cursor:'pointer' }}>
+                Cancel
+              </button>
             </div>
           </div>
         )}
 
-        {/* Products table */}
-        <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', overflow:'hidden' }}>
-          <div style={{ padding:'18px 22px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <h3 style={{ margin:0, fontSize:'16px', fontWeight:700, color:'#fff' }}>All Products ({products.length})</h3>
-          </div>
+        {/* ── FILTERS ── */}
+        <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap', alignItems:'center' }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search products..."
+            style={{ flex:1, minWidth:200, padding:'9px 14px', borderRadius:8, background:SURF, border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:13, outline:'none' }} />
+          <select value={filter} onChange={e => setFilter(e.target.value)}
+            style={{ padding:'9px 14px', borderRadius:8, background:SURF, border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:13, outline:'none', cursor:'pointer' }}>
+            <option value="all">All Statuses</option>
+            <option value="listed">Listed</option>
+            <option value="draft">Draft</option>
+            <option value="delisted">Delisted</option>
+          </select>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+            style={{ padding:'9px 14px', borderRadius:8, background:SURF, border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:13, outline:'none', cursor:'pointer' }}>
+            <option value="all">All Types</option>
+            <option value="z2b_product">4M Products</option>
+            <option value="external_app">External Apps</option>
+            <option value="external_ebook">External eBooks</option>
+          </select>
+          <div style={{ fontSize:12, color:MUTED }}>{filtered.length} product{filtered.length!==1?'s':''}</div>
+        </div>
 
-          {products.length===0 ? (
-            <div style={{ padding:'48px', textAlign:'center', color:'rgba(196,181,253,0.4)' }}>
-              No products yet. Click "Add Product" to create the first one.
-            </div>
-          ) : (
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-                  {['Product','Category','Price','Status','Actions'].map(h => (
-                    <th key={h} style={{ padding:'12px 18px', textAlign:'left', fontSize:'11px', fontWeight:700, color:'rgba(212,175,55,0.6)', letterSpacing:'1px', textTransform:'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p,idx) => (
-                  <tr key={p.id} style={{ borderBottom:idx<products.length-1?'1px solid rgba(255,255,255,0.05)':'none', background:idx%2===0?'transparent':'rgba(255,255,255,0.01)' }}>
-                    <td style={{ padding:'14px 18px' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-                        <div style={{ width:'36px', height:'36px', borderRadius:'10px', background:`${p.color}18`, border:`1px solid ${p.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>{p.icon}</div>
-                        <div>
-                          <div style={{ fontSize:'14px', fontWeight:700, color:'#fff' }}>{p.name}</div>
-                          <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>/marketplace/{p.slug}</div>
-                        </div>
+        {/* ── PRODUCT LIST ── */}
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {filtered.map(p => {
+            const isListed = p.status === 'listed' || p.is_active
+            const salesCount = sales[p.id ?? ''] ?? 0
+            const price = p.retail_price ?? p.price_once ?? 0
+
+            return (
+              <div key={p.id} className="prod-row"
+                style={{ padding:'16px 20px', borderRadius:12, background:SURF, border:`1px solid ${isListed ? GREEN+'25' : 'rgba(255,255,255,0.06)'}`, transition:'all 0.2s' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+
+                  {/* Icon */}
+                  <div style={{ width:40, height:40, borderRadius:10, background:`${GOLD}15`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
+                    {p.icon ?? '📦'}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex:1, minWidth:200 }}>
+                    <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:14, fontWeight:900, color:W, marginBottom:3 }}>
+                      {p.name || p.title}
+                    </div>
+                    <div style={{ fontSize:11, color:MUTED, display:'flex', gap:10, flexWrap:'wrap' }}>
+                      <span>{p.category || p.format}</span>
+                      <span style={{ color:GOLD }}>R{price}</span>
+                      <span style={{ color: isListed ? GREEN : MUTED }}>
+                        {isListed ? '✅ Listed' : p.status === 'draft' ? '📝 Draft' : '🔴 Delisted'}
+                      </span>
+                      <span style={{ color:'#06B6D4' }}>
+                        {p.product_type === 'z2b_product' ? '⚙️ 4M' : '🌐 External'}
+                      </span>
+                      {salesCount > 0 && <span style={{ color:GREEN }}>💰 {salesCount} sales</span>}
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:18, fontWeight:900, color:GOLD, flexShrink:0 }}>
+                    R{price}
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap' }}>
+                    {/* List/Delist */}
+                    <button className="toggle-btn" onClick={() => toggleStatus(p)}
+                      style={{ padding:'6px 12px', borderRadius:7, background: isListed ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border:`1px solid ${isListed ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`, color: isListed ? '#FCA5A5' : GREEN, fontSize:11, fontWeight:700, cursor:'pointer' }}>
+                      {isListed ? '🔴 Delist' : '✅ List'}
+                    </button>
+
+                    {/* Edit */}
+                    <button onClick={() => { setEditing({...p, features: p.features ?? [], keywords: (p as any).keywords ?? []}); setIsNew(false); setTagInput('') }}
+                      style={{ padding:'6px 12px', borderRadius:7, background:`${GOLD}10`, border:`1px solid ${GOLD}30`, color:GOLD, fontSize:11, fontWeight:700, cursor:'pointer' }}>
+                      ✏️ Edit
+                    </button>
+
+                    {/* View */}
+                    {p.product_url && (
+                      <a href={p.product_url} target="_blank" rel="noopener noreferrer"
+                        style={{ padding:'6px 12px', borderRadius:7, background:'rgba(6,182,212,0.1)', border:'1px solid rgba(6,182,212,0.3)', color:'#06B6D4', fontSize:11, fontWeight:700, textDecoration:'none' }}>
+                        🔗 Open
+                      </a>
+                    )}
+
+                    {/* Delete */}
+                    {confirmDel === p.id ? (
+                      <div style={{ display:'flex', gap:4 }}>
+                        <button onClick={() => deleteProduct(p.id!)}
+                          style={{ padding:'6px 10px', borderRadius:7, background:'rgba(239,68,68,0.2)', border:'1px solid rgba(239,68,68,0.4)', color:'#FCA5A5', fontSize:11, fontWeight:700, cursor:'pointer' }}>
+                          Confirm ✗
+                        </button>
+                        <button onClick={() => setConfirmDel(null)}
+                          style={{ padding:'6px 10px', borderRadius:7, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:MUTED, fontSize:11, cursor:'pointer' }}>
+                          Cancel
+                        </button>
                       </div>
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <span style={{ fontSize:'12px', background:`${p.color}15`, border:`1px solid ${p.color}30`, borderRadius:'8px', padding:'3px 10px', color:p.color, fontWeight:700 }}>{p.category}</span>
-                    </td>
-                    <td style={{ padding:'14px 18px', fontSize:'14px', color:'#D4AF37', fontWeight:700 }}>
-                      {p.price_monthly ? `R${p.price_monthly}/mo` : p.price_once ? `R${p.price_once}` : '—'}
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <button onClick={()=>toggleActive(p)} style={{ padding:'5px 12px', borderRadius:'20px', border:`1px solid ${p.is_active?'rgba(16,185,129,0.35)':'rgba(239,68,68,0.28)'}`, cursor:'pointer', fontFamily:'Georgia,serif', fontSize:'11px', fontWeight:700, background:p.is_active?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.1)', color:p.is_active?'#6EE7B7':'#FCA5A5' }}>
-                        {p.is_active ? '● Active' : '○ Inactive'}
+                    ) : (
+                      <button onClick={() => setConfirmDel(p.id!)}
+                        style={{ padding:'6px 12px', borderRadius:7, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', color:'#FCA5A5', fontSize:11, fontWeight:700, cursor:'pointer' }}>
+                        🗑️
                       </button>
-                      {p.is_coming_soon && <span style={{ marginLeft:'6px', fontSize:'11px', color:'rgba(212,175,55,0.6)' }}>Soon</span>}
-                    </td>
-                    <td style={{ padding:'14px 18px' }}>
-                      <div style={{ display:'flex', gap:'6px' }}>
-                        <button onClick={()=>startEdit(p)} style={{ padding:'6px 14px', background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.28)', borderRadius:'7px', color:'#C4B5FD', fontSize:'12px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>Edit</button>
-                        <button onClick={()=>deleteProduct(p.id!)} style={{ padding:'6px 12px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:'7px', color:'#FCA5A5', fontSize:'12px', fontWeight:700, cursor:'pointer', fontFamily:'Georgia,serif' }}>Del</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tags preview */}
+                {((p.features ?? []).length > 0 || (p as any).keywords?.length > 0) && (
+                  <div style={{ marginTop:10, display:'flex', gap:6, flexWrap:'wrap' }}>
+                    {(p.features ?? []).slice(0,3).map((f,i) => (
+                      <span key={i} style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:`${GOLD}10`, color:GOLD }}>{f}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          {filtered.length === 0 && (
+            <div style={{ textAlign:'center', padding:'60px 20px', color:MUTED }}>
+              <div style={{ fontSize:40, marginBottom:12 }}>📦</div>
+              <div style={{ fontSize:16, color:W, marginBottom:6 }}>No products found</div>
+              <div style={{ fontSize:13 }}>Try adjusting filters or upload your first product</div>
+            </div>
           )}
         </div>
       </div>
