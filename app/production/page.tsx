@@ -67,7 +67,7 @@ function ProductionInner() {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/delivery', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token ?? '') },
       body: JSON.stringify({ sessionId, buyerEmail, buyerName, productTitle }),
     })
     const data = await res.json()
@@ -85,7 +85,6 @@ function ProductionInner() {
     setDlLoading(sessionId + '-html')
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
-    const token = session.access_token
     const res = await fetch('/api/generate-html', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
