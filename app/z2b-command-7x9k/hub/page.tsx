@@ -155,7 +155,7 @@ export default function AdminHubPage() {
   const checkAccess = useCallback(async () => {
     // Auth via Supabase role only
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/z2b-command-7x9k'); return }
+    if (!user) { sessionStorage.removeItem('z2b_cmd_auth'); router.push('/z2b-command-7x9k'); return }
     const { data: profile } = await supabase.from('profiles').select('user_role, full_name').eq('id', user.id).single()
     const role = String(profile?.user_role || '')
     if (!['ceo','superadmin','admin','content_admin','support','staff'].includes(role)) {

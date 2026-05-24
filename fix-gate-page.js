@@ -1,11 +1,13 @@
-'use client'
+var fs = require('fs');
+
+var gate = `'use client'
 // app/z2b-command-7x9k/page.tsx
 // Z2B Admin Gate — Two-layer security
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-// PIN verified server-side
+const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || 'Z2B@2026'
 
 export default function AdminGate() {
   const router  = useRouter()
@@ -17,13 +19,8 @@ export default function AdminGate() {
     setLoading(true)
     setError('')
 
-    // Check PIN server-side
-    const pinRes = await fetch('/api/admin-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
-    })
-    if (!pinRes.ok) {
+    // Check PIN
+    if (pin !== ADMIN_PIN) {
       setError('Invalid admin credentials')
       setLoading(false)
       return
@@ -93,4 +90,7 @@ export default function AdminGate() {
       </div>
     </div>
   )
-}
+}`;
+
+fs.writeFileSync('app/z2b-command-7x9k/page.tsx', gate);
+console.log('Done');
