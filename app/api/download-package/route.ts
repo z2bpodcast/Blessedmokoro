@@ -36,11 +36,15 @@ export async function POST(req: NextRequest) {
 
   if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
 
-  const intent   = session.intent_data   ?? {}
-  const structure= session.structure_data ?? {}
-  const content  = session.content_data  ?? {}
-  const assets   = session.assets_data   ?? {}
-  const listing  = session.listing_data  ?? {}
+  const intent    = session.intent_data          ?? {}
+  const structure = session.structure_data       ?? {}
+  let content: any = session.content_draft      ?? {}
+  if (typeof content === 'string') { try { content = JSON.parse(content) } catch(e) { content = {} } }
+  let assets: any  = session.enhancement_assets ?? {}
+  if (typeof assets === 'string') { try { assets = JSON.parse(assets) } catch(e) { assets = {} } }
+  let distData: any = session.distribution_data ?? {}
+  if (typeof distData === 'string') { try { distData = JSON.parse(distData) } catch(e) { distData = {} } }
+  const listing   = distData?.listing ?? {}
 
   // Build the download text
   const lines: string[] = []
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Table of contents
-  const sections = structure.sections ?? content.sections ?? []
+  const sections = content.sections ?? content.generatedSections ?? structure.sections ?? []
   if (sections.length > 0) {
     lines.push('TABLE OF CONTENTS')
     lines.push('-'.repeat(40))
@@ -104,7 +108,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Assets
-  const assetList = assets.assets ?? assets.bundle ?? []
+  const assetList = Array.isArray(assets) ? assets : (assets.assets ?? assets.bundle ?? [])
   if (assetList.length > 0) {
     lines.push('')
     lines.push('='.repeat(70))
@@ -133,7 +137,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Social posts
-  const posts = listing.socialPosts ?? {}
+  const posts = distData?.socialPosts ?? listing.socialPosts ?? {}
   const postKeys = Object.keys(posts)
   if (postKeys.length > 0) {
     lines.push('')
