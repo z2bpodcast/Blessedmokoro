@@ -454,6 +454,7 @@ function DashboardInner() {
                     <a href={'/ai-income/gear/7?session='+proj.session_id} style={{ padding:'6px 12px', borderRadius:7, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', color:'#10B981', fontSize:11, fontWeight:700, textDecoration:'none' }}>🌐 Gear 7</a>
                     <a href={'/production?session='+proj.session_id} style={{ padding:'6px 12px', borderRadius:7, background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', color:'#D4AF37', fontSize:11, fontWeight:700, textDecoration:'none' }}>📦 Package</a>
                   </div>
+                </div>
               ))}
               {projects.length > 5 && (
                 <Link href="/production" style={{ textAlign:'center', fontSize:'12px', color:CYAN, padding:'10px', textDecoration:'none' }}>
