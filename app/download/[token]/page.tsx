@@ -72,14 +72,13 @@ export default function DownloadPage() {
         </div>
 
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <a href={'/api/delivery/' + token + '/html'}
+          <a href={'/api/delivery/' + token + '/zip'}
             style={{ display:'block', padding:'14px 24px', borderRadius:12, background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:15, textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
-            📖 Download Interactive Reader (HTML)
+            📦 Download Complete Package (ZIP)
           </a>
-          <a href={'/api/delivery/' + token + '/assets'}
-            style={{ display:'block', padding:'14px 24px', borderRadius:12, background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', color:GOLD, fontWeight:700, fontSize:14, textDecoration:'none', fontFamily:'Cinzel,Georgia,serif' }}>
-            🧰 Download Bonus Assets (TXT)
-          </a>
+          <div style={{ fontSize:11, color:MUTED, textAlign:'center' }}>
+            Includes: Interactive Reader · Workbook · Bonus Assets
+          </div>
         </div>
 
         <div style={{ marginTop:24, fontSize:11, color:MUTED }}>
