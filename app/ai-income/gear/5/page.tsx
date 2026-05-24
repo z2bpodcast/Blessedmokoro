@@ -37,7 +37,9 @@ const BUILDING_MSGS = ['Building your assets...','Creating implementation tools.
 const GearProgressBar = memo(function GearProgressBar({ current, gearAccess }: { current: number; gearAccess: number }) {
   const labels = ['IG','1','2','3','4','5','6','7']
   return (
-    <div style={{ padding:'12px 20px', background:SURF, borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ padding:'12px 20px', background:SURF, borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', gap:16 }}>
+      <a href='/dashboard' style={{ fontSize:11, color:'#94A3B8', textDecoration:'none', fontWeight:700, whiteSpace:'nowrap' }}>← Dashboard</a>
+      <a href='/ai-income' style={{ fontSize:11, color:'#D4AF37', textDecoration:'none', fontWeight:700, whiteSpace:'nowrap' }}>4M Machine</a>
       <div style={{ maxWidth:'600px', margin:'0 auto', display:'flex', alignItems:'center' }}>
         {labels.map((label, i) => {
           const isActive = i === current, isDone = i < current && i > 0, isLocked = i > gearAccess && i > 0

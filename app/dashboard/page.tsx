@@ -438,8 +438,21 @@ function DashboardInner() {
             <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:900, color:W, marginBottom:'14px' }}>
               Recent Products
             </div>
+            {/* Group by month */}
             <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
-              {projects.slice(0, 5).map(proj => (
+              {Object.entries(
+                projects.reduce((acc: any, proj: any) => {
+                  const month = new Date(proj.created_at).toLocaleDateString('en-ZA', { month:'long', year:'numeric' })
+                  if (!acc[month]) acc[month] = []
+                  acc[month].push(proj)
+                  return acc
+                }, {})
+              ).map(([month, monthProjs]: any) => (
+                <div key={month} style={{ marginBottom:16 }}>
+                  <div style={{ fontSize:10, color:MUTED, letterSpacing:3, textTransform:'uppercase', marginBottom:8, paddingBottom:4, borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+                    {month} · {monthProjs.length} product{monthProjs.length !== 1 ? 's' : ''}
+                  </div>
+                  {monthProjs.map((proj: any) => (
                 <div key={proj.id} style={{ borderRadius:12, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', padding:'14px 16px', marginBottom:8 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
                     <div>
@@ -454,9 +467,11 @@ function DashboardInner() {
                     <a href={'/ai-income/gear/7?session='+proj.session_id} style={{ padding:'6px 12px', borderRadius:7, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', color:'#10B981', fontSize:11, fontWeight:700, textDecoration:'none' }}>🌐 Gear 7</a>
                     <a href={'/production?session='+proj.session_id} style={{ padding:'6px 12px', borderRadius:7, background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', color:'#D4AF37', fontSize:11, fontWeight:700, textDecoration:'none' }}>📦 Package</a>
                   </div>
+                  </div>
+                ))}
                 </div>
               ))}
-              {projects.length > 5 && (
+              {projects.length > 10 && (
                 <Link href="/production" style={{ textAlign:'center', fontSize:'12px', color:CYAN, padding:'10px', textDecoration:'none' }}>
                   View all {projects.length} products →
                 </Link>
