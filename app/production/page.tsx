@@ -38,6 +38,11 @@ function ProductionInner() {
   const [listedProducts,setListedProducts]= useState<any[]>([])
   const [loading,   setLoading]   = useState(true)
   const [dlLoading, setDlLoading] = useState<string|null>(null)
+  const [genLink, setGenLink] = useState<Record<string,string>>({})
+  const [genLoading, setGenLoading] = useState<string|null>(null)
+  const [showLinkForm, setShowLinkForm] = useState<string|null>(null)
+  const [buyerEmail, setBuyerEmail] = useState("")
+  const [buyerName, setBuyerName] = useState("")
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -56,6 +61,25 @@ function ProductionInner() {
       setLoading(false)
     })
   }, [])
+
+  async function generateLink(sessionId, productTitle) {
+    setGenLoading(sessionId)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/delivery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ sessionId, buyerEmail, buyerName, productTitle }),
+    })
+    const data = await res.json()
+    if (data.link) {
+      setGenLink(prev => ({ ...prev, [sessionId]: data.link }))
+      navigator.clipboard.writeText(data.link)
+    }
+    setGenLoading(null)
+    setShowLinkForm(null)
+    setBuyerEmail('')
+    setBuyerName('')
+  }
 
   async function downloadHTML(sessionId: string, title: string) {
     setDlLoading(sessionId + '-html')
