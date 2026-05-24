@@ -62,7 +62,7 @@ function ProductionInner() {
     })
   }, [])
 
-  async function generateLink(sessionId, productTitle) {
+  async function generateLink(sessionId: string, productTitle: string) {
     setGenLoading(sessionId)
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/delivery', {
