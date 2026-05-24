@@ -120,7 +120,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   }
 
   // Generate ZIP
-  const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' })
+  const zipBuffer = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
   const filename  = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-package.zip'
 
   return new NextResponse(zipBuffer, {
