@@ -148,25 +148,25 @@ const ROUTING_TABLE: Record<TaskType, {
 
   // Claude Sonnet handles: long-form production, educational content
   structure_refinement: {
-    provider:    'claude_sonnet',
+    provider: 'gpt',
     maxTokens:   2000,
     temperature: 0.6,
     reasoning:   'Structure refinement benefits from Claude depth',
   },
   content_production: {
-    provider:    'claude_sonnet',
+    provider: 'gpt',
     maxTokens:   4000,
     temperature: 0.7,
     reasoning:   'Long-form content production is Claude Sonnet primary',
   },
   enhancement_production: {
-    provider:    'claude_sonnet',
+    provider: 'gpt',
     maxTokens:   3000,
     temperature: 0.7,
     reasoning:   'Worksheets and templates benefit from Claude structure',
   },
   crm_message: {
-    provider:    'claude_sonnet',
+    provider: 'gpt',
     maxTokens:   300,
     temperature: 0.8,
     reasoning:   'Human-sounding messages use Claude natural tone',
@@ -174,13 +174,13 @@ const ROUTING_TABLE: Record<TaskType, {
 
   // Claude Haiku handles: fast micro-tasks, formatting, transitions
   content_transition: {
-    provider:    'claude_haiku',
+    provider: 'gpt',
     maxTokens:   500,
     temperature: 0.6,
     reasoning:   'Section transitions are fast Haiku micro-tasks',
   },
   format_output: {
-    provider:    'claude_haiku',
+    provider: 'gpt',
     maxTokens:   1000,
     temperature: 0.3,
     reasoning:   'Output formatting is a lightweight Haiku task',
@@ -516,13 +516,13 @@ export async function orchestrate(
       // GPT failed → try Claude
       const claudeDecision = {
         ...decision,
-        provider: 'claude_sonnet' as AIProvider,
+        provider: 'gpt' as AIProvider,
         model: MODEL_CONFIG['claude_sonnet'],
       }
       const fallback = await callClaude(claudeDecision, userMessage, contextMessages)
       if (!fallback.error && fallback.content.trim()) {
         console.log('[orchestrate] Fallback to Claude succeeded')
-        return { ...fallback, provider: 'claude_sonnet', taskType }
+        return { ...fallback, provider: 'gpt', taskType }
       }
     } else {
       // Claude failed → try GPT
