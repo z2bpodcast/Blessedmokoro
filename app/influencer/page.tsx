@@ -20,10 +20,11 @@ function RevenueTable({ price }: { price: number }) {
   const bld  = Math.round(rem * 0.30)
   const inf  = Math.round(rem * 0.70)
   const aff  = Math.round(price * 0.20)
+  const inf  = Math.round(price * 0.75)
   const rows = [
-    { label:'Direct sale (no affiliate)', z2b, builder:bld, influencer:inf, affiliate:0 },
-    { label:'Via affiliate link',          z2b, builder:bld - Math.round(price*0.10), influencer:inf - Math.round(price*0.10), affiliate:aff },
-    { label:'Influencer uses own link',    z2b, builder:bld - Math.round(price*0.10), influencer:inf - Math.round(price*0.10) + aff, affiliate:aff },
+    { label:'Direct sale (no affiliate)', z2b, builder:0,   influencer:inf,       affiliate:0 },
+    { label:'Builder uses affiliate link', z2b, builder:aff, influencer:inf-aff,   affiliate:aff },
+    { label:'Influencer uses own link',    z2b, builder:0,   influencer:inf,       affiliate:aff },
   ]
   return (
     <div style={{ overflowX:'auto', marginBottom:'14px' }}>
