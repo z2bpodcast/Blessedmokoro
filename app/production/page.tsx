@@ -76,7 +76,6 @@ function ProductionInner() {
       navigator.clipboard.writeText(data.link)
     }
     setGenLoading(null)
-    setShowLinkForm(null)
     setBuyerEmail('')
     setBuyerName('')
   }
