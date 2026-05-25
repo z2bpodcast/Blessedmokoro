@@ -94,8 +94,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
     })
     htmlLines.push('<div class="footer">Created with Z2B 4M Digital Products Factory · app.z2blegacybuilders.co.za</div>')
     htmlLines.push('</body></html>')
-    zip.file('reader.html', htmlLines.join('
-'))
+    zip.file('reader.html', htmlLines.join('\n'))
   } catch(e) {
     zip.file('reader.html', '<html><body><h1>' + title + '</h1><p>Content unavailable</p></body></html>')
   }
