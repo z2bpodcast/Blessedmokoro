@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const link = `${process.env.NEXT_PUBLIC_APP_URL}/download/${data.token}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.z2blegacybuilders.co.za"
+  const link = `${baseUrl}/download/${data.token}`
   return NextResponse.json({ token: data.token, link, expires })
 }
 
