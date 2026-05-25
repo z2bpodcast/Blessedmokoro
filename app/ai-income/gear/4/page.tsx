@@ -173,6 +173,11 @@ function Gear4Inner() {
     })
   }, [])
 
+  async function getToken() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token ?? ""
+  }
+
   async function runQualityControl(
     token:       string,
     intentData:  IntentDefinition,
@@ -249,7 +254,7 @@ function Gear4Inner() {
 
     const res = await fetch('/api/gear/4', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await getToken() },
       body:    JSON.stringify({ action: 'confirm', draft, intent, sessionId }),
     })
     const data = await res.json()
