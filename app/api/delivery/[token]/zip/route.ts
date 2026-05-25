@@ -88,8 +88,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
       const sTitle = s.sectionTitle ?? s.title ?? ('Chapter ' + (i+1))
       const sContent = s.content ?? s.text ?? s.body ?? ''
       htmlLines.push('<h2>Chapter ' + (i+1) + ': ' + sTitle + '</h2>')
-      sContent.split(/
-+/).filter((p: string) => p.trim()).forEach((p: string) => {
+      sContent.split(/\n+/).filter((p: string) => p.trim()).forEach((p: string) => {
         htmlLines.push('<p>' + p.trim() + '</p>')
       })
     })
