@@ -23,17 +23,34 @@ async function getUser(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { user, sb } = await getUser(req)
-  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+  const body = await req.json()
+  const { sessionId, builderBypass } = body
 
-  const { sessionId } = await req.json()
   if (!sessionId) return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
 
-  const { data: session } = await (sb.from as any)('gear_sessions')
-    .select('intent_data, structure_data, content_draft, enhancement_assets, distribution_data, opportunity_data')
-    .eq('id', sessionId)
-    .eq('builder_id', user.id)
-    .maybeSingle()
+  // Allow service bypass (for ZIP delivery)
+  let session: any = null
+  if (builderBypass) {
+    const sbService = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const { data } = await (sbService.from as any)('gear_sessions')
+      .select('intent_data, structure_data, content_draft, enhancement_assets, distribution_data, opportunity_data')
+      .eq('id', sessionId)
+      .maybeSingle()
+    session = data
+  } else {
+    const { user, sb } = await getUser(req)
+    if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+    const { data } = await (sb.from as any)('gear_sessions')
+      .select('intent_data, structure_data, content_draft, enhancement_assets, distribution_data, opportunity_data')
+      .eq('id', sessionId)
+      .eq('builder_id', user.id)
+      .maybeSingle()
+    session = data
+  }
 
   if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
 
