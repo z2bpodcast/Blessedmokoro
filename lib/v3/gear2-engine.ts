@@ -297,6 +297,7 @@ Return ONLY valid JSON:
     "estimatedPages": 4
   }` : ''}
 }`
+}
 
 function buildRefinePrompt(structure: ProductStructure, intent: IntentDefinition): string {
   return `You are refining a digital product structure for educational clarity and flow.
