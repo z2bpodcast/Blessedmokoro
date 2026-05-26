@@ -246,6 +246,11 @@ function Gear2Inner() {
     })
   }, [])
 
+  async function getToken() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token ?? ""
+  }
+
   async function generateStructure(token: string, intentData: IntentDefinition, sid: string) {
     setStep('generating')
 
@@ -256,7 +261,7 @@ function Gear2Inner() {
     try {
       res = await fetch('/api/gear/2', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await getToken() },
         body:    JSON.stringify({ action: 'generate', intent: intentData, sessionId: sid }),
         signal:  controller.signal,
       })
@@ -334,7 +339,7 @@ function Gear2Inner() {
 
     const res = await fetch('/api/gear/2', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await getToken() },
       body:    JSON.stringify({ action: 'confirm', structure, intent, sessionId }),
     })
     const data = await res.json()
