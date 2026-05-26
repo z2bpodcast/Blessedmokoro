@@ -75,7 +75,7 @@ const ROUTING_TABLE: Record<TaskType, {
   // GPT-5.x handles: strategic thinking, orchestration, QC
   opportunity_synthesis: {
     provider:    'gpt',
-    maxTokens:   2000,
+    maxTokens:   3000,
     temperature: 0.7,
     reasoning:   'Strategic synthesis requires GPT reasoning depth',
   },
@@ -87,31 +87,31 @@ const ROUTING_TABLE: Record<TaskType, {
   },
   intent_definition: {
     provider:    'gpt',
-    maxTokens:   800,
+    maxTokens:   2000,
     temperature: 0.4,
     reasoning:   'Intent requires strategic clarity from GPT',
   },
   structure_generation: {
     provider:    'gpt',
-    maxTokens:   1500,
+    maxTokens:   4000,
     temperature: 0.6,
     reasoning:   'Architecture requires GPT structural thinking',
   },
   content_directive: {
     provider:    'gpt',
-    maxTokens:   600,
+    maxTokens:   1500,
     temperature: 0.5,
     reasoning:   'Strategic writing brief requires GPT orchestration',
   },
   quality_evaluation: {
     provider:    'gpt',
-    maxTokens:   1200,
+    maxTokens:   3000,
     temperature: 0.2,
     reasoning:   'Quality control requires strict GPT evaluation',
   },
   quality_revision_directive: {
     provider:    'gpt',
-    maxTokens:   800,
+    maxTokens:   1500,
     temperature: 0.4,
     reasoning:   'Revision direction requires GPT strategic guidance',
   },
