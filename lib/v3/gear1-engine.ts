@@ -83,7 +83,7 @@ export async function buildOfferArchitecture(params: {
     }
   } catch(_) {}
 
-  const prompt = `${COACH_MANLAW_SYSTEM_PROMPT}`
+  const prompt = `${COACH_MANLAW_SYSTEM_PROMPT}
 
 ══════════════════════════════════════════════════
 GEAR 1: RESEARCH & OFFER ARCHITECTURE INTELLIGENCE
