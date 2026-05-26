@@ -19,11 +19,13 @@ import type { IntentDefinition }  from '@/lib/v3/gear1-engine'
 // ── TYPES ────────────────────────────────────────────────────
 
 export interface ProductSection {
-  number:      number
-  title:       string
-  purpose:     string   // one line — what this section achieves
-  keyPoints:   string[] // 2-4 key points covered
-  estimatedPages?: number
+  number:           number
+  title:            string
+  purpose:          string
+  keyPoints:        string[]
+  estimatedPages?:  number
+  readerResistance?:string
+  quickWin?:        string
 }
 
 export interface ProductStructure {
