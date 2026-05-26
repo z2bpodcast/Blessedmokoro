@@ -319,7 +319,6 @@ Keep the same number of sections. Only improve titles, purposes, and flow.
 Keep keyPoints and estimatedPages exactly as they are.
 Return the complete refined structure as valid JSON in the same format.`
 }
-}
 
 // ── NORMALISE STRUCTURE ───────────────────────────────────────
 
