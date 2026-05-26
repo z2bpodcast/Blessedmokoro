@@ -214,59 +214,89 @@ Return the complete updated structure as valid JSON matching the original format
 // ── PROMPT BUILDERS ──────────────────────────────────────────
 
 function buildArchitectPrompt(intent: IntentDefinition, config: StructureConfig): string {
-  return `You are the Gear 2 Structure Architect.
+  return `You are the world's most elite digital product architect — McKinsey precision, bestselling author clarity, transformation coach depth.
 
-Product to structure:
+Your job is NOT to create a table of contents.
+Your job is to architect a TRANSFORMATION JOURNEY from BEFORE to AFTER — systematically and powerfully.
+
+PRODUCT INTELLIGENCE:
 Title: "${intent.productTitle}"
-Purpose: "${intent.productPurpose ?? intent.problemSolved ?? ""}"
-Target audience: "${intent.targetAudience}"
-Before state: "${intent.beforeState}"
-After state: "${intent.afterState}"
-Format: ${intent.productFormat ?? intent.format ?? ""}
-Audience level: ${intent.audienceLevel ?? intent.difficulty ?? "beginner"}
-Content tone: ${intent.contentTone ?? "professional and motivating"}
-Key problems solved: ${(intent.keyProblems ?? []).join(" · ")}
-Promise: "${intent.promiseStatement ?? ""}"
-Geography context: ${intent.geographyContext ?? "global"}
+Target Person: "${intent.targetAudience}"
+Real Problem: "${intent.productPurpose ?? intent.problemSolved ?? ''}"
+Promise: "${intent.promiseStatement ?? intent.corePromise ?? ''}"
+Before State: "${intent.beforeState ?? ''}"
+After State: "${intent.afterState ?? ''}"
+Format: ${intent.productFormat ?? intent.format ?? 'ebook'}
+Level: ${intent.audienceLevel ?? intent.difficulty ?? 'beginner'}
+Geography: ${intent.geographyContext ?? 'South Africa'}
 
-Structure requirements:
-- Section count: ${config.minSections} to ${config.maxSections} sections
+PHASE 1 — STRATEGIC POSITIONING (think before writing):
+1. UNIQUE MECHANISM: What ONE approach makes this different from everything else?
+2. TRANSFORMATION MILESTONES: What 3-5 critical milestones must the reader hit?
+3. RESISTANCE MAPPING: What will cause the reader to quit at each stage?
+4. QUICK WIN: Where is the reader's first small win? (Must be Section 2 or 3)
+5. MOMENTUM ARC: Awareness > Understanding > Belief > Action > Result > Identity Shift
+
+PHASE 2 — STRUCTURAL REQUIREMENTS:
+- Sections: ${config.minSections} to ${config.maxSections}
 - Key points per section: ${config.keyPointsMin} to ${config.keyPointsMax}
-- Depth level: ${config.depthLabel}
-- Estimated length: ${config.lengthGuide}
-${config.hasBonus ? '- Include ONE bonus section (advanced content, fast-start guide, or resource toolkit)' : ''}
+- Depth: ${config.depthLabel}
+- Length: ${config.lengthGuide}
+${config.hasBonus ? '- Include ONE high-value bonus section' : ''}
 
-Architecture rules:
-- Every section must directly serve the transformation promise
-- Sections must build logically — each one assumes knowledge from previous
-- Section titles must be specific and compelling (not generic like "Introduction")
-- Key points must be concrete and implementable — no vague bullet points
-- The arc must take reader from their BEFORE state to AFTER state systematically
-- No fluff sections — every section earns its place
+10 LAWS OF ELITE PRODUCT STRUCTURE:
+
+LAW 1: NO GENERIC TITLES — Every title must be specific and compelling
+BAD: "Understanding Your Finances"
+GOOD: "The 3 Money Lies Keeping You Broke"
+
+LAW 2: EARN EVERY SECTION — Pass the "so what?" test or cut it
+
+LAW 3: BUILD ON ITSELF — Each section assumes the previous was read
+
+LAW 4: QUICK WIN EARLY — Reader wins by Section 2 or 3
+
+LAW 5: RESISTANCE FIRST — Name the doubt at each stage
+
+LAW 6: SPECIFIC KEY POINTS — No vague bullets
+BAD: "Learn time management"
+GOOD: "The 90-minute morning block that replaces 4 hours of scattered work"
+
+LAW 7: MOMENTUM ARC — Tension builds, breakthrough comes, identity shifts
+
+LAW 8: CONTEXTUAL RELEVANCE — Examples relevant to ${intent.geographyContext ?? 'the reader market'}
+
+LAW 9: FORMAT INTELLIGENCE — Structure matches how this format is consumed
+
+LAW 10: IDENTITY CLOSE — Final section cements WHO THE READER NOW IS
 
 Return ONLY valid JSON:
 {
   "productTitle": "${intent.productTitle}",
   "totalSections": ${config.minSections},
   "estimatedLength": "${config.lengthGuide}",
-  "contentFlow": "one sentence describing how sections connect and build",
-  "transformationArc": "one paragraph describing the reader's journey through this product",
+  "contentFlow": "One sentence describing how sections connect and build",
+  "transformationArc": "One paragraph describing the complete reader journey",
+  "uniqueMechanism": "The ONE thing that makes this approach different",
   "sections": [
     {
       "number": 1,
-      "title": "Specific Section Title",
+      "title": "Specific Compelling Section Title",
       "purpose": "What this section achieves for the reader",
+      "readerResistance": "What doubt or fear the reader has at this stage",
+      "quickWin": "The specific win the reader gets from this section",
       "keyPoints": ["specific point 1", "specific point 2", "specific point 3"],
       "estimatedPages": 3
     }
   ]${config.hasBonus ? `,
   "bonusSection": {
     "number": 99,
-    "title": "Bonus: [Specific Bonus Title]",
+    "title": "Bonus: [Specific High-Value Title]",
     "purpose": "What this bonus delivers",
     "keyPoints": ["bonus point 1", "bonus point 2"],
     "estimatedPages": 4
   }` : ''}
+}`
 }`
 }
 
