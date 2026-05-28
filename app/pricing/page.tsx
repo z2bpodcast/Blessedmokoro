@@ -65,13 +65,14 @@ const TIERS = [
     features: [
       'Everything in Starter',
       'Gear 4: Quality Control (auto-approved)',
+      'Gear 5: Text Cover Page (auto-generated)',
       'Live Google Trends market research',
       '4 products per month',
       '18% ISP on membership sales',
       'QPB · TSC · TLI · CEO Awards',
     ],
     locked: [
-      'Enhancement assets (Gear 5)',
+      'AI Image Cover Page (Copper+)',
       'Multi-platform distribution (Gear 7)',
       'Progressive Web App (PWA)',
     ],
@@ -92,6 +93,7 @@ const TIERS = [
     badge:     'Most Popular',
     features: [
       'Everything in Bronze',
+      'Gear 5: Text + AI Image Cover Page generation',
       'Gear 5: Templates, worksheets & toolkits',
       'Gear 6: Marketplace distribution & social posts',
       'Automatic Engine — less manual input',
