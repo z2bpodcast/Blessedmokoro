@@ -319,7 +319,7 @@ function Gear5Inner() {
   async function generateTextCover() {
     setCoverGenerating(true)
     const title = intent?.productTitle ?? 'My Digital Product'
-    const author = authorName || intent?.authorName || 'The Author'
+    const author = authorName || 'The Author'
     const format = intent?.format ?? 'ebook'
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100" viewBox="0 0 800 1100">
       <defs>
