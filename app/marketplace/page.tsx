@@ -769,8 +769,13 @@ function MarketplaceInner() {
                       </div>
 
                       {/* Description */}
-                      <div style={{ fontSize:'12px', color:MUTED, lineHeight:1.7, marginBottom:'10px' }}>
+                      <div style={{ fontSize:'12px', color:MUTED, lineHeight:1.7, marginBottom:'10px', position:'relative' }}
+                        onMouseEnter={e => { const t = e.currentTarget.querySelector('.full-desc') as HTMLElement; if(t) t.style.display='block' }}
+                        onMouseLeave={e => { const t = e.currentTarget.querySelector('.full-desc') as HTMLElement; if(t) t.style.display='none' }}>
                         {(product.description ?? '').slice(0, 120)}{(product.description?.length ?? 0) > 120 ? '...' : ''}
+                        <div className="full-desc" style={{ display:'none', position:'absolute', top:'100%', left:0, right:0, zIndex:50, background:'#0D1629', border:'1px solid rgba(212,175,55,0.3)', borderRadius:10, padding:'14px', fontSize:12, color:'rgba(240,249,255,0.85)', lineHeight:1.8, maxHeight:200, overflowY:'auto', boxShadow:'0 8px 32px rgba(0,0,0,0.5)' }}>
+                          {product.description ?? ''}
+                        </div>
                       </div>
 
                       {/* Value enhancements */}
@@ -796,7 +801,8 @@ function MarketplaceInner() {
 
                     {/* Affiliate invite */}
                     <div style={{ padding:'8px 16px', background:'rgba(16,185,129,0.05)', borderTop:'1px solid rgba(16,185,129,0.1)', fontSize:10, color:'rgba(16,185,129,0.8)' }}>
-                      💰 Recommend this & earn <strong style={{ color:GREEN }}>R{affiliateAmt}</strong> per sale — 20% affiliate commission
+                      💰 Buy and/or Recommend this & earn <strong style={{ color:GREEN }}>R{affiliateAmt}</strong> per sale — 20% affiliate commission
+                    <a href="/ai-income/choose-plan" style={{ marginLeft:8, fontSize:9, padding:'2px 8px', borderRadius:6, background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)', color:'#10B981', textDecoration:'none', fontWeight:700, whiteSpace:'nowrap' }}>Join Free →</a>
                     </div>
 
                     {/* Price & CTA */}

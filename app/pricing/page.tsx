@@ -82,7 +82,7 @@ const TIERS = [
     price:     5000,
     bfm:       1500,
     engine:    '⚙️ Automatic',
-    gears:     '1–5',
+    gears:     '1–6',
     products:  15,
     pwa:       1,
     market:    true,
@@ -93,6 +93,7 @@ const TIERS = [
     features: [
       'Everything in Bronze',
       'Gear 5: Templates, worksheets & toolkits',
+      'Gear 6: Marketplace distribution & social posts',
       'Automatic Engine — less manual input',
       '15 products per month',
       '1 Builder PWA storefront',

@@ -148,7 +148,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     label:            'Automatic Copper',
     vehicle:          'automatic',
     priceZar:         5000,
-    gearAccess:       5,
+    gearAccess:       6,
     accessDays:       90,
     bfmMonthlyZar:    1500,
     automationMode:   'none',
@@ -159,7 +159,7 @@ export const TIER_CONFIG: Record<TierId, TierDefinition> = {
     isRocket:         false,
     emoji:            '🪙',
     color:            '#B87333',
-    description:      'Gears 1-5 · Value Enhancement · Influencer Engine · Google Trends',
+    description:      'Gears 1-6 · Value Enhancement · Influencer Engine · Google Trends',
   },
   silver: {
     id:               'silver',
