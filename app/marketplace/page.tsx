@@ -110,6 +110,10 @@ interface Product {
   listed_at:    string
   builder_id:   string
   affiliate_enabled: boolean
+  product_type?: string
+  features?:     string[]
+  cover_url?:    string
+  icon?:         string
 }
 
 // ── EBOOK PAYMENT MODAL ───────────────────────────────────────
