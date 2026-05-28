@@ -172,9 +172,10 @@ function IgnitionInner() {
           {[
             { id: 'gender',     label: 'Gender',     options: ['Female','Male','All genders'] },
             { id: 'age',        label: 'Age range',  options: ['18–24','25–34','35–44','45–54','55–65','65+'] },
-            { id: 'employment', label: 'Employment', options: ['Employed full-time','Employed part-time','Self-employed','Unemployed','Student','Retired'] },
-            { id: 'motivation', label: 'Their main goal', options: ['Escape financial stress','Build a second income','Become self-employed','Leave a legacy','Fund a specific goal','Live their calling'] },
-            { id: 'fear',       label: 'Their biggest fear', options: ['Being retrenched','Never escaping the salary cycle','Running out of time','Not being taken seriously','Retirement poverty','Children inheriting their struggle'] },
+            { id: 'employment', label: 'Employment / Life Stage', options: ['Employed full-time','Employed part-time','Self-employed','Unemployed','Student','Retired','Stay-at-home parent','Career transition'] },
+            { id: 'domain',     label: 'Product Domain', options: ['Financial & Wealth','Business & Entrepreneurship','Physical Health & Wellness','Mental Growth & Mindset','Emotional Healing & Wellbeing','Spiritual & Faith Journey','Social & Relationships','Personal Development'] },
+            { id: 'motivation', label: 'Their main goal', options: ['Escape financial stress','Build a side income','Grow their business','Improve their health & fitness','Detox & reset their body','Heal emotionally & find peace','Deepen their faith & purpose','Strengthen relationships & family','Develop mental clarity & focus','Leave a meaningful legacy','Live their calling','Become self-sufficient'] },
+            { id: 'fear',       label: 'Their biggest fear', options: ['Never reaching their potential','Running out of time','Poor health catching up with them','Emotional burnout','Losing faith or purpose','Broken relationships','Financial insecurity','Not being taken seriously','Children not seeing them succeed','Dying without leaving a legacy','Mental fog & lack of clarity','Isolation & loneliness'] },
           ].map(field => (
             <div key={field.id} style={{ marginBottom: '10px' }}>
               <div style={{ fontSize: '11px', color: MUTED, marginBottom: '5px' }}>{field.label}</div>
