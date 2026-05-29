@@ -219,7 +219,7 @@ function IgnitionInner() {
                 await fetch('/api/personas', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token.current },
-                  body: JSON.stringify({ action: 'save', persona: { ...finalPersona, personaName, personaSummary: summary } }),
+                  body: JSON.stringify({ action: 'save', persona: { ...finalPersona, personaName: personaName || 'My Persona', personaSummary: summary } }),
                 })
                 setSavedPersonas(prev => [...prev, { ...finalPersona, personaName, summary }])
               } catch (_) {}

@@ -268,7 +268,7 @@ ${section.quickWin ? `Quick win to deliver: "${section.quickWin}"` : ''}
 
 Key points to cover:
 ${section.keyPoints.map((kp, i) => `${i + 1}. ${kp}`).join('\n')}
-Target: ~${targetWords} words
+Target: ~${Math.max(targetWords, 1000)} words minimum — do NOT write less than 1000 words per section
 ${p.extraContext ? `\nSPECIAL INSTRUCTION: ${p.extraContext}` : ''}
 
 ══════════════════════════════════════════════════

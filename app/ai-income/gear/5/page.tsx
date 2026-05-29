@@ -598,7 +598,7 @@ function Gear5Inner() {
               4M suggested: {intent?.currency ?? 'R'}{intent?.priceRecommended ?? intent?.suggestedPrice ?? 299}
             </div>
           </div>
-          <button onClick={handleConfirm}
+          <button onClick={() => setShowCoverModal(true)}
                   style={{ width:'100%', padding:'16px', borderRadius:'14px', border:'none', cursor:'pointer', background:'linear-gradient(135deg,#D4AF37,#B8860B)', color:'#050A18', fontWeight:900, fontSize:'15px', fontFamily:'Cinzel,Georgia,serif' }}>
                   {isGear5Endpoint(tierId) ? '✅ Bundle complete — Deliver My Product →' : '✅ Bundle approved — Move to Packaging →'}
                 </button>

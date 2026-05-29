@@ -58,7 +58,7 @@ export async function buildOfferArchitecture(params: {
 
   const marketContext = params.market?.label ?? 'South Africa'
   const currencyFull  = params.market?.currency ?? "ZAR (R)"
-  const currencySymbol = currencyFull.split(" ")[0] === "ZAR" ? "R" : currencyFull.match(/[(](.+)[)]/)?.[1] ?? "R"
+  const currencySymbol = currencyFull.includes("ZAR") ? "R" : currencyFull.includes("GBP") ? "£" : currencyFull.includes("USD") ? "$" : currencyFull.includes("EUR") ? "€" : currencyFull.includes("NGN") ? "₦" : currencyFull.includes("KES") ? "KSh" : currencyFull.match(/[(](.+)[)]/)?.[1] ?? "R"
   const currency       = currencyFull
   const demographic   = params.market?.demographic ?? 'employed professionals'
 
