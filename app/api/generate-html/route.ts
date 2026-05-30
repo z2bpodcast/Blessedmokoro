@@ -1033,7 +1033,7 @@ function switchTab(id) {
   if (panel) panel.classList.add('active');
   var btns = document.querySelectorAll('.tab-btn');
   btns.forEach(function(b) {
-    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
+    if (b.getAttribute('onclick') && (b.getAttribute('onclick').includes("'" + id + "'") || b.getAttribute('onclick').includes('"' + id + '"') || b.getAttribute('onclick').includes(id))) {
       b.classList.add('active');
     }
   });
