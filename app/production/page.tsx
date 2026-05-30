@@ -174,7 +174,7 @@ function ProductionInner() {
                     </div>
                   </div>
                   <div style={{ display:'flex', gap:8 }}>
-{/* TXT removed — HTML has Save as PDF */}
+<button onClick={() => downloadTXT(p.session_id, p.title ?? "product")}
                       style={{ padding:'7px 14px', borderRadius:8, background:'rgba(212,175,55,0.12)', border:'1px solid rgba(212,175,55,0.3)', color:GOLD, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
                       📦 Package
                     </button>
