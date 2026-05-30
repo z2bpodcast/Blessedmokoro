@@ -174,7 +174,7 @@ function ProductionInner() {
                     </div>
                   </div>
                   <div style={{ display:'flex', gap:8 }}>
-<button onClick={() => downloadTXT(p.session_id, p.title)}
+{/* TXT removed — HTML has Save as PDF */}
                       style={{ padding:'7px 14px', borderRadius:8, background:'rgba(212,175,55,0.12)', border:'1px solid rgba(212,175,55,0.3)', color:GOLD, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'Cinzel,Georgia,serif' }}>
                       📦 Package
                     </button>
@@ -226,11 +226,7 @@ function ProductionInner() {
                         style={{ padding:'8px 14px', borderRadius:'8px', border:'1px solid rgba(212,175,55,0.4)', background:'rgba(212,175,55,0.08)', color:GOLD, fontSize:'12px', cursor:'pointer', fontWeight:700 }}>
                         {dlLoading === proj.session_id + '-html' ? '...' : '⬇️ HTML'}
                       </button>
-                      <button onClick={() => downloadTXT(proj.session_id, proj.title ?? 'product')}
-                        disabled={dlLoading === proj.session_id + '-txt'}
-                        style={{ padding:'8px 14px', borderRadius:'8px', border:'1px solid rgba(6,182,212,0.3)', background:'rgba(6,182,212,0.06)', color:CYAN, fontSize:'12px', cursor:'pointer', fontWeight:700 }}>
-                        {dlLoading === proj.session_id + '-txt' ? '...' : '⬇️ TXT'}
-                      </button>
+
                       <Link href={`/marketplace`}
                         style={{ padding:'8px 14px', borderRadius:'8px', border:'1px solid rgba(16,185,129,0.3)', background:'rgba(16,185,129,0.06)', color:GREEN, fontSize:'12px', textDecoration:'none', fontWeight:700 }}>
                         🏪 Marketplace
