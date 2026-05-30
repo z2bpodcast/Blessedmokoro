@@ -490,13 +490,14 @@ async function handleGear6(
       return NextResponse.json({ error: 'Could not complete session.' }, { status: 500 })
     }
 
-    // Mark session complete
+    // Save distribution package + mark session complete
     await (sb.from as any)('gear_sessions')
       .update({
-        session_status: 'completed',
-        product_status: 'live',
-        marketplace_id: product.id,
-        completed_at:   new Date().toISOString(),
+        session_status:    'completed',
+        product_status:    'live',
+        marketplace_id:    product.id,
+        completed_at:      new Date().toISOString(),
+        distribution_data: JSON.stringify(pkg),
       })
       .eq('id', sessionId)
       .eq('builder_id', userId)
