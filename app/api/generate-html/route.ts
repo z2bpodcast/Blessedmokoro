@@ -214,65 +214,18 @@ export async function POST(req: NextRequest) {
   const assetsHTML = assetList.length > 0 ? assetList.map((a: any, i: number) => {
     const aTitle   = a.title ?? a.type ?? `Asset ${i + 1}`
     const rawContent = String(a.content ?? (Array.isArray(a.items) ? a.items.join('\n') : '') ?? '')
-    var isCheck = aTitle.toLowerCase().includes("checklist")
-    var outputLines = []
-    var tableRows = []
-    var lines2 = rawContent.split('\n')
-    for (var li = 0; li < lines2.length; li++) {
-      var line = lines2[li]
-      if (/^\|/.test(line) && line.trim().endsWith('|')) {
-        var cells = line.split('|').filter(function(x){return x.trim()})
-        var isSep = cells.every(function(x){return /^[-: ]+$/.test(x)})
-        if (!isSep) {
-          var isHdr: boolean = tableRows.length===0
-          tableRows.push('<tr>'+cells.map(function(cell,ci){
-            var bg=isHdr?'background:var(--primary)15;font-weight:700;':(ci%2===0?'background:rgba(255,255,255,0.03);':'')
-            return '<td style="padding:10px 14px;border:1px solid var(--primary)15;font-size:13px;'+bg+'">'+cell.trim()+'</td>'
-          }).join('')+'</tr>')
-        }
-        continue
-      }
-      if (tableRows.length>0 && !/^\|/.test(line)) {
-        outputLines.push('<div style="overflow-x:auto;margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid var(--primary)20;"><table style="width:100%;border-collapse:collapse;">'+tableRows.join('')+'</table></div>')
-        tableRows=[]
-      }
-      if (/^### /.test(line)){outputLines.push('<h3 style="color:var(--primary);font-size:16px;font-weight:800;margin:24px 0 8px;">'+line.replace(/^### /,'')+'</h3>');continue}
-      if (/^## /.test(line)){outputLines.push('<h2 style="color:var(--primary);font-size:20px;font-weight:900;margin:28px 0 10px;border-bottom:2px solid var(--primary)20;padding-bottom:8px;">'+line.replace(/^## /,'')+'</h2>');continue}
-      if (/^# /.test(line)){outputLines.push('<h1 style="color:var(--primary);font-size:26px;font-weight:900;margin:32px 0 12px;">'+line.replace(/^# /,'')+'</h1>');continue}
-      if (/^---/.test(line)){outputLines.push('<hr style="border:none;border-top:2px solid var(--primary)15;margin:28px 0;">');continue}
-      if (/^[-*]\s+/.test(line) && isCheck) {
-        var txt=line.replace(/^[-*]\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        outputLines.push('<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--primary)08;"><span class="chk-'+i+'" onclick="toggleCheck(this,'+i+',999)" style="cursor:pointer;font-size:20px;flex-shrink:0;">&#9744;</span><span style="flex:1;line-height:1.7;">'+txt+'</span></div>')
-        continue
-      }
-      if (/^[A-Z][^\n]{2,60}:$/.test(line.trim())||/^[-*]\s+[A-Z][^\n]{2,50}:$/.test(line.trim())||/^\d+\.\s+[A-Z][^\n]{2,50}:$/.test(line.trim())) {
-        var lbl=line.trim().replace(/^[-*\d.]+\s*/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        outputLines.push('<div class="workbook-inline" style="margin:20px 0;"><div class="wb-prompt"><span class="wb-icon">✍️</span><strong>'+lbl+'</strong></div><textarea class="wb-answer" placeholder="Write your answer here..." rows="3"></textarea><div class="wb-actions"><button class="wb-save" onclick="var s=this.nextElementSibling;s.style.display=\'inline\';setTimeout(function(){s.style.display=\'none\';},2000)">Save Answer</button><span class="wb-saved" style="display:none">✓ Saved</span></div></div>')
-        continue
-      }
-      if (/^[-*]\s+/.test(line)){
-        var txt2=line.replace(/^[-*]\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
-        outputLines.push('<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;"><span style="color:var(--primary);font-size:8px;margin-top:8px;flex-shrink:0;">&#9670;</span><span style="flex:1;line-height:1.7;">'+txt2+'</span></div>')
-        continue
-      }
-      if (/^\d+\.\s+/.test(line)){
-        var num=(line.match(/^(\d+)\./) || ['','1'])[1]
-        var txt3=line.replace(/^\d+\.\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        var isEmpty3 = !txt3.trim() || txt3.trim().length < 5;
-        if (isEmpty3) {
-          outputLines.push('<div style="display:flex;align-items:center;gap:10px;margin:8px 0;"><span style="width:28px;height:28px;border-radius:50%;background:var(--primary)15;color:var(--primary);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+num+'</span><input type="text" placeholder="Your answer '+num+'..." style="flex:1;padding:10px 14px;border-radius:10px;border:2px solid var(--primary)15;background:var(--surface);color:var(--text);font-size:14px;outline:none;" /></div>')
-        } else {
-          outputLines.push('<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--primary)06;"><span style="width:28px;height:28px;border-radius:50%;background:var(--primary)15;color:var(--primary);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+num+'</span><span style="flex:1;line-height:1.7;">'+txt3+'</span></div>')
-        }
-        continue
-      }
-      if (!line.trim()){outputLines.push('<div style="height:6px;"></div>');continue}
-      outputLines.push('<p style="margin:10px 0;line-height:1.8;font-size:14px;">'+line.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')+'</p>')
-    }
-    if (tableRows.length>0) outputLines.push('<div style="overflow-x:auto;margin:16px 0;"><table style="width:100%;border-collapse:collapse;">'+tableRows.join('')+'</table></div>')
-    var aContent = outputLines.join('\n')
-    const items: string[] = []
-    const isList   = false
+    const aContent = rawContent
+      .replace(/^### (.+)$/gm, '<h3 style="color:var(--primary);font-size:16px;margin:20px 0 8px;">$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2 style="color:var(--primary);font-size:20px;margin:28px 0 10px;">$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1 style="color:var(--primary);font-size:26px;margin:32px 0 12px;">$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0;">')
+      .replace(/^- (.+)$/gm, '<li style="padding:6px 0;line-height:1.7;">$1</li>')
+      .replace(/\n\n/g, '</p><p style="margin:12px 0;line-height:1.8;">')
+    const items    = aContent.split('\n').filter((l: string) => l.trim())
+    const isList   = items.length > 2
+    const isCheck  = aTitle.toLowerCase().includes('checklist')
     const icon = aTitle.toLowerCase().includes('checklist') ? '✅' :
                  aTitle.toLowerCase().includes('template')  ? '📋' :
                  aTitle.toLowerCase().includes('workbook')  ? '📓' :
@@ -296,48 +249,20 @@ export async function POST(req: NextRequest) {
           <span id="cnt-${i}" style="font-size:12px;color:var(--primary);font-weight:700;">0/${items.length}</span>
         </div>` : ''}`
       : `${aContent.split('\n\n').filter((p: string) => p.trim()).map((p: string) => `<p>${p.trim()}</p>`).join('')}`
-    // Build input-enhanced body
-    const interactiveBody = bodyHTML
-      .replace(/<li style="([^"]*)">((?!<span)[^<]*)<\/li>/g, function(match, style, text) {
-        if (text.includes('_') || text.includes('[') || text.includes('example') || text.includes('Example') || text.includes('e.g.')) {
-          return '<li style="'+style+'list-style:none;margin-bottom:12px;"><label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">'+text.replace(/\[.*?\]/g,"").replace(/_+/g,"").trim()+'</label><input type="text" placeholder="Type your answer here..." class="asset-input" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(0,0,0,0.1);background:#fff;color:#111;font-size:13px;outline:none;box-sizing:border-box;"/></li>'
-        }
-        return match
-      })
-      .replace(/<p>(.*?\|.*?)<\/p>/g, '$1')
-    
     return `
-    <div id="asset-${i+1}" style="display:${i===0?'block':'none'};">
-
-      <!-- Asset header card -->
-      <div style="background:linear-gradient(135deg,var(--primary)12,var(--primary)06);border:1px solid var(--primary)25;border-radius:16px;padding:24px 28px;margin-bottom:28px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:var(--primary)08;"></div>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-          <div style="width:52px;height:52px;border-radius:14px;background:var(--primary)18;border:1px solid var(--primary)30;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">${icon}</div>
-          <div>
-            <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--primary);opacity:0.8;margin-bottom:4px;">Bonus Asset ${i+1} of ${assetList.length}</div>
-            <h2 style="font-family:var(--font-serif);font-size:clamp(16px,3vw,22px);font-weight:900;color:var(--text);margin:0;">${aTitle}</h2>
-          </div>
+    <section class="section" id="asset-${i+1}" style="padding:48px 0;">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="section-num" style="font-size:22px;">${icon}</span>
+          <span class="section-label">Bonus ${i+1}</span>
         </div>
-        <!-- Progress bar -->
-        <div style="height:4px;background:var(--primary)15;border-radius:2px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round(((i+1)/assetList.length)*100)}%;background:var(--primary);border-radius:2px;transition:width 0.5s;"></div>
+        <div class="section-progress-bar">
+          <div class="section-progress-fill" style="width:${Math.round(((i+1)/assetList.length)*100)}%"></div>
         </div>
-        <div style="font-size:10px;color:var(--primary);margin-top:6px;opacity:0.7;">${Math.round(((i+1)/assetList.length)*100)}% through bonus materials</div>
       </div>
-
-      <!-- Asset content -->
-      <div style="background:var(--surface);border:1px solid var(--primary)12;border-radius:14px;padding:28px;margin-bottom:24px;">
-        ${interactiveBody}
-      </div>
-
-      <!-- Bottom navigation -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--primary)15;margin-top:8px;gap:12px;">
-        ${i > 0 ? `<button onclick="selectAsset(${i-1})" style="padding:10px 20px;border-radius:10px;border:1px solid var(--primary)30;background:transparent;color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">← ${assetList[i-1].title||'Previous'}</button>` : '<div></div>'}
-        <div style="font-size:11px;color:var(--muted);">${i+1} / ${assetList.length}</div>
-        ${i < assetList.length-1 ? `<button onclick="selectAsset(${i+1})" style="padding:10px 20px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">${assetList[i+1].title||'Next'} →</button>` : '<div style="font-size:12px;color:var(--primary);font-weight:700;">✅ All assets complete!</div>'}
-      </div>
-    </div>`
+      <h2 class="section-title">${aTitle}</h2>
+      <div class="section-body">${bodyHTML}</div>
+    </section>`
   }).join('') : ''
 
   // ── BUILD WORKBOOK FULL PAGE ──────────────────────────────
@@ -941,10 +866,10 @@ body {
     <div class="header-title">📖 ${title}</div>
     <div class="tabs" role="tablist">
       <button class="tab-btn active" onclick="switchTab('read')"    role="tab">📖 Read</button>
-
       <button class="tab-btn"        onclick="switchTab('audio')"   role="tab">🎧 Listen</button>
       <button class="tab-btn"        onclick="switchTab('workbook')" role="tab">✍️ Workbook</button>
       <button class="tab-btn" onclick="window.print()" role="tab">🖨️ Save PDF</button>
+      <button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>
       ${assetList.length > 0 ? `<button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>` : ''}
     </div>
   </div>
@@ -952,27 +877,6 @@ body {
 
 <!-- ══ TAB: READ ══════════════════════════════════════════ -->
 <div class="tab-panel active" id="panel-read">
-  <!-- Mini audio player floating at top of Read tab -->
-  <div id="mini-player" style="position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--primary)15;padding:10px 20px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px);">
-    <div style="flex:1;min-width:0;">
-      <div id="mini-now-playing" style="font-size:11px;color:var(--primary);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Press Play to listen while reading</div>
-      <div style="height:3px;background:var(--primary)15;border-radius:2px;margin-top:4px;">
-        <div id="mini-progress" style="height:100%;background:var(--primary);width:0%;border-radius:2px;transition:width 0.3s;"></div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-      <button onclick="prevChapter()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--primary)30;background:transparent;color:var(--primary);cursor:pointer;font-size:12px;">⏮</button>
-      <button onclick="togglePlay()" id="btn-play" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--primary);color:#fff;cursor:pointer;font-size:14px;font-weight:900;">▶</button>
-      <button onclick="nextChapter()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--primary)30;background:transparent;color:var(--primary);cursor:pointer;font-size:12px;">⏭</button>
-      <button onclick="stopAudio()" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,0.15);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;">⏹</button>
-      <select onchange="setSpeed(parseFloat(this.value),null)" style="padding:4px 6px;border-radius:6px;border:1px solid var(--primary)20;background:transparent;color:var(--primary);font-size:11px;cursor:pointer;">
-        <option value="0.75">0.75×</option>
-        <option value="1" selected>1×</option>
-        <option value="1.25">1.25×</option>
-        <option value="1.5">1.5×</option>
-      </select>
-    </div>
-  </div>
   <div class="content-wrap">
 
     <!-- TABLE OF CONTENTS -->
@@ -1063,30 +967,10 @@ body {
 ${assetList.length > 0 ? `
 <div class="tab-panel" id="panel-assets">
   <div class="content-wrap">
-    <div style="padding:24px 0;">
+    <div class="assets-panel">
       <div class="toc-eyebrow">Bonus Materials</div>
       <h2 class="assets-heading">🧰 Bonus Assets & Tools</h2>
-      <p class="assets-sub">${assetList.length} asset${assetList.length !== 1 ? 's' : ''} included</p>
-
-      <!-- Asset navigator pills -->
-      <div id="asset-nav" style="display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 28px;">
-        ${assetList.map((a,i) => {
-          const icon = (a.title||'').toLowerCase().includes('checklist') ? '✅' :
-                       (a.title||'').toLowerCase().includes('template')  ? '📋' :
-                       (a.title||'').toLowerCase().includes('workbook')  ? '📓' :
-                       (a.title||'').toLowerCase().includes('framework') ? '🗺️' :
-                       (a.title||'').toLowerCase().includes('plan')      ? '📅' :
-                       (a.title||'').toLowerCase().includes('tracker')   ? '📊' :
-                       (a.title||'').toLowerCase().includes('cheat')     ? '🔑' :
-                       (a.title||'').toLowerCase().includes('planner')   ? '🗓️' : '🧰'
-          return `<button onclick="selectAsset(${i})" id="asset-pill-${i}"
-            style="padding:7px 14px;border-radius:20px;border:1px solid var(--primary)30;background:${i===0?'var(--primary)':'transparent'};color:${i===0?'#fff':'var(--primary)'};font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;">
-            ${icon} ${a.title||'Asset '+i}
-          </button>`
-        }).join('')}
-      </div>
-
-      <!-- Asset content panels -->
+      <p class="assets-sub">${assetList.length} bonus asset${assetList.length !== 1 ? 's' : ''} included with this product.</p>
       ${assetsHTML}
     </div>
   </div>
@@ -1106,17 +990,6 @@ ${assetList.length > 0 ? `
 <!-- ══ JAVASCRIPT ════════════════════════════════════════ -->
 <script>
 // ── TAB SWITCHING ──────────────────────────────────────────
-function selectAsset(idx) {
-  document.querySelectorAll('[id^="asset-"]').forEach(function(el,i) {
-    el.style.display = 'none';
-  });
-  var el = document.getElementById('asset-'+(idx+1));
-  if (el) el.style.display = 'block';
-  document.querySelectorAll('[id^="asset-pill-"]').forEach(function(btn,i) {
-    btn.style.background = i===idx ? 'var(--primary)' : 'transparent';
-    btn.style.color = i===idx ? '#fff' : 'var(--primary)';
-  });
-}
 function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1182,9 +1055,8 @@ function toggleCheck(el, assetIdx, total) {
 var synth=window.speechSynthesis,utterance=null,currentSpeed=1,currentChapter=-1,totalChapters=0;
 function initAudio(){totalChapters=document.querySelectorAll('[id^=chapter-text-]').length;if(totalChapters>0)selectChapter(0);}
 function getVoice(){var v=synth.getVoices();return v.find(function(x){return x.lang.includes('en-ZA');})||v.find(function(x){return x.lang.includes('en-GB');})||v.find(function(x){return x.lang.includes('en');})||null;}
-function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var title=t?'Chapter '+(idx+1)+': '+t.innerText:'Chapter '+(idx+1);var np=document.getElementById('now-playing-title');if(np)np.innerText=title;var mn=document.getElementById('mini-now-playing');if(mn)mn.innerText=title;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pct=totalChapters>1?Math.round(idx/(totalChapters-1)*100):0;var pg=document.getElementById('audio-progress');if(pg)pg.style.width=pct+'%';var mp=document.getElementById('mini-progress');if(mp)mp.style.width=pct+'%';// Scroll to chapter in read tab
-var sec=document.getElementById('sec'+(idx+1));if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
-function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/\s+/g," ").replace(/[\u200B-\u200D\uFEFF]/g,"").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters){setTimeout(function(){speakChapter(idx+1);},1000);}else{var bp=document.getElementById('btn-play');if(bp)bp.textContent='▶';}}synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.textContent="⏸";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
+function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var np=document.getElementById('now-playing-title');if(t&&np)np.innerText='Chapter '+(idx+1)+': '+t.innerText;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pg=document.getElementById('audio-progress');if(pg)pg.style.width=(totalChapters>1?Math.round(idx/(totalChapters-1)*100):0)+'%';}
+function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/s+/g," ").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters)setTimeout(function(){speakChapter(idx+1);},1500);};synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.innerText="⏸ Pause";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
 function togglePlay(){if(currentChapter<0){speakChapter(0);return;}if(synth.speaking){if(synth.paused){synth.resume();var b=document.getElementById('btn-play');if(b)b.innerText='⏸ Pause';}else{synth.pause();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Resume';}}else{speakChapter(currentChapter);}}
 function nextChapter(){if(currentChapter+1<totalChapters)speakChapter(currentChapter+1);}
 function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
