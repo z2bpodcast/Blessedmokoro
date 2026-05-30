@@ -502,6 +502,15 @@ async function handleGear6(
       .eq('id', sessionId)
       .eq('builder_id', userId)
 
+    // Update saved_projects so dashboard shows the product
+    await (sb.from as any)('saved_projects').upsert({
+      session_id:   sessionId,
+      builder_id:   userId,
+      title:        listing.title ?? listing.productTitle ?? 'Digital Product',
+      current_gear: 6,
+      status:       'live',
+      updated_at:   new Date().toISOString(),
+    }, { onConflict: 'session_id' })
     // Flag Rocket tiers for n8n automation
     const isRocket = isRocketTier(tierId)
     if (isRocket) {
