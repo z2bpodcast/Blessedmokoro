@@ -266,8 +266,8 @@ export async function POST(req: NextRequest) {
     }
     if (tableRows.length>0) outputLines.push('<div style="overflow-x:auto;margin:16px 0;"><table style="width:100%;border-collapse:collapse;">'+tableRows.join('')+'</table></div>')
     var aContent = outputLines.join('\n')
-    const items    = aContent.split('\n').filter((l: string) => l.trim())
-    const isList   = items.length > 2
+    const items: string[] = []
+    const isList   = false
     const icon = aTitle.toLowerCase().includes('checklist') ? '✅' :
                  aTitle.toLowerCase().includes('template')  ? '📋' :
                  aTitle.toLowerCase().includes('workbook')  ? '📓' :
