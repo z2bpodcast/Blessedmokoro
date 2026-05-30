@@ -211,6 +211,54 @@ export async function POST(req: NextRequest) {
   }).join('')
 
   // ── BUILD ASSETS HTML — Premium Interactive ──────────────
+  // ── ASSET INPUT TRANSFORMER ─────────────────────────────
+  function buildAssetBody(content: string, isChecklist: boolean): string {
+    const lines = content.split('\n')
+    const out: string[] = []
+    for (const line of lines) {
+      if (!line.trim()) { out.push('<div style="height:6px"></div>'); continue }
+      // Heading
+      if (/^###/.test(line)) { out.push(`<h3 style="color:var(--primary);font-size:16px;font-weight:800;margin:20px 0 8px;">${line.replace(/^###\s*/,'')}</h3>`); continue }
+      if (/^##/.test(line))  { out.push(`<h2 style="color:var(--primary);font-size:20px;font-weight:900;margin:24px 0 10px;border-bottom:2px solid var(--primary)20;padding-bottom:8px;">${line.replace(/^##\s*/,'')}</h2>`); continue }
+      if (/^#/.test(line))   { out.push(`<h1 style="color:var(--primary);font-size:24px;font-weight:900;margin:28px 0 12px;">${line.replace(/^#\s*/,'')}</h1>`); continue }
+      if (/^---/.test(line)) { out.push('<hr style="border:none;border-top:2px solid var(--primary)15;margin:24px 0;">'); continue }
+      // Checklist item
+      if (isChecklist && /^[-*]\s+/.test(line)) {
+        const txt = line.replace(/^[-*]\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        out.push(`<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--primary)08;"><span onclick="this.textContent=this.textContent==='☐'?'✅':'☐'" style="cursor:pointer;font-size:20px;flex-shrink:0;">☐</span><span style="flex:1;line-height:1.7;">${txt}</span></div>`)
+        continue
+      }
+      // Fillable label (ends with colon, short line)
+      if (/^[-*\d.\s]*[A-Z][^\n]{2,50}:$/.test(line.trim())) {
+        const lbl = line.trim().replace(/^[-*\d.]+\s*/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        out.push(`<div class="workbook-inline" style="margin:16px 0;"><div class="wb-prompt"><span class="wb-icon">✍️</span><strong>${lbl}</strong></div><textarea class="wb-answer" placeholder="Write your answer here..." rows="3"></textarea><div class="wb-actions"><button class="wb-save" onclick="var s=this.nextElementSibling;s.style.display='inline';setTimeout(function(){s.style.display='none';},2000)">Save Answer</button><span class="wb-saved" style="display:none">✓ Saved</span></div></div>`)
+        continue
+      }
+      // Empty numbered slot (1. 2. 3. with no text)
+      if (/^\d+\.\s*$/.test(line.trim())) {
+        const num = line.trim().replace(/\..*$/,'')
+        out.push(`<div style="display:flex;align-items:center;gap:10px;margin:8px 0;"><span style="width:28px;height:28px;border-radius:50%;background:var(--primary)15;color:var(--primary);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${num}</span><div class="workbook-inline" style="margin:0;flex:1;"><textarea class="wb-answer" placeholder="Your answer ${num}..." rows="2"></textarea></div></div>`)
+        continue
+      }
+      // Regular list
+      if (/^[-*]\s+/.test(line)) {
+        const txt = line.replace(/^[-*]\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
+        out.push(`<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;"><span style="color:var(--primary);font-size:8px;margin-top:8px;flex-shrink:0;">◆</span><span style="flex:1;line-height:1.7;">${txt}</span></div>`)
+        continue
+      }
+      // Numbered list with content
+      if (/^\d+\.\s+\S/.test(line)) {
+        const num = (line.match(/^(\d+)\./) || ['','1'])[1]
+        const txt = line.replace(/^\d+\.\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        out.push(`<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--primary)06;"><span style="width:28px;height:28px;border-radius:50%;background:var(--primary)15;color:var(--primary);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${num}</span><span style="flex:1;line-height:1.7;">${txt}</span></div>`)
+        continue
+      }
+      // Normal paragraph
+      out.push(`<p style="margin:10px 0;line-height:1.8;font-size:14px;">${line.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')}</p>`)
+    }
+    return out.join('\n')
+  }
+
   const assetsHTML = assetList.length > 0 ? assetList.map((a: any, i: number) => {
     const aTitle   = a.title ?? a.type ?? `Asset ${i + 1}`
     const rawContent = String(a.content ?? (Array.isArray(a.items) ? a.items.join('\n') : '') ?? '')
@@ -869,7 +917,6 @@ body {
       <button class="tab-btn"        onclick="switchTab('audio')"   role="tab">🎧 Listen</button>
       <button class="tab-btn"        onclick="switchTab('workbook')" role="tab">✍️ Workbook</button>
       <button class="tab-btn" onclick="window.print()" role="tab">🖨️ Save PDF</button>
-      <button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>
       ${assetList.length > 0 ? `<button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>` : ''}
     </div>
   </div>
@@ -990,6 +1037,15 @@ ${assetList.length > 0 ? `
 <!-- ══ JAVASCRIPT ════════════════════════════════════════ -->
 <script>
 // ── TAB SWITCHING ──────────────────────────────────────────
+function selectAsset(idx) {
+  document.querySelectorAll('[id^="asset-"]').forEach(function(el) { el.style.display='none'; });
+  var el = document.getElementById('asset-'+(idx+1));
+  if (el) el.style.display = 'block';
+  document.querySelectorAll('[id^="asset-pill-"]').forEach(function(btn, i) {
+    btn.style.background = i===idx ? 'var(--primary)' : 'transparent';
+    btn.style.color = i===idx ? '#fff' : 'var(--primary)';
+  });
+}
 function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1056,7 +1112,7 @@ var synth=window.speechSynthesis,utterance=null,currentSpeed=1,currentChapter=-1
 function initAudio(){totalChapters=document.querySelectorAll('[id^=chapter-text-]').length;if(totalChapters>0)selectChapter(0);}
 function getVoice(){var v=synth.getVoices();return v.find(function(x){return x.lang.includes('en-ZA');})||v.find(function(x){return x.lang.includes('en-GB');})||v.find(function(x){return x.lang.includes('en');})||null;}
 function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var np=document.getElementById('now-playing-title');if(t&&np)np.innerText='Chapter '+(idx+1)+': '+t.innerText;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pg=document.getElementById('audio-progress');if(pg)pg.style.width=(totalChapters>1?Math.round(idx/(totalChapters-1)*100):0)+'%';}
-function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/s+/g," ").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters)setTimeout(function(){speakChapter(idx+1);},1500);};synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.innerText="⏸ Pause";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
+function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/\s+/g," ").replace(/[^\x00-\x7F]/g," ").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters)setTimeout(function(){speakChapter(idx+1);},1500);};synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.innerText="⏸ Pause";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
 function togglePlay(){if(currentChapter<0){speakChapter(0);return;}if(synth.speaking){if(synth.paused){synth.resume();var b=document.getElementById('btn-play');if(b)b.innerText='⏸ Pause';}else{synth.pause();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Resume';}}else{speakChapter(currentChapter);}}
 function nextChapter(){if(currentChapter+1<totalChapters)speakChapter(currentChapter+1);}
 function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
