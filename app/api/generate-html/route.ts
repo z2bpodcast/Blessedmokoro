@@ -223,6 +223,17 @@ export async function POST(req: NextRequest) {
       .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0;">')
       .replace(/^- (.+)$/gm, '<li style="padding:6px 0;line-height:1.7;">$1</li>')
       .replace(/\n\n/g, '</p><p style="margin:12px 0;line-height:1.8;">')
+      .replace(/^\|(.+)\|$/gm, function(row) {
+        var cells = row.split('|').filter(function(c) { return c.trim(); })
+        var isSep = cells.every(function(c) { return /^[-: ]+$/.test(c) })
+        if (isSep) return ''
+        var tag = 'td'
+        var cellHtml = cells.map(function(cell) {
+          return '<'+tag+' style="padding:8px 12px;border:1px solid var(--primary)15;text-align:left;">'+cell.trim()+'</'+tag+'>'
+        }).join('')
+        return '<tr>'+cellHtml+'</tr>'
+      })
+      .replace(/(<tr>.*<\/tr>)/gs, '<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">$1</table>')
     const items    = aContent.split('\n').filter((l: string) => l.trim())
     const isList   = items.length > 2
     const isCheck  = aTitle.toLowerCase().includes('checklist')
@@ -250,7 +261,7 @@ export async function POST(req: NextRequest) {
         </div>` : ''}`
       : `${aContent.split('\n\n').filter((p: string) => p.trim()).map((p: string) => `<p>${p.trim()}</p>`).join('')}`
     return `
-    <section class="section" id="asset-${i+1}" style="padding:48px 0;">
+    <section class="section" id="asset-${i+1}" style="padding:32px 0;display:${i===0?'block':'none'};">
       <div class="section-header">
         <div class="section-badge">
           <span class="section-num" style="font-size:22px;">${icon}</span>
@@ -869,7 +880,6 @@ body {
       <button class="tab-btn"        onclick="switchTab('audio')"   role="tab">🎧 Listen</button>
       <button class="tab-btn"        onclick="switchTab('workbook')" role="tab">✍️ Workbook</button>
       <button class="tab-btn" onclick="window.print()" role="tab">🖨️ Save PDF</button>
-      <button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>
       ${assetList.length > 0 ? `<button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>` : ''}
     </div>
   </div>
@@ -967,10 +977,30 @@ body {
 ${assetList.length > 0 ? `
 <div class="tab-panel" id="panel-assets">
   <div class="content-wrap">
-    <div class="assets-panel">
+    <div style="padding:24px 0;">
       <div class="toc-eyebrow">Bonus Materials</div>
       <h2 class="assets-heading">🧰 Bonus Assets & Tools</h2>
-      <p class="assets-sub">${assetList.length} bonus asset${assetList.length !== 1 ? 's' : ''} included with this product.</p>
+      <p class="assets-sub">${assetList.length} asset${assetList.length !== 1 ? 's' : ''} included</p>
+
+      <!-- Asset navigator pills -->
+      <div id="asset-nav" style="display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 28px;">
+        ${assetList.map((a,i) => {
+          const icon = (a.title||'').toLowerCase().includes('checklist') ? '✅' :
+                       (a.title||'').toLowerCase().includes('template')  ? '📋' :
+                       (a.title||'').toLowerCase().includes('workbook')  ? '📓' :
+                       (a.title||'').toLowerCase().includes('framework') ? '🗺️' :
+                       (a.title||'').toLowerCase().includes('plan')      ? '📅' :
+                       (a.title||'').toLowerCase().includes('tracker')   ? '📊' :
+                       (a.title||'').toLowerCase().includes('cheat')     ? '🔑' :
+                       (a.title||'').toLowerCase().includes('planner')   ? '🗓️' : '🧰'
+          return `<button onclick="selectAsset(${i})" id="asset-pill-${i}"
+            style="padding:7px 14px;border-radius:20px;border:1px solid var(--primary)30;background:${i===0?'var(--primary)':'transparent'};color:${i===0?'#fff':'var(--primary)'};font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;">
+            ${icon} ${a.title||'Asset '+i}
+          </button>`
+        }).join('')}
+      </div>
+
+      <!-- Asset content panels -->
       ${assetsHTML}
     </div>
   </div>
@@ -990,6 +1020,17 @@ ${assetList.length > 0 ? `
 <!-- ══ JAVASCRIPT ════════════════════════════════════════ -->
 <script>
 // ── TAB SWITCHING ──────────────────────────────────────────
+function selectAsset(idx) {
+  document.querySelectorAll('[id^="asset-"]').forEach(function(el,i) {
+    el.style.display = 'none';
+  });
+  var el = document.getElementById('asset-'+(idx+1));
+  if (el) el.style.display = 'block';
+  document.querySelectorAll('[id^="asset-pill-"]').forEach(function(btn,i) {
+    btn.style.background = i===idx ? 'var(--primary)' : 'transparent';
+    btn.style.color = i===idx ? '#fff' : 'var(--primary)';
+  });
+}
 function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
