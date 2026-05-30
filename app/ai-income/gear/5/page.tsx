@@ -343,7 +343,7 @@ function Gear5Inner() {
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Georgia,serif;font-size:72px;font-weight:900;color:#F0F9FF;text-align:center;line-height:1.2;word-wrap:break-word;">${title}</div>
       </foreignObject>
       <line x1="160" y1="860" x2="640" y2="860" stroke="#D4AF37" stroke-opacity="0.3" stroke-width="1"/>
-      <text x="400" y="910" font-family="Georgia,serif" font-size="18" fill="#D4AF37" text-anchor="middle">by ${author}</text>
+      <text x="400" y="930" font-family="Georgia,serif" font-size="36" fill="#D4AF37" text-anchor="middle">by ${author}</text>
       <rect x="280" y="1020" width="240" height="36" rx="18" fill="#D4AF37" opacity="0.15"/>
       <text x="400" y="1043" font-family="Georgia,serif" font-size="11" fill="#D4AF37" text-anchor="middle" letter-spacing="3">DIGITAL PRODUCT</text>
     </svg>`
