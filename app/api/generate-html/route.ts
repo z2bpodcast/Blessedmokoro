@@ -214,6 +214,7 @@ export async function POST(req: NextRequest) {
   const assetsHTML = assetList.length > 0 ? assetList.map((a: any, i: number) => {
     const aTitle   = a.title ?? a.type ?? `Asset ${i + 1}`
     const rawContent = String(a.content ?? (Array.isArray(a.items) ? a.items.join('\n') : '') ?? '')
+    var isCheck = aTitle.toLowerCase().includes("checklist")
     var outputLines = []
     var tableRows = []
     var lines2 = rawContent.split('\n')
