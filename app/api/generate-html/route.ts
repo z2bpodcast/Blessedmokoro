@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
         var cells = line.split('|').filter(function(x){return x.trim()})
         var isSep = cells.every(function(x){return /^[-: ]+$/.test(x)})
         if (!isSep) {
-          var isHdr = tableRows.length===0
+          var isHdr: boolean = tableRows.length===0
           tableRows.push('<tr>'+cells.map(function(cell,ci){
             var bg=isHdr?'background:var(--primary)15;font-weight:700;':(ci%2===0?'background:rgba(255,255,255,0.03);':'')
             return '<td style="padding:10px 14px;border:1px solid var(--primary)15;font-size:13px;'+bg+'">'+cell.trim()+'</td>'
