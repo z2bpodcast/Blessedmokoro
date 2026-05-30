@@ -213,7 +213,16 @@ export async function POST(req: NextRequest) {
   // ── BUILD ASSETS HTML — Premium Interactive ──────────────
   const assetsHTML = assetList.length > 0 ? assetList.map((a: any, i: number) => {
     const aTitle   = a.title ?? a.type ?? `Asset ${i + 1}`
-    const aContent = String(a.content ?? (Array.isArray(a.items) ? a.items.join('\n') : '') ?? '')
+    const rawContent = String(a.content ?? (Array.isArray(a.items) ? a.items.join('\n') : '') ?? '')
+    const aContent = rawContent
+      .replace(/^### (.+)$/gm, '<h3 style="color:var(--primary);font-size:16px;margin:20px 0 8px;">$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2 style="color:var(--primary);font-size:20px;margin:28px 0 10px;">$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1 style="color:var(--primary);font-size:26px;margin:32px 0 12px;">$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0;">')
+      .replace(/^- (.+)$/gm, '<li style="padding:6px 0;line-height:1.7;">$1</li>')
+      .replace(/\n\n/g, '</p><p style="margin:12px 0;line-height:1.8;">')
     const items    = aContent.split('\n').filter((l: string) => l.trim())
     const isList   = items.length > 2
     const isCheck  = aTitle.toLowerCase().includes('checklist')
