@@ -264,7 +264,7 @@ export async function POST(req: NextRequest) {
     const interactiveBody = bodyHTML
       .replace(/<li style="([^"]*)">((?!<span)[^<]*)<\/li>/g, function(match, style, text) {
         if (text.includes('_') || text.includes('[') || text.includes('example') || text.includes('Example') || text.includes('e.g.')) {
-          return '<li style="'+style+'list-style:none;margin-bottom:12px;"><label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">'+text.replace(/\[.*?\]/g,'').replace(/_+/g,'').trim()+'</label><input type="text" placeholder="Type your answer here..." style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--primary)20;background:#fff;color:#111;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--primary)20'"/></li>'
+          return '<li style="'+style+'list-style:none;margin-bottom:12px;"><label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">'+text.replace(/\[.*?\]/g,"").replace(/_+/g,"").trim()+'</label><input type="text" placeholder="Type your answer here..." class="asset-input" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(0,0,0,0.1);background:#fff;color:#111;font-size:13px;outline:none;box-sizing:border-box;"/></li>'
         }
         return match
       })
