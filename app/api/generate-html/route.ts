@@ -233,7 +233,7 @@ export async function POST(req: NextRequest) {
         }).join('')
         return '<tr>'+cellHtml+'</tr>'
       })
-      .replace(/(<tr>.*<\/tr>)/gs, '<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">$1</table>')
+      .replace(/(<tr>[\s\S]*?<\/tr>)/g, '<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">$1</table>')
     const items    = aContent.split('\n').filter((l: string) => l.trim())
     const isList   = items.length > 2
     const isCheck  = aTitle.toLowerCase().includes('checklist')
