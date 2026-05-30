@@ -268,7 +268,6 @@ export async function POST(req: NextRequest) {
     var aContent = outputLines.join('\n')
     const items    = aContent.split('\n').filter((l: string) => l.trim())
     const isList   = items.length > 2
-    const isCheck  = aTitle.toLowerCase().includes('checklist')
     const icon = aTitle.toLowerCase().includes('checklist') ? '✅' :
                  aTitle.toLowerCase().includes('template')  ? '📋' :
                  aTitle.toLowerCase().includes('workbook')  ? '📓' :
