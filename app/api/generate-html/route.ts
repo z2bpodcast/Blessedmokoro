@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
         continue
       }
       if (/^\d+\.\s+/.test(line)){
-        var num=line.match(/^(\d+)\./)[1]
+        var num=(line.match(/^(\d+)\./) || ['','1'])[1]
         var txt3=line.replace(/^\d+\.\s+/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
         outputLines.push('<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--primary)06;"><span style="width:28px;height:28px;border-radius:50%;background:var(--primary)15;color:var(--primary);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+num+'</span><span style="flex:1;line-height:1.7;">'+txt3+'</span></div>')
         continue
