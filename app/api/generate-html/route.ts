@@ -936,7 +936,7 @@ body {
     <div class="header-title">📖 ${title}</div>
     <div class="tabs" role="tablist">
       <button class="tab-btn active" onclick="switchTab('read')"    role="tab">📖 Read</button>
-      <button class="tab-btn"        onclick="switchTab('audio')"   role="tab">🎧 Listen</button>
+
       <button class="tab-btn"        onclick="switchTab('workbook')" role="tab">✍️ Workbook</button>
       <button class="tab-btn" onclick="window.print()" role="tab">🖨️ Save PDF</button>
       ${assetList.length > 0 ? `<button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>` : ''}
@@ -946,6 +946,27 @@ body {
 
 <!-- ══ TAB: READ ══════════════════════════════════════════ -->
 <div class="tab-panel active" id="panel-read">
+  <!-- Mini audio player floating at top of Read tab -->
+  <div id="mini-player" style="position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--primary)15;padding:10px 20px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px);">
+    <div style="flex:1;min-width:0;">
+      <div id="mini-now-playing" style="font-size:11px;color:var(--primary);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Press Play to listen while reading</div>
+      <div style="height:3px;background:var(--primary)15;border-radius:2px;margin-top:4px;">
+        <div id="mini-progress" style="height:100%;background:var(--primary);width:0%;border-radius:2px;transition:width 0.3s;"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+      <button onclick="prevChapter()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--primary)30;background:transparent;color:var(--primary);cursor:pointer;font-size:12px;">⏮</button>
+      <button onclick="togglePlay()" id="btn-play" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--primary);color:#fff;cursor:pointer;font-size:14px;font-weight:900;">▶</button>
+      <button onclick="nextChapter()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--primary)30;background:transparent;color:var(--primary);cursor:pointer;font-size:12px;">⏭</button>
+      <button onclick="stopAudio()" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,0.15);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;">⏹</button>
+      <select onchange="setSpeed(parseFloat(this.value),null)" style="padding:4px 6px;border-radius:6px;border:1px solid var(--primary)20;background:transparent;color:var(--primary);font-size:11px;cursor:pointer;">
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+      </select>
+    </div>
+  </div>
   <div class="content-wrap">
 
     <!-- TABLE OF CONTENTS -->
@@ -1155,8 +1176,9 @@ function toggleCheck(el, assetIdx, total) {
 var synth=window.speechSynthesis,utterance=null,currentSpeed=1,currentChapter=-1,totalChapters=0;
 function initAudio(){totalChapters=document.querySelectorAll('[id^=chapter-text-]').length;if(totalChapters>0)selectChapter(0);}
 function getVoice(){var v=synth.getVoices();return v.find(function(x){return x.lang.includes('en-ZA');})||v.find(function(x){return x.lang.includes('en-GB');})||v.find(function(x){return x.lang.includes('en');})||null;}
-function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var np=document.getElementById('now-playing-title');if(t&&np)np.innerText='Chapter '+(idx+1)+': '+t.innerText;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pg=document.getElementById('audio-progress');if(pg)pg.style.width=(totalChapters>1?Math.round(idx/(totalChapters-1)*100):0)+'%';}
-function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/s+/g," ").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters)setTimeout(function(){speakChapter(idx+1);},1500);};synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.innerText="⏸ Pause";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
+function selectChapter(idx){currentChapter=idx;document.querySelectorAll('.audio-chapter-item').forEach(function(el,i){el.style.borderColor=i===idx?'var(--primary)':'rgba(0,0,0,0.1)';el.style.background=i===idx?'rgba(var(--primary-rgb),0.08)':'var(--surface)';});var t=document.querySelector('#chapter-item-'+idx+' .ch-title');var title=t?'Chapter '+(idx+1)+': '+t.innerText:'Chapter '+(idx+1);var np=document.getElementById('now-playing-title');if(np)np.innerText=title;var mn=document.getElementById('mini-now-playing');if(mn)mn.innerText=title;var tx=document.getElementById('chapter-text-'+idx);var dp=document.getElementById('audio-text-display');if(tx&&dp)dp.innerText=tx.innerText.slice(0,300)+'...';var pct=totalChapters>1?Math.round(idx/(totalChapters-1)*100):0;var pg=document.getElementById('audio-progress');if(pg)pg.style.width=pct+'%';var mp=document.getElementById('mini-progress');if(mp)mp.style.width=pct+'%';// Scroll to chapter in read tab
+var sec=document.getElementById('sec'+(idx+1));if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+function speakChapter(idx){if(idx<0||idx>=totalChapters)return;synth.cancel();selectChapter(idx);var tx=document.getElementById("chapter-text-"+idx);var tl=document.querySelector("#chapter-item-"+idx+" .ch-title");if(!tx)return;var cleanText=tx.innerText.replace(/[<][^>]*[>]/g," ").replace(/&quot;/g,"'").replace(/&amp;/g,"and").replace(/&lt;/g,"less than").replace(/&gt;/g,"greater than").replace(/\s+/g," ").replace(/[\u200B-\u200D\uFEFF]/g,"").trim();utterance=new SpeechSynthesisUtterance((tl?"Chapter "+(idx+1)+". "+tl.innerText+". ":"")+cleanText);utterance.rate=currentSpeed;utterance.pitch=1;utterance.lang="en-ZA";var v=getVoice();if(v)utterance.voice=v;utterance.onend=function(){var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="✓";var b=document.getElementById("btn-play");if(b)b.innerText="▶ Play";if(idx+1<totalChapters){setTimeout(function(){speakChapter(idx+1);},1000);}else{var bp=document.getElementById('btn-play');if(bp)bp.textContent='▶';}}synth.speak(utterance);var b=document.getElementById("btn-play");if(b)b.textContent="⏸";var s=document.getElementById("chapter-status-"+idx);if(s)s.innerText="🔊";}
 function togglePlay(){if(currentChapter<0){speakChapter(0);return;}if(synth.speaking){if(synth.paused){synth.resume();var b=document.getElementById('btn-play');if(b)b.innerText='⏸ Pause';}else{synth.pause();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Resume';}}else{speakChapter(currentChapter);}}
 function nextChapter(){if(currentChapter+1<totalChapters)speakChapter(currentChapter+1);}
 function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
