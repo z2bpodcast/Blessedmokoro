@@ -447,7 +447,8 @@ async function handleGear6(
         // Seller info
         seller_id:   userId,
         builder_id:  userId,
-        seller_name: listing.sellerName ?? '',
+        seller_name: listing.sellerName ?? listing.authorName ?? '',
+        cover_url:   listing.coverUrl ?? listing.cover_url ?? null,
         // Pricing
         retail_price:    Math.round(Number(listing.priceZar ?? listing.price ?? 299)),
         price_once:      Math.round(Number(listing.priceZar ?? listing.price ?? 299)),
@@ -507,6 +508,7 @@ async function handleGear6(
       session_id:   sessionId,
       builder_id:   userId,
       title:        listing.title ?? listing.productTitle ?? 'Digital Product',
+      cover_url:    listing.coverUrl ?? listing.cover_url ?? null,
       current_gear: 6,
       status:       'live',
       updated_at:   new Date().toISOString(),

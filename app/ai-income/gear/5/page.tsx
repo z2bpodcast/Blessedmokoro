@@ -137,7 +137,7 @@ function Gear5Inner() {
   const [gearAccess,  setGearAccess] = useState(7)
   const [tierId,      setTierId]     = useState('copper')
   const [showCoverModal, setShowCoverModal] = useState(false)
-  const [authorName,     setAuthorName]     = useState('')
+  const [authorName,     setAuthorName]     = useState(() => { try { return typeof window !== 'undefined' ? localStorage.getItem('z2b_author_name') || '' : '' } catch(e) { return '' } })
   const [authorNameType, setAuthorNameType] = useState<'real'|'pen'|'brand'>('real')
   const [coverType,      setCoverType]      = useState<'text'|'ai'>('text')
   const [coverUrl,       setCoverUrl]       = useState('')
@@ -340,7 +340,7 @@ function Gear5Inner() {
       <text x="400" y="160" font-family="Georgia,serif" font-size="14" fill="#D4AF37" text-anchor="middle" letter-spacing="6" opacity="0.8">${format.toUpperCase()}</text>
       <line x1="160" y1="180" x2="640" y2="180" stroke="#D4AF37" stroke-opacity="0.3" stroke-width="1"/>
       <foreignObject x="80" y="200" width="640" height="600">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Georgia,serif;font-size:42px;font-weight:900;color:#F0F9FF;text-align:center;line-height:1.25;word-wrap:break-word;">${title}</div>
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Georgia,serif;font-size:72px;font-weight:900;color:#F0F9FF;text-align:center;line-height:1.2;word-wrap:break-word;">${title}</div>
       </foreignObject>
       <line x1="160" y1="860" x2="640" y2="860" stroke="#D4AF37" stroke-opacity="0.3" stroke-width="1"/>
       <text x="400" y="910" font-family="Georgia,serif" font-size="18" fill="#D4AF37" text-anchor="middle">by ${author}</text>
@@ -407,7 +407,7 @@ function Gear5Inner() {
                  authorNameType === 'pen'  ? '✅ Protects privacy. Build multiple brands.' :
                  '✅ Builds your business brand. Great for scaling.'}
               </div>
-              <input value={authorName} onChange={e => setAuthorName(e.target.value)}
+              <input value={authorName} onChange={e => { setAuthorName(e.target.value); try { localStorage.setItem('z2b_author_name', e.target.value); } catch(er) {} }}
                 placeholder={authorNameType === 'real' ? 'Your full name' : authorNameType === 'pen' ? 'e.g. Alex Morgan' : 'e.g. TechMom SA'}
                 style={{ width:'100%', padding:'10px 14px', borderRadius:9, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:W, fontSize:14, outline:'none', boxSizing:'border-box' as const }} />
             </div>
