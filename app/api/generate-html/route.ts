@@ -115,7 +115,8 @@ export async function POST(req: NextRequest) {
 
   // ── EXTRACT ASSETS ────────────────────────────────────────
   let assetList: any[] = []
-  if (Array.isArray(assets.assets)) assetList = assets.assets
+  if (Array.isArray(assets.enhancementAssets)) assetList = assets.enhancementAssets
+  else if (Array.isArray(assets.assets)) assetList = assets.assets
   else if (Array.isArray(assets))   assetList = assets
 
   const FORMAT_LABEL: Record<string, string> = {
