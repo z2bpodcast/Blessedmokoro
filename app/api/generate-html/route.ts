@@ -841,6 +841,7 @@ body {
       <button class="tab-btn"        onclick="switchTab('audio')"   role="tab">🎧 Listen</button>
       <button class="tab-btn"        onclick="switchTab('workbook')" role="tab">✍️ Workbook</button>
       <button class="tab-btn" onclick="window.print()" role="tab">🖨️ Save PDF</button>
+      <button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>
       ${assetList.length > 0 ? `<button class="tab-btn" onclick="switchTab('assets')" role="tab">🧰 Assets</button>` : ''}
     </div>
   </div>
