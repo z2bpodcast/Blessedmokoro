@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
       }
       if (/^[A-Z][^\n]{2,60}:$/.test(line.trim())||/^[-*]\s+[A-Z][^\n]{2,50}:$/.test(line.trim())||/^\d+\.\s+[A-Z][^\n]{2,50}:$/.test(line.trim())) {
         var lbl=line.trim().replace(/^[-*\d.]+\s*/,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        outputLines.push('<div class="workbook-inline" style="margin:20px 0;"><div class="wb-prompt"><span class="wb-icon">✍️</span><strong>'+lbl+'</strong></div><textarea class="wb-answer" placeholder="Write your answer here..." rows="3"></textarea><div class="wb-actions"><button class="wb-save" onclick="this.nextElementSibling.style.display='inline';setTimeout(()=>this.nextElementSibling.style.display='none',2000)">Save Answer</button><span class="wb-saved" style="display:none">✓ Saved</span></div></div>')
+        outputLines.push('<div class="workbook-inline" style="margin:20px 0;"><div class="wb-prompt"><span class="wb-icon">✍️</span><strong>'+lbl+'</strong></div><textarea class="wb-answer" placeholder="Write your answer here..." rows="3"></textarea><div class="wb-actions"><button class="wb-save" onclick="var s=this.nextElementSibling;s.style.display=\'inline\';setTimeout(function(){s.style.display=\'none\';},2000)">Save Answer</button><span class="wb-saved" style="display:none">✓ Saved</span></div></div>')
         continue
       }
       if (/^[-*]\s+/.test(line)){
