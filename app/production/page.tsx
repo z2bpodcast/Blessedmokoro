@@ -43,18 +43,29 @@ function ProductionInner() {
   const [showLinkForm, setShowLinkForm] = useState<string|null>(null)
   const [buyerEmail, setBuyerEmail] = useState("")
   const [buyerName, setBuyerName] = useState("")
+  const [marketingKit, setMarketingKit] = useState<Record<string,any>>({})
+  const [showMarketing, setShowMarketing] = useState<string|null>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { window.location.href = '/login'; return }
       const sb = supabase as any
-      const [projRes, personasRes, ideasRes, productsRes] = await Promise.all([
+      const [projRes, personasRes, ideasRes, productsRes, mktRes] = await Promise.all([
         sb.from('saved_projects').select('*').eq('builder_id', user.id).order('updated_at', { ascending: false }),
+        sb.from('gear_sessions').select('id, distribution_data').eq('builder_id', user.id).not('distribution_data', 'is', null),
         sb.from('builder_personas').select('*').eq('builder_id', user.id).order('created_at', { ascending: false }),
         sb.from('saved_ideas').select('*').eq('builder_id', user.id).order('created_at', { ascending: false }),
         sb.from('marketplace_products').select('*').eq('seller_id', user.id).eq('status', 'listed').order('created_at', { ascending: false }),
       ])
       setProjects(projRes.data ?? [])
+      // Build marketing kit map by session_id
+      const kitMap: Record<string,any> = {}
+      ;(mktRes.data ?? []).forEach((row: any) => {
+        if (row.distribution_data) {
+          try { kitMap[row.id] = typeof row.distribution_data === 'string' ? JSON.parse(row.distribution_data) : row.distribution_data } catch(e) {}
+        }
+      })
+      setMarketingKit(kitMap)
       setPersonas(personasRes.data ?? [])
       setSavedIdeas(ideasRes.data ?? [])
       setListedProducts(productsRes.data ?? [])
@@ -235,6 +246,12 @@ function ProductionInner() {
                         style={{ padding:'8px 14px', borderRadius:'8px', border:'1px solid rgba(16,185,129,0.4)', background:'rgba(16,185,129,0.08)', color:GREEN, fontSize:'12px', cursor:'pointer', fontWeight:700 }}>
                         🔗 Generate Link
                       </button>
+                      {marketingKit[proj.session_id] && (
+                        <button onClick={() => setShowMarketing(showMarketing === proj.session_id ? null : proj.session_id)}
+                          style={{ padding:'8px 14px', borderRadius:'8px', border:'1px solid rgba(139,92,246,0.4)', background:'rgba(139,92,246,0.08)', color:'#8B5CF6', fontSize:'12px', cursor:'pointer', fontWeight:700 }}>
+                          📣 Marketing Kit
+                        </button>
+                      )}
                     </div>
                     {showLinkForm === proj.session_id && (
                       <div style={{ marginTop:12, padding:14, borderRadius:10, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(16,185,129,0.2)' }}>
@@ -251,6 +268,33 @@ function ProductionInner() {
                             ✓ Copied! {genLink[proj.session_id]}
                           </div>
                         )}
+                      </div>
+                    )}
+                  {showMarketing === proj.session_id && marketingKit[proj.session_id] && (
+                      <div style={{ marginTop:12, padding:16, borderRadius:10, background:'rgba(139,92,246,0.06)', border:'1px solid rgba(139,92,246,0.2)' }}>
+                        <div style={{ fontSize:11, color:'#8B5CF6', letterSpacing:2, textTransform:'uppercase', marginBottom:12, fontWeight:700 }}>📣 Marketing Kit</div>
+                        {marketingKit[proj.session_id]?.listing?.description && (
+                          <div style={{ marginBottom:12 }}>
+                            <div style={{ fontSize:10, color:MUTED, letterSpacing:1, textTransform:'uppercase', marginBottom:6 }}>Product Description</div>
+                            <div style={{ fontSize:12, color:W, lineHeight:1.7, background:'rgba(255,255,255,0.04)', padding:12, borderRadius:8 }}>
+                              {marketingKit[proj.session_id].listing.description}
+                            </div>
+                            <button onClick={() => navigator.clipboard.writeText(marketingKit[proj.session_id].listing.description)}
+                              style={{ marginTop:6, padding:'4px 10px', borderRadius:6, background:'rgba(139,92,246,0.1)', border:'1px solid rgba(139,92,246,0.3)', color:'#8B5CF6', fontSize:10, cursor:'pointer', fontWeight:700 }}>
+                              📋 Copy
+                            </button>
+                          </div>
+                        )}
+                        {(marketingKit[proj.session_id]?.socialPosts ?? []).map((post: any, pi: number) => (
+                          <div key={pi} style={{ marginBottom:10, padding:12, borderRadius:8, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ fontSize:10, color:GOLD, letterSpacing:1, textTransform:'uppercase', marginBottom:6 }}>{post.platform ?? 'Social Post'}</div>
+                            <div style={{ fontSize:12, color:W, lineHeight:1.7 }}>{post.content ?? post}</div>
+                            <button onClick={() => navigator.clipboard.writeText(post.content ?? post)}
+                              style={{ marginTop:6, padding:'4px 10px', borderRadius:6, background:'rgba(212,175,55,0.1)', border:'1px solid rgba(212,175,55,0.3)', color:GOLD, fontSize:10, cursor:'pointer', fontWeight:700 }}>
+                              📋 Copy
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
