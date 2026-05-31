@@ -1099,7 +1099,7 @@ function prevChapter(){if(currentChapter-1>=0)speakChapter(currentChapter-1);}
 function stopAudio(){synth.cancel();var b=document.getElementById('btn-play');if(b)b.innerText='▶ Play';var np=document.getElementById('now-playing-title');if(np)np.innerText='Press Play to begin reading';}
 function setSpeed(speed,btn){currentSpeed=speed;document.querySelectorAll('.speed-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');if(synth.speaking){var idx=currentChapter;synth.cancel();setTimeout(function(){speakChapter(idx);},100);}}
 if(speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=function(){getVoice();};
-window.addEventListener('load',function(){initAudio();if(totalChapters>0)selectChapter(0);});
+window.addEventListener('load',function(){initAudio();});
 
 
 </script>
