@@ -50,7 +50,7 @@ function ProductionInner() {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { window.location.href = '/login'; return }
       const sb = supabase as any
-      const [projRes, personasRes, ideasRes, productsRes, mktRes] = await Promise.all([
+      const [projRes, mktRes, personasRes, ideasRes, productsRes] = await Promise.all([
         sb.from('saved_projects').select('*').eq('builder_id', user.id).order('updated_at', { ascending: false }),
         sb.from('gear_sessions').select('id, distribution_data').eq('builder_id', user.id).not('distribution_data', 'is', null),
         sb.from('builder_personas').select('*').eq('builder_id', user.id).order('created_at', { ascending: false }),
