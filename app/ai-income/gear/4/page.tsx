@@ -35,6 +35,7 @@ type PageStep =
   | 'done'
   | 'endpoint'       // Bronze endpoint
   | 'error'
+  | 'script_intake'
 
 const QC_MESSAGES = [
   'Simulating how your buyers will experience this...',
