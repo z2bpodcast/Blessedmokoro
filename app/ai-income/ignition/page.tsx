@@ -606,6 +606,7 @@ function IgnitionInner() {
         {stage === 'persona'  && renderPersona()}
         {stage === 'source'   && renderSource()}
         {stage === 'input'    && renderInput()}
+        {stage === 'gearentry' && renderGearEntry()}
 
         {/* Results — ranked opportunities */}
         {stage === 'results' && (
