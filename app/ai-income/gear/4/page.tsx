@@ -110,6 +110,10 @@ function Gear4Inner() {
 
   const [step,         setStep]       = useState<PageStep>('loading')
   const [intent,       setIntent]     = useState<IntentDefinition | null>(null)
+  const [scriptTitle,  setScriptTitle]  = useState('')
+  const [scriptAud,    setScriptAud]    = useState('')
+  const [scriptPrice,  setScriptPrice]  = useState('299')
+  const [scriptFormat, setScriptFormat] = useState('course')
   const [draft,        setDraft]      = useState<ContentDraft | null>(null)
   const [qcResult,     setQcResult]   = useState<QualityPublicResult | null>(null)
   const [sessionId,    setSessionId]  = useState('')
@@ -157,6 +161,11 @@ function Gear4Inner() {
         if (rd) loadedDraft  = JSON.parse(rd)
       } catch (_) {}
 
+      const scriptContent = sessionStorage.getItem('v3_script_content')
+      if ((!loadedIntent || !loadedDraft) && scriptContent) {
+        setStep('script_intake')
+        return
+      }
       if (!loadedIntent || !loadedDraft || !sid) {
         setErrorMsg('Could not load product data. Please return to Gear 3.')
         setStep('error')
