@@ -1,7 +1,7 @@
 // ============================================================
 // Z2B — PERSONAS API
 // File: app/api/personas/route.ts
-// Save / load / delete builder personas (max 3 per builder)
+// Save / load / delete builder personas (max 5 per builder)
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -36,14 +36,14 @@ export async function POST(req: NextRequest) {
   const { action, persona, personaId } = await req.json()
 
   if (action === 'save') {
-    // Check limit — max 3
+    // Check limit — max 5
     const { count } = await (sb.from as any)('builder_personas')
       .select('id', { count: 'exact', head: true })
       .eq('builder_id', user.id) as { count: number | null }
 
-    if ((count ?? 0) >= 3) {
+    if ((count ?? 0) >= 5) {
       return NextResponse.json({
-        error: 'You have reached the maximum of 3 saved personas. Please delete one before saving a new one.',
+        error: 'You have reached the maximum of 5 saved personas. Please delete one before saving a new one.',
         limitReached: true,
       }, { status: 403 })
     }
