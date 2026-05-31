@@ -181,6 +181,15 @@ function IgnitionInner() {
             <div key={field.id} style={{ marginBottom: '10px' }}>
               <div style={{ fontSize: '11px', color: MUTED, marginBottom: '5px' }}>{field.label}</div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {/* Text input option */}
+                <div style={{ marginBottom:8 }}>
+                  <input
+                    type="text"
+                    placeholder={`Or type custom ${field.label.toLowerCase()}...`}
+                    onChange={e => e.target.value && setPersona((p: any) => ({ ...p, [field.id]: e.target.value }))}
+                    style={{ width:'100%', padding:'8px 12px', borderRadius:8, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(255,255,255,0.04)', color:'#F0F9FF', fontSize:12, outline:'none', boxSizing:'border-box' as const }}
+                  />
+                </div>
                 {field.options.map(opt => {
                   const selected = persona?.[field.id] === opt
                   return (
@@ -334,7 +343,7 @@ function IgnitionInner() {
         <div>
           <div style={{ fontFamily: 'Cinzel,Georgia,serif', fontSize: '18px', fontWeight: 900, color: W, marginBottom: '12px' }}>📄 Your Content</div>
           <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px', marginBottom: '14px' }}>
-            {['✍️ Type or Paste', '📎 Upload PDF'].map((tab, i) => (
+            {['✍️ Type or Paste', '📎 Upload File'].map((tab, i) => (
               <button key={tab} onClick={() => { if (i === 1) document.getElementById('pdf-upload')?.click() }}
                 style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: MUTED, fontSize: '12px', fontFamily: 'Georgia,serif' }}>
                 {tab}
@@ -344,9 +353,19 @@ function IgnitionInner() {
           <textarea value={scriptInput} onChange={e => setScriptInput(e.target.value)} rows={8}
             placeholder="Type freely — your thoughts, your story, your workshop content, your speech, your life lessons. Or paste any text. The more you share, the better 4M understands what product lives inside your content."
             style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: W, fontSize: '13px', fontFamily: 'Georgia,serif', outline: 'none', resize: 'vertical', lineHeight: 1.8, boxSizing: 'border-box', marginBottom: '10px' }} />
-          <input id="pdf-upload" type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
+          <input id="pdf-upload" type="file" accept=".pdf,.md,.docx,.txt" style={{ display: 'none' }} onChange={e => {
             const file = e.target.files?.[0]
-            if (file) { setPdfFile(file); setScriptInput('[PDF uploaded: ' + file.name + ']') }
+            if (file) {
+            setPdfFile(file)
+            const ext = file.name.split('.').pop()?.toLowerCase()
+            if (ext === 'txt' || ext === 'md') {
+              const reader = new FileReader()
+              reader.onload = (ev) => setScriptInput(ev.target?.result as string ?? '')
+              reader.readAsText(file)
+            } else {
+              setScriptInput('[File uploaded: ' + file.name + ' — will be extracted automatically]')
+            }
+          }
           }} />
           {pdfFile && <div style={{ fontSize: '11px', color: GREEN, marginBottom: '10px' }}>📎 {pdfFile.name} — will be extracted automatically</div>}
           <button onClick={() => scriptInput.trim().length >= 20 && setStage('gearentry')} disabled={scriptInput.trim().length < 20}
