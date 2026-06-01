@@ -6,12 +6,35 @@ export type FourmVehicle = 'manual' | 'automatic' | 'electric'
 /** Highest vehicle mode a paid Table tier unlocks by default */
 export function tierVehicleCap(paidTier: string | null | undefined): FourmVehicle {
   const t = (paidTier || 'fam').toLowerCase()
-  if (t === 'silver') return 'automatic'
+  if (t === 'copper' || t === 'silver') return 'automatic'
   if (t === 'gold' || t === 'platinum') return 'electric'
-  // fam, bronze, copper (and unknown) stay on Manual Power
+  // fam, starter, bronze stay on Manual
   return 'manual'
 }
 
+
+/** Monthly product creation limit per tier */
+export function monthlyProductLimit(paidTier: string | null | undefined): number {
+  const t = (paidTier || 'fam').toLowerCase()
+  if (t === 'starter')  return 5
+  if (t === 'bronze')   return 15
+  if (t === 'copper')   return 40
+  if (t === 'silver')   return 90
+  if (t === 'gold')     return 999999
+  if (t === 'platinum') return 999999
+  return 3 // fam free tier
+}
+
+/** Monthly BFM rate per tier in ZAR (from day 61) */
+export function monthlyBFM(paidTier: string | null | undefined): number {
+  const t = (paidTier || 'fam').toLowerCase()
+  if (t === 'bronze')   return 800
+  if (t === 'copper')   return 1500
+  if (t === 'silver')   return 3000
+  if (t === 'gold')     return 7000
+  if (t === 'platinum') return 12000
+  return 0
+}
 export function vehicleRank(v: FourmVehicle): number {
   if (v === 'manual') return 1
   if (v === 'automatic') return 2
