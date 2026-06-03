@@ -272,7 +272,8 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
   const marketplaceLink = `${BASE}/marketplace?ref=${refCode}`
   const platformLink    = `${BASE}/?ref=${refCode}`
   const machineLink     = `${BASE}/ai-income?ref=${refCode}`
-  const activeLink      = tab === 'marketplace' ? marketplaceLink : tab === 'machine' ? machineLink : platformLink
+  const flipbookLink    = `${BASE}/4m_machine_flipbook.html?ref=${refCode}`
+  const activeLink      = tab === 'marketplace' ? marketplaceLink : tab === 'machine' ? machineLink : tab === 'flipbook' ? flipbookLink : platformLink
 
   const waMarketplace = encodeURIComponent(
     `👑 *I found something powerful for you.*\n\n` +
@@ -294,7 +295,13 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
     `✅ Build with AI\n✅ Sell on marketplace\n✅ Earn from R700\n\n` +
     `⚙️ Start here:\n${BASE}/ai-income?ref=${refCode}\n\n— ${firstName}`
   )
-  const activeWA = tab === 'marketplace' ? waMarketplace : tab === 'machine' ? waMachine : waPlatform
+  const waFlipbook = encodeURIComponent(
+    `👑 *Have you seen this?*\n\n` +
+    `The *4M Machine* — a new book showing how Christian employees are building digital income streams without leaving their jobs.\n\n` +
+    `📖 Read the first 4 chapters FREE:\n${BASE}/4m_machine_flipbook.html?ref=${refCode}\n\n` +
+    `No cost. No obligation. Just read it.\n\n— ${firstName}`
+  )
+  const activeWA = tab === 'marketplace' ? waMarketplace : tab === 'machine' ? waMachine : tab === 'flipbook' ? waFlipbook : waPlatform
 
   function copyLink() {
     navigator.clipboard.writeText(activeLink)
@@ -307,6 +314,8 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
       ? `👑 Build digital products with AI.\n\nThe 4M Machine — Digital Products Factory.\n✅ Build with AI\n✅ Sell on marketplace\n✅ From R700\n\n${BASE}/ai-income?ref=${refCode}\n\n— ${firstName}`
       : tab === 'marketplace'
       ? `👑 I found something powerful for you.\n\nThe Zero2Billionaires eBook — From Salary Struggles to Digital Freedom.\n\nOnly R200:\n${marketplaceLink}\n\n— ${firstName}`
+      : tab === 'flipbook'
+      ? `👑 Have you seen this?\n\nThe 4M Machine — a new book showing how Christian employees are building digital income streams without leaving their jobs.\n\n📖 Read the first 4 chapters FREE:\n${BASE}/4m_machine_flipbook.html?ref=${refCode}\n\nNo cost. No obligation. Just read it.\n\n— ${firstName}`
       : `👑 Are you tired of just working for a salary?\n\nJoin me on Zero2Billionaires Legacy Builders.\n✅ Free 18-session Workshop\n✅ AI 4M Machine\n✅ Earn from R700\n\n${platformLink}\n\n— ${firstName}`
     navigator.clipboard.writeText(msg)
     setCopied(true)
@@ -332,6 +341,7 @@ function ShareWidget({ refCode, firstName }: { refCode: string; firstName: strin
           { id:'marketplace', label:'📚 Share eBook',    sub:'R40 per sale'    },
           { id:'machine',     label:'⚙️ 4M Machine',    sub:'Full comp plan'  },
           { id:'platform',    label:'🚀 Share Platform', sub:'Full comp plan'  },
+          { id:'flipbook',    label:'🔄 4M Flipbook',    sub:'Free preview'    },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             style={{ flex:1, padding:'9px 8px', border:'none', cursor:'pointer', background: tab===t.id ? 'rgba(212,175,55,0.08)' : 'transparent', borderBottom: tab===t.id ? '2px solid '+GOLD : '2px solid transparent', transition:'all 0.15s' }}>
