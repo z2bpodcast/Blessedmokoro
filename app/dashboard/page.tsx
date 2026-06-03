@@ -31,6 +31,7 @@ const TIER_GEAR: Record<string,number> = {
 const PAID_TIERS = ['starter','bronze','copper','silver','gold','platinum',
   'rocket_gold','rocket_platinum']
 
+const FOURMCOVER = '/4m-machine-cover.jpg'
 const BOOK_COVER = 'https://udfjauogxptlkfrmdtsg.supabase.co/storage/v1/object/public/public-assets/book-cover.jpg'
 
 // ── NAV BAR ───────────────────────────────────────────────────
@@ -229,8 +230,8 @@ function FourMCard({ tier, ebookChoice }: { tier: string; ebookChoice: string | 
     <div style={{ background:'linear-gradient(135deg,#0a0a1a,#1a0a2e)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:16, overflow:'hidden', marginBottom:16 }}>
       <div style={{ padding:'20px 20px 4px' }}>
         <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
-          <div style={{ width:60, height:80, background:'rgba(212,175,55,0.1)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', border:'1px solid rgba(212,175,55,0.3)', flexShrink:0 }}>
-            <span style={{ fontSize:32 }}>⚙️</span>
+          <div style={{ flexShrink:0, width:72, filter:'drop-shadow(0 14px 28px rgba(212,175,55,0.3))', animation:'dbFloat 5s ease-in-out infinite' }}>
+            <img src={FOURMCOVER} alt="The 4M Machine" style={{ width:"100%", borderRadius:4, display:"block" }} />
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:10, letterSpacing:4, textTransform:'uppercase', color:GOLD, marginBottom:4 }}>{has4M ? 'Your eBook — Included' : 'Upgrade to Unlock'}</div>
