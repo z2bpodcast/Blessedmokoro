@@ -213,7 +213,7 @@ function EcosystemCard({ tier }: { tier: string }) {
 
 
 // -- 4M MACHINE EBOOK CARD
-function FourMCard({ tier, ebookChoice }) {
+function FourMCard({ tier, ebookChoice }: { tier: string; ebookChoice: string | null }) {
   const PAID_TIERS = ['starter','bronze','copper','silver','gold','platinum']
   const isPaid = PAID_TIERS.includes(tier)
   const hasBoth = ebookChoice === 'both' || ['bronze','copper','silver','gold','platinum'].includes(tier)
