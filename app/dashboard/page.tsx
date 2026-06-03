@@ -265,7 +265,7 @@ function FourMCard({ tier, ebookChoice }: { tier: string; ebookChoice: string | 
 // ── SHARE WIDGET ──────────────────────────────────────────────
 // Replaces the basic referral div — WhatsApp + clipboard
 function ShareWidget({ refCode, firstName }: { refCode: string; firstName: string }) {
-  const [tab,    setTab]    = useState<'marketplace'|'platform'|'machine'>('marketplace')
+  const [tab,    setTab]    = useState<'marketplace'|'platform'|'machine'|'flipbook'>('marketplace')
   const [copied, setCopied] = useState(false)
 
   const BASE = 'https://app.z2blegacybuilders.co.za'
