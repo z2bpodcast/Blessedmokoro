@@ -62,8 +62,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Extract data
-    const userId    = params.custom_str1  // We pass user_id as custom_str1
-    const refCode   = params.custom_str2  // referral code as custom_str2
+    const userId      = params.custom_str1  // user_id
+    const refCode     = params.custom_str2  // referral code
+    const pkg         = params.custom_str3  // package
+    const ebookChoice = params.custom_str4  // ebook choice
     const amount    = Math.round(parseFloat(params.amount_gross))
     const pfPaymentId = params.pf_payment_id
 
@@ -75,11 +77,20 @@ export async function POST(req: NextRequest) {
     // 4. Determine tier from amount
     const newTier = AMOUNT_TO_TIER[amount] || 'bronze'
 
+    // Bronze+ gets BOTH ebooks
+    if (['bronze','copper','silver','gold','platinum'].includes(newTier)) {
+      await supabase.from('profiles')
+        .update({ ebook_choice: 'both' })
+        .eq('id', userId)
+    }
+
+
     // 5. Update profile tier
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
         paid_tier:      newTier,
+        ebook_choice:   ebookChoice || (pkg === 'r700_4m' ? '4m_machine' : 'zero2billionaires'),
         payment_status: 'paid',
         upgraded_at:      new Date().toISOString(),
         bfm_start_date:   new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),

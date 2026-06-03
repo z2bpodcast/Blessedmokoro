@@ -13,12 +13,13 @@ const getSupabase = () => createClient(
 
 const PACKAGES: Record<string, { amount: string; item: string; tier: string }> = {
   r200: { amount: '200.00', item: 'Zero2Billionaires Flipbook',        tier: 'flipbook' },
-  r700: { amount: '700.00', item: 'Zero2Billionaires Full Book System', tier: 'starter' },
+  r700:    { amount: '700.00', item: 'Zero2Billionaires Full Book System', tier: 'starter' },
+  r700_4m: { amount: '700.00', item: 'The 4M Machine — Complete eBook + Starter Pack', tier: 'starter' },
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { fullName, email, phone, pkg, ref, password } = await req.json()
+    const { fullName, email, phone, pkg, ref, password, ebook_choice } = await req.json()
 
     if (!fullName || !email || !phone || !pkg) {
       return NextResponse.json({ error: 'All fields required' }, { status: 400 })
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest) {
       custom_str1:  userId || '',
       custom_str2:  referralCode || '',
       custom_str3:  pkg,
+      custom_str4:  ebook_choice || (pkg === 'r700_4m' ? '4m_machine' : 'zero2billionaires'),
     }
 
     return NextResponse.json({ 
