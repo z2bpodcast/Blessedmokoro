@@ -432,6 +432,7 @@ function DashboardInner() {
     { icon:'📊', label:'Earnings',        desc:'Track your income',               href:'/earnings',        color:GOLD  },
     { icon:'🤖', label:'Coach Manlaw',    desc:'AI business coaching',            href:'/ai-income/coach', color:CYAN  },
     { icon:'💳', label:'Pricing',         desc:'Upgrade your tier',               href:'/pricing',         color:MUTED },
+    { icon:"📱", label:"Social Command", desc:"AI social media captions — Bronze+", href:"/social-command", color:"#9b59b6" },
     { icon:'📅', label:'Open Table',      desc:'Weekly community event',          href:`/open-table/schedule?ref=${refCode}`, color:GREEN },
   ]
 
@@ -478,6 +479,23 @@ function DashboardInner() {
         </div>
         <EcosystemCard tier={tier} />
         <FourMCard tier={tier} ebookChoice={profile?.ebook_choice ?? null} />
+        {/* ── SOCIAL COMMAND CARD ── */}
+        <div style={{ marginBottom:"24px", borderRadius:"16px", border: tier === "fam" ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(155,89,182,0.4)", background: tier === "fam" ? "rgba(255,255,255,0.02)" : "rgba(155,89,182,0.08)", padding:"20px", opacity: tier === "fam" ? 0.6 : 1 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"12px" }}>
+            <div style={{ fontSize:"28px" }}>📱</div>
+            <div>
+              <div style={{ fontFamily:"Cinzel,Georgia,serif", fontSize:"15px", fontWeight:900, color:"#9b59b6" }}>Social Command Centre</div>
+              <div style={{ fontSize:"11px", color:"#7a9cc6", marginTop:"2px" }}>Amavulandlela · Market Everything You Build</div>
+            </div>
+            <div style={{ marginLeft:"auto", fontSize:"10px", fontWeight:700, padding:"3px 10px", borderRadius:"20px", background: tier === "fam" ? "rgba(255,255,255,0.05)" : "rgba(155,89,182,0.2)", color: tier === "fam" ? "#5a5a5a" : "#c084fc", border: tier === "fam" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(155,89,182,0.4)" }}>{tier === "fam" ? "🔒 Bronze+ Required" : "✅ Included"}</div>
+          </div>
+          <div style={{ fontSize:"12px", color:"#7a9cc6", lineHeight:1.7, marginBottom:"14px" }}>AI-powered captions for Facebook, Instagram and TikTok. Generate, queue and schedule posts for Z2B and your own business — 90% automated.</div>
+          {tier === "fam" ? (
+            <a href="/pricing" style={{ display:"inline-block", padding:"9px 20px", borderRadius:"10px", background:"rgba(255,255,255,0.05)", color:"#7a9cc6", fontSize:"12px", fontWeight:700, textDecoration:"none" }}>Upgrade to Bronze to Unlock →</a>
+          ) : (
+            <a href="/social-command" style={{ display:"inline-block", padding:"9px 20px", borderRadius:"10px", background:"#9b59b6", color:"#fff", fontSize:"12px", fontWeight:700, textDecoration:"none", fontFamily:"Cinzel,Georgia,serif" }}>Open Social Command →</a>
+          )}
+        </div>
 
         {/* Navigation grid */}
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:900, color:W, marginBottom:'14px' }}>
