@@ -5,8 +5,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import OpenAI from 'openai'
 
 export const dynamic = 'force-dynamic'
@@ -17,15 +16,19 @@ const TIER_ORDER: Record<string,number> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
     const { data: { user } } = await supabase.auth.getUser()
 
     const body = await req.json()
-    const { prompt, mode } = body  // mode: 'z2b' | 'mybrand'
+    const { prompt, mode } = body
 
     if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 })
 
-    // ── Z2B mode: requires Bronze+ ─────────────────────────
+    // Z2B mode: requires Bronze+
     if (mode === 'z2b') {
       if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── MyBrandPath mode: requires active Ava subscription ─
+    // MyBrandPath mode: requires active Ava subscription
     if (mode === 'mybrand') {
       if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -51,7 +54,7 @@ export async function POST(req: NextRequest) {
       if (!sub) return NextResponse.json({ error: 'MyBrandPath subscription required' }, { status: 403 })
     }
 
-    // ── Get API key ────────────────────────────────────────
+    // Get API key from z2b_api_keys table, fallback to env
     const { data: keyRow } = await supabase
       .from('z2b_api_keys').select('key_value').eq('key_name', 'OPENAI_API_KEY').single()
 

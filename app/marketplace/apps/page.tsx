@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 
 type Tier  = 'fam'|'starter'|'bronze'|'copper'|'silver'|'gold'|'platinum'|null
 type Plan  = 'solo'|'multi'|'white_label'
@@ -88,7 +88,7 @@ const PLANS = [
 export default function MarketplaceAppsPage() {
   const router       = useRouter()
   const searchParams = useSearchParams()
-  const supabase     = createClientComponentClient()
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string)
   const referralCode = searchParams.get('ref') || ''
 
   const [profile, setProfile]             = useState<Profile|null>(null)

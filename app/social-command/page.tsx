@@ -8,7 +8,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 
 // ── TYPES ─────────────────────────────────────────────────────
 type Tier = 'fam'|'starter'|'bronze'|'copper'|'silver'|'gold'|'platinum'|null
@@ -124,7 +124,10 @@ const STARTER_TEMPLATES: Record<string,Record<string,string>> = {
 // ══════════════════════════════════════════════════════════════
 export default function SocialCommandPage() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+  )
 
   // ── State ──────────────────────────────────────────────────
   const [profile, setProfile]           = useState<Profile|null>(null)
