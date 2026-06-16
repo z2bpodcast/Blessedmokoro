@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z2B Digital — The 7 Vaults Blueprint v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0d0d0d;
+    --vault: #111111;
+    --gold: #C8A84B;
+    --gold-light: #E8D5A0;
+    --gold-dim: #8a7030;
+    --gold-glow: rgba(200,168,75,0.15);
+    --white: #F5F0E8;
+    --muted: #7a7060;
+    --border: rgba(200,168,75,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.8;
+  }
+
+  /* ── COVER ─────────────────────────────── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,168,75,0.06) 0%, transparent 70%),
+                var(--black);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(200,168,75,0.03) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(200,168,75,0.03) 80px);
+  }
+
+  .cover-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .cover-logo {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(52px, 10vw, 96px);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 8px;
+    line-height: 1;
+    position: relative;
+    text-shadow: 0 0 60px rgba(200,168,75,0.3);
+  }
+
+  .cover-sub {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .gold-rule {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 36px auto;
+  }
+
+  .cover-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--gold-light);
+    max-width: 700px;
+    line-height: 1.3;
+  }
+
+  .cover-anchor {
+    margin-top: 40px;
+    font-size: 18px;
+    color: var(--muted);
+    font-style: italic;
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  .cover-anchor strong {
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  .cover-meta {
+    position: absolute;
+    bottom: 40px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+
+  /* ── SECTIONS ───────────────────────────── */
+  .section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+
+  .section-intro {
+    font-size: 19px;
+    color: var(--gold-light);
+    font-style: italic;
+    margin-bottom: 32px;
+    padding-left: 24px;
+    border-left: 2px solid var(--gold);
+    line-height: 1.7;
+  }
+
+  p { color: #c8bfaa; margin-bottom: 16px; }
+
+  /* ── TRUTH BLOCK ─────────────────────────── */
+  .truth-block {
+    background: var(--gold-glow);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 28px 32px;
+    margin: 40px 0;
+    border-radius: 2px;
+  }
+
+  .truth-block p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--gold-light);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ── VAULTS GRID ─────────────────────────── */
+  .vaults-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 40px 0;
+  }
+
+  .vault-row {
+    display: grid;
+    grid-template-columns: 48px 180px 1fr;
+    gap: 0;
+    align-items: stretch;
+    border: 1px solid rgba(200,168,75,0.12);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .vault-row:hover { border-color: rgba(200,168,75,0.35); }
+
+  .vault-num {
+    background: rgba(200,168,75,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+    border-right: 1px solid var(--border);
+  }
+
+  .vault-name {
+    padding: 20px 20px;
+    border-right: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .vault-name-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold-light);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .vault-name-sub {
+    font-size: 11px;
+    color: var(--gold-dim);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .vault-desc {
+    padding: 20px 24px;
+    background: var(--vault);
+  }
+
+  .vault-desc p {
+    font-size: 14px;
+    color: #a09880;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .vault-desc ul {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+  }
+
+  .vault-desc ul li {
+    font-size: 13px;
+    color: #7a7060;
+    padding: 1px 0;
+  }
+
+  .vault-desc ul li::before {
+    content: '◆ ';
+    color: var(--gold-dim);
+    font-size: 8px;
+  }
+
+  /* ── TIERS TABLE ─────────────────────────── */
+  .tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 40px 0;
+  }
+
+  .tier-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--vault);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .tier-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(200,168,75,0.4);
+  }
+
+  .tier-card.featured {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(200,168,75,0.1);
+  }
+
+  .tier-header {
+    padding: 24px 20px 20px;
+    background: rgba(200,168,75,0.05);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .tier-name {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .tier-title {
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+  }
+
+  .tier-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: block;
+    margin-top: 12px;
+  }
+
+  .tier-body {
+    padding: 20px;
+  }
+
+  .tier-vaults {
+    font-size: 12px;
+    color: var(--gold-dim);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .tier-features {
+    list-style: none;
+    padding: 0;
+  }
+
+  .tier-features li {
+    font-size: 13px;
+    color: #8a8070;
+    padding: 3px 0;
+  }
+
+  .tier-features li::before {
+    content: '✓ ';
+    color: var(--gold-dim);
+  }
+
+  /* ── LICENSING TABLE ─────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 14px;
+  }
+
+  .data-table th {
+    background: rgba(200,168,75,0.08);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(200,168,75,0.07);
+    color: #a09880;
+    vertical-align: top;
+  }
+
+  .data-table tr:hover td { background: rgba(200,168,75,0.03); }
+
+  .data-table td:first-child { color: var(--gold-light); font-weight: 600; }
+
+  /* ── INCOME STREAMS ──────────────────────── */
+  .streams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 32px 0;
+  }
+
+  .stream-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 18px;
+    background: var(--vault);
+  }
+
+  .stream-num {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: rgba(200,168,75,0.2);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stream-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+
+  .stream-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── TECH STACK ──────────────────────────── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 32px 0;
+  }
+
+  .stack-item {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    background: var(--vault);
+    text-align: center;
+  }
+
+  .stack-icon { font-size: 22px; margin-bottom: 6px; }
+  .stack-name { font-size: 13px; color: var(--gold-light); font-weight: 600; margin-bottom: 2px; }
+  .stack-role { font-size: 11px; color: var(--muted); }
+
+  /* ── CONSTITUTION ────────────────────────── */
+  .constitution-block {
+    background: rgba(200,168,75,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 40px;
+    margin: 40px 0;
+  }
+
+  .constitution-block h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .constitution-block ol {
+    padding-left: 20px;
+  }
+
+  .constitution-block ol li {
+    color: #a09880;
+    font-size: 15px;
+    padding: 6px 0;
+    line-height: 1.7;
+  }
+
+  .constitution-block ol li strong {
+    color: var(--gold-light);
+  }
+
+  /* ── NEXT STEPS ──────────────────────────── */
+  .steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 32px 0;
+  }
+
+  .steps-list li {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(200,168,75,0.07);
+  }
+
+  .step-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(200,168,75,0.1);
+    border: 1px solid var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ── FOOTER ──────────────────────────────── */
+  .footer {
+    text-align: center;
+    padding: 60px 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+
+  .footer-tagline {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .footer-meta {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(200,168,75,0.3);
+    text-transform: uppercase;
+  }
+
+  /* ── STATUS BADGE ────────────────────────── */
+  .status-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(200,168,75,0.1);
+    border: 1px solid var(--gold-dim);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .highlight { color: var(--gold); }
+  .italic { font-style: italic; }
+
+  @media (max-width: 600px) {
+    .section { padding: 60px 24px; }
+    .vault-row { grid-template-columns: 40px 1fr; }
+    .vault-name { display: none; }
+    .tiers-grid { grid-template-columns: 1fr; }
+    .cover { padding: 60px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     COVER
+══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-eyebrow">Zero2Billionaires Amavulandlela Pty Ltd · A Division of Z2B Legacy Builders</div>
+  <div class="cover-logo">Z2B DIGITAL</div>
+  <div class="cover-sub">The 7 Vaults System</div>
+  <div class="gold-rule"></div>
+  <div class="cover-headline">From Raw Manuscript<br>to Author Empire</div>
+  <div class="cover-anchor">
+    <strong>"Your manuscript is not a book waiting to be printed.<br>These are Vaults waiting to be opened."</strong>
+  </div>
+  <div class="cover-meta">Blueprint v1.0 · 2026 · Rev Mokoro Manana · Founder & CEO</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     1. IDENTITY
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 01</div>
+  <div class="section-title">Who We Are</div>
+  <div class="section-intro">
+    Z2B Digital is the manuscript processing, author branding, and intellectual property monetization division of Zero2Billionaires Amavulandlela Pty Ltd.
+  </div>
+  <p>We are not a printing company. We are not a traditional publisher. We are not a ghostwriter. We are the infrastructure between a finished manuscript and a generational author empire.</p>
+  <p>We do what no publisher in South Africa currently does — we find the word that is already hiding in the manuscript, build the framework from that word, restructure the story as a transformation journey, and then open every income stream the intellectual property contains.</p>
+
+  <div class="truth-block">
+    <p>"Traditional publishers take 85–90% of royalties and deliver none of the infrastructure. We keep the author in ownership of every stream while building the systems that make each stream earn."</p>
+  </div>
+
+  <p><strong class="highlight">Brand:</strong> Z2B Digital</p>
+  <p><strong class="highlight">Domain:</strong> z2bdigital.co.za</p>
+  <p><strong class="highlight">GitHub:</strong> z2bpodcast/z2b-digital <span style="color:var(--muted); font-size:13px;">(rename from zyro-app)</span></p>
+  <p><strong class="highlight">Supabase:</strong> zyro-digital-empire <span style="color:var(--muted); font-size:13px;">(rename to z2b-digital)</span></p>
+  <p><strong class="highlight">Stack:</strong> Next.js · TypeScript · Tailwind · Supabase · Vercel</p>
+  <p><strong class="highlight">Colours:</strong> Jet Black · Vault Gold · White</p>
+  <p><strong class="highlight">Parent brand:</strong> Royal Purple and Gold of Z2B Legacy Builders</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     2. THE ANCHOR SENTENCE
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 02</div>
+  <div class="section-title">The Governing Sentence</div>
+  <div class="section-intro">
+    Every great brand is anchored by one sentence that explains everything without explaining anything. This is ours.
+  </div>
+
+  <div class="truth-block">
+    <p>"Your manuscript is not a book waiting to be printed.<br>These are Vaults waiting to be opened."</p>
+  </div>
+
+  <p>The plural — <em>Vaults</em> — is deliberate. The moment a potential author hears "Vaults" they immediately ask: <em>"How many Vaults do I have?"</em> That question is the best sales conversation we could ever start.</p>
+  <p>The singular says one safe with one combination. The plural says a whole bank floor — and they own the building.</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     3. THE 7 VAULTS
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 03</div>
+  <div class="section-title">The 7 Vaults</div>
+  <div class="section-intro">
+    Seven sequential chambers. Each one unlocks the next level of what the manuscript contains. Each one is a service. Together they are an empire.
+  </div>
+
+  <div class="vaults-grid">
+
+    <div class="vault-row">
+      <div class="vault-num">01</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Discovery Vault</span>
+        <span class="vault-name-sub">Step Zero</span>
+      </div>
+      <div class="vault-desc">
+        <p>The AI reads the raw manuscript and surfaces the ONE WORD hiding in the content. Three word candidates are presented with a suggested acronym for each. The author confirms their word. Everything else in the process flows from this word.</p>
+        <ul>
+          <li>One Word Discovery Engine</li>
+          <li>Acronym Framework (3 options)</li>
+          <li>Manuscript X-Ray — gap analysis</li>
+          <li>Target audience identification</li>
+          <li>Transformation promise extraction</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">02</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Architecture Vault</span>
+        <span class="vault-name-sub">Structure & Voice</span>
+      </div>
+      <div class="vault-desc">
+        <p>The author selects their structural DNA — Voice, Rhythm, Frameworks, Anchors, Thread — and the system restructures the manuscript. Chronological biography traps are identified and rewritten as transformation narratives.</p>
+        <ul>
+          <li>Voice Profile (Prophetic / Pastoral / Academic / Conversational / Poetic)</li>
+          <li>Chapter Rhythm (Story→Lesson→Application + 4 other patterns)</li>
+          <li>Teaching Frameworks (Acronyms, Numbered Principles, Metaphors)</li>
+          <li>Truth Anchoring Devices</li>
+          <li>Governing Thread locked</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">03</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Authority Vault</span>
+        <span class="vault-name-sub">Author Brand</span>
+      </div>
+      <div class="vault-desc">
+        <p>The book is finished — but without this Vault, the author has no brand. The One Word and acronym become the foundation of a speaking identity, content pillars, and author empire.</p>
+        <ul>
+          <li>Author speaking brand identity</li>
+          <li>Bio in 3 lengths (1 sentence / 1 paragraph / full page)</li>
+          <li>5-year content pillar map</li>
+          <li>Signature talk outline</li>
+          <li>Social media voice guide</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">04</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Publishing Vault</span>
+        <span class="vault-name-sub">Zero to Shelf</span>
+      </div>
+      <div class="vault-desc">
+        <p>The manuscript becomes a published product. Z2B Digital compresses the traditional 14–22 step, 12–18 month process into a focused delivery pipeline.</p>
+        <ul>
+          <li>Cover concept brief (5 direction options)</li>
+          <li>Back cover copy — the 3-paragraph formula</li>
+          <li>ISBN & copyright registration workflow</li>
+          <li><strong class="highlight">HTML Interactive Edition</strong> — Z2B Digital exclusive format</li>
+          <li><strong class="highlight">Audio Reader Edition</strong> — Z2B Digital exclusive format</li>
+          <li>ePub, PDF, print-ready PDF outputs</li>
+          <li>Pricing strategy engine</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">05</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Distribution Vault</span>
+        <span class="vault-name-sub">Discovery Infrastructure</span>
+      </div>
+      <div class="vault-desc">
+        <p>The book enters the Z2B Digital Marketplace — organised by transformation destination, not genre. Readers find books by where they want to go, not what shelf the book sits on.</p>
+        <ul>
+          <li>Z2B Digital Author Marketplace listing</li>
+          <li>Reader-author transformation matching engine</li>
+          <li>Bulk licensing portal (churches, corporates, schools)</li>
+          <li>Serialised chapter distribution strategy</li>
+          <li>Launch sequence planning</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">06</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Multiplication Vault</span>
+        <span class="vault-name-sub">10 Income Streams</span>
+      </div>
+      <div class="vault-desc">
+        <p>One manuscript contains ten income streams. Most authors never find them because nobody shows them the map. This Vault builds the assets for every stream from the manuscript they already wrote.</p>
+        <ul>
+          <li>Book (PDF + HTML Interactive + Audio Reader editions)</li>
+          <li>Online course (curriculum extracted from chapters)</li>
+          <li>Workshop (signature talk → half-day event)</li>
+          <li>Coaching programme (acronym becomes the coaching model)</li>
+          <li>Devotional / journal companion</li>
+          <li>Corporate training module</li>
+          <li>Children's edition</li>
+          <li>Audiobook (script formatted)</li>
+          <li>Speaking reel brief (5 talk topics)</li>
+          <li>Licensing kit (framework + usage agreement)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="vault-row">
+      <div class="vault-num">07</div>
+      <div class="vault-name">
+        <span class="vault-name-title">The Legacy Vault</span>
+        <span class="vault-name-sub">Generational IP</span>
+      </div>
+      <div class="vault-desc">
+        <p>The long-term play that nobody else is building. Every author who comes through Z2B Digital gets a permanent Living Author Profile that grows with them — and protects their IP for their children.</p>
+        <ul>
+          <li>All manuscripts archived and versioned</li>
+          <li>All brand assets stored and updated</li>
+          <li>Reader testimonials collected and displayed</li>
+          <li>Sales and impact metrics tracked</li>
+          <li>Succession document — IP protected for family inheritance</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     4. TIERS
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 04</div>
+  <div class="section-title">The Author Tiers</div>
+  <div class="section-intro">
+    Tiers 1–5: 100% IP ownership. The author pays for the service. Their intellectual property remains entirely theirs.
+  </div>
+
+  <div class="tiers-grid">
+
+    <div class="tier-card">
+      <div class="tier-header">
+        <span class="tier-name">THE SCRIBE</span>
+        <span class="tier-title">Tier 1</span>
+        <span class="tier-price">R4,500</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">Vaults 1 + 2</div>
+        <ul class="tier-features">
+          <li>One Word Discovery</li>
+          <li>Acronym Framework (3 options)</li>
+          <li>Manuscript X-Ray & gap analysis</li>
+          <li>Full Architecture restructure</li>
+          <li>100% IP ownership</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier-card">
+      <div class="tier-header">
+        <span class="tier-name">THE AUTHOR</span>
+        <span class="tier-title">Tier 2</span>
+        <span class="tier-price">R12,000</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">Vaults 1 – 4</div>
+        <ul class="tier-features">
+          <li>Everything in The Scribe</li>
+          <li>Author brand identity</li>
+          <li>Bio + content pillars</li>
+          <li>Cover brief + back copy</li>
+          <li>HTML + Audio Reader editions</li>
+          <li>100% IP ownership</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier-card featured">
+      <div class="tier-header">
+        <span class="tier-name">THE VOICE</span>
+        <span class="tier-title">Tier 3</span>
+        <span class="tier-price">R20,000</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">Vaults 1 – 5</div>
+        <ul class="tier-features">
+          <li>Everything in The Author</li>
+          <li>Marketplace listing</li>
+          <li>Bulk licensing portal access</li>
+          <li>Launch sequence strategy</li>
+          <li>100% IP ownership</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier-card">
+      <div class="tier-header">
+        <span class="tier-name">THE AUTHORITY</span>
+        <span class="tier-title">Tier 4</span>
+        <span class="tier-price">R28,000</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">Vaults 1 – 6</div>
+        <ul class="tier-features">
+          <li>Everything in The Voice</li>
+          <li>All 10 income stream assets built</li>
+          <li>Course curriculum extraction</li>
+          <li>Corporate training module</li>
+          <li>100% IP ownership</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier-card">
+      <div class="tier-header">
+        <span class="tier-name">THE LEGEND</span>
+        <span class="tier-title">Tier 5</span>
+        <span class="tier-price">R55,000</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">All 7 Vaults</div>
+        <ul class="tier-features">
+          <li>Everything in The Authority</li>
+          <li>Living Author Profile (permanent)</li>
+          <li>IP succession document</li>
+          <li>Annual IP review</li>
+          <li>100% IP ownership</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier-card" style="border-color: var(--gold); background: rgba(200,168,75,0.03);">
+      <div class="tier-header" style="background: rgba(200,168,75,0.08);">
+        <span class="tier-name">THE LEGACY</span>
+        <span class="tier-title">Partnership</span>
+        <span class="tier-price" style="font-size:22px; margin-top:8px;">Negotiated</span>
+      </div>
+      <div class="tier-body">
+        <div class="tier-vaults">All 7 Vaults + Co-Publishing</div>
+        <ul class="tier-features">
+          <li>Everything in The Legend</li>
+          <li>Z2B Digital co-publishes under our label</li>
+          <li>Active marketing through Z2B channels</li>
+          <li>Licensing sales team works the IP</li>
+          <li>Retainer: R5,000–R8,000/month</li>
+          <li>Revenue share: 20% on Z2B-generated income</li>
+          <li>Author retains 80% — always</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="truth-block">
+    <p>"We don't take a share of your work. We take a share of the growth we create together."</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     5. RECURRING REVENUE
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 05</div>
+  <div class="section-title">Recurring Revenue Stack</div>
+  <div class="section-intro">
+    100% IP ownership does not mean the author never needs us again. A homeowner owns their house 100% — but still calls the plumber every year.
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Annual Service</th>
+        <th>What It Is</th>
+        <th>Fee</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Vault Maintenance</td><td>Author Portal live, updated, backed up</td><td>R1,200/yr</td></tr>
+      <tr><td>Manuscript Version Update</td><td>New edition, new chapter, revised content</td><td>R2,500/update</td></tr>
+      <tr><td>New Acronym Framework</td><td>Second book or series launch</td><td>R3,500</td></tr>
+      <tr><td>HTML Edition Update</td><td>New chapter added to Interactive Reader</td><td>R1,800/update</td></tr>
+      <tr><td>Audio Reader Session</td><td>New chapters or full re-narration</td><td>R2,000/session</td></tr>
+    </tbody>
+  </table>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Upsell</th>
+        <th>Trigger Moment</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>The Authority Package</td><td>Book gains traction — speaking brand needed</td><td>R8,500</td></tr>
+      <tr><td>Course Architecture</td><td>Readers ask "is there a course?"</td><td>R12,000</td></tr>
+      <tr><td>Corporate Training Module</td><td>A company approaches the author</td><td>R9,500</td></tr>
+      <tr><td>Children's Edition</td><td>Parents in audience request it</td><td>R7,500</td></tr>
+      <tr><td>Second Book — Scribe Entry</td><td>Author has another manuscript</td><td>Re-enter Tier 1</td></tr>
+      <tr><td>Series Architecture</td><td>Book 1 becomes a trilogy</td><td>R6,500</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════
+     6. LICENSING
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 06</div>
+  <div class="section-title">The Licensing Division</div>
+  <div class="section-intro">
+    Licensing is not new — it is one of the oldest and most powerful income streams in publishing. John Maxwell, Joyce Meyer, Rick Warren make more from licensing than book sales. African authors never see this income because nobody is working their IP for them. Z2B Digital changes that.
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Target Market</th>
+        <th>What They License</th>
+        <th>Typical Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Churches</td><td>Framework for small groups / sermon series</td><td>R8,000/yr</td></tr>
+      <tr><td>Corporates</td><td>Leadership / culture training module</td><td>R25,000/yr</td></tr>
+      <tr><td>Schools & Universities</td><td>Curriculum / set book per semester</td><td>R6,000/yr</td></tr>
+      <tr><td>Conferences</td><td>Theme rights / delegate book packs</td><td>R15,000 once</td></tr>
+      <tr><td>NGOs & Nonprofits</td><td>Community transformation curricula</td><td>R10,000/yr</td></tr>
+    </tbody>
+  </table>
+
+  <div class="truth-block">
+    <p>"While the author preaches on Sunday, our licensing team is closing a R25,000 deal on Monday — in the author's name."</p>
+  </div>
+
+  <p><strong class="highlight">The Licensing Sales Team Model:</strong> Commission-based reps. No salary until a deal closes. Each rep earns 10% of every deal they close. Z2B Digital takes 10%. Author takes 80%. A rep working 10 authors simultaneously walks into every corporate with a catalogue — not a single book.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Scale</th><th>Deals/Month</th><th>Avg Deal</th><th>Monthly Revenue</th><th>Z2B Cut</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Year 1 — 5 authors, 1 rep</td><td>3</td><td>R15,000</td><td>R45,000</td><td>R4,500</td></tr>
+      <tr><td>Year 2 — 20 authors, 3 reps</td><td>15</td><td>R20,000</td><td>R300,000</td><td>R30,000</td></tr>
+      <tr><td>Year 3 — 50 authors, 8 reps</td><td>45</td><td>R22,000</td><td>R990,000</td><td>R99,000</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════
+     7. TECH STACK
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 07</div>
+  <div class="section-title">Technology Stack</div>
+  <div class="section-intro">
+    The same proven stack that powers Z2B Legacy Builders — now applied to author IP management and publishing infrastructure.
+  </div>
+
+  <div class="stack-grid">
+    <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-name">Next.js</div><div class="stack-role">Framework</div></div>
+    <div class="stack-item"><div class="stack-icon">🔷</div><div class="stack-name">TypeScript</div><div class="stack-role">Language</div></div>
+    <div class="stack-item"><div class="stack-icon">🎨</div><div class="stack-name">Tailwind CSS</div><div class="stack-role">Styling</div></div>
+    <div class="stack-item"><div class="stack-icon">🗄️</div><div class="stack-name">Supabase</div><div class="stack-role">Database & Auth</div></div>
+    <div class="stack-item"><div class="stack-icon">🚀</div><div class="stack-name">Vercel</div><div class="stack-role">Deployment</div></div>
+    <div class="stack-item"><div class="stack-icon">📖</div><div class="stack-name">HTML Reader</div><div class="stack-role">Z2B Exclusive Format</div></div>
+    <div class="stack-item"><div class="stack-icon">🎙️</div><div class="stack-name">Audio Reader</div><div class="stack-role">Z2B Exclusive Format</div></div>
+    <div class="stack-item"><div class="stack-icon">🤖</div><div class="stack-name">Claude API</div><div class="stack-role">One Word Discovery</div></div>
+    <div class="stack-item"><div class="stack-icon">🎯</div><div class="stack-name">Book Arch Studio</div><div class="stack-role">Architecture Engine</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     8. WHAT WAS ALREADY BUILT
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 08</div>
+  <div class="section-title">What Is Already Built</div>
+  <div class="section-intro">
+    We do not start from zero. The foundation was laid in the ZYRO sessions. This is the inventory of what exists today.
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Asset</th><th>Status</th><th>Action Required</th></tr></thead>
+    <tbody>
+      <tr><td>GitHub Repo</td><td style="color:#C8A84B">z2bpodcast/zyro-app — LIVE</td><td>Rename to z2b-digital</td></tr>
+      <tr><td>Supabase Project</td><td style="color:#C8A84B">zyro-digital-empire — LIVE</td><td>Rename to z2b-digital</td></tr>
+      <tr><td>Vercel Deployment</td><td style="color:#e07050">In progress — incomplete</td><td>Finish deployment first session</td></tr>
+      <tr><td>Domain</td><td style="color:#e07050">z2bdigital.co.za — acquired</td><td>Connect to Vercel</td></tr>
+      <tr><td>ZYRO Constitution v1.0</td><td style="color:#C8A84B">Built — HTML document</td><td>Superseded by this Blueprint</td></tr>
+      <tr><td>Author Intake Form</td><td style="color:#C8A84B">Built — HTML artifact</td><td>Migrate into Next.js + Supabase</td></tr>
+      <tr><td>Supabase SQL Schema</td><td style="color:#C8A84B">Built</td><td>Review and extend for 7 Vaults</td></tr>
+      <tr><td>Professional Receipt Template</td><td style="color:#C8A84B">Built — R4,500 pilot pricing</td><td>Update to new tier pricing</td></tr>
+      <tr><td>Book Architecture Studio</td><td style="color:#C8A84B">Built — React artifact</td><td>Rebuild with Step 0 One Word Discovery</td></tr>
+      <tr><td>Manuscript Evaluation Report</td><td style="color:#e07050">TODO — not yet built</td><td>Build in next session</td></tr>
+      <tr><td>One Acronym Identity System</td><td style="color:#e07050">TODO — not yet built</td><td>Build as part of Vault 1</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════
+     9. NEXT STEPS — FIRST SESSION BACK
+══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-number">Section 09</div>
+  <div class="section-title">Next Session Priorities</div>
+  <div class="section-intro">
+    Three steps. In this exact order. Nothing else until these three are done.
+  </div>
+
+  <ul class="steps-list">
+    <li>
+      <div class="step-badge">1</div>
+      <div class="step-content">
+        <h4>Rename GitHub Repo</h4>
+        <p>Go to github.com/z2bpodcast/zyro-app → Settings → Rename to <strong>z2b-digital</strong>. This takes 60 seconds and aligns the codebase with the brand.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-badge">2</div>
+      <div class="step-content">
+        <h4>Rename Supabase Project</h4>
+        <p>Go to Supabase → zyro-digital-empire → Settings → General → Rename to <strong>z2b-digital</strong>. Update environment variables in Vercel accordingly.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-badge">3</div>
+      <div class="step-content">
+        <h4>Complete the Vercel Deployment</h4>
+        <p>The deployment was left incomplete at the GitHub authorization step. Import the renamed repo into Vercel, complete the deployment, and connect <strong>z2bdigital.co.za</strong> as the custom domain. This is the foundation everything else is built on.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-badge">4</div>
+      <div class="step-content">
+        <h4>After the three above — build the 7 Vaults Brand Document</h4>
+        <p>A beautifully designed sales deck and author onboarding document that can be shown to every potential author. This Blueprint is the internal document. The Brand Document is what they see.</p>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════════
+     10. THE GOVERNING STATEMENT
+══════════════════════════════════════════ -->
+<div class="section" style="border-bottom: none;">
+  <div class="section-number">Section 10</div>
+  <div class="section-title">The Mission That Governs Everything</div>
+
+  <div class="truth-block">
+    <p>"We don't publish books. We build author empires from the words people already have inside them."</p>
+  </div>
+
+  <p>Amazon disrupted publishing by removing the middleman between author and reader.</p>
+  <p><strong class="highlight">Z2B Digital disrupts it by removing the gap between author and impact.</strong></p>
+  <p>The manuscript is already written. The brand is already inside it. The income streams are already there. The licensing deals are waiting. The generational legacy is possible.</p>
+  <p>Our system makes what was invisible — visible. What was locked — open. What was buried in a drawer — a Vault generating wealth for the author's children's children.</p>
+
+  <div class="truth-block">
+    <p>"A good person leaves an inheritance for their children's children." — Proverbs 13:22</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<div class="footer">
+  <div class="footer-logo">Z2B DIGITAL</div>
+  <div class="footer-tagline">"These are Vaults waiting to be opened."</div>
+  <div class="gold-rule"></div>
+  <div class="footer-meta">Built with ❤️ by Z2B Legacy Builders · Blueprint v1.0 · 2026 · z2bdigital.co.za</div>
+</div>
+
+</body>
+</html>
