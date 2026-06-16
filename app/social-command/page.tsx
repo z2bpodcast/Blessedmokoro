@@ -175,7 +175,7 @@ export default function SocialCommandPage() {
       ])
 
       setProfile(prof)
-      setAvaSub(sub || null)
+      setAvaSub((sub as AvaSubscription) || null)
       setBrands(brandsData || [])
       setQueue(queueData || [])
       if (brandsData?.length) setActiveBrand(brandsData[0])
