@@ -265,7 +265,7 @@ Return ONLY the caption. No preamble. No explanation.`
       try {
         const res = await fetch('/api/amavulandlela/generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? ''}` },
           body: JSON.stringify({ prompt, mode }),
         })
         const data = await res.json()
