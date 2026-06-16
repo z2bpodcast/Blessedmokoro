@@ -160,6 +160,10 @@ export default function SocialCommandPage() {
   const [queuedKey, setQueuedKey]   = useState<string|null>(null)
   const [allQueued, setAllQueued]   = useState(false)
   const [expandedId, setExpandedId] = useState<string|null>(null)
+  const [bufferToken, setBufferToken]   = useState<string|null>(null)
+  const [bufferChannels, setBufferChannels] = useState<{id:string,service:string,service_username:string}[]>([])
+  const [sendingToBuffer, setSendingToBuffer] = useState<string|null>(null)
+  const [bufferSent, setBufferSent]     = useState<string|null>(null)
 
   // ── Load ───────────────────────────────────────────────────
   useEffect(() => {
@@ -175,10 +179,22 @@ export default function SocialCommandPage() {
       ])
 
       setProfile(prof)
-      setAvaSub((sub as AvaSubscription) || null)
+      setAvaSub(sub || null)
       setBrands(brandsData || [])
       setQueue(queueData || [])
       if (brandsData?.length) setActiveBrand(brandsData[0])
+      // Load Buffer token if connected
+      const { data: bufData } = await supabase
+        .from("builder_buffer_tokens")
+        .select("access_token,channels_json")
+        .eq("user_id", user.id)
+        .single()
+      if (bufData?.access_token) {
+        setBufferToken(bufData.access_token)
+        if (bufData.channels_json) {
+          try { setBufferChannels(JSON.parse(bufData.channels_json)) } catch {}
+        }
+      }
       setLoading(false)
     }
     load()
@@ -297,6 +313,53 @@ Return ONLY the caption. No preamble. No explanation.`
   const deleteItem = async (id: string) => {
     await supabase.from('social_queue').delete().eq('id', id)
     setQueue(prev => prev.filter(q => q.id !== id))
+  }
+
+  // ── Send to Buffer ─────────────────────────────────────────
+  const sendToBuffer = async (item: QueueItem) => {
+    if (!bufferToken || !bufferChannels.length) return
+    setSendingToBuffer(item.id)
+    try {
+      // Match platform to Buffer channel
+      const platformMap: Record<string,string[]> = {
+        facebook:  ["facebook","facebookpage","facebook_page"],
+        instagram: ["instagram"],
+        tiktok:    ["tiktok"],
+      }
+      const targetServices = platformMap[item.platform] || []
+      const matchedChannels = bufferChannels
+        .filter(ch => targetServices.includes(ch.service.toLowerCase()))
+        .map(ch => ch.id)
+
+      if (!matchedChannels.length) {
+        alert(`No Buffer channel connected for ${item.platform}. Please connect it in Buffer settings.`)
+        setSendingToBuffer(null)
+        return
+      }
+
+      const res = await fetch("/api/buffer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "schedule",
+          token: bufferToken,
+          post: { caption: item.caption, body: "", hashtags: "" },
+          channel_ids: matchedChannels,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setBufferSent(item.id)
+        setTimeout(() => setBufferSent(null), 3000)
+        // Auto mark as posted
+        await markPosted(item.id)
+      } else {
+        alert("Buffer error: " + (data.results?.[0]?.error || "Unknown error"))
+      }
+    } catch (e) {
+      alert("Failed to send to Buffer. Please try again.")
+    }
+    setSendingToBuffer(null)
   }
 
   // ── Save brand ─────────────────────────────────────────────
@@ -776,6 +839,16 @@ Return ONLY the caption. No preamble. No explanation.`
                         style={{ background: copiedKey===`q_${item.id}`?'#22c55e':(pInfo?.color??'#D4AF37') }}>
                         {copiedKey===`q_${item.id}`?'✓':'Copy'}
                       </button>
+                      {/* Buffer send button */}
+                      {item.status==='ready' && bufferToken && (
+                        <button
+                          onClick={() => sendToBuffer(item)}
+                          disabled={sendingToBuffer===item.id}
+                          className="px-2 py-1 rounded-md text-xs font-bold transition-all disabled:opacity-50"
+                          style={{ background: bufferSent===item.id ? '#22c55e' : '#1a4a2e', color: bufferSent===item.id ? '#fff' : '#22c55e', border: '1px solid #22c55e44' }}>
+                          {sendingToBuffer===item.id ? 'Sending...' : bufferSent===item.id ? '✓ Sent!' : '→ Buffer'}
+                        </button>
+                      )}
                       <button onClick={() => setExpandedId(isOpen?null:item.id)} className="px-2 py-1 rounded-md text-xs bg-[#1a3a6e] text-[#7a9cc6]">{isOpen?'▲':'▼'}</button>
                       <button onClick={() => deleteItem(item.id)} className="px-2 py-1 rounded-md text-xs bg-[#3a1a1a] text-red-400">✕</button>
                     </div>
@@ -787,6 +860,32 @@ Return ONLY the caption. No preamble. No explanation.`
                   )}
                 </div>
               )
+            {/* Buffer status in queue */}
+            {!bufferToken ? (
+              <div className="bg-[#0d1f0d] border border-[#1a4a2e] rounded-xl p-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold text-[#22c55e] mb-1">🔗 Connect Buffer for 1-tap posting</div>
+                  <div className="text-xs text-[#4a5a7e]">Connect Buffer in Content Studio → posts go directly from here to your social accounts.</div>
+                </div>
+                <a href="https://dub.sh/OjXitzf" target="_blank" rel="noopener noreferrer"
+                  className="flex-shrink-0 px-3 py-2 rounded-lg text-xs font-bold bg-[#22c55e] text-black hover:opacity-90 transition-opacity">
+                  Get Buffer Free
+                </a>
+              </div>
+            ) : (
+              <div className="bg-[#0d1f0d] border border-[#22c55e]/30 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                  <div className="text-xs font-bold text-[#22c55e]">Buffer Connected — {bufferChannels.length} channel{bufferChannels.length !== 1 ? "s" : ""}</div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {bufferChannels.map((ch,i) => (
+                    <span key={i} className="text-xs px-2 py-0.5 bg-[#1a4a2e] text-[#22c55e] rounded-md capitalize">{ch.service} · {ch.service_username}</span>
+                  ))}
+                </div>
+                <div className="text-xs text-[#4a5a7e] mt-2">Tap "→ Buffer" on any queue item to send directly. No copy-paste needed.</div>
+              </div>
+            )}
             })}
           </div>
         )}
