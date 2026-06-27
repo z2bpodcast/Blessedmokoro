@@ -43,6 +43,23 @@ const CATEGORIES = [
 // ⭐ eBook is ANCHOR — always first
 const Z2B_FEATURED = [
   {
+    id:          'fournity',
+    category:    'ebook',
+    isEbook:     false,
+    isFournity:  true,
+    icon:        '📖',
+    badge:       'NEW BOOK',
+    title:       'FOURNITY',
+    subtitle:    'Trinity and I Are Four-nity',
+    desc:        'A 40-chapter illumination of your God-given identity in Christ — before the foundation of the world. Pre-publication bundle: Digital edition + Signed copy + Workbook + Surprise Gift.',
+    price:       350,
+    cta:         'Pre-Order — R350 →',
+    href:        '/marketplace/fournity',
+    color:       '#C9A84C',
+    bg:          'rgba(201,168,76,0.08)',
+    border:      'rgba(201,168,76,0.3)',
+  },
+  {
     id:          'z2b-ebook',
     category:    'ebook',
     isEbook:     true,                          // triggers floating book cover render
