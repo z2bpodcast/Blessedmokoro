@@ -1,0 +1,1 @@
+require("fs").writeFileSync("components/marketplace/FournityProductCard.tsx",require("fs").readFileSync("write-fournity-content.txt","utf8"))
