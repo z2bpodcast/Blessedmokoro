@@ -67,7 +67,10 @@ function Footer() {
 
 
 // ── FOURNITY BOOK CARD ────────────────────────────────────────
-function FournityCard() {
+function FournityCard({ refCode }: { refCode: string }) {
+  const [copied, setCopied] = useState(false)
+  const fournityLink = `https://app.z2blegacybuilders.co.za/marketplace/fournity?ref=${refCode}`
+  function copyLink() { navigator.clipboard.writeText(fournityLink); setCopied(true); setTimeout(()=>setCopied(false),2000) }
   return (
     <div style={{ background:'rgba(201,168,76,0.06)', border:'1px solid rgba(201,168,76,0.25)', borderRadius:'12px', overflow:'hidden', marginBottom:'16px' }}>
       <div style={{ position:'relative' }}>
@@ -89,6 +92,16 @@ function FournityCard() {
           <span style={{ fontSize:'13px', color:'#8A8A9A', textDecoration:'line-through' }}>R500</span>
         </div>
         <p style={{ fontSize:'11px', color:'#8A8A9A', marginTop:'6px' }}>First 100 copies only — then R500</p>
+        {refCode && (
+          <div style={{ marginTop:'12px', background:'rgba(46,204,113,0.06)', border:'1px solid rgba(46,204,113,0.2)', borderRadius:'8px', padding:'12px' }}>
+            <p style={{ fontSize:'11px', fontWeight:700, color:'#2ECC71', marginBottom:'6px' }}>💰 Your FOURNITY Referral Link — Earn R70 per sale</p>
+            <div style={{ display:'flex', gap:'8px', alignItems:'center', marginBottom:'6px' }}>
+              <span style={{ fontSize:'10px', color:'#EDE6D6', background:'rgba(0,0,0,0.3)', padding:'6px 10px', borderRadius:'4px', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{fournityLink}</span>
+              <button onClick={copyLink} style={{ background:'#2ECC71', border:'none', color:'#0A0A0F', fontSize:'11px', fontWeight:700, padding:'6px 12px', borderRadius:'4px', cursor:'pointer', whiteSpace:'nowrap' }}>{copied ? '✓ Copied' : 'Copy'}</button>
+            </div>
+            <p style={{ fontSize:'10px', color:'#8A8A9A' }}>Share this link. When someone buys FOURNITY through your link, R70 is credited to your Z2B account automatically.</p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -506,6 +519,7 @@ function DashboardInner() {
         <div style={{ fontFamily:'Cinzel,Georgia,serif', fontSize:'14px', fontWeight:900, color:W, marginBottom:'14px' }}>
           Your Z2B Book Ecosystem
         </div>
+        <FournityCard refCode={refCode} />
         <EcosystemCard tier={tier} />
         <FourMCard tier={tier} ebookChoice={profile?.ebook_choice ?? null} />
         {/* ── SOCIAL COMMAND CARD ── */}
