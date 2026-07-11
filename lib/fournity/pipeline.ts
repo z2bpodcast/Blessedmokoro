@@ -1,9 +1,22 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // service role — this runs server-side only, never expose to client
-);
+let _supabase: SupabaseClient | null = null;
+
+// Lazy-init: creates the client on first use instead of at module load time.
+// This avoids crashing the Vercel build when env vars aren't set yet during
+// the "collecting page data" step (build-time), while still failing loudly
+// at runtime if the vars are genuinely missing.
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase env vars — set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+    }
+    _supabase = createClient(url, key);
+  }
+  return _supabase;
+}
 
 export interface FournityContent {
   id: string;
@@ -15,7 +28,7 @@ export interface FournityContent {
 }
 
 export async function getNextContent(): Promise<FournityContent> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('fournity_content')
     .select('*')
     .order('used_count', { ascending: true })
@@ -28,7 +41,7 @@ export async function getNextContent(): Promise<FournityContent> {
 }
 
 export async function createPendingPost(contentId: string): Promise<string> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('daily_posts')
     .insert({ fournity_content_id: contentId, platform_status: 'pending' })
     .select('id')
@@ -90,13 +103,13 @@ export async function generateVoice(script: string): Promise<Buffer> {
 
 export async function uploadAudio(postId: string, audio: Buffer): Promise<string> {
   const path = `${postId}.mp3`;
-  const { error } = await supabase.storage.from('daily-audio').upload(path, audio, {
+  const { error } = await getSupabase().storage.from('daily-audio').upload(path, audio, {
     contentType: 'audio/mpeg',
     upsert: true,
   });
   if (error) throw new Error(`Audio upload failed: ${error.message}`);
 
-  const { data } = supabase.storage.from('daily-audio').getPublicUrl(path);
+  const { data } = getSupabase().storage.from('daily-audio').getPublicUrl(path);
   return data.publicUrl;
 }
 
@@ -151,7 +164,7 @@ export async function markPostResult(
     | { status: 'failed'; error: string }
 ) {
   if (result.status === 'posted') {
-    await supabase
+    await getSupabase()
       .from('daily_posts')
       .update({
         platform_status: 'posted',
@@ -164,7 +177,7 @@ export async function markPostResult(
       })
       .eq('id', postId);
   } else {
-    await supabase
+    await getSupabase()
       .from('daily_posts')
       .update({ platform_status: 'failed', error_log: result.error })
       .eq('id', postId);
@@ -172,13 +185,13 @@ export async function markPostResult(
 }
 
 export async function markContentUsed(contentId: string) {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('fournity_content')
     .select('used_count')
     .eq('id', contentId)
     .single();
 
-  await supabase
+  await getSupabase()
     .from('fournity_content')
     .update({ used_count: (data?.used_count ?? 0) + 1, last_used_at: new Date().toISOString() })
     .eq('id', contentId);
