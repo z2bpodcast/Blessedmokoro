@@ -1,61 +1,57 @@
-// FILE: app/api/admin/api-settings/test/route.ts
-// Live connection test for each API
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  getNextContent,
+  createPendingPost,
+  generateScriptAndCaption,
+  generateVoice,
+  uploadAudio,
+  generateVideo,
+  publishToBuffer,
+  markPostResult,
+  markContentUsed,
+} from '@/lib/fournity/pipeline';
 
-import { NextRequest, NextResponse } from 'next/server'
+// Protect this route so only Vercel Cron (or you, manually, with the secret) can trigger it.
+function isAuthorized(req: NextRequest) {
+  const auth = req.headers.get('authorization');
+  return auth === `Bearer ${process.env.CRON_SECRET}`;
+}
 
 export async function GET(req: NextRequest) {
-  const id = new URL(req.url).searchParams.get('id') || ''
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  let postId: string | undefined;
+  let contentId: string | undefined;
 
   try {
-    switch (id) {
+    const content = await getNextContent();
+    contentId = content.id;
+    postId = await createPendingPost(content.id);
 
-      case 'openai': {
-        const key = process.env.OPENAI_API_KEY
-        if (!key) return NextResponse.json({ ok: false, error: 'OPENAI_API_KEY not set' })
-        const res = await fetch('https://api.openai.com/v1/models', {
-          headers: { Authorization: `Bearer ${key}` },
-        })
-        if (!res.ok) return NextResponse.json({ ok: false, error: `OpenAI returned ${res.status}` })
-        return NextResponse.json({ ok: true, message: 'OpenAI connected ✅' })
-      }
+    const { voiceover_script, caption_text } = await generateScriptAndCaption(content);
+    const audioBuffer = await generateVoice(voiceover_script);
+    const audioUrl = await uploadAudio(postId, audioBuffer);
+    const videoUrl = await generateVideo(audioUrl, voiceover_script);
+    const bufferPostId = await publishToBuffer(videoUrl, caption_text);
 
-      case 'anthropic': {
-        const key = process.env.ANTHROPIC_API_KEY
-        if (!key) return NextResponse.json({ ok: false, error: 'ANTHROPIC_API_KEY not set' })
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-          body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{ role: 'user', content: 'ping' }] }),
-        })
-        if (!res.ok) return NextResponse.json({ ok: false, error: `Anthropic returned ${res.status}` })
-        return NextResponse.json({ ok: true, message: 'Anthropic connected ✅' })
-      }
+    await markPostResult(postId, {
+      status: 'posted',
+      voiceover_script,
+      caption_text,
+      audio_url: audioUrl,
+      video_url: videoUrl,
+      buffer_post_id: bufferPostId,
+    });
+    await markContentUsed(content.id);
 
-      case 'resend': {
-        const key = process.env.RESEND_API_KEY
-        if (!key) return NextResponse.json({ ok: false, error: 'RESEND_API_KEY not set' })
-        const res = await fetch('https://api.resend.com/domains', { headers: { Authorization: `Bearer ${key}` } })
-        return NextResponse.json({ ok: res.ok, message: res.ok ? 'Resend connected ✅' : `Resend returned ${res.status}` })
-      }
-
-      case 'elevenlabs': {
-        const key = process.env.ELEVENLABS_API_KEY
-        if (!key) return NextResponse.json({ ok: false, error: 'ELEVENLABS_API_KEY not set' })
-        const res = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': key } })
-        return NextResponse.json({ ok: res.ok, message: res.ok ? 'ElevenLabs connected ✅' : `ElevenLabs returned ${res.status}` })
-      }
-
-      case 'replicate': {
-        const key = process.env.REPLICATE_API_TOKEN
-        if (!key) return NextResponse.json({ ok: false, error: 'REPLICATE_API_TOKEN not set' })
-        const res = await fetch('https://api.replicate.com/v1/models', { headers: { Authorization: `Token ${key}` } })
-        return NextResponse.json({ ok: res.ok, message: res.ok ? 'Replicate connected ✅' : `Replicate returned ${res.status}` })
-      }
-
-      default:
-        return NextResponse.json({ ok: true, message: `${id} status check — verify in Vercel env vars` })
+    return NextResponse.json({ success: true, postId, chapter: content.chapter_number });
+  } catch (err: any) {
+    if (postId) {
+      await markPostResult(postId, { status: 'failed', error: err.message ?? String(err) });
     }
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e.message })
+    console.error('Fournity daily pipeline failed:', err);
+    return NextResponse.json({ success: false, error: err.message ?? String(err) }, { status: 500 });
   }
 }
