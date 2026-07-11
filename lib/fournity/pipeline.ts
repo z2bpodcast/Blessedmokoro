@@ -113,28 +113,56 @@ export async function uploadAudio(postId: string, audio: Buffer): Promise<string
   return data.publicUrl;
 }
 
-// NOTE: Higgsfield's exact endpoint/field names below are NOT verified against
-// their live API docs — confirm and adjust before relying on this in production.
-export async function generateVideo(audioUrl: string, script: string): Promise<string> {
-  const res = await fetch('https://api.higgsfield.ai/v1/generate', {
+// Renders the video using a Creatomate template you design once in their editor.
+// The template should already contain: the background/motion style, the persistent
+// "fournity.co.za" footer, and the enlarging closing card. This function only feeds
+// it the day's audio — Creatomate auto-transcribes the voiceover into synced on-screen
+// captions if your template's audio element is referenced by the caption element.
+//
+// Rendering is asynchronous: POST starts the render, then we poll until it's done.
+export async function generateVideo(audioUrl: string): Promise<string> {
+  const templateId = process.env.CREATOMATE_TEMPLATE_ID!;
+
+  const startRes = await fetch('https://api.creatomate.com/v2/renders', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.HIGGSFIELD_API_KEY}`,
+      Authorization: `Bearer ${process.env.CREATOMATE_API_KEY}`,
     },
     body: JSON.stringify({
-      audio_url: audioUrl,
-      duration_seconds: 90,
-      style: 'motion-text-gold-purple',
-      on_screen_text: script,
-      footer_overlay: { text: 'fournity.co.za', position: 'bottom', persistent: true, size: 'small' },
-      closing_card: { text: 'fournity.co.za', duration_seconds: 7, size: 'large', dominant: true },
+      template_id: templateId,
+      modifications: {
+        // "Voiceover" must match the name of the audio element inside your
+        // Creatomate template. Rename this key if you named it differently.
+        'Voiceover.source': audioUrl,
+      },
     }),
   });
 
-  if (!res.ok) throw new Error(`Higgsfield error: ${res.status} ${await res.text()}`);
-  const json = await res.json();
-  return json.video_url as string; // adjust field name once confirmed against real docs
+  if (!startRes.ok) throw new Error(`Creatomate render start failed: ${startRes.status} ${await startRes.text()}`);
+  const started = await startRes.json();
+  const renderId = started[0]?.id;
+  if (!renderId) throw new Error('Creatomate did not return a render id');
+
+  // Poll until the render finishes — typically 30-90s for a 90-second video.
+  const MAX_ATTEMPTS = 30;
+  const POLL_INTERVAL_MS = 5000;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+    const statusRes = await fetch(`https://api.creatomate.com/v2/renders/${renderId}`, {
+      headers: { Authorization: `Bearer ${process.env.CREATOMATE_API_KEY}` },
+    });
+    if (!statusRes.ok) throw new Error(`Creatomate status check failed: ${statusRes.status} ${await statusRes.text()}`);
+
+    const status = await statusRes.json();
+    if (status.status === 'succeeded') return status.url as string;
+    if (status.status === 'failed') throw new Error(`Creatomate render failed: ${JSON.stringify(status)}`);
+    // otherwise still "planned" or "processing" — keep polling
+  }
+
+  throw new Error('Creatomate render timed out after 2.5 minutes');
 }
 
 export async function publishToBuffer(videoUrl: string, caption: string): Promise<string> {

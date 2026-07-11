@@ -10,6 +10,11 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+
+// tsx runs this as a plain Node script, so .env.local isn't auto-loaded
+// the way Next.js does it — load it explicitly here.
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
