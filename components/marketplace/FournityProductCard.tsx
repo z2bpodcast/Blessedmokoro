@@ -67,7 +67,7 @@ export default function FournityProductCard({ memberReferralCode }: { memberRefe
       </div>
       <div style={{padding:'20px 20px 24px'}}>
         <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap' as const}}>
-          <a href="https://fournity.vercel.app" target="_blank" rel="noopener noreferrer" style={{flex:1,background:'transparent',border:'1px solid rgba(201,168,76,0.4)',color:'#C9A84C',padding:'12px 16px',fontSize:13,fontWeight:600,cursor:'pointer',borderRadius:3,textAlign:'center' as const,textDecoration:'none',display:'block'}}>📖 Read Free Preview</a>
+          <a href="https://www.fournity.co.za" target="_blank" rel="noopener noreferrer" style={{flex:1,background:'transparent',border:'1px solid rgba(201,168,76,0.4)',color:'#C9A84C',padding:'12px 16px',fontSize:13,fontWeight:600,cursor:'pointer',borderRadius:3,textAlign:'center' as const,textDecoration:'none',display:'block'}}>📖 Read Free Preview</a>
           <button onClick={()=>setShowForm(true)} style={{flex:1,background:'linear-gradient(135deg,#C9A84C,#8B6914)',color:'#0A0A0F',border:'none',padding:'12px 16px',fontSize:13,fontWeight:700,cursor:'pointer',borderRadius:3}}>Pre-Order — R{price}</button>
         </div>
         <div style={{marginBottom:14}}>
