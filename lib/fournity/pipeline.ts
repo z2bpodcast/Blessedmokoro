@@ -120,7 +120,7 @@ export async function uploadAudio(postId: string, audio: Buffer): Promise<string
 // captions if your template's audio element is referenced by the caption element.
 //
 // Rendering is asynchronous: POST starts the render, then we poll until it's done.
-export async function generateVideo(audioUrl: string): Promise<string> {
+export async function generateVideo(audioUrl: string, _voiceover_script?: string): Promise<string> {
   const templateId = process.env.CREATOMATE_TEMPLATE_ID!;
 
   const startRes = await fetch('https://api.creatomate.com/v2/renders', {
